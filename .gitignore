@@ -1,5 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+*/__pycache__
 
 # testing
 /coverage
@@ -10,7 +11,7 @@
 # misc
 .DS_Store
 
-# debug 
+# debug
 
 
 # local env files
