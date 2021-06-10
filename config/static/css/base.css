@@ -9,7 +9,9 @@
  */
 
 .header-top {
-	background-color: #555454;
+	padding-top: .3rem;
+	padding-bottom: .3rem;
+	background-color: #086a3d;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -30,32 +32,16 @@
 
 .nav-menu__link:active,
 .nav-menu__link:hover {
-		color: #434343;
+		color: #0e1e0a;
 		/* text-decoration-line: underline; */
 }
 
 .header-bottom {
-		background-color: #2b88de;
+		background-color: #198754;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		height: 2.4rem;
-}
-
-.header-notifs-link__svg:hover,
-.header-profile-link__svg:hover {
-	filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
-}
-
-
-.header-profile-link__svg:hover {
-	width: 38px;
-	height: 38px;
-}
-
-.header-notifs-link__svg {
-    margin-top: 13px;
-    padding-top: 2px;
 }
 
 .notifs-and-profile {
@@ -63,6 +49,32 @@
 		padding-right: 0;
 		margin: 0;
 }
+
+.header-notifs-link__svg {
+    position: relative;
+		top: .4rem;
+}
+
+.header-notifs-link__svg:hover,
+.header-profile-link__svg:hover {
+	filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
+}
+
+.header-notifs-link__svg:hover {
+	/* width: 48px;
+	height: 48px; */
+}
+
+.header-profile-link__svg:hover {
+	width: 38px;
+	height: 38px;
+}
+
+.institution-searchbox {
+	background-color: #198754;
+	border-radius: 5px;
+}
+
 
 /* Layout for desktop sizes and greater */
 @media (min-width: 992px) {
