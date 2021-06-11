@@ -33,7 +33,7 @@
 .nav-menu__link:active,
 .nav-menu__link:hover {
 		color: #0e1e0a;
-		/* text-decoration-line: underline; */
+		/* color: #f0cb46; */
 }
 
 .header-bottom {
@@ -73,6 +73,25 @@
 .institution-searchbox {
 	background-color: #198754;
 	border-radius: 5px;
+}
+
+
+/* if i decide to change the style of the top search form button, just remove this class '.form-submit-button' */
+.form-submit-button,
+.institution-search-form__submit-button {
+	font-weight: 600;
+	color: #ffe484;
+	border-color: #ffe484;
+}
+
+.form-submit-button:active,
+.form-submit-button:hover,
+.institution-search-form__submit-button:active,
+.institution-search-form__submit-button:hover {
+	/* color: #2a2730; */
+	color: #ffe484;
+	background-color: #3f996f;
+	border-color: #ffe484;
 }
 
 
