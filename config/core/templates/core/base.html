@@ -8,8 +8,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	{% load static %}
-	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.0.1.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.0.1.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
 	<script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
 	<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
@@ -152,7 +152,7 @@
 	{% endblock %}
 
   {% block institution_searchbox %}
-	<div class="container pt-3 pb-2 institution-searchbox">
+	<div class="container pt-3 pb-2 mb-4 institution-searchbox">
 		<form method="get" class="institution-search-form">
 			<div class="row">
 				<div class="col-12 col-md-3 mb-2">
@@ -174,9 +174,36 @@
 	{% endblock %}
 
 	{% block content %}
-	<article>
-		<section>
-
+	<article class="container">
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'Latest and Trending' %}</span>
+			</h2>
+		</section>
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'Revision and Official Past Questions' %}</span>
+			</h2>
+		</section>
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'Marketplace' %}</span>
+			</h2>
+		</section>
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'Questions' %}</span>
+			</h2>
+		</section>
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'User Ads' %}</span>
+			</h2>
+		</section>
+		<section class="py-3 mb-2">
+			<h2 class="section-title pb-3">
+				<span class="section-title__text pb-3">{% trans 'Concours and Scholarships' %}</span>
+			</h2>
 		</section>
 	</article>
 	{% endblock %}

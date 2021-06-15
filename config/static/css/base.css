@@ -71,7 +71,7 @@
 }
 
 .institution-searchbox {
-	background-color: #198754;
+	background-color: #21935e;
 	border-radius: 5px;
 }
 
@@ -92,6 +92,18 @@
 	color: #ffe484;
 	background-color: #3f996f;
 	border-color: #ffe484;
+}
+
+.section-title {
+	color: #198754;
+	font-size: 1.7rem;
+	border-bottom: 1px solid #198754;
+	/* padding-bottom: 10px; */
+	/* border-bottom: 1px solid #93999F; */
+}
+
+.section-title__text {
+	border-bottom: 2px solid #198754;
 }
 
 
