@@ -8,6 +8,7 @@
  * xxl -- Extra extra large devices (larger desktops, >=1400px)
  */
 
+
 .header-top {
 	padding-top: .3rem;
 	padding-bottom: .3rem;
@@ -37,7 +38,6 @@
 }
 
 .header-bottom {
-		background-color: #198754;
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -95,8 +95,7 @@
 }
 
 .section-title {
-	color: #198754;
-	font-size: 1.7rem;
+	font-size: 1.62rem;
 	border-bottom: 1px solid #198754;
 	/* padding-bottom: 10px; */
 	/* border-bottom: 1px solid #93999F; */
@@ -106,6 +105,40 @@
 	border-bottom: 2px solid #198754;
 }
 
+
+/* Footer section */
+.footer {
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.footer__subheading {
+	padding-bottom: 3px;
+	border-bottom: 1px solid #505e4c;
+	font-size: 1.7rem;
+	letter-spacing: 0.05rem;
+	color: #88d985;
+	font-weight: bold;
+}
+
+.footer__link {
+	padding-left: 0;
+	padding-bottom: 4px;
+	color: #69bd66;
+}
+
+.footer-link:hover {
+	color: #444;
+}
+
+.footer-channels__svg {
+	vertical-align: -2px;
+	margin-left: 5px;
+}
+
+.footer-legal__span,
+.footer-channels__span {
+	white-space: nowrap;
+}
 
 /* Layout for desktop sizes and greater */
 @media (min-width: 992px) {

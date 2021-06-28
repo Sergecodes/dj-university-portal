@@ -21,33 +21,21 @@
 
 	{% block header %}
 	<header class="mb-4">
-		<div class="header-top">
+		<div class="bg-gradient header-top">
 			<div class="container-fluid row align-items-center px-4">
 				<div class="col-xs-4 col-lg-3 logo">
 					<a href="{% url 'home' %}">
 						<span class="visually-hidden">CamerÉcole</span>
-						<h2 class="header-top__text">CamerÉcole</h2> <!-- TODO change this to SVG Logo -->
+						<h2 class="header-top__text">CamerÉcole</h2> <!-- TODO change this to clickable SVG Logo -->
 					</a>
 				</div>
 				<div class="col-xs-5 col-lg-6 header-search-form">
 					<form class="d-flex" method="get">
+						<!-- ml -> ms; mr -> me -->
     				<input class="form-control me-2" type="search" placeholder="{% trans 'Enter your search keywords here...' %}" aria-label="Search">
     				<!-- <button class="btn btn-outline-light" type="submit">{% trans 'Search' %}</button> -->
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
   				</form>
-					<!-- <form action=""	method="get" class="header-search-form">
-						<div class="input-group">
-							<input
-								type="text"
-								class="form-control header-search-form__input"
-								placeholder="Enter your search keywords here..."
-								aria-label="Enter your search keywords here..."
-							>
-							<button class="btn btn-secondary" type="submit">
-								<i class="fas fa-search"></i>
-							</button>
-						</div>
-					</form> -->
 				</div>
 				<ul class="col-xs-3 col-lg-2 list-inline notifs-and-profile">
 					<li class="list-inline-item">
@@ -73,7 +61,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="header-bottom">
+		<div class="bg-success header-bottom">
 			<ul class="container nav nav-fill align-items-center nav-menu" role="navigation">
 				<li class="nav-item">
 					<a class="nav-link nav-menu__link" aria-current="page" href="{% url 'home' %}">
@@ -176,32 +164,32 @@
 	{% block content %}
 	<article class="container">
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'Latest and Trending' %}</span>
 			</h2>
 		</section>
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'Revision and Official Past Questions' %}</span>
 			</h2>
 		</section>
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'Marketplace' %}</span>
 			</h2>
 		</section>
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'Questions' %}</span>
 			</h2>
 		</section>
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'User Ads' %}</span>
 			</h2>
 		</section>
 		<section class="py-3 mb-2">
-			<h2 class="section-title pb-3">
+			<h2 class="section-title text-success pb-3">
 				<span class="section-title__text pb-3">{% trans 'Concours and Scholarships' %}</span>
 			</h2>
 		</section>
@@ -209,8 +197,145 @@
 	{% endblock %}
 
 	{% block footer %}
-	<footer class="footer">
-
+	<footer class="bg-success bg-gradient pb-2 pt-4 footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-5 col-md-3 footer-info">
+					<h2 class="footer__subheading">CamerÉcole</h2>
+					<p class="small">
+						{% trans 'We provide you with information and resources for schools in Cameroon.' %}
+					</p>
+					<div class="mt-3">
+						<form method="get">
+							<div class="row">
+								<div class="col d-flex flex-column">
+									<input class="form-control mb-2" type="search" placeholder="{% trans 'Search...' %}" aria-label="Search">
+									<button class="btn btn-sm btn-light w-50 py-1" type="submit">{% trans 'SEARCH' %}</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="col-6 col-md-4 footer-explore">
+					<h2 class="footer__subheading">Explore</h2>
+					<div class="row">
+						<div class="col pe-0">
+							<ul class="nav flex-column">
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Home' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Marketplace' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Ask a question' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Concours & Scholarships' %}
+									</a>
+								</li>
+							</ul>
+						</div>
+						<div class="col ps-0">
+							<ul class="nav flex-column">
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Advertize something' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Socialize' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Find change' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="#">
+										{% trans 'Contact us' %}
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-5 col-md-2 footer-channels">
+					<h2 class="footer__subheading">Channels</h2>
+					<ul class="nav flex-column">
+						<li class="nav-item">
+							<a class="nav-link footer__link" href="#">
+								{% trans 'Facebook' %}
+								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
+									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
+									</path>
+									<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
+									</polygon>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item mb-4">
+							<a class="nav-link footer__link" href="#">
+								{% trans 'Twitter' %}
+								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
+									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
+									</path>
+									<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
+									</polygon>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item mb-1">
+							<span class="small d-inline-block">
+								{% trans 'Available Hours: 9am - 5pm (Mon - Fri)' %}
+							</span>
+							<span class="small d-inline-block footer-channels__span">
+								{% trans 'WhatsApp: +237677777777' %}
+							</span>
+						</li>
+						<li class="nav-item">
+							<span class="small d-inline-block footer-channels__span">
+								{% trans 'Email: info@sitedomain.com' %}
+							</span>
+						</li>
+					</ul>
+				</div>
+				<div class="col-5 col-md-2 ms-md-4 footer-legal">
+					<h2 class="footer__subheading">Legal</h2>
+					<ul class="nav flex-column">
+						<li class="nav-item">
+							<a class="nav-link footer__link" href="#">
+								{% trans 'Terms' %}
+							</a>
+						</li>
+						<li class="nav-item mb-4">
+							<a class="nav-link footer__link" href="#">
+								{% trans 'Privacy' %}
+							</a>
+						</li>
+						<li class="nav-item">
+							<span class="footer-legal__span">
+								{% trans 'Copyright &copy 2021 CamerEcole' %}
+							</span>
+						</li>
+						<li class="nav-item">
+							<p class="small mt-2">
+								{% trans 'All Names, Acronyms and Trademarks displayed on this website are those of their respective owners.' %}
+							</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
 	</footer>
 	{% endblock %}
 </body>
