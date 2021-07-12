@@ -1,12 +1,12 @@
 /*
- * xs --- Extra small devices (portrait phones, < 576px)
-    * No media query since this is the default in Bootstrap
- * sm --- Small devices (landscape phones, >= 576px  [576px and up])
- * md --- Medium devices (tablets, >= 768px)
- * lg --- Large devices (desktops, >= 992px)
- * xl --- Extra large devices (large desktops, >= 1200px)
- * xxl -- Extra extra large devices (larger desktops, >=1400px)
- */
+* xs --- Extra small devices (portrait phones, < 576px)
+* No media query since this is the default in Bootstrap
+* sm --- Small devices (landscape phones, >= 576px  [576px and up])
+* md --- Medium devices (tablets, >= 768px)
+* lg --- Large devices (desktops, >= 992px)
+* xl --- Extra large devices (large desktops, >= 1200px)
+* xxl -- Extra extra large devices (larger desktops, >=1400px)
+*/
 
 
 .header-top {
@@ -26,48 +26,72 @@
 	color: white;
 }
 
+/* .nav-meun__link:not(:hover),
+.nav-meun__link:not(:active), */
 .nav-menu__link {
-    font-size: 15px;
-    color: white;
+	font-size: 15px;
+	color: white;
 }
 
-.nav-menu__link:active,
+.nav-menu__link:focus,
+/* .nav-menu__link:active, */
+/* .nav-menu__link--hover, */
 .nav-menu__link:hover {
-		color: #0e1e0a;
-		/* color: #f0cb46; */
+	color: #0e1e0a;  /* dark */
+	/* color: #f0cb46; */
+}
+
+
+/* style dropdown arrow */
+.nav-menu__link::after {
+	vertical-align: 0.1em;
 }
 
 .header-bottom {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		height: 2.4rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 2.4rem;
 }
 
 .notifs-and-profile {
-    text-align: right;
-		padding-right: 0;
-		margin: 0;
+	text-align: right;
+	padding-right: 0;
+	margin: 0;
+	display: flex;
+	justify-content: end;
 }
 
-.header-notifs-link__svg {
-    position: relative;
-		top: .4rem;
+.header-notifs-svg {
+	position: relative;
+	top: .4rem;
+	padding-left: 1px;
 }
 
-.header-notifs-link__svg:hover,
-.header-profile-link__svg:hover {
+.header-notifs-link:hover,
+.header-profile-menu:hover {
 	filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
 }
 
-.header-notifs-link__svg:hover {
-	/* width: 48px;
-	height: 48px; */
+.header-notifs-link,
+.header-profile-menu,
+.header-notifs-link:hover,
+.header-profile-menu:hover {
+	color: #fff;
+	text-decoration: none;
+	font-size: .65em;
 }
 
-.header-profile-link__svg:hover {
-	width: 38px;
-	height: 38px;
+.header-profile-svg {
+	margin-top: 3px;
+	margin-bottom: 1px;
+}
+
+.header-profile-info {
+	white-space: nowrap;
+	text-decoration: none;
+	text-align: center;
+	display: block;
 }
 
 .institution-searchbox {
@@ -126,8 +150,11 @@
 	color: #69bd66;
 }
 
-.footer-link:hover {
-	color: #444;
+.footer__link:hover {
+	/* color: #444; */
+	/* color: #eee; */
+	color: #69bd66; /* maintain same color */
+	text-decoration: underline;
 }
 
 .footer-channels__svg {
@@ -141,9 +168,25 @@
 }
 
 /* Layout for desktop sizes and greater */
+/* make dropdown menus hoverable */
 @media (min-width: 992px) {
+	/* the nav links */
+	/* .nav-item .dropdown-menu{ display: none; }
+	.nav-item:hover .nav-link{   }
+	.nav-item:hover .dropdown-menu{ display: block; }
+	.nav-item .dropdown-menu{ margin-top:0; }
+
+	/* the My Account dropdown
+	.list-inline-item .dropdown-menu{ display: none;}
+	.list-inline-item:hover .dropdown-menu{ display: block; }
+	.list-inline-item .dropdown-menu{ margin-top:0; } */
+	.dropdown:hover .dropdown-menu {
+		display: block;
+		margin-top: 0;
+	}
 
 }
+
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
