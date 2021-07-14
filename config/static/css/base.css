@@ -34,8 +34,6 @@
 }
 
 .nav-menu__link:focus,
-/* .nav-menu__link:active, */
-/* .nav-menu__link--hover, */
 .nav-menu__link:hover {
 	color: #0e1e0a;  /* dark */
 	/* color: #f0cb46; */
@@ -45,13 +43,6 @@
 /* style dropdown arrow */
 .nav-menu__link::after {
 	vertical-align: 0.1em;
-}
-
-.header-bottom {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 2.4rem;
 }
 
 .notifs-and-profile {
@@ -92,6 +83,23 @@
 	text-decoration: none;
 	text-align: center;
 	display: block;
+}
+
+.nav-bar-toggler {
+	border-color: #ffe484;
+	background: none;
+	opacity: 0.8;
+}
+
+.nav-bar-toggler:hover,
+.nav-bar-toggler:focus,
+.nav-bar-toggler:active {
+	box-shadow: none;
+	opacity: 1;
+}
+
+.nav-bar-toggler__icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
 
 .institution-searchbox {
@@ -162,10 +170,6 @@
 	margin-left: 5px;
 }
 
-.footer-legal__span,
-.footer-channels__span {
-	white-space: nowrap;
-}
 
 /* Layout for desktop sizes and greater */
 /* make dropdown menus hoverable */
