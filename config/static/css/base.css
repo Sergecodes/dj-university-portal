@@ -22,12 +22,34 @@
 	text-align: center;
 }
 
+.register-button {
+	opacity: 0.95;
+	background-color: #dba339;
+}
+
+.register-button:hover,
+.register-button:focus {
+	opacity: 1;
+}
+
+.login-button {
+	opacity: 0.95;
+	/* background-color: #8a32ca; */
+}
+
+.login-button:hover,
+.login-button:focus {
+	opacity: 1;
+}
+
+.login-form {
+	min-width: 20rem;
+}
+
 .header-top__text {
 	color: white;
 }
 
-/* .nav-meun__link:not(:hover),
-.nav-meun__link:not(:active), */
 .nav-menu__link {
 	font-size: 15px;
 	color: white;
@@ -45,12 +67,33 @@
 	vertical-align: 0.1em;
 }
 
-.notifs-and-profile {
+.lang-select-form {
+	width: 10rem;
+}
+
+/* .lang-select-form--unauthed {
+	
+} */
+
+.lang-select-form--authed {
+	margin-left: 2.5rem;
+}
+
+.lang-select--unauthed {
 	text-align: right;
-	padding-right: 0;
-	margin: 0;
-	display: flex;
-	justify-content: end;
+	width: 90%;
+}
+
+/* .lang-select--authed {
+
+} */
+
+/* .notifs-and-profile {
+
+} */
+
+.register-and-login {
+	justify-content: right;
 }
 
 .header-notifs-svg {
@@ -107,8 +150,6 @@
 	border-radius: 5px;
 }
 
-
-/* if i decide to change the style of the top search form button, just remove this class '.form-submit-button' */
 .form-submit-button,
 .institution-search-form__submit-button {
 	font-weight: 600;

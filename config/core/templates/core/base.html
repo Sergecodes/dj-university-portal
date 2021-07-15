@@ -23,13 +23,13 @@
 	<header class="mb-4">
 		<div class="bg-gradient header-top">
 			<div class="container-fluid row align-items-center px-4">
-				<div class="col-xs-10 col-lg-3 logo">
-					<a href="{% url 'home' %}">
+				<div class="col-xs-10 col-lg-3 ps-0 logo">
+					<a class="d-inline-block" href="{% url 'home' %}">
 						<span class="visually-hidden">CamerÉcole</span>
 						<h2 class="header-top__text">CamerÉcole</h2> <!-- TODO change this to clickable SVG Logo -->
 					</a>
 				</div>
-				<div class="col-xs-5 col-lg-6 d-none d-lg-block header-search-form">
+				<div class="d-none d-lg-block col-lg-5 ps-0 header-search-form">
 					<form class="d-flex" method="get">
 						<!-- ml -> ms; mr -> me -->
     				<input class="form-control me-2" type="search" placeholder="{% trans 'Enter your search keywords here...' %}" aria-label="{% trans 'Search' %}">
@@ -37,8 +37,26 @@
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
   				</form>
 				</div>
-				<ul class="col-xs-3 col-lg-2 d-none d-lg-block list-inline notifs-and-profile">
-					<li class="list-inline-item">
+				
+				<!-- Form to select language (desktop view) -->
+				<form action="{% url 'set_language' %}" method="post" class="d-none d-lg-block pe-0 lang-select-form {% if not user.is_authenticated %} lang-select-form--unauthed {% else %} lang-select-form--authed  {% endif %}">
+					{% csrf_token %}
+					<input name="next" type="hidden" value="{{ redirect_to }}">
+					<select name="language" class="form-select js-languageSelect {% if not user.is_authenticated %} form-select-sm lang-select--unauthed {% else %}  {% endif %}">
+							{% get_current_language as LANGUAGE_CODE %}
+							{% get_available_languages as LANGUAGES %}
+							{% get_language_info_list for LANGUAGES as languages %}
+							{% for language in languages %}
+								<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
+								</option>
+							{% endfor %}
+						</select>
+					<!-- form has no submit button, it's submitted when user clicks on an option; see js -->
+				</form>
+
+				{% if user.is_authenticated %}
+				<ul class="d-none d-lg-block col-lg-2 m-0 pe-0 text-center list-inline">
+					<li class="list-inline-item text-end">
 						<a href="#" class="header-notifs-link">
 							<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 								<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
@@ -56,6 +74,7 @@
 							id="profileMenu"
 							data-bs-toggle="dropdown"
 							aria-expanded="false"
+							role="button"
 						>
 							<svg class="header-profile-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" width="40" height="40" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path d="M17 1.7C11.5335 1.7 6.48243 4.61655 3.74917 9.35C1.0172 14.0835 1.0172 19.9165 3.74917 24.65C6.48246 29.3835 11.5335 32.3 17 32.3C20.4918 32.3133 23.8809 31.1193 26.5917 28.9199C29.9014 26.2557 31.9559 22.3365 32.2602 18.0984C32.5657 13.8603 31.0954 9.68748 28.2003 6.57682C25.3063 3.46636 21.249 1.69986 17.0003 1.69986L17 1.7ZM27.9956 24.411C27.2651 22.1412 25.014 20.2514 21.9925 19.2447C20.7069 20.6405 18.8967 21.4361 17 21.4361C15.1021 21.4347 13.292 20.6405 12.0074 19.2447C8.98463 20.2514 6.73335 22.1413 6.00439 24.411C4.20212 21.7388 3.43579 18.5008 3.8475 15.3041C4.25921 12.1073 5.82242 9.17082 8.24234 7.04174C10.6622 4.91276 13.7752 3.7387 16.9987 3.7387C20.2221 3.7387 23.3353 4.91276 25.7564 7.04041C28.1763 9.16939 29.7395 12.1057 30.1513 15.3027C30.563 18.4995 29.7966 21.7376 27.9957 24.411L27.9956 24.411Z" fill="white"></path>
@@ -67,20 +86,50 @@
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
 							<div class="px-4 py-2">
-								<a href="#" class="header-profile-info">
-									<span class="d-block">Username</span>
-									<span class="small text-dark">This is my name</span>
+								<a href="#" class="header-profile-info" role="button">
+									<span class="d-block">{{ user.username }}</span>
+									<span class="small text-dark fw-bold">{{ user.full_name }}</span>
 								</a>
 							</div>
-							<hr class="dropdown-divider"></hr>
+							<hr class="dropdown-divider">
 							<a href="#" class="dropdown-item">{% trans "Dashboard" %}</a>
 							<a href="#" class="dropdown-item">{% trans "View Profile" %}</a>
 							<a href="#" class="dropdown-item">{% trans "Update Profile" %}</a>
-							<hr class="dropdown-divider"></hr>
+							<hr class="dropdown-divider">
 							<a href="#" class="dropdown-item">{% trans "Logout" %}</a>
 						</div>
 					</li>
 				</ul>
+				{% else %}
+				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0 register-and-login">
+					<li class="list-inline-item">
+						<a href="#" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
+					</li>
+					<li class="list-inline-item dropdown ms-2 js-loginDropdown">
+						<button 
+							id="loginMenu"
+							type="button" 
+							class="btn bg-primary text-white fw-bolder login-button" 
+							data-bs-toggle="dropdown" 
+							aria-expanded="false"
+						>
+							{% trans 'LOGIN' %}
+						</button>
+						<form class="dropdown-menu dropdown-menu-end px-2 login-form" aria-labelledby="loginMenu">
+							<div class="mt-2 mb-3">
+								<input type="email" class="form-control" placeholder="{% trans 'Email address' %}">
+							</div>
+							<div class="mb-4">
+								<input type="password" class="form-control" placeholder="{% trans 'Password' %}">
+							</div>
+							<button type="submit" class="d-block w-100 mb-3 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
+							<a href="#" class="text-primary">{% trans 'Forgot Password' %}</a>
+							<hr class="mb-2">
+							<a href="#" class="mb-1 d-block text-center text-secondary">{% trans 'Open login form on new page' %}</a>
+						</form>
+					</li>
+				</ul>
+				{% endif %}
 			</div>
 		</div>
 		<div class="bg-success header-bottom">
@@ -88,9 +137,27 @@
 				<button class="navbar-toggler nav-bar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
       		<span class="navbar-toggler-icon nav-bar-toggler__icon"></span>
     		</button>
+
+				<!-- Language, notifs & profile section for mobile users -->
+				<!-- Form to select language (mobile view) -->
+				<form action="{% url 'set_language' %}" method="post" class="d-lg-none col-md-3 ms-md-5 col-7 pe-0 {% if not user.is_authenticated %} lang-select-form--unauthed {% endif %}">
+					{% csrf_token %}
+					<input name="next" type="hidden" value="{{ redirect_to }}">
+					<select name="language" class="form-select form-select-sm js-languageSelect {% if not user.is_authenticated %} lang-select--unauthed {% else %} {% endif %}">
+							{% get_current_language as LANGUAGE_CODE %}
+							{% get_available_languages as LANGUAGES %}
+							{% get_language_info_list for LANGUAGES as languages %}
+							{% for language in languages %}
+								<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
+								</option>
+							{% endfor %}
+						</select>
+					<!-- form has no submit button, it's submitted when user clicks on an option; see js -->
+				</form>
 				<div class="d-inline-block d-lg-none">
-					<ul class="list-inline notifs-and-profile">
-						<li class="list-inline-item">
+					{% if user.is_authenticated %}
+					<ul class="list-inline">
+						<li class="list-inline-item text-end">
 							<a href="#" class="header-notifs-link">
 								<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 									<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
@@ -124,15 +191,45 @@
 										<span class="small text-dark">This is my name</span>
 									</a>
 								</div>
-								<hr class="dropdown-divider"></hr>
+								<hr class="dropdown-divider">
 								<a href="#" class="dropdown-item">{% trans "Dashboard" %}</a>
 								<a href="#" class="dropdown-item">{% trans "View Profile" %}</a>
 								<a href="#" class="dropdown-item">{% trans "Update Profile" %}</a>
-								<hr class="dropdown-divider"></hr>
+								<hr class="dropdown-divider">
 								<a href="#" class="dropdown-item">{% trans "Logout" %}</a>
 							</div>
 						</li>
 					</ul>
+					{% else %}
+					<ul class="list-inline my-2 register-and-login">
+						<li class="list-inline-item">
+							<a href="#" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
+						</li>
+						<li class="list-inline-item dropdown ms-2 js-loginDropdown">
+							<button 
+								id="loginMenu2"
+								type="button" 
+								class="btn bg-primary text-white fw-bolder login-button" 
+								data-bs-toggle="dropdown" 
+								aria-expanded="false"
+							>
+								{% trans 'LOGIN' %}
+							</button>
+							<form class="dropdown-menu dropdown-menu-end px-2 login-form" aria-labelledby="loginMenu2">
+								<div class="mt-2 mb-3">
+									<input type="email" class="form-control" placeholder="{% trans 'Email address' %}">
+								</div>
+								<div class="mb-4">
+									<input type="password" class="form-control" placeholder="{% trans 'Password' %}">
+								</div>
+								<button type="submit" class="d-block w-100 mb-3 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
+								<a href="#" class="text-primary">{% trans 'Forgot Password' %}</a>
+								<hr class="mb-2">
+								<a href="#" class="mb-1 d-block text-center text-secondary">{% trans 'Open login form on new page' %}</a>
+							</form>
+						</li>
+					</ul> 
+					{% endif %}
 				</div>
 				<div class="collapse navbar-collapse" id="navbarContent">
 					<ul class="navbar-nav nav-fill w-100 mb-2 mb-lg-0 align-items-center nav-menu" role="navigation">
@@ -266,7 +363,7 @@
 	{% block content %}
 	<article class="container">
 		<section class="py-3 mb-2">
-			<!-- pb-lg-3 is set because if the horizontal size of the screen is very small, an undesired behaviour occurs -->
+			<!-- pb-lg-3 is set because if the horizontal size of the screen is very small and pb-3 is used, an undesired behaviour occurs -->
 			<h2 class="section-title text-success pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Latest and Trending' %}</span>
 			</h2>
@@ -399,7 +496,7 @@
 						</li>
 						<li class="mb-2">
 							<span class="small d-inline-block">
-								{% trans 'Available Hours: 9am - 5pm (Mon - Fri)' %}
+								{% trans 'Call Hours: 9am - 5pm (Mon - Fri)' %}
 							</span>
 							<span class="small d-inline-block">
 								{% trans 'WhatsApp:' %} +237677777777

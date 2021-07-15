@@ -1,9 +1,9 @@
 from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 from .models import (
-    Item, PhoneNumber, Ad,
+    Item, Ad,
     Institution, Category,
-    ParentCategory, MarketplaceProfile
+    ParentCategory
 )
 
 
@@ -27,8 +27,6 @@ class ParentCategoryAdmin(TranslationAdmin):
     pass
 
 
-admin.site.register(MarketplaceProfile)
-admin.site.register(PhoneNumber)
 admin.site.register(Ad, AdAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Institution, InstitutionAdmin)

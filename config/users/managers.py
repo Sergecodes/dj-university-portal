@@ -6,6 +6,8 @@ from django.db.models import QuerySet, Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from core.validators import validate_full_name
+
 
 class UserQuerySet(QuerySet):
 	def delete(self):
@@ -19,7 +21,7 @@ class UserQuerySet(QuerySet):
 
 class UserManager(BaseUserManager, Manager):
 	def create_user(self, email, username, full_name, password, **extra_fields):
-		""" Create and save a user with the given email, username and password. """
+		""" Create and save a user with the given email, username, password, etc... """
 		if not email:
 			raise ValueError(_('The email must be set'))
 		if not username:
@@ -35,7 +37,7 @@ class UserManager(BaseUserManager, Manager):
 		validate_username = UnicodeUsernameValidator()
 		validate_username(username)
 
-		# validate password here.. ?
+		validate_full_name(full_name)
 		
 		user = self.model(email=email, username=username, full_name=full_name, **extra_fields)
 		user.set_password(password)
@@ -44,7 +46,7 @@ class UserManager(BaseUserManager, Manager):
 		return user
 
 	def create_superuser(self, email, username, password, full_name, **extra_fields):
-		""" Create and save a SuperUser with the given email, name, family name and password. """
+		""" Create and save a SuperUser with the given email, name, full name, password etc... """
 		extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_mod', True)
 		extra_fields.setdefault('is_superuser', True)

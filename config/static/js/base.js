@@ -2,7 +2,7 @@
 
 var NAV_LINK_ACTIVE_COLOR = '#0e1e0a';
 var $window = $(window);
-var windowWidth = $window.width();
+var lastWidth = $window.width();
 var isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matches;
 
 
@@ -10,7 +10,7 @@ function headerDropdownHover() {
   var dropdownMenu = $(this).children(".dropdown-menu");
   dropdownMenu.show();
 
-  var navLink = $(this).find("> a:first-child");
+  var navLink = $(this).children("a:first-child");
   navLink.css('color', NAV_LINK_ACTIVE_COLOR);
   navLink.attr('aria-expanded', 'true');
 
@@ -22,7 +22,7 @@ function headerDropdownHover() {
 function headerDropdownClick() {
   var dropdownMenu = $(this).children(".dropdown-menu");
   dropdownMenu.show();
-  var navLink = $(this).find("> a:first-child");
+  var navLink = $(this).children("a:first-child");
   navLink.css('color', NAV_LINK_ACTIVE_COLOR);
   navLink.attr('aria-expanded', 'true');
 
@@ -40,13 +40,13 @@ function headerDropdownMouseLeave(event) {
   var dropdownMenu = $(this).children(".dropdown-menu");
   dropdownMenu.hide();
 
-  var navLink = $(this).find("> a:first-child");
+  var navLink = $(this).children("a:first-child");
   navLink.css('color', 'white');
   navLink.attr('aria-expanded', 'false');
 }
 
 function headerAccountInfoHoverOrClick(event) {
-  var dropdownMenu = $(this).find('> .dropdown-menu-end');
+  var dropdownMenu = $(this).children('.dropdown-menu-end');
   dropdownMenu.addClass("show");
   dropdownMenu.show();
   dropdownMenu.css({
@@ -56,25 +56,46 @@ function headerAccountInfoHoverOrClick(event) {
     'transform': 'translate(-96px, 67px)'
   });
 
-  var link = $(this).find("> a:first-child");
+  var link = $(this).children("a:first-child");
   link.attr('aria-expanded', 'true');
   link.css('filter', 'drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px)');
 }
 
 function headerAccountInfoMouseLeave() {
   // var dropdownMenu = $(this).children('.dropdown-menu-end');
-  var dropdownMenu = $(this).find('> .dropdown-menu-end');
+  var dropdownMenu = $(this).children('.dropdown-menu-end');
   dropdownMenu.removeClass("show");
   dropdownMenu.hide();
 
-  var link = $(this).find("> a:first-child");
+  var link = $(this).children("a:first-child");
   link.attr('aria-expanded', 'false');
   link.css('filter', '');
+}
+
+function loginDropdownHoverOrClick() {
+  var dropdownMenu = $(this).children('.dropdown-menu-end');
+  dropdownMenu.addClass("show");
+  dropdownMenu.show();
+  dropdownMenu.css({
+    'position': 'absolute',
+    'inset': '0px auto auto 0px',
+    'margin': '0px',
+    'transform': 'translate(-235px, 40px)'
+  });
+  
+}
+
+function loginDropdownMouseLeave() {
+  var dropdownMenu = $(this).children('.dropdown-menu-end');
+  dropdownMenu.removeClass("show");
+  dropdownMenu.hide();
 }
 
 function init() {
   var $headerDropdown = $(".js-headerDropdown");
   var $headerAccountInfo = $(".js-headerAccountInfo");
+  var $loginDropdown = $(".js-loginDropdown");
+
   isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matches;
   var isDesktop = !isMobile;
 
@@ -84,30 +105,34 @@ function init() {
     $headerDropdown.click(headerDropdownClick);
     $headerAccountInfo.hover(headerAccountInfoHoverOrClick, headerAccountInfoMouseLeave);
     $headerAccountInfo.click(headerAccountInfoHoverOrClick);
+    $loginDropdown.hover(loginDropdownHoverOrClick, loginDropdownMouseLeave);
+    $loginDropdown.click(loginDropdownHoverOrClick);
 
   } else if (isMobile) {
     // detach all event handlers and let Bootstrap default click functionality for dropdowns
     $headerDropdown.off();
     $headerAccountInfo.off();
+    $loginDropdown.off();
   }
 }
 
 $window.on('resize', function() {
   var $this = $(this);
-  if ($this.width() !== windowWidth) {
-    windowWidth = $this.width();
-    console.log(windowWidth);
+  var newWidth = $this.width();
+  if (newWidth !== lastWidth) {
+    lastWidth = newWidth;
+    // console.log(lastWidth);
     init();
   }
 });
 
-// window.addEventListener('resize', function(event) {
-//   console.log("window resized");
-//   init();
-//
-// });
 
 $(document).ready(function() {
   init();
+
+  var $languageSelect = $(".js-languageSelect");
+  $languageSelect.on('change', function() {
+    $(this).closest('form').submit();
+  });
 
 });
