@@ -2,46 +2,55 @@ import uuid
 from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 
 from core.model_fields import LowerCaseEmailField, TitleCaseField
-from core.validators import validate_full_name, validate_tel_number_length
 from .managers import UserManager
+from .validators import validate_full_name
 
+
+ACTIVE = 'A'
+DELETED = 'D'
+SUSPENDED = 'S'
+
+STATUSES = (
+	(ACTIVE, _('active')),
+	(DELETED, _('deleted')),
+	(SUSPENDED, _('suspended'))
+)
+
+GENDERS = (
+	('M', _('Male')),
+	('F', _('Female'))
+)
 
 class User(AbstractBaseUser, PermissionsMixin):
-	# TODO deletion from one site => deletion from whole site. same as suspension.
-	# User should see all his info in one page (like one profile).
-	ACTIVE = 'A'
-	DELETED = 'D'
-	SUSPENDED = 'S'
-
-	STATUSES = (
-		(ACTIVE, 'active'),
-		(DELETED, 'deleted'),
-		(SUSPENDED, 'suspended')
-	)
-
 	email = LowerCaseEmailField(
 		_('Email address'),
 		max_length=50,
 		unique=True,
 		help_text=_('We will send a verification code to this email'),
 		error_messages={
-			'unique': _('A user with that email already exists'),
+			'unique': _('A user with that email already exists.'),
 			# null, blank, invalid, invalid_choice, unique, unique_for_date
 		},
+		validators=[validate_email]
 	)
 	username = models.CharField(
 		_('Username'),
 		max_length=15,
 		unique=True,
-		help_text=_('This name will be used in the questions/answers site. You can always change it later'),
+		help_text=_('This name will be used in the questions/answers site, you can always change it later.'),
 		error_messages={
-			'unique': _('A user with that username already exists'),
+			'unique': _('A user with that username already exists.'),
 		},
+		validators=[UnicodeUsernameValidator()]
 	)
 	full_name = TitleCaseField(
 		_('Full name'),
@@ -49,17 +58,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 		help_text=_('Two of your names will be okay. Please enter your real names.'),
 		validators=[validate_full_name]
 	)
+	first_language = models.CharField(
+		_('First language'),
+		choices=settings.LANGUAGES,
+		default='fr',
+		max_length=3,
+		help_text=_("Your preferred language. Don't worry, you can always view the site in another language.")
+	)
+	gender = models.CharField(
+		_('Gender'),
+		choices=GENDERS,
+		default='M',
+		max_length=2,
+	)
 	
     # site points can be used for one-day-listing, {video call developer(me), site bonuses, rankings  etc}
 	site_points = models.PositiveIntegerField(_('Site points'), default=5)  # +5 points for joining the site lol
 	status = models.CharField(choices=STATUSES, default='A', max_length=2)
-	first_language = models.CharField(
-		_('First language'),
-		choices=settings.LANGUAGES,
-		default='en',
-		max_length=3,
-		help_text=_('Your preferred language')
-	)
 	deletion_datetime = models.DateTimeField(_('Deletion date/time'), null=True, blank=True)
 	datetime_joined = models.DateTimeField(_('Date/time joined'), default=timezone.now)
 	last_login = models.DateTimeField(_('Last login'), auto_now=True)
@@ -76,12 +91,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 	def __str__(self):
 		return f'{self.username}, {self.full_name}'
 
+	def clean(self, *args, **kwargs):
+		# add custom validation here
+		super().clean(*args, **kwargs)
+	
+	def save(self, *args, **kwargs):
+		# full_clean() automatically calls clean()
+		self.full_clean()
+		super().save(*args, **kwargs)
+
 	def delete(self):
 		# Don't actually delete user account, just do this instead
 		self.status = 'D'
 		self.deletion_datetime = timezone.now()
 		self.is_active = False
 		self.save(update_fields=['is_active', 'status', 'deletion_datetime'])
+	
+	def get_absolute_url(self):
+		return reverse('users:view-profile', kwargs={'username': self.username})
 
 	@property
 	def current_suspension(self):
@@ -117,16 +144,15 @@ class PhoneNumber(models.Model):
     operator = models.CharField(_('Operator'), choices=ISPs, max_length=8, default='MTN')
     number = models.CharField(
         _('Phone number'),
-        max_length=9,  # TODO change this to an appropriate value
-        help_text=_('Enter mobile number <b>(without +237)</b>'),
-        validators=[validate_tel_number_length]
+        max_length=20,  # filler value since apparently, CharFields must define a max_length attribute
+        help_text=_('Enter mobile number <b>(without +237)</b>')
     )
     can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='phone_numbers',
-        related_query_name='phone_number'
+        related_query_name='phone_number',
     )
 
     def __str__(self):

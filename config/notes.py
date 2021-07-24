@@ -1,9 +1,64 @@
-# no null=True needed for char and text fields. default for blank & null is False.
-# if no value is set and the field is nullable, the value is stored in the database as an empty string ('')
+TODO:
+
+# 1. VALIDATIONS: front-end first
+Full name validation:
+	. no number in full name, just letters(unicode) and hyphen
+	. made up of 2 strings
+Password validation:
+	. at least 8 chars
+	. shouldn't be entirely numeric
+	. passwords should match
+Phone number:
+	. only numbers and spaces, no other character
+
+# 3. on edit form, email disappears if form previously had errors. (turn off client side validation and submit a form with no whatsapp number support to reproduce this.)
+# 4. remove '#' from url after form goes to top of page(without reloading page)
+
+## Socialize app...
+birth_date = models.DateField(
+	_('Date of birth'),
+	blank=True, null=True,
+)
+image = ...
+...
+
+'''
+def get(self, request, *args, **kwargs):
+	"""
+	Prevent users who aren't logged in and those whose usernames don't match with that passed in the request from editing a profile.
+	"""
+	user = request.user
+	# if user isn't logged in, go to login page
+	if not user.is_authenticated:
+		return redirect(reverse('users:login'))
+
+	# just for testing, don't forget to remove this.
+	if user.username == 'sergeman':
+		return super().get(request, *args, **kwargs)
+
+	# if user is logged in but username in url isn't his, raise 404 error(like StackOverflow)
+	passed_username = self.kwargs.get('username')
+	if user.username != passed_username:
+		raise Http404
+
+	return super().get(request, *args, **kwargs)
+'''
+
+
+# def clean(self):
+# 	cleaned_data = super().clean()
+# 	password = cleaned_data.get('password')
+# 	confirm_password = cleaned_data.get('confirm_password')
+
+# 	if password != confirm_password:
+# 		self.add_error('confirm_password', _('The passwords do not match.'))
+
+# 	return cleaned_data
 
 
 # dating
 # 	- social media account (-facebook link, twitter link) for this, only users'
+	- see how stackoverflow does something similar on a user's profile page
 #	(usernames will be entered by user, with some help links explaining to them how to get usernames..)
 
 # TODO reputation is not visible to users, only used internally (maybe trivial advantages, post rankings, etc..)
@@ -15,7 +70,6 @@
 
 IMPLEMENTATION TIPS:
 - users should not pay for each perk with cash, they should use their credit_points. However, credit points can be bought.
-- during registration, ask all users info, with a text telling them where the particuar info will be used. eg. Enter your phone number: -This will be used only in the marketplace section-
 
 # TODO moderator should have his own view of the site; they should be able to see pending reports, etc.
 # TIPS:
@@ -46,7 +100,6 @@ IMPLEMENTATION TIPS:
 # 		- item sold => +x points to buyer and + y points to seller (x >y)
 # 	- form signed upon item purchase which will serve as a receipt...
 # 	- users can only perform transaction in  items in univ, hence more security...
-
 
 
 # how do you do this in db: "you have 10 votes left for today? "

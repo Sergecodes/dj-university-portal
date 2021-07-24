@@ -26,9 +26,13 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
+# i18n_patterns can only be used in a root urlconf file, 
+# will throw ImproperlyConfigured error if used in an included URLconf
 urlpatterns += i18n_patterns(
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
+    path(_('users/'), include('users.urls', namespace='users')),
+    path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
     path('', core_views.index, name='home'),
 

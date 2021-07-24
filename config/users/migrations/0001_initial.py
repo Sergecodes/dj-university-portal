@@ -4,7 +4,7 @@ import datetime
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import core.validators
+import users.validators
 import django.utils.timezone
 import uuid
 
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('email', models.EmailField(error_messages={'unique': 'A user with that email already exists'}, help_text='We will send a code to this email', max_length=50, unique=True, verbose_name='Email address')),
                 ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='This is the name people will know you by on this site. You can always change it later.', max_length=15, unique=True)),
-                ('full_name', models.CharField(blank=True, help_text='Two of your names will be okay.', max_length=25, null=True, validators=[core.validators.validate_full_name], verbose_name='Full name')),
+                ('full_name', models.CharField(blank=True, help_text='Two of your names will be okay.', max_length=25, null=True, validators=[users.validators.validate_full_name], verbose_name='Full name')),
                 ('status', models.CharField(choices=[('A', 'active'), ('D', 'deleted'), ('S', 'suspended')], default='A', max_length=2)),
                 ('deletion_datetime', models.DateTimeField(blank=True, null=True)),
                 ('datetime_joined', models.DateTimeField(default=django.utils.timezone.now)),

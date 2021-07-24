@@ -1,12 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import validate_email
 from django.db.models import QuerySet, Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
-from core.validators import validate_full_name
 
 
 class UserQuerySet(QuerySet):
@@ -20,8 +16,8 @@ class UserQuerySet(QuerySet):
 
 
 class UserManager(BaseUserManager, Manager):
-	def create_user(self, email, username, full_name, password, **extra_fields):
-		""" Create and save a user with the given email, username, password, etc... """
+	def create_user(self, email, username, full_name, password, gender, first_language, commit=True, **extra_fields):
+		""" Create and save a user with the given email, username, password, etc... . Call this method with appropriate fields because no validation will be performed here, data will be instantly saved to the database. """
 		if not email:
 			raise ValueError(_('The email must be set'))
 		if not username:
@@ -30,22 +26,35 @@ class UserManager(BaseUserManager, Manager):
 			raise ValueError(_('The password must be set'))
 		if not full_name:
 			raise ValueError(_('The full name must be set'))
-
-		email = self.normalize_email(email)
-		validate_email(email)
-
-		validate_username = UnicodeUsernameValidator()
-		validate_username(username)
-
-		validate_full_name(full_name)
+		if not gender:
+			raise ValueError(_('The gender must be set'))
+		if not first_language:
+			raise ValueError(_('The first language must be set'))	
 		
-		user = self.model(email=email, username=username, full_name=full_name, **extra_fields)
+		email = self.normalize_email(email)
+		# validate_email(email)
+
+		# validate_username = UnicodeUsernameValidator()
+		# validate_username(username)
+
+		# validate_full_name(full_name)
+		
+		user = self.model(
+			email=email, 
+			username=username, 
+			full_name=full_name, 
+			gender=gender,
+			first_language=first_language,
+			# **extra_fields
+		)
 		user.set_password(password)
-		user.save()
+
+		if commit:
+			user.save(using=self._db)
 
 		return user
 
-	def create_superuser(self, email, username, password, full_name, **extra_fields):
+	def create_superuser(self, email, username, full_name, password, gender, first_language, **extra_fields):
 		""" Create and save a SuperUser with the given email, name, full name, password etc... """
 		extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_mod', True)
@@ -60,11 +69,13 @@ class UserManager(BaseUserManager, Manager):
 			raise ValueError(_('Superuser must have is_superuser=True.'))
 		
 		return self.create_user(
-			email=email,
-			username=username,
+			email=email, 
+			username=username, 
+			full_name=full_name, 
+			gender=gender,
 			password=password,
-			full_name=full_name,
-			**extra_fields
+			first_language=first_language,
+			# **extra_fields
 		)
 
 	def get_queryset(self):

@@ -5,7 +5,7 @@ import datetime
 from django.db import migrations, models
 import django.db.models.deletion
 import hitcount.models
-import core.validators
+import users.validators
 
 
 class Migration(migrations.Migration):
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('operator', models.CharField(choices=[('MTN', 'MTN'), ('Nexttel', 'Nexttel'), ('Orange', 'Orange'), ('CAMTEL', 'CAMTEL'), ('O', 'Other')], default='MTN', max_length=8)),
-                ('number', models.CharField(help_text='Enter mobile number <b>(without +237)</b>', max_length=9, validators=[core.validators.validate_tel_number_length], verbose_name='Phone number')),
+                ('number', models.CharField(help_text='Enter mobile number <b>(without +237)</b>', max_length=9, validators=[users.validators.validate_tel_number], verbose_name='Phone number')),
                 ('can_whatsapp', models.BooleanField(default=False)),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='phone_numbers', related_query_name='phone_number', to='marketplace.marketplaceprofile')),
             ],

@@ -1,9 +1,12 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
 	{% block title %}
 		<title>CamerÉcole</title>
-	{% endblock %}
+	{% endblock title %}
+
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -11,14 +14,17 @@
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.0.1.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
-	<script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
-	<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-	<script src="{% static 'js/base.js' %}"></script>
+	{% block extra_css %}
+	{% endblock extra_css %}
+
+	<script type="text/javascript" src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+	{% block extra_js %}
+	{% endblock extra_js %}
 </head>
 
 <body class="page">
-	{% load i18n %}
-
 	{% block header %}
 	<header class="mb-4">
 		<div class="bg-gradient header-top">
@@ -92,40 +98,44 @@
 								</a>
 							</div>
 							<hr class="dropdown-divider">
-							<a href="#" class="dropdown-item">{% trans "Dashboard" %}</a>
-							<a href="#" class="dropdown-item">{% trans "View Profile" %}</a>
-							<a href="#" class="dropdown-item">{% trans "Update Profile" %}</a>
+							<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "Dashboard" %}</a>
+							<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "View Profile" %}</a>
+							<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans "Update Profile" %}</a>
 							<hr class="dropdown-divider">
-							<a href="#" class="dropdown-item">{% trans "Logout" %}</a>
+
+							<a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a>
 						</div>
 					</li>
 				</ul>
 				{% else %}
 				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0 register-and-login">
 					<li class="list-inline-item">
-						<a href="#" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
+						<a href="{% url 'users:register' %}" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
 					</li>
 					<li class="list-inline-item dropdown ms-2 js-loginDropdown">
-						<button 
+						<button
 							id="loginMenu"
-							type="button" 
+							type="button"
+							href="{% url 'users:login' %}"
 							class="btn bg-primary text-white fw-bolder login-button" 
 							data-bs-toggle="dropdown" 
 							aria-expanded="false"
 						>
 							{% trans 'LOGIN' %}
 						</button>
-						<form class="dropdown-menu dropdown-menu-end px-2 login-form" aria-labelledby="loginMenu">
+						<form class="dropdown-menu dropdown-menu-end px-2 dropdown-login-form" method="post" action="{% url 'users:login' %}" aria-labelledby="loginMenu">
+							{% csrf_token %}
 							<div class="mt-2 mb-3">
-								<input type="email" class="form-control" placeholder="{% trans 'Email address' %}">
+								{# set the name attribute to "username" since Django uses the same name in it's login form #}
+								<input type="email" name="username" class="form-control" placeholder="{% trans 'Email address' %}">
 							</div>
 							<div class="mb-4">
-								<input type="password" class="form-control" placeholder="{% trans 'Password' %}">
+								<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
 							</div>
-							<button type="submit" class="d-block w-100 mb-3 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
-							<a href="#" class="text-primary">{% trans 'Forgot Password' %}</a>
+							<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
+							<a href="{% url 'users:password-reset' %}" class="link-primary">{% trans 'Forgot Password' %}</a>
 							<hr class="mb-2">
-							<a href="#" class="mb-1 d-block text-center text-secondary">{% trans 'Open login form on new page' %}</a>
+							<a href="{% url 'users:login' %}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
 						</form>
 					</li>
 				</ul>
@@ -175,6 +185,7 @@
 								id="profileMenu2"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
+								role="button"
 							>
 								<svg class="header-profile-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" width="40" height="40" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M17 1.7C11.5335 1.7 6.48243 4.61655 3.74917 9.35C1.0172 14.0835 1.0172 19.9165 3.74917 24.65C6.48246 29.3835 11.5335 32.3 17 32.3C20.4918 32.3133 23.8809 31.1193 26.5917 28.9199C29.9014 26.2557 31.9559 22.3365 32.2602 18.0984C32.5657 13.8603 31.0954 9.68748 28.2003 6.57682C25.3063 3.46636 21.249 1.69986 17.0003 1.69986L17 1.7ZM27.9956 24.411C27.2651 22.1412 25.014 20.2514 21.9925 19.2447C20.7069 20.6405 18.8967 21.4361 17 21.4361C15.1021 21.4347 13.292 20.6405 12.0074 19.2447C8.98463 20.2514 6.73335 22.1413 6.00439 24.411C4.20212 21.7388 3.43579 18.5008 3.8475 15.3041C4.25921 12.1073 5.82242 9.17082 8.24234 7.04174C10.6622 4.91276 13.7752 3.7387 16.9987 3.7387C20.2221 3.7387 23.3353 4.91276 25.7564 7.04041C28.1763 9.16939 29.7395 12.1057 30.1513 15.3027C30.563 18.4995 29.7966 21.7376 27.9957 24.411L27.9956 24.411Z" fill="white"></path>
@@ -192,40 +203,42 @@
 									</a>
 								</div>
 								<hr class="dropdown-divider">
-								<a href="#" class="dropdown-item">{% trans "Dashboard" %}</a>
-								<a href="#" class="dropdown-item">{% trans "View Profile" %}</a>
-								<a href="#" class="dropdown-item">{% trans "Update Profile" %}</a>
+								<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "Dashboard" %}</a>
+								<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "View Profile" %}</a>
+								<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans "Update Profile" %}</a>
 								<hr class="dropdown-divider">
-								<a href="#" class="dropdown-item">{% trans "Logout" %}</a>
+								<a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a>
 							</div>
 						</li>
 					</ul>
 					{% else %}
 					<ul class="list-inline my-2 register-and-login">
 						<li class="list-inline-item">
-							<a href="#" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
+							<a href="{% url 'users:register' %}" class="btn text-white fw-bolder register-button">{% trans 'REGISTER' %}</a>
 						</li>
 						<li class="list-inline-item dropdown ms-2 js-loginDropdown">
-							<button 
+							<button
 								id="loginMenu2"
-								type="button" 
+								type="button"
+								href="{% url 'users:login' %}"
 								class="btn bg-primary text-white fw-bolder login-button" 
 								data-bs-toggle="dropdown" 
 								aria-expanded="false"
 							>
 								{% trans 'LOGIN' %}
 							</button>
-							<form class="dropdown-menu dropdown-menu-end px-2 login-form" aria-labelledby="loginMenu2">
+							<form class="dropdown-menu dropdown-menu-end px-2 dropdown-login-form" method="post" action="{% url 'users:login' %}" aria-labelledby="loginMenu2">
+								{% csrf_token %}
 								<div class="mt-2 mb-3">
-									<input type="email" class="form-control" placeholder="{% trans 'Email address' %}">
+									<input type="email" name="username" class="form-control" placeholder="{% trans 'Email address' %}">
 								</div>
 								<div class="mb-4">
-									<input type="password" class="form-control" placeholder="{% trans 'Password' %}">
+									<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
 								</div>
-								<button type="submit" class="d-block w-100 mb-3 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
-								<a href="#" class="text-primary">{% trans 'Forgot Password' %}</a>
+								<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
+								<a href="{% url 'users:password-reset' %}" class="link-primary">{% trans 'Forgot Password' %}</a>
 								<hr class="mb-2">
-								<a href="#" class="mb-1 d-block text-center text-secondary">{% trans 'Open login form on new page' %}</a>
+								<a href="{% url 'users:login' %}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
 							</form>
 						</li>
 					</ul> 
@@ -245,6 +258,7 @@
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
+								role="button"
 							>
 								{% trans 'Buy/Sell an item' %}
 							</a>
@@ -260,6 +274,7 @@
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
+								role="button"
 							>
 								{% trans 'Ask a question' %}
 							</a>
@@ -285,6 +300,7 @@
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
+								role="button"
 							>
 								{% trans 'Classroom' %}
 							</a>
@@ -304,6 +320,7 @@
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
+								role="button"
 							>
 								{% trans 'Get change' %}
 							</a>
@@ -319,6 +336,7 @@
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
+								role="button"
 							>
 								{% trans 'Socialize' %}
 							</a>
@@ -338,7 +356,7 @@
 	</header>
 	{% endblock %}
 
-  {% block institution_searchbox %}
+  	{% block institution_searchbox %}
 	<div class="container pt-3 pb-2 mb-4 institution-searchbox">
 		<form method="get" class="institution-search-form">
 			<div class="row">
@@ -537,6 +555,9 @@
 			</div>
 		</div>
 	</footer>
+	{% endblock %}
+
+	{% block before_body_end %}
 	{% endblock %}
 </body>
 </html>

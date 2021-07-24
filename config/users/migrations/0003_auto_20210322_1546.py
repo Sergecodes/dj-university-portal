@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.utils.timezone
-import core.validators
+import users.validators
 
 
 class Migration(migrations.Migration):
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='user',
             name='full_name',
-            field=models.CharField(blank=True, default='Default Name', help_text='Two of your names will be okay.', max_length=25, validators=[core.validators.validate_full_name], verbose_name='Full name'),
+            field=models.CharField(blank=True, default='Default Name', help_text='Two of your names will be okay.', max_length=25, validators=[users.validators.validate_full_name], verbose_name='Full name'),
             preserve_default=False,
         ),
         migrations.AlterField(

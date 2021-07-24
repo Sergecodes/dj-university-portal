@@ -42,7 +42,7 @@
 	opacity: 1;
 }
 
-.login-form {
+.dropdown-login-form {
 	min-width: 20rem;
 }
 
@@ -80,7 +80,7 @@
 }
 
 .lang-select--unauthed {
-	text-align: right;
+	/* text-align: right; */
 	width: 90%;
 }
 
@@ -212,28 +212,57 @@
 }
 
 
-/* Layout for desktop sizes and greater */
-/* make dropdown menus hoverable */
-@media (min-width: 992px) {
-	/* the nav links */
-	/* .nav-item .dropdown-menu{ display: none; }
-	.nav-item:hover .nav-link{   }
-	.nav-item:hover .dropdown-menu{ display: block; }
-	.nav-item .dropdown-menu{ margin-top:0; }
+/*** USER REGISTRATION & LOGIN PAGES ***/
+/* remove asterisk from required fields when using django-crispyforms */
+/* .asteriskField {
+	display: none;
+} */
 
-	/* the My Account dropdown
-	.list-inline-item .dropdown-menu{ display: none;}
-	.list-inline-item:hover .dropdown-menu{ display: block; }
-	.list-inline-item .dropdown-menu{ margin-top:0; } */
+.user-form {
+	border: 1px solid #8cc69b;
+}
+
+.user-form--edit,
+.user-form--signup {
+	width: 60%;
+}
+
+.user-form--login {
+	width: 50%;
+}
+
+.user-form__heading {
+	color: #198754;
+	font-weight: 500;
+	border-bottom: 1px dashed #198754;
+}
+
+.user-form--login__heading,
+.user-form--password-change__heading,
+.user-form--password-reset__heading {
+	border: none;
+	text-decoration: underline;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
 	.dropdown:hover .dropdown-menu {
 		display: block;
 		margin-top: 0;
 	}
-
 }
 
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
+	.user-form--edit,
+	.user-form--signup {
+		width: 100%;  
+	}
 
+	.user-form--login {
+		width: 90%;  
+	}
 }
