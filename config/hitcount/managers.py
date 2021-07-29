@@ -11,7 +11,7 @@ class HitCountManager(models.Manager):
         Ofcourse model_object.hfn can also be used; where hfn is the hitcount_field_name of the model object in question.
         But this is more adaptable since it can be used for any object.
         """
-        ctype = ContentType.objects.get_for_model(obj)
+        ctype = ContentType.objects.get_for_model(obj.__class__)
         hitcount, created = self.get_or_create(content_type=ctype, object_id=obj.pk)
 
         return hitcount

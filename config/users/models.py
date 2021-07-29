@@ -3,34 +3,68 @@ from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from core.model_fields import LowerCaseEmailField, TitleCaseField
+from marketplace.models import ItemListing, Ad
 from .managers import UserManager
 from .validators import validate_full_name
 
 
-ACTIVE = 'A'
-DELETED = 'D'
-SUSPENDED = 'S'
+class PhoneNumber(models.Model):
+	ISPs = (
+		('MTN', 'MTN'),
+		('Nexttel', 'Nexttel'),
+		('Orange', 'Orange'),
+		('CAMTEL', 'CAMTEL'),
+		('O', 'Other')  # TODO add other ISPs.
+	)
 
-STATUSES = (
-	(ACTIVE, _('active')),
-	(DELETED, _('deleted')),
-	(SUSPENDED, _('suspended'))
-)
+	operator = models.CharField(_('Operator'), choices=ISPs, max_length=8, default='MTN')
+	number = models.CharField(
+		_('Phone number'),
+		max_length=20,  # filler value since apparently, CharFields must define a max_length attribute
+		help_text=_('Enter mobile number <b>(without +237)</b>')
+	)
+	can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
 
-GENDERS = (
-	('M', _('Male')),
-	('F', _('Female'))
-)
+	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+	object_id = models.PositiveIntegerField()
+	content_object = GenericForeignKey('content_type', 'object_id')
+
+
+	def __str__(self):
+		return f'{self.number}, {self.operator}'
+
+	class Meta:
+		# unique_together = ("content_type", "object_id")
+		verbose_name = _("Phone Number")
+		verbose_name_plural = _("Phone Numbers")
+
 
 class User(AbstractBaseUser, PermissionsMixin):
+	ACTIVE = 'A'
+	DELETED = 'D'
+	SUSPENDED = 'S'
+
+	STATUSES = (
+		(ACTIVE, _('active')),
+		(DELETED, _('deleted')),
+		(SUSPENDED, _('suspended'))
+	)
+
+	GENDERS = (
+		('M', _('Male')),
+		('F', _('Female'))
+	)
+
+	phone_numbers = GenericRelation(PhoneNumber, related_query_name='user')
 	email = LowerCaseEmailField(
 		_('Email address'),
 		max_length=50,
@@ -71,8 +105,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 		default='M',
 		max_length=2,
 	)
+	bookmarked_listings = models.ManyToManyField(
+		ItemListing,
+		related_name='bookmarkers',
+		related_query_name='bookmarker'
+	)
+	bookmarked_ads = models.ManyToManyField(
+		Ad,
+		related_name='bookmarkers',
+		related_query_name='bookmarker'
+	)
 	
-    # site points can be used for one-day-listing, {video call developer(me), site bonuses, rankings  etc}
+	# site points can be used for one-day-listing, {video call developer(me), site bonuses, rankings  etc}
 	site_points = models.PositiveIntegerField(_('Site points'), default=5)  # +5 points for joining the site lol
 	status = models.CharField(choices=STATUSES, default='A', max_length=2)
 	deletion_datetime = models.DateTimeField(_('Deletion date/time'), null=True, blank=True)
@@ -129,34 +173,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 		TODO User is automatically deleted after 5 suspensions ?
 		"""
 		return self.suspensions.count()
-
-
-class PhoneNumber(models.Model):
-    ISPs = (
-        ('MTN', 'MTN'),
-        ('Nexttel', 'Nexttel'),
-        ('Orange', 'Orange'),
-        ('CAMTEL', 'CAMTEL'),
-        ('O', 'Other')  # TODO add other ISPs.
-    )
-    # TODO ensure user has at least one mtn or orange number. If not one of his numbers should have whatsapp
-
-    operator = models.CharField(_('Operator'), choices=ISPs, max_length=8, default='MTN')
-    number = models.CharField(
-        _('Phone number'),
-        max_length=20,  # filler value since apparently, CharFields must define a max_length attribute
-        help_text=_('Enter mobile number <b>(without +237)</b>')
-    )
-    can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
-    owner = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='phone_numbers',
-        related_query_name='phone_number',
-    )
-
-    def __str__(self):
-        return f'{self.number}, {self.operator}'
 
 
 class Suspension(models.Model):

@@ -1,4 +1,35 @@
-TODO:
+TODO; marketplace app (july 28)
+BACKEND FIRST: 
+- push to github (-m 'Created models for marketplace app')
+- insert some categories, sub categories and institutions into database, ensure that they are displayed in frontend select menus
+- enable getting queryset of sub category via ajax request (listen to onchange in parent category)
+(- research: show loading icon during ajax request -django)
+- change help text of items in forms(match those used in ebay..) (this is so as to differentiate ItemListing and Ad since both inherit from Post).. (contact numbers help text: you can select multiple numbers by pressing the Ctrl key)
+
+FRONTEND:
+(- do research on ckeditor5 and possibly use it instead ?; also math plugin for ckeditor)
+- customize ckeditor, let it resemble that used in Ebay.
+- enable preview of ckeditor content
+- checkout jquery-file-upload. integrate it into project
+- implement dynamicity of photos formset.. (adding, removing, etc..) somewhat like jumia
+- insert 'update profile' button below seller's information fieldset
+- appropriately style form, responsiveness also.
+- set price to take values such as 150 000 etc.. (only numbers and spaces allowed) . however when submitting to backend, remove spaces and convert to int. 
+- insert validation div for price (below price label right..)
+
+. properly display price to users (thousand separator..)
+
+TODO: users app:
+- remaining front end validations
+- backend validations
+- purge users db; enforce email verification on account signup (hence no captcha needed)  
+(in fact, i don't think site will need captcha.) nb: use only User.objects.create_user() to create new users
+- remove 'disabled' from the email field in the UserUpdateForm. instead, add the bootstrap class  via JS. this is to separate ui from backend. also, don't forget to remove the hidden dummy email field. (also, see https://stackoverflow.com/a/331550 while you're at it)
+   # setting readonly on a widget only makes the input in the browser read-only.  do this "https://stackoverflow.com/a/331550" to ensure its value doesn't change on form level.  P.S. I can also do this by passing the user object to the form and setting the initial attribute of the field to the user's email.
+- in edit form, remove the extra empty phone number form. can do this via js or by setting a new formset factory for editing and setting its extra attribute to 0.
+- make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
+- organize js directory (event-handlers, utils, third-party, own, etc.)
+
 
 # 1. VALIDATIONS: front-end first
 Full name validation:
@@ -11,8 +42,8 @@ Password validation:
 Phone number:
 	. only numbers and spaces, no other character
 
-# 3. on edit form, email disappears if form previously had errors. (turn off client side validation and submit a form with no whatsapp number support to reproduce this.)
-# 4. remove '#' from url after form goes to top of page(without reloading page)
+
+django-anymail, django-mailer,
 
 ## Socialize app...
 birth_date = models.DateField(
@@ -21,6 +52,30 @@ birth_date = models.DateField(
 )
 image = ...
 ...
+
+# to enable getting the items that a user has bookmarked(user.bookmarked_items) and also probably the number of people that have bookmarked a user's item ?
+# TODO owners won't be able to see those who bookmarked their posts, (but may see number of bookmarks?)
+# means if User is deleted, set  it/bookmarker(User) to NULL
+
+# site index view
+# def index(request):
+#     # get and sort items based on owner's points and creation date*
+#     latest_items = ItemListing.objects.select_related('owner')\
+#         .order_by('-date_added', 'owner__reputation')
+
+#     return render(request, 'index.html', {latest_items: latest_items})
+
+'''
+previous formset code in form_valid method in UserCreateView
+
+Now we process the phone number formset
+also remove those that were marked to be deleted
+phone_numbers = formset.save(commit=False)  # https://djangoproject.com/en/3.1/topics/forms/modelforms/#saving-objects-in-the-formset
+
+for phone_number in phone_numbers:
+	phone_number.owner = user
+	phone_number.save()
+'''
 
 '''
 def get(self, request, *args, **kwargs):
@@ -44,17 +99,17 @@ def get(self, request, *args, **kwargs):
 	return super().get(request, *args, **kwargs)
 '''
 
+'''
+def clean(self):
+	cleaned_data = super().clean()
+	password = cleaned_data.get('password')
+	confirm_password = cleaned_data.get('confirm_password')
 
-# def clean(self):
-# 	cleaned_data = super().clean()
-# 	password = cleaned_data.get('password')
-# 	confirm_password = cleaned_data.get('confirm_password')
+	if password != confirm_password:
+		self.add_error('confirm_password', _('The passwords do not match.'))
 
-# 	if password != confirm_password:
-# 		self.add_error('confirm_password', _('The passwords do not match.'))
-
-# 	return cleaned_data
-
+	return cleaned_data
+'''
 
 # dating
 # 	- social media account (-facebook link, twitter link) for this, only users'
@@ -86,7 +141,7 @@ IMPLEMENTATION TIPS:
 # on post description, user shouldnt put contact details nor now web links (scam, spam, etc..)
 # In fact, remove all weblinks from source b4 adding to db..
 
-#
+# Item categories example:
 # categories: video games & consoles, toys & hobbies, sporting goods, musical instruments & gear, jewelry & watches,
 # 		health & beauty,dvds & movies, crafts, dolls, computers;electronics/tablets & networking, cell phones & accessories,
 # 		books,baby,produits Apple
@@ -94,11 +149,14 @@ IMPLEMENTATION TIPS:
 # 		livres, films, jouets;instruments de musique;sport & fitness;bijoux & montres;female clothes, male clothes,
 # 		female shoes,male shoes,maisons a louer,studios & chambres a louer;motos & velos;mobiles & smartphones
 
+# Ad categories exampl:
+ - job offer, event(e.g. match tomorrow..), internship, 
+
 # this site vs jumia:
 # 	- concept of points so as to encourage sellers to signal the site that the item has being bought
 # 		- a certain num of points => a certain privilege e.g. be moderator?(nope..), contact developers,...
 # 		- item sold => +x points to buyer and + y points to seller (x >y)
-# 	- form signed upon item purchase which will serve as a receipt...
+# 	- form signed upon item purchase which will serve as a receipt...  (future)
 # 	- users can only perform transaction in  items in univ, hence more security...
 
 
@@ -139,33 +197,20 @@ class UserActivity(models.Model):
 	remove all entries where entry.datetime.date() < timezone.now().date
 '''
 
-# Sentinel user/profile stuff (if user has to be really deleted from db)
+# Sentinel userstuff (if user has to be really deleted from db)
+'''
+DELETED_USER_EMAIL = 'deleted@gmail.com'
 
-# DELETED_USER_EMAIL = 'deleted@gmail.com'
-# def get_sentinel_profile():
-# 	"""
-# 	A dummy profile that will be used for deleted profiles.
-# 	However, deleted profiles are not purged out of the db.
-# 	:return: sentinel profile
-# 	"""
-# 	# store this profile in cache.
-# 	password = str(uuid.uuid4())  # at least the password should not be guessable!
-# 	sentinel_user = User.objects.get_or_create(
-# 		username='deleted',
-# 		email=DELETED_USER_EMAIL,  # fraudulent irrelevant email
-# 		defaults={'password': password, 'is_active': False}
-# 	)[0]  # get_or_create() returns (obj, created?). so [0] return just the object.
-#
-# 	return sentinel_user.profile  # remember, when a user is created, a profile is also created for him
-# def get_sentinel_user():
-# 	"""
-# 	In case a user is deleted, set his profile to the dummy profile
-# 	and set him to inactive. Don't actually delete the user!
-# 	"""
-# 	# store this user in cache
-# 	password = str(uuid.uuid4())
-# 	return User.objects.get_or_create(
-# 		username='deleted',
-# 		email=DELETED_USER_EMAIL,  # fraudulent irrelevant email
-# 		defaults={'password': password, 'is_active': False}
+def get_sentinel_user():
+	"""
+	In case a user is deleted, set his profile to the dummy profile
+	and set him to inactive. Don't actually delete the user!
+	"""
+	# store this user in cache
+	password = str(uuid.uuid4())
+	return User.objects.get_or_create(
+		username='deleted',
+		email=DELETED_USER_EMAIL,  # fraudulent irrelevant email
+		defaults={'password': password, 'is_active': False}
 # 	)[0]
+'''

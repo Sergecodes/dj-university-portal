@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block title %}
+<title>{% trans 'Post your item information' %}</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<div class="container-lg mb-5">
+	<div class="d-flex justify-content-center">
+		<form 
+			action="{% url 'marketplace:listing-create' %}"
+			class="p-3" 
+			method="post"
+			enctype="multipart/form-data"
+		>
+			{% csrf_token %}
+
+			<h2 class="text-center mb-4 text-success">{% trans 'Post an item for sale' %}</h2>
+
+			{% crispy form %}
+			<input type="hidden" name='original_language' value="{{ LANGUAGE_CODE }}">
+
+			{% comment %} {{ formset }} {% endcomment %}
+
+		</form>
+	</div>
+</div>
+{% endblock content %}
+
+{% block before_body_end %}
+{% endblock %}

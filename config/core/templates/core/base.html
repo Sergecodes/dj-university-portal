@@ -74,8 +74,9 @@
 						</a>
 					</li>
 					<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
+						<!-- no need to set href of this link since click events have been removed and it's a dropdown -->
 						<a
-							href="#"
+							href="#"  
 							class="header-profile-menu"
 							id="profileMenu"
 							data-bs-toggle="dropdown"
@@ -92,7 +93,7 @@
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
 							<div class="px-4 py-2">
-								<a href="#" class="header-profile-info" role="button">
+								<a href="{% url 'users:view-profile' username=user.username %}" class="header-profile-info" role="button">
 									<span class="d-block">{{ user.username }}</span>
 									<span class="small text-dark fw-bold">{{ user.full_name }}</span>
 								</a>

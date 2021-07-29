@@ -2,9 +2,13 @@ from django import forms
 from django.contrib.auth.forms import (
 	UserChangeForm as BaseUserChangeForm,
 	UserCreationForm as BaseUserCreationForm,
-	ReadOnlyPasswordHashField
+	# ReadOnlyPasswordHashField
 )
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.contenttypes.forms import (
+	BaseGenericInlineFormSet,
+	generic_inlineformset_factory
+)
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,13 +28,7 @@ class AdminUserChangeForm(BaseUserChangeForm):
 		fields 	= '__all__'
 
 
-### Following forms will be used on the main site.  ###
-GENDERS = (
-	('M', _('Male')),
-	('F', _('Female'))
-)
-
-# rename this to UserCreationForm
+### Following forms will be used in the main site.  ###
 class UserCreationForm(forms.ModelForm):
 	"""Form used to register a new user to the site. Includes all the required
     fields, plus a repeated password."""
@@ -88,7 +86,7 @@ class UserCreationForm(forms.ModelForm):
 		}
 		
 	
-class UserChangeForm(forms.ModelForm):
+class UserUpdateForm(forms.ModelForm):
 	"""A form for updating users. Includes all the fields on
 	the user, but replaces the password field with admin's
 	password hash display field.
@@ -98,6 +96,8 @@ class UserChangeForm(forms.ModelForm):
 	
 	# set email field as disabled & readonly so user won't be able to interact with it
 	# this also sets some desired styles from Bootstrap
+
+	# setting readonly on a widget only makes the input in the browser read-only.  do this "https://stackoverflow.com/a/331550" to ensure its value doesn't change on form level.  P.S. I can also do this by passing the user object to the form and setting the initial attribute of the field to the user's email.
 	email = forms.EmailField(
 		label=_('Email address'),
 		widget=forms.EmailInput(attrs={'readonly': '', 'disabled': '',}),
@@ -137,13 +137,14 @@ class UserChangeForm(forms.ModelForm):
 class PhoneNumberForm(forms.ModelForm):
 	class Meta:
 		model = PhoneNumber
-		exclude = ('owner', )
+		fields = ('operator', 'number', 'can_whatsapp')
 		widgets = {
 			'number': forms.NumberInput(attrs={'type': 'tel'})
 		}
 
 
-class BasePhoneNumberFormset(forms.BaseInlineFormSet):
+# inherit from base class so as to override the clean method of the formset
+class BasePhoneNumberFormset(BaseGenericInlineFormSet):
 	def clean(self):
 		"""Checks that no two numbers are the same and that there should be at least one number that supports Whatsapp."""
 		if any(self.errors):
@@ -171,8 +172,7 @@ class BasePhoneNumberFormset(forms.BaseInlineFormSet):
 			raise ValidationError(_("Enter at least one number that supports WhatsApp."))
 
 
-PhoneNumberFormset = forms.inlineformset_factory(
-	User, 
+PhoneNumberFormset = generic_inlineformset_factory(
 	PhoneNumber, 
 	form=PhoneNumberForm, 
 	formset=BasePhoneNumberFormset, 

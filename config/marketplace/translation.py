@@ -1,34 +1,41 @@
 from modeltranslation.translator import register, TranslationOptions as TransOptions
-from .models import Category, ParentCategory, Ad, Item, Institution
+from .models import ItemCategory, ItemParentCategory, Ad, ItemListing, Institution
+from .models import (
+    AdCategory, ItemCategory, ItemParentCategory,
+    ItemListing, Ad, Institution
+)
 
 
-@register(Category)
+@register(AdCategory)
+class AdCategoryTransOptions(TransOptions):
+    fields = ('name', )
+    required_languages = ('en', 'fr')
+
+
+@register(ItemCategory)
 class CategoryTransOptions(TransOptions):  # "TO" stands for Translation Options
     fields = ('name', )
     required_languages = ('en', 'fr')
 
 
-@register(ParentCategory)
-class ParentCategoryTransOptions(TransOptions):
+@register(ItemParentCategory)
+class ItemParentCategoryTransOptions(TransOptions):
     fields = ('name', )
     required_languages = ('en', 'fr')
 
 
-class PostTransOptions(TransOptions):
+@register(Ad)
+class AdTransOptions(TransOptions):
     fields = ('title', 'slug', 'description')
     required_languages = ('en', 'fr')  # for english and french, all fields are required
     # just blank=False is applied. We have to apply null=True in model.full_clean() method as per modeltranslation docs
     # Remember Django says no need to use null=True on charfield nd textfield
 
 
-@register(Ad)
-class AdTransOptions(PostTransOptions):
-    pass
-
-
-@register(Item)
-class ItemTransOptions(PostTransOptions):
-    fields = ('condition_description', )
+@register(ItemListing)
+class ItemListingTransOptions(TransOptions):
+    fields = ('title', 'slug', 'description', 'condition_description')
+    required_languages = ('en', 'fr')
 
 
 @register(Institution)

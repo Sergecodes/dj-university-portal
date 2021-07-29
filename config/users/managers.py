@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet, Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -45,7 +46,7 @@ class UserManager(BaseUserManager, Manager):
 			full_name=full_name, 
 			gender=gender,
 			first_language=first_language,
-			# **extra_fields
+			**extra_fields
 		)
 		user.set_password(password)
 
@@ -75,7 +76,7 @@ class UserManager(BaseUserManager, Manager):
 			gender=gender,
 			password=password,
 			first_language=first_language,
-			# **extra_fields
+			**extra_fields
 		)
 
 	def get_queryset(self):

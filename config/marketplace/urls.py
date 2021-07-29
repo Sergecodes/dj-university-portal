@@ -1,13 +1,16 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
+from django.utils.translation import ugettext_lazy as _
+
 from . import views
 
 app_name = 'marketplace'
 
 urlpatterns = [
-	path('', views.ItemList.as_view(), name='item-list'),
-	path('<int:pk>/<slug:slug>', views.ItemDetail.as_view(), name='item-detail'),
+	path('', views.ItemListingList.as_view(), name='listing-list'),
+	path(_('sell-item/'), views.create_item_listing, name='listing-create'),
+	# path('<int:pk>/<slug:slug>', views.ItemDetail.as_view(), name='listing-detail'),
 
 ]
 

@@ -1,3 +1,4 @@
+from users.models import PhoneNumber
 from django.contrib.auth import (
 	authenticate, 
 	login, 
@@ -6,6 +7,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.views import logout_then_login
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
@@ -14,9 +16,10 @@ from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import PhoneNumberFormset, UserCreationForm, UserChangeForm
+from .forms import PhoneNumberFormset, UserCreationForm, UserUpdateForm
 
 User = get_user_model()
+
 
 class UserCreate(CreateView):
 	model = User
@@ -41,7 +44,7 @@ class UserCreate(CreateView):
 		Prevent currently logged in users from calling the register method without logging out.
 		i.e. only unauthed users can access this view..
 		"""
-		# just for testing, don't forget to remove this.
+		# just for testing, don't forget to remove this.  todo
 		if request.user.is_authenticated and request.user.username == 'sergeman':
 			return super().get(request, *args, **kwargs)
 
@@ -53,23 +56,22 @@ class UserCreate(CreateView):
 	def form_valid(self, form, phone_number_formset):
 		# this method is called when the form has been successfully validated
 		request = self.request
-		email, password = form.cleaned_data['email'], form.cleaned_data['password']
 
 		with transaction.atomic():
 			self.object = form.save()
-			formset = phone_number_formset
+			new_user = self.object
 
-			# Now we process the phone number formset
-			phone_numbers = formset.save(commit=False)
+			for number_form in phone_number_formset:
+				assert number_form.is_valid(), 'Form in formset is invalid'
 
-			for phone_number in phone_numbers:
-				# phone_number.instance = self.object
-				phone_number.owner = self.object
+				phone_number = number_form.save(commit=False)
+				phone_number.content_object = new_user
 				phone_number.save()
 		
 		# log new user in
+		# email, password = form.cleaned_data['email'], form.cleaned_data['password']
+		email, password = new_user.email, new_user.password
 		user = authenticate(request, email=email, password=password)
-		assert user is not None
 
 		login(request, user)
 
@@ -78,6 +80,7 @@ class UserCreate(CreateView):
 
 	def get_context_data(self, **kwargs):
 		data = super().get_context_data(**kwargs)
+		print('in get context data')
 
 		# add the phone_number formset to this view's context
 		data['formset'] = PhoneNumberFormset(self.request.POST or None)
@@ -86,7 +89,7 @@ class UserCreate(CreateView):
 
 class UserUpdate(UserPassesTestMixin, UpdateView):
 	model = User
-	form_class = UserChangeForm
+	form_class = UserUpdateForm
 	slug_url_kwarg = "username"
 	slug_field = "username"
 	template_name = 'users/auth/edit_profile.html'
@@ -97,7 +100,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		Permit access to logged in users whose username matches with that passed in the url.
 		If no match, 403 Forbidden is raised.
 		"""
-		passed_username = self.kwargs.get('username')
+		passed_username = self.kwargs.get('username', '')
 		return self.request.user.username == passed_username
 
 	def get_test_func(self):
@@ -108,9 +111,6 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		form = self.get_form()
 		formset = PhoneNumberFormset(request.POST, instance=self.object)
 
-		# if form.is_valid():
-		# 	print(form.cleaned_data)
-
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
 		else:
@@ -119,19 +119,18 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	def form_valid(self, form, phone_number_formset):
 		with transaction.atomic():
 			self.object = form.save()
-			formset = phone_number_formset
+			user = self.object
 
-			# Now we process the phone number formset
-			# also remove those that were marked to be deleted
-			phone_numbers = formset.save(commit=False)
-			
-			for phone_number in phone_numbers:
-				phone_number.owner = self.object
+			for number_form in phone_number_formset:
+				assert number_form.is_valid(), 'Form in formset is invalid'
+
+				phone_number = number_form.save(commit=False)
+				phone_number.content_object = user
 				phone_number.save()
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
-		return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': self.object.username}))
+		return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': user.username}))
 		# return HttpResponseRedirect('/')
 		# return HttpResponseRedirect(self.get_success_url())
 

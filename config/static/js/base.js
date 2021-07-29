@@ -94,6 +94,11 @@ function loginDropdownMouseLeave() {
 	dropdownMenu.hide();
 }
 
+/** This event  */
+function goToTop() {
+	return;
+}
+
 /** Verify if val contains only numeric characters(digits).
  * Used in form validation.
  */

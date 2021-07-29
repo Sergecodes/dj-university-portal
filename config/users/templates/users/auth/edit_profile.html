@@ -120,7 +120,7 @@
 				});
 			},
 			removed: function($removedForm) {
-				// remove required attribute from removed phone number input coz some forms stay hidden with the required attribute 
+				// remove required attribute from removed phone number input coz apparently some forms stay hidden with the required attribute 
 				$removedForm.find('.numberinput').removeAttr('required');
 			},
 			deleteCssClass: 'delete-row link-danger'
@@ -141,9 +141,9 @@
 		});
 
 		// style formset errorlist
-		var errlist = $('ul.errorlist');
-		errlist.addClass('list-group');   // add bootstrap class
-		errlist.children('li').addClass('list-group-item list-group-item-danger');
+		var $errlist = $('ul.errorlist');
+		$errlist.addClass('list-group');   // add bootstrap class
+		$errlist.children('li').addClass('list-group-item list-group-item-danger');
 
 		// email field isn't submitted to form since it's a disabled field
 		// set value of the hidden email field to the real email field that won't be submitted

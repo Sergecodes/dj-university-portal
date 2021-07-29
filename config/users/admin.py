@@ -1,10 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.contenttypes.admin import GenericTabularInline
+
 from .forms import AdminUserCreationForm, AdminUserChangeForm
 from .models import User, PhoneNumber, Suspension
 
-class PhoneNumberInline(admin.TabularInline):
+class PhoneNumberInline(GenericTabularInline):
     model = PhoneNumber
+    extra = 1
 
 class UserAdmin(BaseUserAdmin):
     model = User
