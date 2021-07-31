@@ -1,22 +1,30 @@
+# import bleach
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+# from django.utils.html import escape
+from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import (
 	ItemListingForm, 
-	ItemListingPhotoFormset as ItemPhotoFormset
+	ItemListingPhotoFormset as ItemPhotoFormset,
+	ItemListingPhotoForm as ItemPhotoForm
 )
-from .models import ItemListing
+from .models import (
+	ItemListing, ItemCategory, 
+	ItemListingPhoto
+)
 
 
 @login_required
 def create_item_listing(request):
 	user = request.user
+
 	if POST := request.POST:
 		# Sending user object to the form so as to display user's info
 		listing_form = ItemListingForm(POST, user=user)
@@ -40,6 +48,11 @@ def create_item_listing(request):
 			print(listing_form.errors, photo_formset.errors)
 	else:
 		listing_form = ItemListingForm(user=user)
+		# form_category, form_sub_category = form['category'], form['sub_category']
+
+		# # get initial category that will be displayed in browser
+		# initial_category = form_category.field.queryset.first()
+		# form_sub_category 
 		photo_formset = ItemPhotoFormset()
 	
 	return render(
@@ -47,6 +60,55 @@ def create_item_listing(request):
 		'marketplace/listing_create.html', 
 		{'form': listing_form, 'formset': photo_formset}
 	)
+
+# ajax
+def get_item_sub_categories(request):
+	"""Return the sub categories of a given item category via ajax"""
+
+	# no need to coerce, get_object_or_404 handles coercion
+	category_pk = request.GET.get('category_id', None)  
+	category = get_object_or_404(ItemCategory, pk=category_pk)
+
+	result = {
+		# get id and name of each sub category in list
+		'sub_categories': list(category.sub_categories.values('id', 'name'))
+	}
+
+	return JsonResponse(result)
+
+
+# ajax
+class BasicUploadView(View):
+	# use this view just to test the file upload functionality on a separate url
+	def get(self, request):
+		photos = ItemListingPhoto.objects.all()
+		context = {'photos': photos}
+
+		return render(request, 'marketplace/basic_upload.html', context)
+
+	def delete(self, request):
+		photo_id = request.GET.get('photo_id')
+		get_object_or_404(ItemListingPhoto, pk=photo_id).delete()
+
+		return JsonResponse({'deleted': True})
+
+	def post(self, request):
+		print("in post request")
+		form = ItemPhotoForm(self.request.POST, self.request.FILES)
+		if form.is_valid():
+			photo = form.save()  # todo change this to commit False
+			## todo save photo to item listing instance
+
+			data = {
+				'is_valid': True, 
+				'id': photo.id, 
+				'name': photo.file.name, 
+				'url': photo.file.url
+			}
+		else:
+			data = {'is_valid': False}
+
+		return JsonResponse(data)
 
 
 '''

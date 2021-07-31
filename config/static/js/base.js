@@ -210,6 +210,51 @@ function signupAndEditSubmit(e) {
 
 }
 
+/** 
+ * Called when user selects another category in the listing category select menu
+ * Also used to fill the sub category options for the default(initial) category
+ */
+function insertItemSubCategories(e) {
+	// use this to get value instead of this.value or $(this).val() because this.value will only work when the select is changed; but we also want to call this method when the document loads.
+	var categoryId = parseInt($('.js-category').first().val(), 10);
+	console.log(categoryId);
+	console.log(e.data.url);
+
+	// get the select menu containing sub category options
+	var $subCategoryMenu = $('.js-subcategory');  
+
+	$.ajax({
+		// url: '/marketplace/ajax/get-item-subcategories/',
+		url: e.data.url,
+		data: {
+		  'category_id': categoryId
+		},
+		dataType: 'json',  // data type of the result(response)
+		success: function (result) {
+			var subCategories = result['sub_categories'];
+
+			// remove all options except the first
+			// $('.js-subcategory > option:not(:first)').remove();
+			$subCategoryMenu.children('option').not(':first').remove();
+			
+			$.each(subCategories, function(index, item) {
+				var option = "<option value=" + item.id + ">" + item.name + "</option>";
+				$subCategoryMenu.append(option);
+			});
+		}
+	});
+}
+
+/**
+ * Called when user selects another condition in the listing condition select menu
+ * Also used to fill the help_text of the initial condition 
+ */
+function insertConditionHelpText(e) {
+	// create object of type condition: help_text; get condition; create div for help text; insert help text into div.
+	var condition = $('.js-condition').first().val();
+	console.log(condition);
+}
+
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
 function init() {
 	var $headerDropdown = $(".js-headerDropdown");

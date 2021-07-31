@@ -1,0 +1,162 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+{% comment %} {% get_current_language as LANGUAGE_CODE %} {% endcomment %}
+
+{% block title %}
+	<title>{% trans 'Photo upload demo' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
+{% endblock extra_css %}
+
+{% block header %}
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+	<div class="">
+		{# button to trigger click event on input type = file button #}
+		<button type="button" class="btn btn-primary js-upload-photos">
+			<i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 
+			{% trans 'Upload photos' %}
+		</button>
+
+		{# input type="file" to be used by the file upload plugin, dispay set to none. #}
+		<input 
+			class="js-fileupload" 
+			type="file" 
+			name="file" 
+			style="display: none;" 
+			data-url="{% url 'marketplace:basic-upload' %}"
+			data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'
+			multiple 
+		>
+
+		{# table to display the uploaded photos #}
+		<table class="table table-bordered w-50 js-gallery">
+			<thead>
+				<tr>
+					<th colspan="2">{% trans 'Photos' %}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for photo in photos %}
+					<tr>
+						<td>
+							<a href="{{ photo.file.url }}" data-id="{{ photo.id }}">
+								{{ photo.file.name }}
+							</a>
+						</td>
+						<td>
+							<button type="button" class="btn-close js-remove-photo" aria-label="{% trans 'Delete' %}"></button>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- progress bar modal -->
+	<div class="modal fade js-modal-progress" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+				<h4 class="modal-title">{% trans 'Uploading' %}...</h4>
+				</div>
+				<div class="modal-body">
+				<div class="progress">
+					<div class="progress-bar js-progress-bar" role="progressbar" style="width: 0%;">0%</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock content %}
+
+{% block footer %}
+{% endblock %}
+
+{% block extra_js %}
+	{# jquery file upload scripts #}
+	<script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+	<script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+	<script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+
+	<script>
+		/* 1. OPEN THE FILE EXPLORER WINDOW */
+		$(".js-upload-photos").first().click(function () {
+			$(".js-fileupload").click();
+		});
+
+		/* 2. INITIALIZE THE FILE UPLOAD COMPONENT */
+		$(".js-fileupload").first().fileupload({
+			dataType: 'json',
+			sequentialUploads: true,  /* send the files one by one */
+			start: function (e) {  
+				// show modal when uploading process starts
+				$(".js-modal-progress").first().modal("show");
+			},
+			stop: function (e) {  
+				// when uploading has terminated, hide the modal */
+				$(".js-modal-progress").first().modal("hide");
+			},
+			progressall: function (e, data) { 
+				// update the progress bar
+				var progress = parseInt(data.loaded / data.total * 100, 10);
+				var strProgress = progress + "%";
+				$(".js-progress-bar").css({"width": strProgress});
+				$(".js-progress-bar").text(strProgress);
+			},
+			done: function (e, data) {
+				// data received from backend is stored in "data.result"
+				if (data.result.is_valid) {
+					$(".js-gallery > tbody").prepend(
+						"<tr> \
+							<td> \
+								<a data-id=' + data.result.id + '> href='" + data.result.url + "'>" + data.result.name + "</a> \
+							</td> \
+							<td> \
+								<button type='button' class='btn-close js-remove-photo' aria-label='{% trans "Delete" %}'></button> \
+							</td> \
+						</tr>"
+					);
+				}
+			}
+
+		});
+
+		$('.js-remove-photo').on('click', function() {
+			var $this = $(this);
+			// get link corresponding to close button
+			var $photoLink = $this.closest('tr').find('a:first-child');
+			var photoId = parseInt($photoLink[0].dataset['id'], 0);
+
+			// call ajax to delete photo from backend
+			$.ajax({
+				url: "{% url 'marketplace:photo-delete' %}" + '?photo_id=' + photoId,
+				type: 'DELETE',
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result.deleted) {
+						// remove photo from frontend
+						// remember $this refers to the close button..
+						$this.closest('tr').remove();
+					}
+				},
+				error: function() {
+					console.error("An error occurred, perhaps the photo to delete wasn't found");
+				}
+			});
+
+		});
+	</script>
+{% endblock %}

@@ -6,8 +6,12 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
-<title>{% trans 'Post your item information' %}</title>
+	<title>{% trans 'Post your item information' %}</title>
 {% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
+{% endblock extra_css %}
 
 {% block institution_searchbox %}
 {% endblock %}
@@ -25,16 +29,36 @@
 			{% csrf_token %}
 
 			<h2 class="text-center mb-4 text-success">{% trans 'Post an item for sale' %}</h2>
-
-			{% crispy form %}
 			<input type="hidden" name='original_language' value="{{ LANGUAGE_CODE }}">
 
-			{% comment %} {{ formset }} {% endcomment %}
+			{% crispy form %}
 
 		</form>
 	</div>
 </div>
 {% endblock content %}
 
-{% block before_body_end %}
+{% block extra_js %}
+<script>
+	// todo fill sub category options with initial value of category
+	// $(document).ready(insertItemSubCategories);
+	$(document).on(
+		'load', 
+		// pass url to js instead of hardcoding
+		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		insertItemSubCategories
+	);
+
+	// attach change event listener to item category(main category)
+	var $category = $('.js-category');
+	// $category.on('change', {}, insertItemSubCategories);
+	$category.on(
+		'change', 
+		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		insertItemSubCategories
+	);
+
+	var $condition = $('.js-condition');
+	$condition.on('change', {}, insertConditionHelpText);
+</script>
 {% endblock %}

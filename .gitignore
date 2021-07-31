@@ -13,6 +13,9 @@
 
 # debug
 
+# collecstatic static files and media files
+/config/core/static/
+/config/media/
 
 # local env files
 .env.local

@@ -1,23 +1,33 @@
-TODO; marketplace app (july 28)
-BACKEND FIRST: 
-- push to github (-m 'Created models for marketplace app')
-- insert some categories, sub categories and institutions into database, ensure that they are displayed in frontend select menus
-- enable getting queryset of sub category via ajax request (listen to onchange in parent category)
-(- research: show loading icon during ajax request -django)
-- change help text of items in forms(match those used in ebay..) (this is so as to differentiate ItemListing and Ad since both inherit from Post).. (contact numbers help text: you can select multiple numbers by pressing the Ctrl key)
 
-FRONTEND:
-(- do research on ckeditor5 and possibly use it instead ?; also math plugin for ckeditor)
-- customize ckeditor, let it resemble that used in Ebay.
-- enable preview of ckeditor content
-- checkout jquery-file-upload. integrate it into project
-- implement dynamicity of photos formset.. (adding, removing, etc..) somewhat like jumia
-- insert 'update profile' button below seller's information fieldset
+(- research: show loading icon during ajax request -django)
+. customize django admin(each item category should contain an inline of its sub categories)
+
+
+- push to github  -m Implemented photo adding and deletion functionality in item listing form
+
+(research attach event when dom finishes loading; how to pass data to dom ready event)
+(research - pass initial option to select menu django form)
+
+- change help text of item condition(based on selected option)
+- insert 'update profile' -> (Change name/contact) button below seller's information fieldset
 - appropriately style form, responsiveness also.
+- insert 'listing description' help text after the label not after the ckeditor widget,
+- place 'post an advert' nav link after buy/sell item link
 - set price to take values such as 150 000 etc.. (only numbers and spaces allowed) . however when submitting to backend, remove spaces and convert to int. 
 - insert validation div for price (below price label right..)
+- pass template url to js function
 
-. properly display price to users (thousand separator..)
+- set listing photo title and change photo name in admin
+. appropriately name ajax views(especially those for file uploads)
+. implement removal of media files after deletion. (package...)
+. implement preview functionality (user should see what detail page of item listing will look like before saving.) this template (listing_preview.html) can(should) inherit from 'listing_detail.html'. check out 
+	django-formtools
+	https://stackoverflow.com/questions/12427771/django-how-to-create-a-preview-view
+	https://stackoverflow.com/questions/12316997/django-creating-a-preview-page
+https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
+easy_thumbnails, pillow
+
+# change all view names in url files to have underscores instead of hyphens.
 
 TODO: users app:
 - remaining front end validations
@@ -110,6 +120,45 @@ def clean(self):
 
 	return cleaned_data
 '''
+
+
+# see https://stackoverflow.com/a/43549692
+class Formset(LayoutObject):
+	""" 
+	Renders an entire formset, as though it were a Field.
+	Accepts the names (as a string) of formset and helper as they
+	are defined in the context
+
+	Examples:
+		Formset('contact_formset')
+		Formset('contact_formset', 'contact_formset_helper')
+	"""
+
+	# template = "%s/formset.html" % TEMPLATE_PACK
+	template = 'marketplace/formset.html'
+
+	def __init__(self, formset_context_name, helper_context_name=None, template=None, label=None):
+		self.formset_context_name = formset_context_name
+		self.helper_context_name = helper_context_name
+
+		# crispy_forms/layout.py:302 requires us to have a fields property
+		self.fields = []
+
+		# Overrides class variable with an instance level variable
+		if template:
+			print(template)
+			self.template = template
+
+	def render(self, form, form_style, context, **kwargs):
+		formset = context.get(self.formset_context_name)
+		helper = context.get(self.helper_context_name)
+		# closes form prematurely if this isn't explicitly stated
+		if helper:
+			helper.form_tag = False
+
+		context.update({'formset': formset, 'helper': helper})
+		return render_to_string(self.template, context.flatten())
+
 
 # dating
 # 	- social media account (-facebook link, twitter link) for this, only users'

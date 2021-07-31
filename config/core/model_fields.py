@@ -21,6 +21,8 @@ class TitleCaseField(models.CharField):
 		super().__init__(*args, **kwargs)
 
 	def to_python(self, value):
+		if not value:
+			return None
 		return value.title()
 
 	def contribute_to_class(self, cls, name, private_only=False):

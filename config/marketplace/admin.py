@@ -2,7 +2,7 @@ from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
 from .models import (
-    AdCategory, ItemCategory, ItemListingPhoto, ItemParentCategory,
+    AdCategory, ItemSubCategory, ItemListingPhoto, ItemCategory,
     ItemListing, Ad, Institution, AdPhoto
 )
 
@@ -19,11 +19,11 @@ class InstitutionAdmin(TranslationAdmin):
     pass
 
 
-class ItemCategoryAdmin(TranslationAdmin):
+class ItemSubCategoryAdmin(TranslationAdmin):
     pass
 
 
-class ItemParentCategoryAdmin(TranslationAdmin):
+class ItemCategoryAdmin(TranslationAdmin):
     pass
 
 
@@ -34,8 +34,8 @@ class AdCategoryAdmin(TranslationAdmin):
 admin.site.register(Ad, AdAdmin)
 admin.site.register(ItemListing, ItemListingAdmin)
 admin.site.register(Institution, InstitutionAdmin)
-admin.site.register(ItemCategory, ItemCategoryAdmin)
+admin.site.register(ItemSubCategory, ItemSubCategoryAdmin)
 admin.site.register(AdCategory, AdCategoryAdmin)
-admin.site.register(ItemParentCategory, ItemParentCategoryAdmin)
+admin.site.register(ItemCategory, ItemCategoryAdmin)
 admin.site.register(ItemListingPhoto)
 admin.site.register(AdPhoto)

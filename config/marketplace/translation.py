@@ -1,7 +1,7 @@
 from modeltranslation.translator import register, TranslationOptions as TransOptions
-from .models import ItemCategory, ItemParentCategory, Ad, ItemListing, Institution
+
 from .models import (
-    AdCategory, ItemCategory, ItemParentCategory,
+    AdCategory, ItemSubCategory, ItemCategory,
     ItemListing, Ad, Institution
 )
 
@@ -12,14 +12,14 @@ class AdCategoryTransOptions(TransOptions):
     required_languages = ('en', 'fr')
 
 
-@register(ItemCategory)
-class CategoryTransOptions(TransOptions):  # "TO" stands for Translation Options
+@register(ItemSubCategory)
+class ItemSubCategoryTransOptions(TransOptions):  # "TO" stands for Translation Options
     fields = ('name', )
     required_languages = ('en', 'fr')
 
 
-@register(ItemParentCategory)
-class ItemParentCategoryTransOptions(TransOptions):
+@register(ItemCategory)
+class ItemCategoryTransOptions(TransOptions):
     fields = ('name', )
     required_languages = ('en', 'fr')
 

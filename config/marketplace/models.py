@@ -2,16 +2,15 @@ from ckeditor.fields import RichTextField
 from datetime import timedelta
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.validators import validate_email
+# from django.core.validators import validate_email
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
-from core.model_fields import LowerCaseEmailField
-from hitcount.models import HitCount, HitCountMixin
-# from users.models import PhoneNumber
+from core.model_fields import LowerCaseEmailField, TitleCaseField
+from hitcount.models import HitCountMixin
 
 User = settings.AUTH_USER_MODEL
 
@@ -26,12 +25,11 @@ class AdCategory(models.Model):
 		verbose_name_plural = 'Ad Categories'
 
 
-class ItemCategory(models.Model):
+class ItemSubCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=35)
-	# prevent deletion of group if it contains some categories
 	parent_category = models.ForeignKey(
-		'ItemParentCategory', 
-		on_delete=models.PROTECT, 
+		'ItemCategory', 
+		on_delete=models.PROTECT,  # prevent deletion of group if it contains some categories
 		related_name='sub_categories',
 		related_query_name='sub_category'
 	)
@@ -40,28 +38,40 @@ class ItemCategory(models.Model):
 		return self.name
 
 	class Meta:
-		verbose_name_plural = 'Item Categories'
+		verbose_name_plural = 'Item Subcategories'
 
 
-class ItemParentCategory(models.Model):
+class ItemCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=30)
 
 	def __str__(self):
 		return self.name
 
 	class Meta:
-		verbose_name_plural = 'Item Parent Categories'
+		verbose_name_plural = 'Item Categories'
 
 
 class ItemListingPhoto(models.Model):
-	image = models.ImageField(upload_to='item photos')
+	title = models.CharField(max_length=255, blank=True, null=True)
+	file = models.ImageField(upload_to='item_photos/')
+	upload_datetime = models.DateTimeField(auto_now_add=True)
+	
 	# many item_listing_photos can belong to one item_listing...
 	item_listing = models.ForeignKey(
 		'ItemListing',
 		on_delete=models.CASCADE,
 		related_name='images',
-		related_query_name='image'
+		related_query_name='image',
+		null=True, blank=True   # change this !!
 	)
+
+	def __str__(self):
+		return self.file.name
+
+	# def save(self, *args, **kwargs):
+	# 	self.title = self.file.name.split('/')[1]
+	# 	super().save(*args, **kwargs)
+
 
 	class Meta:
 		verbose_name = 'Item Listing Photo'
@@ -113,7 +123,13 @@ class Post(models.Model):
 		_('Email address'),
 		max_length=50,
 		help_text=_("Email address to use for notifications"),
-		validators=[validate_email]
+		# validators=[validate_email]
+	)
+	contact_name = TitleCaseField(
+		_('Full name'),
+		max_length=25,
+		help_text=_('Enter real names, buyers will more easily trust you if you enter a real name.'),
+		# validators=[validate_full_name]
 	)
 	contact_numbers = GenericRelation('users.PhoneNumber')
 	# delete post if user is deleted
@@ -124,7 +140,10 @@ class Post(models.Model):
 		help_text=_('A descriptive title helps buyers find your item. <br> State exactly what your post is.')
 	)
 	slug = models.SlugField()
-	description = RichTextField(_('Description'), help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.'))
+	description = RichTextField(
+		_('Description'), 
+		help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.')
+	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
 	# language in which post was created 
 	# in template form, default language should be user's current language code (passed as a hidden field)
@@ -165,7 +184,12 @@ class ItemListing(Post, HitCountMixin):
 		(DEFECTIVE, _('For parts or not working'))
 	)
 
-	category = models.OneToOneField('ItemCategory', on_delete=models.PROTECT)
+	category = models.ForeignKey(
+		'ItemCategory', 
+		related_name='item_listings', 
+		related_query_name='item_listing',
+		on_delete=models.PROTECT
+	)
 	condition = models.CharField(
 		max_length=3,
 		choices=CONDITIONS,
@@ -229,10 +253,10 @@ class Ad(Post, HitCountMixin):
 
 class Institution(models.Model):
 	# only staff can add school.
-	name = models.CharField(_('Name'), max_length=40)
+	name = models.CharField(_('Name'), max_length=50)
 	location = models.CharField(
 		_('Location'),
-		max_length=20,
+		max_length=40,
 		help_text=_('Street or quarter where institution is located')
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
