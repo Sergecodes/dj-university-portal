@@ -6,9 +6,18 @@ from .models import (
     ItemListing, Ad, Institution, AdPhoto
 )
 
+class ItemListingPhotoInline(admin.TabularInline):
+    model = ItemListingPhoto
+    extra = 0
+
+
+class ItemSubCategoryInline(admin.TabularInline):
+    model = ItemSubCategory
+    extra = 1
+
 
 class ItemListingAdmin(TranslationAdmin):
-    pass
+    inlines = [ItemListingPhotoInline, ]
 
 
 class AdAdmin(TranslationAdmin):
@@ -24,7 +33,7 @@ class ItemSubCategoryAdmin(TranslationAdmin):
 
 
 class ItemCategoryAdmin(TranslationAdmin):
-    pass
+    inlines = [ItemSubCategoryInline, ]
 
 
 class AdCategoryAdmin(TranslationAdmin):

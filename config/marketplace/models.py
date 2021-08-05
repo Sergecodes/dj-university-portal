@@ -9,6 +9,10 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import (
+	AD_PHOTOS_UPLOAD_DIRECTORY, 
+	LISTING_PHOTOS_UPLOAD_DIRECTORY
+)
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from hitcount.models import HitCountMixin
 
@@ -51,26 +55,47 @@ class ItemCategory(models.Model):
 		verbose_name_plural = 'Item Categories'
 
 
+class Photo(models.Model):
+
+	class Meta:
+		abstract = True
+
 class ItemListingPhoto(models.Model):
 	title = models.CharField(max_length=255, blank=True, null=True)
-	file = models.ImageField(upload_to='item_photos/')
+	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIRECTORY)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
 	# many item_listing_photos can belong to one item_listing...
 	item_listing = models.ForeignKey(
 		'ItemListing',
 		on_delete=models.CASCADE,
-		related_name='images',
-		related_query_name='image',
-		null=True, blank=True   # change this !!
+		related_name='photos',
+		related_query_name='photo',
+		null=True, blank=True  
+		# in reality, each photo should belong to a listing. null was set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. 
+		# thus in our db, we should always have a photo linked to an item listing. to prevent the event of a user uploading photos but not submitting a listing: 
+		# attach window.onunload event to page. if user clicks on submit button, we save a cookie ('clickedSubmit'). if he leaves page without clicking submit button(if there's no such cookie), send ajax request to server to delete photos that have been uploaded(can do so using session in backend..). Ultimately remove cookie.
+		#  the above will probably be unneccessary and will probably cause some server load. it should be done only if storage space is a concern.
 	)
 
 	def __str__(self):
-		return self.file.name
+		return self.file.name  # apparently, this returns the same result as when using the filenam property
 
-	# def save(self, *args, **kwargs):
-	# 	self.title = self.file.name.split('/')[1]
-	# 	super().save(*args, **kwargs)
+	@property
+	def filename(self):
+		"""Get file name of file (not relative path from MEDIA_URL)"""
+		import os
+
+		return os.path.basename(self.file.name)
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			# get file_name (here, file name is the name of the file as uploaded by user)
+			file_name = self.file.name
+			# get just file name from name and extension combination
+			short_name = file_name.split('.')[0]
+			self.title = short_name
+		super().save(*args, **kwargs)
 
 
 	class Meta:
@@ -79,16 +104,24 @@ class ItemListingPhoto(models.Model):
 
 
 class AdPhoto(models.Model):
-	image = models.ImageField(upload_to='ad photos')
+	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIRECTORY)
 	ad = models.ForeignKey(
 		'Ad',
 		on_delete=models.CASCADE,
-		related_name='images',
-		related_query_name='image'
+		related_name='photos',
+		related_query_name='photo',
+		null=True, blank=True  # same reason as above
 	)
 
 	class Meta:
 		verbose_name_plural = 'Ad Photos'
+
+	@property
+	def filename(self):
+		"""Get file name of file (not relative path from MEDIA_URL)"""
+		import os
+
+		return os.path.basename(self.file.name)
 
 
 class Post(models.Model):
@@ -132,8 +165,6 @@ class Post(models.Model):
 		# validators=[validate_full_name]
 	)
 	contact_numbers = GenericRelation('users.PhoneNumber')
-	# delete post if user is deleted
-	owner = models.OneToOneField(User, on_delete=models.CASCADE)
 	title = models.CharField(
 		_('Title'), 
 		max_length=80, 
@@ -173,17 +204,22 @@ class Post(models.Model):
 
 
 class ItemListing(Post, HitCountMixin):
-	BRAND_NEW = 'BN'
 	USED = 'U'
 	NEW = 'N'
 	DEFECTIVE = 'D'
 	CONDITIONS = (
-		(BRAND_NEW, _('Brand new')),  # still packaged...
-		(USED, _('Used')),  # already used
 		(NEW, _('New')),  # maybe not packaged but not yet used or fairly used (still new)
+		(USED, _('Used')),  # already used
 		(DEFECTIVE, _('For parts or not working'))
 	)
 
+	# delete listing if user is deleted
+	owner = models.ForeignKey(
+		User, 
+		on_delete=models.CASCADE,
+		related_name='item_listings',
+		related_query_name='item_listing'
+	)
 	category = models.ForeignKey(
 		'ItemCategory', 
 		related_name='item_listings', 
@@ -201,6 +237,7 @@ class ItemListing(Post, HitCountMixin):
 		help_text=_('Provide details about the condition of a non brand-new item, including any defects or flaws, so that buyers know exactly what to expect.'),
 		null=True, blank=True
 	)
+	# in form, field will be displayed as charfield. this is to enable entering of spaces..
 	price = models.PositiveIntegerField(
 		_('Price'), 
 		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>0</b> for free products or services."),
@@ -226,6 +263,12 @@ class ItemListing(Post, HitCountMixin):
 
 
 class Ad(Post, HitCountMixin):
+	owner = models.ForeignKey(
+		User, 
+		on_delete=models.CASCADE,
+		related_name='ads',
+		related_query_name='ad'
+	)
 	category = models.OneToOneField('AdCategory', on_delete=models.PROTECT)
 	price = models.CharField(
 		_('Price'), 

@@ -1,8 +1,11 @@
 'use strict';
 
 var NAV_LINK_ACTIVE_COLOR = '#0e1e0a';
+var MIN_PASSWORD_LENGTH = 8;
+var MIN_LISTING_PHOTOS = 3;
+
 var $window = $(window);
-// if you calculate the $window.width() here, you will face FOUC warnings ..
+// if you calculate the $window.width() here, you might face FOUC warnings(if this script comes before body) ..
 // so instead, create a global variable lastWidth and reference it later.
 // var lastWidth = $window.width();
 var lastWidth;
@@ -94,16 +97,20 @@ function loginDropdownMouseLeave() {
 	dropdownMenu.hide();
 }
 
-/** This event  */
-function goToTop() {
-	return;
-}
-
 /** Verify if val contains only numeric characters(digits).
  * Used in form validation.
  */
 function isNumeric(val) {
 	return /^\d+$/.test(val);
+}
+
+
+/** 
+ * Verify if val contains only digits and spaces(and at least one digit)
+ * This is the format for price and phone number
+ */
+function hasOnlySpacesAndDigits(val) {
+	return /^(?=.*\d)[\d ]+$/.test(val);
 }
 
 /** 
@@ -112,8 +119,6 @@ function isNumeric(val) {
  * content: what to display in the alert box
  */
 function signupAndEditSubmit(e) {
-	var MIN_PASSWORD_LENGTH = 8;
-
 	// first remove previous errors from errors list 
 	var $container = $('.js-errors');
 	$container.text("");
@@ -155,16 +160,21 @@ function signupAndEditSubmit(e) {
 	// validate that numbers are valid(may contain only digits and spaces, no other characters.)
 	var $numberInputs = $("tbody .numberinput");
 	var numbers = [];
+	// $numberInputs.each(function(index) {
+	// 	var number = this.value;
+	// 	// remove all whitespace(space character) from number
+	// 	numbers.push(number.replace(/\s/g, ''));
+	// });
+
 	$numberInputs.each(function(index) {
 		var number = this.value;
-		// remove all whitespace(space character) from number
-		numbers.push(number.replace(/\s/g, ''));
-	});
+		numbers.push(number);
+	})
 
 	phoneNumOkay = true;
 	for (var i = 0; i < numbers.length; i++) {
 		// if there is one invalid number
-		if(!isNumeric(numbers[i])) {
+		if(!hasOnlySpacesAndDigits(numbers[i])) {   // changed !isNumeric to !hasOnlySpacesAndDigits
 			phoneNumOkay = false;
 			$container.append("<p>" + data.phoneNumError + "</p>");
 			break;
@@ -210,6 +220,45 @@ function signupAndEditSubmit(e) {
 
 }
 
+/**
+ * Called when the item listing form is submitted.
+ */
+function itemListingFormSubmit(e) {
+	var form = e.target, data = e.data;
+	var price = form.price.value, priceValid = false;
+	var numPhotos = $('.js-gallery > .js-photo-wrp').length, photoValid = false;
+
+	if (numPhotos >= MIN_LISTING_PHOTOS) {
+		photoValid = true;
+	}
+
+	if (hasOnlySpacesAndDigits(price)) {
+		priceValid = true;
+	}
+
+	if (photoValid && priceValid) {
+		// do nothing, form is valid.
+	} else {
+		alert(data.alertContent);
+	}
+
+	if (!photoValid) {
+		e.preventDefault();
+		// get error container and empty it just in case..
+		var $photoErrWrp = $('.js-photo-errors');
+		$photoErrWrp.text('').addClass('alert alert-danger');
+		$photoErrWrp.append("<p>" + data.photoError + "</p>");
+	}
+
+	if (!priceValid) {
+		e.preventDefault();
+		var $priceErrWrp = $('.js-price-errors');
+		$priceErrWrp.text('').addClass('alert alert-danger');
+		$priceErrWrp.append("<p>" + data.priceError + "</p>");
+	}
+
+}
+
 /** 
  * Called when user selects another category in the listing category select menu
  * Also used to fill the sub category options for the default(initial) category
@@ -217,14 +266,11 @@ function signupAndEditSubmit(e) {
 function insertItemSubCategories(e) {
 	// use this to get value instead of this.value or $(this).val() because this.value will only work when the select is changed; but we also want to call this method when the document loads.
 	var categoryId = parseInt($('.js-category').first().val(), 10);
-	console.log(categoryId);
-	console.log(e.data.url);
 
 	// get the select menu containing sub category options
 	var $subCategoryMenu = $('.js-subcategory');  
 
 	$.ajax({
-		// url: '/marketplace/ajax/get-item-subcategories/',
 		url: e.data.url,
 		data: {
 		  'category_id': categoryId
@@ -235,15 +281,22 @@ function insertItemSubCategories(e) {
 
 			// remove all options except the first
 			// $('.js-subcategory > option:not(:first)').remove();
-			$subCategoryMenu.children('option').not(':first').remove();
+			// $subCategoryMenu.children('option').not(':first').remove();
+			$subCategoryMenu.empty();
 			
 			$.each(subCategories, function(index, item) {
 				var option = "<option value=" + item.id + ">" + item.name + "</option>";
 				$subCategoryMenu.append(option);
 			});
+			$subCategoryMenu.prepend(" \
+				<option value='' selected='selected'> \
+					-  -  -  -  -  -  -  -  - \
+				</option>"
+			);
 		}
 	});
 }
+
 
 /**
  * Called when user selects another condition in the listing condition select menu
@@ -251,8 +304,32 @@ function insertItemSubCategories(e) {
  */
 function insertConditionHelpText(e) {
 	// create object of type condition: help_text; get condition; create div for help text; insert help text into div.
-	var condition = $('.js-condition').first().val();
+	var $conditionMenu = $('.js-condition').first();
+	var condition = $conditionMenu.val();
+	var conditionsAndHelpTexts = e.data.conditions;
+
+	var helpText = "<span class='form-text text-muted'>" + conditionsAndHelpTexts[condition] + "</span>";
+	// first remove any help text that could be there
+	$conditionMenu.parent().children('span:last-child').remove();
+	// then insert new help text
+	$conditionMenu.after(helpText);
+}
+
+
+/**
+ * Called when user selects another item condition
+ * If the item condition is new, the condition description field isn't required. otherwise, it is required.
+ */
+ function setDescriptionRequired(e) {
+	var $conditionDescr = $('.js-condition-description');
+	var condition = e.target.value;
 	console.log(condition);
+
+	if (condition === 'N') {
+		$conditionDescr.removeAttr('required'); 
+	} else {
+		$conditionDescr.attr('required', '');
+	}
 }
 
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */

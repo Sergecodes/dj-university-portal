@@ -1,7 +1,43 @@
 /** EXTRA CSS FOR THE MARKETPLACE SITE */
 
 /** Item listing creation form */
-.django-ckeditor-widget {
-    display: block !important;
+.item-listing-form-container {
+    width: 77%;
 }
 
+.item-listing-form {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    padding-top: 1.5rem;  /* pt-4 */
+    padding-bottom: 1.5rem;  /* pb-4 */
+}
+
+.gallery-container {
+    width: 90%;
+}
+
+.photo-wrp__img {
+    width: 130px;
+    height: 70px;
+}
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	.item-listing-form {
+        padding-left: 3rem;  /* ps-5 */
+        padding-right: 1rem; /* pe-3 */
+    }
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .item-listing-form-container {
+        width: 100%;
+    }
+
+	.item-listing-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+}

@@ -16,7 +16,12 @@ from django.urls import reverse
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import PhoneNumberFormset, UserCreationForm, UserUpdateForm
+from .forms import (
+	PhoneNumberFormset,
+	EditPhoneNumberFormset,
+	UserCreationForm, 
+	UserUpdateForm
+)
 
 User = get_user_model()
 
@@ -80,7 +85,6 @@ class UserCreate(CreateView):
 
 	def get_context_data(self, **kwargs):
 		data = super().get_context_data(**kwargs)
-		print('in get context data')
 
 		# add the phone_number formset to this view's context
 		data['formset'] = PhoneNumberFormset(self.request.POST or None)
@@ -92,7 +96,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	form_class = UserUpdateForm
 	slug_url_kwarg = "username"
 	slug_field = "username"
-	template_name = 'users/auth/edit_profile.html'
+	template_name = 'users/edit_profile.html'
 	# success_url = reverse_url('users:view-profile')
 
 	def username_matches(self):
@@ -109,7 +113,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	def post(self, request, *args, **kwargs):
 		self.object = self.get_object()
 		form = self.get_form()
-		formset = PhoneNumberFormset(request.POST, instance=self.object)
+		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -138,9 +142,9 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		data = super().get_context_data(**kwargs)
 		
 		if POST := self.request.POST:
-			data['formset'] = PhoneNumberFormset(POST, instance=self.object)
+			data['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
 		else:
-			data['formset'] = PhoneNumberFormset(instance=self.object)
+			data['formset'] = EditPhoneNumberFormset(instance=self.object)
 
 		return data
 

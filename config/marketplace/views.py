@@ -1,25 +1,97 @@
 # import bleach
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import Http404, JsonResponse
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 # from django.utils.html import escape
-from django.views import View
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
+from core.constants import (
+	LISTING_PHOTOS_UPLOAD_DIRECTORY, 
+	MIN_LISTING_PHOTOS_LENGTH
+)
 from .forms import (
 	ItemListingForm, 
-	ItemListingPhotoFormset as ItemPhotoFormset,
-	ItemListingPhotoForm as ItemPhotoForm
 )
 from .models import (
 	ItemListing, ItemCategory, 
 	ItemListingPhoto
 )
 
+
+class ItemListingCreate(LoginRequiredMixin, CreateView):
+	form_class = ItemListingForm
+	model = ItemListing
+	template_name = 'marketplace/listing_create.html'
+	success_url = reverse_lazy('marketplace:listing-list')
+
+	def get_form_kwargs(self, **kwargs):
+		form_kwargs = super().get_form_kwargs(**kwargs)
+		form_kwargs['user'] = self.request.user
+		return form_kwargs
+
+	def get(self, request, *args, **kwargs):
+		# remove photos list from session (just in case...)
+		request.session.pop(request.user.username, '')
+		return super().get(request, *args, **kwargs)
+
+	def post(self, request, *args, **kwargs):
+		self.object = None
+		form = self.get_form()
+
+		# print(form.data)
+		# print(form.data['sub_category'])
+		# print(dir(form.fields['sub_category']))
+
+		# update queryset of sub category field to ensure that sub category received is indeed a sub category of the passed category
+		category_pk = request.POST.get('category', None)  
+		category = get_object_or_404(ItemCategory, pk=category_pk)
+		sub_category_field = form.fields['sub_category']
+		sub_category_field.queryset = category.sub_categories.all()
+
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			# remove and return photos list from session 
+			photos_list = request.session.pop(request.user.username, [])
+
+			# delete uploaded photos(and also remove corresponding files)
+			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
+			for photo_name in photos_list:
+				# todo code to delete file here..
+				pass
+
+			print(form.errors)
+			return self.form_invalid(form)
+
+	def form_valid(self, form):
+		request = self.request
+		session, username = request.session, request.user.username
+		self.object = form.save(commit=False)
+		listing = self.object
+		listing.owner = request.user
+		listing.institution = form.cleaned_data['institution']
+		listing.save()
+
+		photos_list = session.get(username, [])  # get list of photo names
+		assert len(photos_list) >= MIN_LISTING_PHOTOS_LENGTH, 'There should be at least 3 photos'
+		
+		# create photo instances pointing to the pre-created photos.
+		print(photos_list)
+		for photo_name in photos_list:
+			photo = ItemListingPhoto()
+			# path to file (relative path from MEDIA_ROOT)
+			photo.file.name = LISTING_PHOTOS_UPLOAD_DIRECTORY + photo_name
+			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
+
+		# remove photos list from session 
+		request.session.pop(request.user.username)
+
+		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# return HttpResponseRedirect(self.get_success_url())
+		return HttpResponseRedirect('/')
 
 @login_required
 def create_item_listing(request):
@@ -28,130 +100,24 @@ def create_item_listing(request):
 	if POST := request.POST:
 		# Sending user object to the form so as to display user's info
 		listing_form = ItemListingForm(POST, user=user)
-		photo_formset = ItemPhotoFormset(POST, request.FILES)
 
-		if listing_form.is_valid() and photo_formset.is_valid():
+		if listing_form.is_valid():
 			new_listing = listing_form.save(commit=False)
 			new_listing.owner = user
 			new_listing.institution = listing_form.cleaned_data['institution']
-			new_listing.save()
-
-			for photo_form in photo_formset:
-				assert photo_form.is_valid(), 'Photo form in formset is invalid'
-
-				listing_photo = photo_form.save(commit=False)
-				listing_photo.item_listing = new_listing
-				listing_photo.save()
+			# new_listing.save()
 
 			return HttpResponseRedirect('/')
 		else:
-			print(listing_form.errors, photo_formset.errors)
+			print(listing_form.errors)
 	else:
 		listing_form = ItemListingForm(user=user)
-		# form_category, form_sub_category = form['category'], form['sub_category']
-
-		# # get initial category that will be displayed in browser
-		# initial_category = form_category.field.queryset.first()
-		# form_sub_category 
-		photo_formset = ItemPhotoFormset()
 	
 	return render(
 		request, 
 		'marketplace/listing_create.html', 
-		{'form': listing_form, 'formset': photo_formset}
+		{'form': listing_form}
 	)
-
-# ajax
-def get_item_sub_categories(request):
-	"""Return the sub categories of a given item category via ajax"""
-
-	# no need to coerce, get_object_or_404 handles coercion
-	category_pk = request.GET.get('category_id', None)  
-	category = get_object_or_404(ItemCategory, pk=category_pk)
-
-	result = {
-		# get id and name of each sub category in list
-		'sub_categories': list(category.sub_categories.values('id', 'name'))
-	}
-
-	return JsonResponse(result)
-
-
-# ajax
-class BasicUploadView(View):
-	# use this view just to test the file upload functionality on a separate url
-	def get(self, request):
-		photos = ItemListingPhoto.objects.all()
-		context = {'photos': photos}
-
-		return render(request, 'marketplace/basic_upload.html', context)
-
-	def delete(self, request):
-		photo_id = request.GET.get('photo_id')
-		get_object_or_404(ItemListingPhoto, pk=photo_id).delete()
-
-		return JsonResponse({'deleted': True})
-
-	def post(self, request):
-		print("in post request")
-		form = ItemPhotoForm(self.request.POST, self.request.FILES)
-		if form.is_valid():
-			photo = form.save()  # todo change this to commit False
-			## todo save photo to item listing instance
-
-			data = {
-				'is_valid': True, 
-				'id': photo.id, 
-				'name': photo.file.name, 
-				'url': photo.file.url
-			}
-		else:
-			data = {'is_valid': False}
-
-		return JsonResponse(data)
-
-
-'''
-class ItemListingCreate(LoginRequiredMixin, CreateView):
-	form_class = ItemListingForm
-	model = ItemListing
-	template_name = 'marketplace/listing_create.html'
-	success_url = reverse_lazy('marketplace:listing-list')
-
-	def post(self, request, *args, **kwargs):
-		self.object = None   # set the itemlisting object to None for now.
-		form = self.get_form()
-		formset = ItemPhotoFormset(request.POST, request.FILES)
-
-		# Now validate both the form and formset
-		if form.is_valid() and formset.is_valid():
-			return self.form_valid(form, formset)
-		else:
-			return self.form_invalid(form)
-
-	def form_valid(self, form, photo_formset):
-		with transaction.atomic():
-			self.object = form.save(commit=False)
-			self.object.owner = self.request.user
-			self.object.institution = form.cleaned_data['institution']
-			self.object.save()
-			new_listing = self.object
-
-			for photo_form in photo_formset:
-				assert photo_form.is_valid(), 'Photo form in formset is invalid'
-
-				listing_photo = photo_form.save(commit=False)
-				listing_photo.item_listing = new_listing
-				listing_photo.save()
-		
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(self.get_success_url())
-
-	def get_context_data(self, **kwargs):
-		data = super().get_context_data(**kwargs)
-		data['formset'] = ItemPhotoFormset(self.request.POST or None, self.request.FILES or None)
-		return data
-'''
 
 class ItemListingList(ListView):
 	model = ItemListing

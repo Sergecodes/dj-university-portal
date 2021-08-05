@@ -178,3 +178,10 @@ PhoneNumberFormset = generic_inlineformset_factory(
 	formset=BasePhoneNumberFormset, 
 	extra=1
 )
+
+EditPhoneNumberFormset = generic_inlineformset_factory(
+	PhoneNumber, 
+	form=PhoneNumberForm, 
+	formset=BasePhoneNumberFormset, 
+	extra=0   # don't display any extra form initially
+)

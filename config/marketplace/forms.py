@@ -1,15 +1,18 @@
+import re
 from ckeditor.widgets import CKEditorWidget
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
 	Layout, LayoutObject, Row, Column, Fieldset, 
-	MultiField, HTML, Div, ButtonHolder, TEMPLATE_PACK,
+	MultiField, HTML, Div, ButtonHolder,
 	Button, Hidden, Reset, Submit, Field
 )
 from django import forms
 from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
+from django.urls import reverse, reverse_lazy
+from django.urls.base import set_urlconf
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
@@ -30,7 +33,7 @@ class PhotoFormLayout(LayoutObject):
 		PhotoFormLayout('photo_form', template='...', extra_context={...})
 	"""
 
-	template = 'marketplace/basic_upload.html'
+	template = 'marketplace/photos_upload.html'
 	extra_context = {}
 
 	def __init__(self, template=None, *args, **kwargs):
@@ -58,35 +61,30 @@ class ItemListingPhotoForm(forms.ModelForm):
 
 class ItemListingForm(forms.ModelForm):
 	"""Form used to create a new item listing."""
-
+	# mark slug as not required so it doesn't hinder form validation
+	slug = forms.CharField(required=False)
 	institution = forms.ModelChoiceField(
 		queryset=Institution.objects.all(), 
 		empty_label=None
 	)
 	description = forms.CharField(
 		widget= CKEditorWidget(config_name='demo'),
-		help_text=_("Describe the item you're selling and provide complete and accurate 		details. Use a clear and concise format to keep your description lisible.")
+		help_text=_("Describe the item you're selling and provide complete and accurate details. <br> Use a clear and concise format to keep your description lisible.")
 	)
 	category = forms.ModelChoiceField(
-		label=_('Category'),
 		queryset=ItemCategory.objects.all(), 
 		empty_label=None,
 		widget=forms.Select(attrs={'class': 'js-category'})  # add this class
 	)
-	
 	# initially, it should contain the sub categories of the current(initial) selected parent category. also some user's listings might not have sub categories
 	sub_category = forms.ModelChoiceField(
-		label=_('Sub category'), 
-		# initially set to empty queryset
-		# a call will be made via ajax which will set this queryset based on the value of the parent category
-		queryset=ItemSubCategory.objects.none(), 
 		required=False,
+		queryset=ItemSubCategory.objects.all(),
 		widget=forms.Select(attrs={'class': 'js-subcategory'})
 	)
-	# condition = forms.ChoiceField(
-	# 	choices=CONDITIONS,
-	# 	widget=forms.Select(attrs={'class': 'js-condition'})
-	# )
+	price = forms.CharField(
+		widget=forms.TextInput(attrs={'placeholder': 'Ex. 150 000'}),
+	)
 
 	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
 	contact_numbers = forms.ModelMultipleChoiceField(
@@ -95,18 +93,38 @@ class ItemListingForm(forms.ModelForm):
 		widget=forms.CheckboxSelectMultiple()
 	)
 
+	class Meta:
+		model = ItemListing
+		exclude = ('owner', )
+		help_texts = {
+			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
+			'condition': _("Select the condition of the item you're listing."),
+		}
+		widgets = {
+			'condition': forms.Select(attrs={'class': 'js-condition'}),
+			'condition_description': forms.Textarea(
+				attrs={'rows': 5, 'cols': 40, 'class': 'js-condition-description'}
+			),
+		}
+
 	def __init__(self, *args, **kwargs):
 		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
-		self.user = kwargs.pop('user')
-		user = self.user
+		user = kwargs.pop('user')
 
 		super().__init__(*args, **kwargs)
+
+		external_link_svg = ' \
+			<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
+				<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
+				</path> \
+				<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
+				</polygon> \
+			</svg>'
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_name'].initial = user.full_name
-		# self.fields['condition'].initial = ''
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 
 		self.helper = FormHelper()
@@ -118,48 +136,59 @@ class ItemListingForm(forms.ModelForm):
 					Column('sub_category', css_class='form-group col-md-6 mb-0'),
 					css_class='form-row'
 				),
+				css_class='mb-2'
 			),
 			Fieldset(_('Listing Details'),
 				'title',
+				'duration',
 				Row(
-					Column('condition', css_class='form-group col-md-4 mb-0'),
-					Column('condition_description', css_class='form-group col-md-8 mb-0'),
+					Column('condition', css_class='form-group col-md-5 mb-0'),
+					Column('condition_description', css_class='form-group col-md-7 mb-0'),
 					css_class='form-row'
 				),
-				# photo upload functionality here
-				PhotoFormLayout(
-					# todo, definitely change this queryset! 
-					extra_context={'photos': ItemListingPhoto.objects.all()}
-				),  
-				'description',  
-				# 'price',
-				Field('price', step='500')
+				# photo upload template here
+				PhotoFormLayout(extra_context={}),  
+				'description',
+				'price',
+				css_class='mb-2'
 			),
 			Fieldset(_("Seller's Information"),
 				'contact_email',
 				'contact_name',
 				'contact_numbers'
 			),
+			# modal button to trigger button used in the template.
+			# this button isn't inserted directly in the template so as to maintain the position/layout of elements
+			HTML(" \
+				<button \
+					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
+					type='button' \
+					data-bs-toggle='modal' \
+					data-bs-target='#leavePageModal' \
+				>" +  str(_('Edit phone numbers')) + external_link_svg + 
+				"</button>"
+			),
 			# insert original_language as hidden field.
-			# Submit('submit', _('List item'), css_class='btn btn-primary'),
+			HTML('<input type="hidden" name="original_language" value="{{ LANGUAGE_CODE }}" />'),
 			FormActions(
 				Submit('submit', _('List item'), css_class='btn-lg me-5'),
 				Button('preview', _('Preview'), css_class='btn-lg btn-secondary')
 			)
 		)
 
-	class Meta:
-		model = ItemListing
-		exclude = ('owner', )
-		help_texts = {
-			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
-			'condition': _("Select the condition of the item you're listing."),
-		}
-		widgets = {
-			'condition': forms.Select(attrs={'class': 'js-condition'}),
-			'condition_description': forms.Textarea(attrs={'rows': 5, 'cols': 40}),
-		}
-	
+	def clean_price(self):
+		"""Price should contain only spaces and digits. """
+		price = self.cleaned_data.get('price', '0')  # 0 is in string since the following split() method works on strings
+
+		# remove all whitespace from price
+		price = ''.join(price.split())
+
+		# price should now contain only digits
+		if not price.isdigit():
+			self.add_error('price', _('The price you entered is invalid. Prices may contain only spaces and digits.'))
+		else:
+			return int(price)
+
 
 '''
 class ItemListingUpdateForm(forms.ModelForm):
@@ -174,9 +203,3 @@ class ItemListingUpdateForm(forms.ModelForm):
 		}
 '''
  
-ItemListingPhotoFormset = inlineformset_factory(
-	ItemListing,
-	ItemListingPhoto,
-	form=ItemListingPhotoForm, 
-	extra=3
-)

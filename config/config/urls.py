@@ -32,7 +32,7 @@ urlpatterns += i18n_patterns(
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
     path(_('users/'), include('users.urls', namespace='users')),
-    path(_('captcha/'), include('captcha.urls')),
+    # path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
     path('', core_views.index, name='home'),
 

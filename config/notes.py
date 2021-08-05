@@ -1,24 +1,20 @@
+todo:
+	- preview functionality.
+
+
+
+
+
+
 
 (- research: show loading icon during ajax request -django)
-. customize django admin(each item category should contain an inline of its sub categories)
 
+- set py-2 on photo and price error div
+- change photo help text and error container to "upload at least 3 photos" not 4 photos
+- constraint on file size (maybe max 1MB)
+- minimum length constraints
+- remove confirm password field, implement show password checkbox
 
-- push to github  -m Implemented photo adding and deletion functionality in item listing form
-
-(research attach event when dom finishes loading; how to pass data to dom ready event)
-(research - pass initial option to select menu django form)
-
-- change help text of item condition(based on selected option)
-- insert 'update profile' -> (Change name/contact) button below seller's information fieldset
-- appropriately style form, responsiveness also.
-- insert 'listing description' help text after the label not after the ckeditor widget,
-- place 'post an advert' nav link after buy/sell item link
-- set price to take values such as 150 000 etc.. (only numbers and spaces allowed) . however when submitting to backend, remove spaces and convert to int. 
-- insert validation div for price (below price label right..)
-- pass template url to js function
-
-- set listing photo title and change photo name in admin
-. appropriately name ajax views(especially those for file uploads)
 . implement removal of media files after deletion. (package...)
 . implement preview functionality (user should see what detail page of item listing will look like before saving.) this template (listing_preview.html) can(should) inherit from 'listing_detail.html'. check out 
 	django-formtools
@@ -27,19 +23,13 @@
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
 
-# change all view names in url files to have underscores instead of hyphens.
-
 TODO: users app:
-- remaining front end validations
+- remaining front end validations (full name, )
 - backend validations
 - purge users db; enforce email verification on account signup (hence no captcha needed)  
 (in fact, i don't think site will need captcha.) nb: use only User.objects.create_user() to create new users
-- remove 'disabled' from the email field in the UserUpdateForm. instead, add the bootstrap class  via JS. this is to separate ui from backend. also, don't forget to remove the hidden dummy email field. (also, see https://stackoverflow.com/a/331550 while you're at it)
-   # setting readonly on a widget only makes the input in the browser read-only.  do this "https://stackoverflow.com/a/331550" to ensure its value doesn't change on form level.  P.S. I can also do this by passing the user object to the form and setting the initial attribute of the field to the user's email.
-- in edit form, remove the extra empty phone number form. can do this via js or by setting a new formset factory for editing and setting its extra attribute to 0.
-- make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
-- organize js directory (event-handlers, utils, third-party, own, etc.)
 
+- make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
 
 # 1. VALIDATIONS: front-end first
 Full name validation:
@@ -53,7 +43,9 @@ Phone number:
 	. only numbers and spaces, no other character
 
 
-django-anymail, django-mailer,
+# photo not required for advert. 
+
+# django-anymail, django-mailer,
 
 ## Socialize app...
 birth_date = models.DateField(
@@ -62,6 +54,8 @@ birth_date = models.DateField(
 )
 image = ...
 ...
+
+
 
 # to enable getting the items that a user has bookmarked(user.bookmarked_items) and also probably the number of people that have bookmarked a user's item ?
 # TODO owners won't be able to see those who bookmarked their posts, (but may see number of bookmarks?)
@@ -74,6 +68,17 @@ image = ...
 #         .order_by('-date_added', 'owner__reputation')
 
 #     return render(request, 'index.html', {latest_items: latest_items})
+
+
+# previous sub_category code in item listing form
+# sub_category = forms.ModelChoiceField(
+# 	label=_('Sub category'), 
+# 	# initially set to empty queryset
+# 	# a call will be made via ajax which will set this queryset based on the value of the parent category
+# 	queryset=ItemSubCategory.objects.none(), 
+# 	required=False,
+# 	widget=forms.Select(attrs={'class': 'js-subcategory'})
+# )
 
 '''
 previous formset code in form_valid method in UserCreateView

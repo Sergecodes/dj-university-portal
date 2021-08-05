@@ -35,7 +35,7 @@ class AdTransOptions(TransOptions):
 @register(ItemListing)
 class ItemListingTransOptions(TransOptions):
     fields = ('title', 'slug', 'description', 'condition_description')
-    required_languages = ('en', 'fr')
+    # required_languages = ('en', 'fr')
 
 
 @register(Institution)
