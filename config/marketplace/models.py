@@ -55,13 +55,9 @@ class ItemCategory(models.Model):
 		verbose_name_plural = 'Item Categories'
 
 
-class Photo(models.Model):
-
-	class Meta:
-		abstract = True
-
 class ItemListingPhoto(models.Model):
-	title = models.CharField(max_length=255, blank=True, null=True)
+	# name of photo(without extension) as uploaded by user
+	title = models.CharField(max_length=255, blank=True, null=True) 
 	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIRECTORY)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
@@ -72,7 +68,7 @@ class ItemListingPhoto(models.Model):
 		related_name='photos',
 		related_query_name='photo',
 		null=True, blank=True  
-		# in reality, each photo should belong to a listing. null was set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. 
+		# in reality, each photo should belong to a listing. null is set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. 
 		# thus in our db, we should always have a photo linked to an item listing. to prevent the event of a user uploading photos but not submitting a listing: 
 		# attach window.onunload event to page. if user clicks on submit button, we save a cookie ('clickedSubmit'). if he leaves page without clicking submit button(if there's no such cookie), send ajax request to server to delete photos that have been uploaded(can do so using session in backend..). Ultimately remove cookie.
 		#  the above will probably be unneccessary and will probably cause some server load. it should be done only if storage space is a concern.
@@ -170,7 +166,7 @@ class Post(models.Model):
 		max_length=80, 
 		help_text=_('A descriptive title helps buyers find your item. <br> State exactly what your post is.')
 	)
-	slug = models.SlugField()
+	slug = models.SlugField(max_length=255)
 	description = RichTextField(
 		_('Description'), 
 		help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.')
@@ -226,6 +222,13 @@ class ItemListing(Post, HitCountMixin):
 		related_query_name='item_listing',
 		on_delete=models.PROTECT
 	)
+	sub_category = models.ForeignKey(
+		'ItemSubCategory', 
+		related_name='item_listings', 
+		related_query_name='item_listing',
+		on_delete=models.PROTECT,
+		null=True, blank=True,
+	)
 	condition = models.CharField(
 		max_length=3,
 		choices=CONDITIONS,
@@ -252,7 +255,7 @@ class ItemListing(Post, HitCountMixin):
 
 	def get_absolute_url(self):
 		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:item-detail', kwargs={'id': self.id, 'slug': self.slug})
+		return reverse('marketplace:listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
 	@property
 	def view_count(self):
@@ -270,11 +273,10 @@ class Ad(Post, HitCountMixin):
 		related_query_name='ad'
 	)
 	category = models.OneToOneField('AdCategory', on_delete=models.PROTECT)
-	price = models.CharField(
+	price = models.PositiveIntegerField(
 		_('Price'), 
-		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>-</b> for free products or services, or if the price is part of the description."),
-		default='-',
-		max_length=15
+		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>-</b> for free products or services, or if the price is in the advert description."),
+		default=0
 	)
 	institution = models.ForeignKey(
 		'Institution',
@@ -296,7 +298,7 @@ class Ad(Post, HitCountMixin):
 
 class Institution(models.Model):
 	# only staff can add school.
-	name = models.CharField(_('Name'), max_length=50)
+	name = models.CharField(_('Name'), max_length=50, unique=True)
 	location = models.CharField(
 		_('Location'),
 		max_length=40,

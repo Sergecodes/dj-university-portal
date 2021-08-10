@@ -1,3 +1,19 @@
+
+def parse_phone_number(tel):
+    """
+    Appropriately print a phone number.
+    e.g. 651234566 should return 6 51 23 45 66
+    """
+    result = tel[0]
+    n = len(tel)
+
+    for i in range(1, n, 2):
+        temp = tel[i] + tel[i+1]
+        result = result + ' ' + temp
+    
+    return result
+
+
 # import uuid
 
 # from django.contrib.auth import get_user_model

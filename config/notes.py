@@ -1,25 +1,29 @@
+from marketplace import forms
+
+
 todo:
-	- preview functionality.
+	. list view
+		- enable pagination.
+		- infinite scroll plus pagination on mobile
+	- create models for qa_site app
+	- end at 2 ...
 
-
-
-
-
-
-
-(- research: show loading icon during ajax request -django)
-
+- in listing detail page, print price in words on hover over.(tooltip. see num2words library)
+- finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
+- insert table in ckeditor widget
+- insert watermark(site url) on image before saving
+-show loading icon during ajax request -django
+- add 'FCFA' text after price input
+- add logo(site url) on image before posting.
+- add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
+- remove preview button (display a preview image below listing descirption. whtn clicked should open the description in preview mode.)
 - set py-2 on photo and price error div
-- change photo help text and error container to "upload at least 3 photos" not 4 photos
 - constraint on file size (maybe max 1MB)
 - minimum length constraints
+- when user presses button to delete photo, wait for x seconds before deleting
 - remove confirm password field, implement show password checkbox
+- add can-whatsapp text near phone numbers in item listing create form
 
-. implement removal of media files after deletion. (package...)
-. implement preview functionality (user should see what detail page of item listing will look like before saving.) this template (listing_preview.html) can(should) inherit from 'listing_detail.html'. check out 
-	django-formtools
-	https://stackoverflow.com/questions/12427771/django-how-to-create-a-preview-view
-	https://stackoverflow.com/questions/12316997/django-creating-a-preview-page
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
 
@@ -69,16 +73,6 @@ image = ...
 
 #     return render(request, 'index.html', {latest_items: latest_items})
 
-
-# previous sub_category code in item listing form
-# sub_category = forms.ModelChoiceField(
-# 	label=_('Sub category'), 
-# 	# initially set to empty queryset
-# 	# a call will be made via ajax which will set this queryset based on the value of the parent category
-# 	queryset=ItemSubCategory.objects.none(), 
-# 	required=False,
-# 	widget=forms.Select(attrs={'class': 'js-subcategory'})
-# )
 
 '''
 previous formset code in form_valid method in UserCreateView
@@ -163,6 +157,34 @@ class Formset(LayoutObject):
 
 		context.update({'formset': formset, 'helper': helper})
 		return render_to_string(self.template, context.flatten())
+
+
+.....
+@login_required
+def create_item_listing(request):
+	user = request.user
+
+	if POST := request.POST:
+		# Sending user object to the form so as to display user's info
+		listing_form = ItemListingForm(POST, user=user)
+
+		if listing_form.is_valid():
+			new_listing = listing_form.save(commit=False)
+			new_listing.owner = user
+			new_listing.institution = listing_form.cleaned_data['institution']
+			# new_listing.save()
+
+			return HttpResponseRedirect('/')
+		else:
+			print(listing_form.errors)
+	else:
+		listing_form = ItemListingForm(user=user)
+	
+	return render(
+		request, 
+		'marketplace/listing_create.html', 
+		{'form': listing_form}
+	)
 
 
 # dating

@@ -1,10 +1,11 @@
-# import bleach
+import django_filters as filters
+from django_filters.views import FilterView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-# from django.utils.html import escape
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -24,7 +25,7 @@ from .models import (
 class ItemListingCreate(LoginRequiredMixin, CreateView):
 	form_class = ItemListingForm
 	model = ItemListing
-	template_name = 'marketplace/listing_create.html'
+	template_name = 'marketplace/itemlisting_create.html'
 	success_url = reverse_lazy('marketplace:listing-list')
 
 	def get_form_kwargs(self, **kwargs):
@@ -74,12 +75,18 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		listing.owner = request.user
 		listing.institution = form.cleaned_data['institution']
 		listing.save()
-
-		photos_list = session.get(username, [])  # get list of photo names
-		assert len(photos_list) >= MIN_LISTING_PHOTOS_LENGTH, 'There should be at least 3 photos'
 		
+		# add phone numbers
+		phone_numbers = form.cleaned_data['contact_numbers']
+		for phone_number in phone_numbers:
+			listing.contact_numbers.add(phone_number)
+			
+		print(listing.contact_numbers.all())
+
 		# create photo instances pointing to the pre-created photos.
+		photos_list = session.get(username, [])  # get list of photo names
 		print(photos_list)
+
 		for photo_name in photos_list:
 			photo = ItemListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
@@ -93,37 +100,60 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		# return HttpResponseRedirect(self.get_success_url())
 		return HttpResponseRedirect('/')
 
-@login_required
-def create_item_listing(request):
-	user = request.user
-
-	if POST := request.POST:
-		# Sending user object to the form so as to display user's info
-		listing_form = ItemListingForm(POST, user=user)
-
-		if listing_form.is_valid():
-			new_listing = listing_form.save(commit=False)
-			new_listing.owner = user
-			new_listing.institution = listing_form.cleaned_data['institution']
-			# new_listing.save()
-
-			return HttpResponseRedirect('/')
-		else:
-			print(listing_form.errors)
-	else:
-		listing_form = ItemListingForm(user=user)
-	
-	return render(
-		request, 
-		'marketplace/listing_create.html', 
-		{'form': listing_form}
-	)
-
-class ItemListingList(ListView):
-	model = ItemListing
-	# paginate_by = 5
-	
 
 class ItemListingDetail(DetailView):
 	model = ItemListing
+	context_object_name = 'listing'
+
+	def get_context_data(self, **kwargs):
+		NUM_LISTINGS = 5
+
+		context = super().get_context_data(**kwargs)
+		listing = self.object
+		listing_photos = listing.photos.all()
+		
+		similar_listings = ItemListing.objects.prefetch_related('photos').filter(
+			institution=listing.institution,
+			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
+			sub_category__name__iexact=getattr(listing.sub_category, 'name', '')
+		).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+
+		# get first photos of each similar listing
+		first_photos = []
+		for listing in similar_listings:
+			first_photos.append(listing.photos.first())
+
+		context['photos'] = listing_photos
+		context['contact_numbers'] = listing.contact_numbers.all()
+		context['zipped_list'] = zip(similar_listings, first_photos)
+		return context
+
+
+class ItemListingFilter(filters.FilterSet):
+	title = filters.CharFilter(label=_('Item keyword'), lookup_expr='icontains')
+
+	class Meta:
+		model = ItemListing
+		fields = ['institution', 'title', 'category', ]
+
+
+class ItemListingList(FilterView):
+	model = ItemListing
+	context_object_name = 'listing_list'
+	filterset_class = ItemListingFilter
+	template_name = 'marketplace/itemlisting_list'
+	template_name_suffix = '_list'
+	# paginate_by = 5
+	
+	def get_context_data(self, **kwargs):
+		listings = self.object_list
+		
+		# get first photos of each listing
+		first_photos = []
+		for listing in listings:
+			first_photos.append(listing.photos.first())
+		
+		context = super().get_context_data(**kwargs)
+		context['first_photos'] = first_photos
+		return context
 

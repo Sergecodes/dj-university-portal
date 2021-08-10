@@ -31,12 +31,11 @@ def get_item_sub_categories(request):
 
 # ajax
 class PhotoUploadView(LoginRequiredMixin, View):
-	# use this view just to test the file upload functionality on a separate url
-	# use it for both item listing and advert photos upload ?
-	def get(self, request):
-		photos = ItemListingPhoto.objects.all()
-		context = {'photos': photos}
-		return render(request, 'marketplace/photos_upload.html', context)
+	# def get(self, request):
+		# use this view just to test the file upload functionality on a separate url
+	# 	photos = ItemListingPhoto.objects.all()
+	# 	context = {'photos': photos}
+	# 	return render(request, 'marketplace/photos_upload.html', context)
 
 	def delete(self, request):
 		"""Called when a photo is deleted."""
@@ -46,9 +45,23 @@ class PhotoUploadView(LoginRequiredMixin, View):
 			# 2. find photo(perhaps by name) and actually remove it from backend storage. this will cause unneccessary load on server... and besides we can always periodically remove photos not attached to model instances using cron jobs or some packages.
 		# I'll go with option 1 for now.
 
-		photo_id = request.GET.get('photo_id')
-		get_object_or_404(ItemListingPhoto, pk=photo_id).delete()
-		# todo also remove file from storage
+		# photo_id = request.GET.get('photo_id')
+		# get_object_or_404(ItemListingPhoto, pk=photo_id).delete()
+		# # todo also remove file from storage
+
+		# remove photo from session PS note that the photo will still stay in storage.
+		photo_filename = request.GET.get('photo_filename')
+		print(photo_filename)
+
+		username, session = request.user.username, request.session
+		user_photos = session.get(username)
+		# remove photo title from user photos and update session
+		photo_index = user_photos.index(photo_filename)
+		del user_photos[photo_index]
+		session[username] = user_photos
+
+		print(user_photos)
+
 		return JsonResponse({'deleted': True})
 
 	def post(self, request):
@@ -63,13 +76,14 @@ class PhotoUploadView(LoginRequiredMixin, View):
 			user_photos = session.get(username, [])
 			user_photos.append(photo.filename)
 			session[username] = user_photos
+			print(session[username])
 
 			data = {
 				'is_valid': True, 
 				'id': photo.id, 
-				'name': photo.file.name, 
 				'url': photo.file.url,
-				'title': photo.title
+				'title': photo.title,
+				'filename': photo.filename  
 			}
 			
 			# delete model instance but keep file (# todo ensure this holds even after external packages are installed...)

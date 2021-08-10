@@ -1,3 +1,4 @@
+import bleach
 import re
 from ckeditor.widgets import CKEditorWidget
 from crispy_forms.bootstrap import FormActions
@@ -13,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.urls.base import set_urlconf
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
@@ -170,10 +172,7 @@ class ItemListingForm(forms.ModelForm):
 			),
 			# insert original_language as hidden field.
 			HTML('<input type="hidden" name="original_language" value="{{ LANGUAGE_CODE }}" />'),
-			FormActions(
-				Submit('submit', _('List item'), css_class='btn-lg me-5'),
-				Button('preview', _('Preview'), css_class='btn-lg btn-secondary')
-			)
+			Submit('submit', _('List item'), css_class='btn-lg d-block'),
 		)
 
 	def clean_price(self):
@@ -188,6 +187,7 @@ class ItemListingForm(forms.ModelForm):
 			self.add_error('price', _('The price you entered is invalid. Prices may contain only spaces and digits.'))
 		else:
 			return int(price)
+
 
 
 '''

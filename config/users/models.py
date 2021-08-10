@@ -14,6 +14,7 @@ from django.urls import reverse
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from marketplace.models import ItemListing, Ad
 from .managers import UserManager
+from .utils import parse_phone_number
 from .validators import validate_full_name
 
 
@@ -40,7 +41,9 @@ class PhoneNumber(models.Model):
 
 
 	def __str__(self):
-		return f'{self.number}, {self.operator}'
+		if self.can_whatsapp:
+			return f"{parse_phone_number(self.number)}, {self.operator}, {_('Supports WhatsApp')}"
+		return f"{parse_phone_number(self.number)}, {self.operator}, {_('No WhatsApp')}"
 
 	class Meta:
 		# unique_together = ("content_type", "object_id")

@@ -91,10 +91,9 @@
 		// don't cache $('.js-file-upload'). if u do so, this plugin won't work (photos won't be uploaded)
 		$('.js-file-upload').fileupload({
 			dataType: 'json',
-			sequentialUploads: false,  /* send and get the files one by one */
+			sequentialUploads: true,  /* send and get the files one by one. if this is set to false, each upload resets the session variable that stores photos apparently  */
 			start: function (e) {  
 				// show modal when uploading process starts
-				console.log("started upload");
 				$modalProgress.first().modal("show");
 			},
 			stop: function (e) {  
@@ -120,6 +119,7 @@
 								class='photo-wrp__img' \
 								alt='" + result.title + "' \
 								data-id='" + result.id + "' \
+								data-filename='" + result.filename + "' \
 							> \
 							<button  \
 								type='button' \
@@ -129,14 +129,41 @@
 						</div>"
 					);
 				} else {
-					alert('invalid');
+					alert("{% trans 'Invalid' %}");
 				}
 			}
 		});
 
+
 		$('.js-gallery').on('click', '.js-remove-photo', function() {
 			var $this = $(this);
-			$this.closest('.js-photo-wrp').remove();
+			
+			// get photo corresponding to clicked close button
+			var $photo = $this.closest('.js-photo-wrp').children('img:first-child');
+			// [0] is used to get the dom element from the jQuery object
+			var photoFileName = $photo[0].dataset['filename'];
+			
+			var errorMessage = {% blocktrans %} "An error occurred, perhaps you aren't connected to the internet" {% endblocktrans %};
+
+			// call ajax to delete photo from backend
+			$.ajax({
+				url: "{% url 'marketplace:photo-delete' %}" + '?photo_filename=' + photoFileName,
+				type: 'DELETE',
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result.deleted) {
+						// remove photo from frontend
+						// remember $this refers to the close button..
+						$this.closest('.js-photo-wrp').remove();
+					}
+				},
+				error: function() {
+					alert(errorMessage);
+				}
+			});
 		});
 
 		/*

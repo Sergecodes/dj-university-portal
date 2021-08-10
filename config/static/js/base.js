@@ -332,6 +332,26 @@ function insertConditionHelpText(e) {
 	}
 }
 
+
+/**
+ * Called when an image of the slide is clicked
+ * Displays the image in the expandable menu and places a border around the clicked image
+ */
+function expandImage(e) {
+	// remove border from all images
+	e.data.$images.css('border', 'none');
+
+	// set border on clicked image
+	var img = e.target;
+	var $img = $(img);
+	$img.css('border', '2px inset #198754');
+
+	// set image as expanded image
+	var $expandedImg = $('.js-expanded-img');
+	$expandedImg.attr({'src': img.src, 'alt': img.alt});
+}
+
+
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
 function init() {
 	var $headerDropdown = $(".js-headerDropdown");

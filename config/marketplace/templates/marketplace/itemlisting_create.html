@@ -3,6 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load marketplace_extras %}
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
@@ -122,7 +123,7 @@
 
 	// attach submit event listener to form
 	var $form = $("[name='item-listing-form']");
-	{% comment %} $form.on(
+	$form.on(
 		'submit', 
 		{
 			photoError: "{% trans 'Upload at least 3 photos' %}",
@@ -130,7 +131,7 @@
 			alertContent: "{% trans 'The form contains some errors, correct them to continue.' %}"
 		}, 
 		itemListingFormSubmit
-	); {% endcomment %}
+	); 
 
 	// insert price errors container after price label(it would be very difficult trying to do this in the backend form class instead)
 	var $priceLabel = $("[for='id_price']");

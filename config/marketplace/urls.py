@@ -8,19 +8,22 @@ app_name = 'marketplace'
 
 urlpatterns = [
 	path('', views.ItemListingList.as_view(), name='listing-list'),
-	# path(_('sell-item/'), views.create_item_listing, name='listing-create'),
 	path(_('sell-item/'), views.ItemListingCreate.as_view(), name='listing-create'),
+	path('<int:pk>/<slug:slug>/', views.ItemListingDetail.as_view(), name='listing-detail'),
+	path('<int:pk>/', views.ItemListingDetail.as_view(), name='listing-detail'),
+	path('<slug:slug>/', views.ItemListingDetail.as_view(), name='listing-detail'),
+
+	## AJAX VIEWS ##
 	path('ajax/get-item-subcategories/', ajax_views.get_item_sub_categories, name='get-item-subcategories'),
 	path('ajax/upload-photo/', ajax_views.PhotoUploadView.as_view(), name='photo-upload'),
 	path('ajax/delete-photo/', ajax_views.PhotoUploadView.as_view(), name='photo-delete'),
-	# path('<int:pk>/<slug:slug>', views.ItemDetail.as_view(), name='listing-detail'),
 
 ]
 
 
-if settings.DEBUG:
-	import debug_toolbar
-	urlpatterns = [
-		path('__debug__/', include(debug_toolbar.urls)),
-	] + urlpatterns
+# if settings.DEBUG:
+# 	import debug_toolbar
+# 	urlpatterns = [
+# 		path('__debug__/', include(debug_toolbar.urls)),
+# 	] + urlpatterns
 
