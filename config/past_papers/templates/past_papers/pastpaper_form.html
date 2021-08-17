@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	<title>{% trans 'Upload a past question paper' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	{% comment %} <link rel="stylesheet" href="{% static 'css/past_papers.css' %}"> {% endcomment %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5">
+	<form 
+		action=""
+		method="post"
+		enctype="multipart/form-data"
+	>
+		{% csrf_token %}
+		<h2 class="text-center mb-4 text-success">{% trans 'Upload a question paper'|title %}</h2>
+		
+		{% crispy form %}
+
+		
+
+	</form>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+
+</script>
+{% endblock %}

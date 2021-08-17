@@ -1,5 +1,3 @@
-import bleach
-import re
 from ckeditor.widgets import CKEditorWidget
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
@@ -13,8 +11,6 @@ from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.urls.base import set_urlconf
-from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
@@ -63,14 +59,13 @@ class ItemListingPhotoForm(forms.ModelForm):
 
 class ItemListingForm(forms.ModelForm):
 	"""Form used to create a new item listing."""
-	# mark slug as not required so it doesn't hinder form validation
-	slug = forms.CharField(required=False)
+	# slug = forms.CharField(required=False)
 	institution = forms.ModelChoiceField(
 		queryset=Institution.objects.all(), 
 		empty_label=None
 	)
 	description = forms.CharField(
-		widget= CKEditorWidget(config_name='demo'),
+		widget= CKEditorWidget(config_name='listing_description'),
 		help_text=_("Describe the item you're selling and provide complete and accurate details. <br> Use a clear and concise format to keep your description lisible.")
 	)
 	category = forms.ModelChoiceField(
@@ -97,7 +92,7 @@ class ItemListingForm(forms.ModelForm):
 
 	class Meta:
 		model = ItemListing
-		exclude = ('owner', )
+		exclude = ('owner', 'slug', )
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
 			'condition': _("Select the condition of the item you're listing."),

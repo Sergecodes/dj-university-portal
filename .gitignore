@@ -17,8 +17,17 @@
 /config/core/static/
 /config/media/
 
+# development files
+*.log
+*.pot
+*.pyc
+__pycache__/
+
+
 # local env files
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# run  git rm --cached -r __pycache__/

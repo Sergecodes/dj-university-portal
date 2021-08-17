@@ -12,7 +12,7 @@ from .models import (
 	ItemListingPhoto
 )
 
-# ajax
+
 @login_required
 def get_item_sub_categories(request):
 	"""Return the sub categories of a given item category via ajax"""
@@ -29,7 +29,6 @@ def get_item_sub_categories(request):
 	return JsonResponse(result)
 
 
-# ajax
 class PhotoUploadView(LoginRequiredMixin, View):
 	# def get(self, request):
 		# use this view just to test the file upload functionality on a separate url

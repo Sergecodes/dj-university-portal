@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	<title>{% trans 'Ask a Question - Academic Questions' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="px-5 mb-5">
+	<h2 class="mb-4 text-success">{% trans 'Ask an Academic Question' %}</h2>
+	<form method="post" class="p-3 shadow bg-body rounded academic-question-form">
+		{% csrf_token %}
+		{{ form.media }}
+		{{ form|crispy }}
+		<input type="submit" class="btn btn-success mt-3 mb-2 px-3" value="{% trans 'ASK Question' %}">
+	</form>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+	// place help text directly after label instead of below the ckeditor widget
+	var $contentLabel = $("[for='id_content']");
+	$contentLabel.css({'margin-bottom': '0', 'display': 'block'});
+	var $contentHelpText = $('#hint_id_content');
+	$contentHelpText.css({'display': 'block', 'margin-top': '0', 'margin-bottom': '.8rem'});
+	$contentLabel.after($contentHelpText);
+
+	// hide html tags on footer of ckeditor widget 
+	$('#cke_1_path').hide();
+
+	// style tags selection section
+	var $checkboxDivs = $('#div_id_tags .form-check');
+	$checkboxDivs.parent().attr('class', 'row');
+	$checkboxDivs.attr('class', 'col-3');
+	$checkboxDivs.css({
+		'display': 'inline-block',
+		'margin-left': '.5rem',
+		'margin-right': '.5rem'
+	});
+	$('#hint_id_tags').css('display', 'block');
+</script>
+{% endblock %}

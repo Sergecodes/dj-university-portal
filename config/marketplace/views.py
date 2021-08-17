@@ -136,14 +136,19 @@ class ItemListingFilter(filters.FilterSet):
 		model = ItemListing
 		fields = ['institution', 'title', 'category', ]
 
+	@property
+	def qs(self):
+		parent = super().qs
+		return parent.order_by('-datetime_added')
+
 
 class ItemListingList(FilterView):
 	model = ItemListing
-	context_object_name = 'listing_list'
+	# context_object_name = 'listings'
 	filterset_class = ItemListingFilter
 	template_name = 'marketplace/itemlisting_list'
 	template_name_suffix = '_list'
-	# paginate_by = 5
+	paginate_by = 2
 	
 	def get_context_data(self, **kwargs):
 		listings = self.object_list

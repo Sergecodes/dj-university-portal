@@ -32,8 +32,11 @@ urlpatterns += i18n_patterns(
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
     path(_('users/'), include('users.urls', namespace='users')),
+    path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
+    path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
     # path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     path('', core_views.index, name='home'),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -93,7 +93,6 @@ class ItemListingPhoto(models.Model):
 			self.title = short_name
 		super().save(*args, **kwargs)
 
-
 	class Meta:
 		verbose_name = 'Item Listing Photo'
 		verbose_name_plural = 'Item Listing Photos'
@@ -263,6 +262,9 @@ class ItemListing(Post, HitCountMixin):
 
 	class Meta:
 		verbose_name_plural = 'Item Listings'
+		indexes = [
+			models.Index(fields=['-datetime_added'])
+		]
 
 
 class Ad(Post, HitCountMixin):
@@ -294,6 +296,11 @@ class Ad(Post, HitCountMixin):
 	@property
 	def view_count(self):
 		return self.hitcount.num_of_hits
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['-datetime_added'])
+		]
 
 
 class Institution(models.Model):

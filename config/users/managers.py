@@ -7,14 +7,21 @@ from django.utils.translation import gettext_lazy as _
 
 
 class UserQuerySet(QuerySet):
-	def delete(self):
-		# self is a queryset containing the profiles to be deleted; Profile.objects.filter(...).delete()
-		# get users from self
-		# note: we can't do something like this: Entry.objects.update(blog__name='foo') # Won't work!
-		# update() only works on the model's fields, not it's related fields.
-		get_user_model().objects.filter(id__in=self).update(is_active=False)
-		self.update(status='D', deletion_datetime=timezone.now())
+	# Never call delete on User object !
 
+	# def delete(self):
+	# 	# self is a queryset containing the profiles to be deleted; Profile.objects.filter(...).delete()
+	# 	# get users from self
+	# 	# note: we can't do something like this: Entry.objects.update(blog__name='foo') # Won't work!
+	# 	# update() only works on the model's fields, not it's related fields.
+	# 	get_user_model().objects.filter(id__in=self).update(is_active=False)
+	# 	self.update(status='D', deactivation_datetime=timezone.now())
+
+	def deactivate(self):
+		# don't do this:
+		# for user in self:
+		# 	user.deactivate()
+		self.update(is_active=False, status='D', deactivation_datetime=timezone.now())
 
 class UserManager(BaseUserManager, Manager):
 	def create_user(self, email, username, full_name, password, gender, first_language, commit=True, **extra_fields):

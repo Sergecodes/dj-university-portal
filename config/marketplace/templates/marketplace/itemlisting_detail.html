@@ -21,7 +21,7 @@
 <div class="container-lg mb-5">
 	<article class="d-flex shadow bg-body rounded p-3 mb-5 listing-wrp">
 		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
-		<div class="d-flex mb-5">
+		<div class="d-lg-flex mb-5">
 			<div>
 				<div class="row mb-3 photo-slide">
 					{% for photo in photos %}
@@ -141,6 +141,7 @@
 					<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
 				</div>
 			{% endfor %}
+		</div>
 	</section>
 </div>
 {% endblock content %}

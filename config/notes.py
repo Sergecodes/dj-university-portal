@@ -1,28 +1,40 @@
+from django.contrib.admin.helpers import checkbox
 from marketplace import forms
 
 
 todo:
-	. list view
-		- enable pagination.
-		- infinite scroll plus pagination on mobile
-	- create models for qa_site app
-	- end at 2 ...
+	august 12
+		- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 
+- add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
+- for all posts on site, when user posts, directly store in db and show on site. However, there should be a "flag" button that will permit them to flag the post for moderator attention.
+- for desktop, in question detail page, insert ck editor directly. on mobile, user should click a button before the widget should be displayed... ?
+- add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
+- use bootstrap toasts !
+- add 'draft your question advice' like stackoverflow in question creation form... ?
+- add 'send_notification' field to form/model (questions creation)(exactly like myschool)..
+- add possibility to enter code in ckeditor.
+
+- for advert list page, create it as marketplace/adverts. then route both marketplace/ and marketplace/items/ to items. It should be tabs. (Items  and Adverts). clicking on one loads its page.
+- add sorting by price and date  in item listing page like jumia and myschool
+- infinite scroll on mobile only in item listing page like jumia. use https://stackoverflow.com/a/45717542/10526469 pagination on mobile ?... .. bootstrap position fixed bar..
+	. if i.is_lastnumber_in_list and i < total_num_pages;
+		generate new pagination menu with i placed first and set i as active.
+		followed by next items.
+	(drop infinite scroll if too difficult or time contrained.)
+# yaiero/tagify for tags.... 	stackoverflow.com/q/10839570/10526469
 - in listing detail page, print price in words on hover over.(tooltip. see num2words library)
 - finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
-- insert table in ckeditor widget
-- insert watermark(site url) on image before saving
+# - insert table in ckeditor widget
+- insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 -show loading icon during ajax request -django
-- add 'FCFA' text after price input
-- add logo(site url) on image before posting.
+- add 'FCFA' text after price input box.
 - add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
-- remove preview button (display a preview image below listing descirption. whtn clicked should open the description in preview mode.)
-- set py-2 on photo and price error div
+
 - constraint on file size (maybe max 1MB)
 - minimum length constraints
 - when user presses button to delete photo, wait for x seconds before deleting
 - remove confirm password field, implement show password checkbox
-- add can-whatsapp text near phone numbers in item listing create form
 
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
@@ -271,22 +283,4 @@ class UserActivity(models.Model):
 	# then a cron job to remove all entries with date < current date
 	# from django.utils.timezone import localtime, now
 	remove all entries where entry.datetime.date() < timezone.now().date
-'''
-
-# Sentinel userstuff (if user has to be really deleted from db)
-'''
-DELETED_USER_EMAIL = 'deleted@gmail.com'
-
-def get_sentinel_user():
-	"""
-	In case a user is deleted, set his profile to the dummy profile
-	and set him to inactive. Don't actually delete the user!
-	"""
-	# store this user in cache
-	password = str(uuid.uuid4())
-	return User.objects.get_or_create(
-		username='deleted',
-		email=DELETED_USER_EMAIL,  # fraudulent irrelevant email
-		defaults={'password': password, 'is_active': False}
-# 	)[0]
 '''

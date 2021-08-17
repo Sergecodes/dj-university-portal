@@ -122,7 +122,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# site points can be used for one-day-listing, {video call developer(me), site bonuses, rankings  etc}
 	site_points = models.PositiveIntegerField(_('Site points'), default=5)  # +5 points for joining the site lol
 	status = models.CharField(choices=STATUSES, default='A', max_length=2)
-	deletion_datetime = models.DateTimeField(_('Deletion date/time'), null=True, blank=True)
+	deactivation_datetime = models.DateTimeField(_('Deactivation date/time'), null=True, blank=True)
 	datetime_joined = models.DateTimeField(_('Date/time joined'), default=timezone.now)
 	last_login = models.DateTimeField(_('Last login'), auto_now=True)
 	is_superuser = models.BooleanField(default=False)
@@ -147,12 +147,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 		self.full_clean()
 		super().save(*args, **kwargs)
 
-	def delete(self):
+	def deactivate(self):
+		"""Mark user as inactive but allow his record in database."""
 		# Don't actually delete user account, just do this instead
 		self.status = 'D'
-		self.deletion_datetime = timezone.now()
+		self.deactivation_datetime = timezone.now()
 		self.is_active = False
-		self.save(update_fields=['is_active', 'status', 'deletion_datetime'])
+		self.save(update_fields=['is_active', 'status', 'deactivation_datetime'])
+
+	# def delete(self):
+	# 	self.deactivate()
 	
 	def get_absolute_url(self):
 		return reverse('users:view-profile', kwargs={'username': self.username})
@@ -178,6 +182,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return self.suspensions.count()
 
 
+# dummy email
+DELETED_USER_EMAIL = 'deleted@gmail.com'
+
+def get_dummy_user():
+	"""
+	Dummy user to use as owner of posts that belong to deleted users.
+	Normally, users accounts should note be deletable, but can be deactivated(set is_active=False)
+	"""
+	return User.objects.get_or_create(
+		username='deleted',
+		email=DELETED_USER_EMAIL,
+		defaults={
+			'password': str(uuid.uuid4()), 
+			'is_active': False
+		}
+	)[0]
+
+
 class Suspension(models.Model):
 	# Moderators should suspend users if they are constantly reported, after warning etc
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -197,13 +219,3 @@ class Suspension(models.Model):
 		""" When the suspension will end """
 		return self.creation_datetime + self.duration
 
-
-# @receiver(post_save, sender=get_user_model())
-# def create_marketplace_profile(sender, instance, created, **kwargs):
-# 	""" When user is created, instantly link to marketplace profile """
-# 	# TODO Do same with qa-site app.
-# 	# instance is a user
-# 	if created:  # if a new user was created
-# 		profile = MarketplaceProfile(user=instance)
-# 		profile.save()
-	
