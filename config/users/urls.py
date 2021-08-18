@@ -80,7 +80,7 @@ urlpatterns = [
 		),
 		name='password-reset-complete'
 	),
-	path(_('<str:username>/edit/'), views.UserUpdate.as_view(), name='edit-profile'),
+	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
 	path('<str:username>/', views.UserDetail.as_view(), name='view-profile'),
 
 ]

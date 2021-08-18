@@ -3,12 +3,17 @@ from marketplace import forms
 
 
 todo:
-	august 12
-		- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
+	august 18:
+		- social profile form
+		- apparently, some nav dropdown links don't work when on mobile screen size. arrange this..
 
+
+- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
+- !! validate uploaded file types and sizes in views that permit file uploads !!!!!
 - add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
 - for all posts on site, when user posts, directly store in db and show on site. However, there should be a "flag" button that will permit them to flag the post for moderator attention.
 - for desktop, in question detail page, insert ck editor directly. on mobile, user should click a button before the widget should be displayed... ?
+- append (- CamerEcole) to title of each page. apparently, sites like myschool and SO do this.
 - add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
 - use bootstrap toasts !
 - add 'draft your question advice' like stackoverflow in question creation form... ?
@@ -62,15 +67,6 @@ Phone number:
 # photo not required for advert. 
 
 # django-anymail, django-mailer,
-
-## Socialize app...
-birth_date = models.DateField(
-	_('Date of birth'),
-	blank=True, null=True,
-)
-image = ...
-...
-
 
 
 # to enable getting the items that a user has bookmarked(user.bookmarked_items) and also probably the number of people that have bookmarked a user's item ?

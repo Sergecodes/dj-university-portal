@@ -81,7 +81,6 @@
 
 .post__img {
     width: 10rem;
-    max-width: 100%;
     height: 100%;
 }
 
@@ -90,8 +89,8 @@
 /* Layout for desktop sizes and greater (>= lg) */
 @media (min-width: 992px) {
 	.item-listing-form {
-        padding-left: 3rem;  /* ps-5 */
-        padding-right: 1rem; /* pe-3 */
+        padding-left: 2rem;  
+        padding-right: 1rem; 
     }
 }
 

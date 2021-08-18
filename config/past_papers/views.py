@@ -14,8 +14,20 @@ from .models import PastPaper, PastPaperPhoto
 
 
 class PastPaperCreateView(CreateView):
-    model = PastPaper
-    form_class = PastPaperForm
-    success_url = '/'
+	model = PastPaper
+	form_class = PastPaperForm
+	success_url = '/'
 
-    
+	def form_valid(self, form):
+		request = self.request
+		self.object = form.save(commit=False)
+		past_paper = self.object
+		past_paper.poster = request.user
+		past_paper.save()
+
+		uploaded_photos = request.FILES.getlist('photos')
+		for photo in uploaded_photos:
+			past_paper.photos.add(PastPaperPhoto.objects.create(file=photo))
+
+		return self.get_success_url()
+

@@ -5,12 +5,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import get_language, ugettext_lazy as _
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import (
-	LISTING_PHOTOS_UPLOAD_DIRECTORY, 
+	LISTING_PHOTOS_UPLOAD_DIR, 
 	MIN_LISTING_PHOTOS_LENGTH
 )
 from .forms import (
@@ -90,7 +90,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		for photo_name in photos_list:
 			photo = ItemListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = LISTING_PHOTOS_UPLOAD_DIRECTORY + photo_name
+			photo.file.name = LISTING_PHOTOS_UPLOAD_DIR + photo_name
 			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 

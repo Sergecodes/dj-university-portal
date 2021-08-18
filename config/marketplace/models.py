@@ -10,8 +10,8 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
-	AD_PHOTOS_UPLOAD_DIRECTORY, 
-	LISTING_PHOTOS_UPLOAD_DIRECTORY
+	AD_PHOTOS_UPLOAD_DIR, 
+	LISTING_PHOTOS_UPLOAD_DIR
 )
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from hitcount.models import HitCountMixin
@@ -58,7 +58,7 @@ class ItemCategory(models.Model):
 class ItemListingPhoto(models.Model):
 	# name of photo(without extension) as uploaded by user
 	title = models.CharField(max_length=255, blank=True, null=True) 
-	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIRECTORY)
+	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
 	# many item_listing_photos can belong to one item_listing...
@@ -99,7 +99,7 @@ class ItemListingPhoto(models.Model):
 
 
 class AdPhoto(models.Model):
-	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIRECTORY)
+	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
 	ad = models.ForeignKey(
 		'Ad',
 		on_delete=models.CASCADE,
