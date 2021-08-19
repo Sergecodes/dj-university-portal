@@ -5,5 +5,5 @@ from .models import SocialProfile
 
 @register(SocialProfile)
 class SocialProfileTransOptions(TransOptions):
-    fields = ('about_me', 'interests', 'hobbies')
-    required_languages = ('en', 'fr')
+    fields = ('department', 'about_me', 'hobbies')
+    # required_languages = ('en', 'fr')

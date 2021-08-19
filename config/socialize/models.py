@@ -61,6 +61,26 @@ class SocialProfile(models.Model):
 		('undecided', _('Undecided'))
 	)
 
+	about_me = models.TextField(_('A little about me'))
+	hobbies = models.TextField(_('My hobbies and interests'))
+	profile_image = models.ImageField(
+		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
+		null=True, blank=True
+	)
+	# determine if users profile page is visible to other users
+	is_visible = models.BooleanField(
+		_('Profile visible to other users'),
+		default=False, 
+		help_text=_("<br>Enable Socialize and allow other users to be able to view my profile.")
+	)
+	birth_date = models.DateField(
+		_('Birthday'), 
+		help_text=_("Please at least enter the correct birth year.")
+	)
+	department = models.CharField(
+		_('Department'),
+		max_length=30
+	)
 	user = models.OneToOneField(
 		get_user_model(),
 		on_delete=models.CASCADE,
@@ -68,7 +88,7 @@ class SocialProfile(models.Model):
 		# related_query_name='social_profile'  # related_query_name = related_name if rel_name is specified
 		primary_key=True
 	)
-	level = models.CharField(choices=LEVELS, max_length=7)
+	level = models.CharField(_('Level'), choices=LEVELS, max_length=7, default=None)
 	social_media = models.OneToOneField(
 		SocialMediaFollow, 
 		on_delete=models.SET_NULL,
@@ -82,34 +102,26 @@ class SocialProfile(models.Model):
 		related_query_name='social_profile'
 	)
 	current_relationship = models.CharField(
+		_('Current relationship'),
 		choices=CURRENT_RELATIONSHIPS, 
-		max_length=15
+		max_length=15,
+		default=None
 	)
 	interested_relationship = models.CharField(
+		_('Interested relationship'),
 		choices=INTERESTED_RELATIONSHIPS, 
-		max_length=15
+		max_length=15,
+		default=None
 	)
 	gender = models.CharField(
+		_('Gender'),
 		choices=GENDERS, 
 		default='M', 
 		max_length=2
 	)
-	about_me = models.TextField(_('A little about me'))
-	interests = models.TextField(_('My interests'))
-	hobbies = models.TextField(_('My hobbies'))
-	profile_image = models.ImageField(
-		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
-		null=True, blank=True
-	)
-	# determine if users profile page is visible to other users
-	is_visible = models.BooleanField(
-		default=False, 
-		help_text=_("Enable Socialize and allow other users to be able to view my profile.")
-	)
-	birth_date = models.DateField(
-		_('Birthday'), 
-		help_text=_("Please at least enter the correct birth year.")
-	)
+
+	def __str__(self):
+		return str(self.user)
 
 
 

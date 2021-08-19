@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from core import views as core_views
+from core.views import HomePageView
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
@@ -34,10 +34,11 @@ urlpatterns += i18n_patterns(
     path(_('users/'), include('users.urls', namespace='users')),
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
+    path(_('socialize/'), include('socialize.urls', namespace='socialize')),
     # path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('', core_views.index, name='home'),
+    path('', HomePageView.as_view(), name='home'),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

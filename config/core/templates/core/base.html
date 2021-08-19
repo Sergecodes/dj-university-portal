@@ -67,7 +67,7 @@
 									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: white; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: white; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 								</g>
 							</svg>
-							<span class="d-block">{% trans 'Notifications' %}</span>
+							<span class="d-block">{% trans '{% trans 'Notifications' %}' %}</span>
 						</a>
 					</li>
 					<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
@@ -85,7 +85,7 @@
 								<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="white"></path>
 							</svg>
 							<br>
-							<span>My Account</span>
+							<span>{% trans 'My Account' %}</span>
 							<i class="fas fa-angle-down"></i>
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
@@ -173,7 +173,7 @@
 										<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: white; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: white; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 									</g>
 								</svg>
-								<span class="d-block">Notifications</span>
+								<span class="d-block">{% trans 'Notifications' %}</span>
 							</a>
 						</li>
 						<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
@@ -190,14 +190,14 @@
 									<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="white"></path>
 								</svg>
 								<br>
-								<span>My Account</span>
+								<span>{% trans 'My Account' %}</span>
 								<i class="fas fa-angle-down"></i>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu2">
 								<div class="px-4 py-2">
 									<a href="#" class="header-profile-info">
-										<span class="d-block">Username</span>
-										<span class="small text-dark">This is my name</span>
+										<span class="d-block">{{ user.username }}</span>
+										<span class="small text-dark">{{ user.full_name }}</span>
 									</a>
 								</div>
 								<hr class="dropdown-divider">
