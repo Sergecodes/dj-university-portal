@@ -26,7 +26,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 	form_class = ItemListingForm
 	model = ItemListing
 	template_name = 'marketplace/itemlisting_create.html'
-	success_url = reverse_lazy('marketplace:listing-list')
+	success_url = reverse_lazy('marketplace:item-listing-list')
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs = super().get_form_kwargs(**kwargs)

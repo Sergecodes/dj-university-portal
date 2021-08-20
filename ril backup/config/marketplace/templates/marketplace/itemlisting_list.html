@@ -1,0 +1,253 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load marketplace_extras %}
+
+{% block title %}
+	<title>{{ listing.title }}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<div class="container-lg mb-5 listing-list-container">
+	<section class="listing-search-form-wrp">
+		<form method="get" class="p-3 listing-search-form">
+			<h4>{% trans 'Filter' %}</h4>
+			{% with filter.form as form %}
+				<div class="row">
+					<div class="form-group col-sm-4 col-md-4">
+						{{ form.institution|as_crispy_field }}
+					</div>
+					<div class="form-group col-sm-4 col-md-4">
+						{{ form.category|as_crispy_field }}
+					</div>
+					<div class="form-group col-sm-4 col-md-4">
+						{{ form.title|as_crispy_field }}
+					</div>
+				</div>
+			{% endwith %}
+			<button type="submit" class="btn btn-primary">
+				<i class="fas fa-search"></i>
+				{% trans 'Search' %}
+			</button>
+			
+		</form>
+	</section>
+
+	<section class="listing-list-wrp">
+		<ul class="listing-list js-listing-list">
+			<div class="js-listing-list-content">
+				{# {% for listing, photo in filter.qs|zip:first_photos %} #}
+				{% for listing, photo in page_obj|zip:first_photos %}
+					<li class="d-flex p-3 pb-4 mb-2 post js-post">
+						<div class="flex-shrink-0">
+							<a href="{{ listing.get_absolute_url }}">
+								<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+							</a>
+						</div>
+						<div class="flex-grow-1 ms-4">
+							<a 
+								href="{{ listing.get_absolute_url }}" 
+								class="h5 text-decoration-none"
+							>
+								{{ listing.title }}
+							</a>
+							<br class="mb-4">
+							<a 
+								class="text-decoration-none" 
+								href="#"
+							>
+								{{ listing.institution }}
+							</a>
+							<br class="mb-1">
+							<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+							<span> | {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+						</div>
+					</li> 
+				{% endfor %}
+			</div>
+			
+			{% comment %}
+				{% if page_obj.has_next %}
+					<a 
+						class="infinite-more-link" 
+						href="?{% query_transform request page=page_obj.next_page_number %}"
+					>
+						{% trans 'More' %}
+					</a>
+				{% endif %}
+				<div class="js-loading" style="display: none;">
+					{% trans 'Loading...' %}
+				</div>
+			{% endcomment %}
+
+			{% if is_paginated %}
+				<ul class="pagination mt-4">
+					{% if page_obj.has_previous %}
+						<li class="page-item">
+							<a 
+								aria-label="{% trans 'Previous' %}"
+								class="page-link" 
+								href="?{% query_transform request page=page_obj.previous_page_number %}"
+							>
+								<span aria-hidden="true">
+									<i class="fas fa-chevron-left"></i>
+								</span>
+							</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">
+								<i class="fas fa-chevron-left"></i>
+							</span>
+						</li>
+					{% endif %}
+
+					{% if page_obj.number|add:'-4' > 1 %}
+						<li class="page-item">
+							<a 
+								class="page-link"
+								href="?{% query_transform request page=page_obj.number|add:'-5' %}"
+							>
+								&hellip;
+							</a>
+						</li>
+					{% endif %}
+
+					{% for i in page_obj.paginator.page_range %}
+						{% if page_obj.number == i %}
+							<li class="page-item active">
+								<span class="page-link">
+									{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+								</span>
+							</li>
+						{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+							<li class="page-item">
+								<a 
+									class="page-link"
+									href="?{% query_transform request page=i %}"
+								>
+									{{ i }}
+								</a>
+							</li>
+						{% endif %}
+					{% endfor %}
+
+					{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+						<li class="page-item">
+							<a 
+								class="page-link"
+								href="?{% query_transform request page=page_obj.number|add:'5' %}"
+							>
+								&hellip;
+							</a>
+						</li>
+					{% endif %}
+
+					{% if page_obj.has_next %}
+						<li class="page-item">
+							<a 
+								aria-label="{% trans 'Next' %}"
+								class="page-link" 
+								href="?{% query_transform request page=page_obj.next_page_number %}"
+							>
+								<span aria-hidden="true">
+									<i class="fas fa-chevron-right"></i>
+								</span>
+							</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">
+								<i class="fas fa-chevron-right" aria-hidden="true"></i>
+							</span>
+						</li>
+					{% endif %}
+				</ul>
+
+				{% comment %} <ul class="pagination mt-4">
+					{% if page_obj.has_previous %}
+						<li class="page-item">
+							<a 
+								aria-label="{% trans 'Previous' %}"
+								class="page-link" 
+								href="?{% query_transform request page=page_obj.previous_page_number %}"
+							>
+								<span aria-hidden="true">&laquo;</span>
+							</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">&laquo;</span>
+						</li>
+					{% endif %}
+					{% for i in paginator.page_range %}
+						{% if page_obj.number == i %}
+						<li class="page-item active">
+							<span class="page-link">
+								{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+							</span>
+						</li>
+						{% else %}
+						<li class="page-item">
+							<a class="page-link" href="?{% query_transform request page=i %}">
+								{{ i }}
+							</a>
+						</li>
+						{% endif %}
+					{% endfor %}
+					{% if page_obj.has_next %}
+						<li class="page-item">
+							<a 
+								aria-label="{% trans 'Next' %}"
+								class="page-link" 
+								href="?{% query_transform request page=page_obj.next_page_number %}"
+							>
+								<span aria-hidden="true">&raquo;</span>
+							</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">&raquo;</span>
+						</li>
+					{% endif %}
+				</ul> {% endcomment %}
+			{% endif %}
+		</ul>
+		
+	</section>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- 
+<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
+<script src="{% static 'js/infinite.min.js' %}"></script>
+<script>
+	console.log("{{ page_obj.paginator.page_range }}")
+	console.log("{{ page_obj.paginator.num_pages }}");
+	var infinite = new Waypoint.Infinite({
+		element: $('.js-listing-list-content').first().get(0),
+		items: '.js-post',
+		more: '.infinite-more-link',
+		onBeforePageLoad: function () {
+			$('.js-loading').show();
+		},
+		onAfterPageLoad: function ($items) {
+			var $previouslyActive = $('.active').first();
+			$('.js-loading').hide();
+		}
+	}); 
+</script> 
+-->
+{% endblock %} 

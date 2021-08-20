@@ -26,8 +26,8 @@ User = get_user_model()
 class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = AcademicQuestionForm
 	model = AcademicQuestion
-	success_url = '/'
-	# success_url = reverse_lazy('qa_site:listing-list')
+	# success_url = '/'
+	success_url = reverse_lazy('qa_site:academic-question-detail')
 
 	def form_valid(self, form):
 		request = self.request
@@ -85,9 +85,8 @@ class AcademicQuestionDetail(DetailView):
 
 class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = SchoolQuestionForm
-	model = SchoolQuestion
-	success_url = '/'
-	# success_url = reverse_lazy('qa_site:listing-list')
+	model = SchoolQuestionForm
+	success_url = reverse_lazy('qa_site:academic-question-detail')
 
 	def form_valid(self, form):
 		request = self.request

@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from core.model_fields import LowerCaseEmailField, TitleCaseField
-from marketplace.models import ItemListing, Ad
+from marketplace.models import ItemListing, AdListing
 from .managers import UserManager
 from .utils import parse_phone_number
 from .validators import validate_full_name
@@ -108,13 +108,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 		default='M',
 		max_length=2,
 	)
-	bookmarked_listings = models.ManyToManyField(
+	bookmarked_item_listings = models.ManyToManyField(
 		ItemListing,
 		related_name='bookmarkers',
 		related_query_name='bookmarker'
 	)
-	bookmarked_ads = models.ManyToManyField(
-		Ad,
+	bookmarked_ad_listings = models.ManyToManyField(
+		AdListing,
 		related_name='bookmarkers',
 		related_query_name='bookmarker'
 	)

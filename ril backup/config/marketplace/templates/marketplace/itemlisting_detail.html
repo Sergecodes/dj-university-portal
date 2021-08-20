@@ -1,0 +1,165 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+{% load marketplace_extras %}  {# custom tag #}
+
+{% block title %}
+	<title>{{ listing.title }}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<div class="container-lg mb-5">
+	<article class="d-flex shadow bg-body rounded p-3 mb-5 listing-wrp">
+		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
+		<div class="d-lg-flex mb-5">
+			<div>
+				<div class="row mb-3 photo-slide">
+					{% for photo in photos %}
+					<div class="col-4 col-lg-3 my-2"> 
+						<img 
+							src="{{ photo.file.url }}"
+							class="photo-slide__img js-photo-slide__img"
+							alt="{{ photo.title }}"
+						> 
+					</div>
+					{% endfor %}
+				</div>
+				<div class="expanded-img-wrp">
+					<img class="w-100 js-expanded-img">
+				</div>
+			</div>
+			<div class="ms-2 me-5 mt-4">
+				<table class="table table-bordered">
+					<tr>
+						<th colspan="2" class="text-center">{% trans 'Item info' %}</th>
+					</tr>
+					<tr class="fs-5">
+						<td>{% trans 'Price' %}</td>
+						<td>
+							<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'School' %}</td>
+						<td>
+							<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Item Condition' %}</td>
+						<td>
+							<span class="fw-bold">{{ listing.get_condition_display }}</span> 
+							{% if listing.condition_description %}
+								<span>; {{ listing.condition_description }}</span>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Category' %}</td>
+						<td>
+							<a href="#" class="text-decoration-none">{{ listing.category }}</a>
+							{% if listing.sub_category %}
+								<span> > <a href="#" class="text-decoration-none"> {{ listing.sub_category }}</a></span>
+							{% endif %}
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Posted' %}</td>
+						<td>{{ listing.datetime_added|naturaltime }}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div class="mb-4">
+			<h3 class="mb-3">{% trans 'Item Description' %}</h3>
+			<div>{{ listing.description|safe }}</div>
+		</div>
+		<div class="alert alert-warning w-75 pb-1 mb-5 warning-wrp" role="alert">
+			<h4 class="alert-heading">{% trans 'WARNING!' %}</h4>
+			<ul>
+				<li>{% trans "You should ensure you physically inspect or see the product to be purchased, and transact face to face." %}</li>
+				<li>{% trans 'Do not make payment until you see the item and do not send money to "reserve" an item.' %}</li>
+				<li>{% trans "Do not give your personal information such as bank details, credit card number, etc... " %}</li>
+				<li>{% trans "Ensure you meet with the seller in a public place." %}</li>
+				<li>{% trans "Beware of very low prices." %}</li>
+			</ul>
+			<hr>
+			<p>{% trans "If you understand the above warnings, contact the seller using the details below." %}<p>
+		</div>		
+		<div class="contact-details">
+			<h4 class="text-success">{% trans 'Contact' %} {{ listing.contact_name }}</h4>
+			<div class="fs-4 px-3 shadow-sm bg-body rounded number-box-wrp">
+				{% for phone_number in contact_numbers %}
+					{% with phone_number.number as number %}
+					<div class="py-2 d-flex number-box">
+						<a 
+							href="tel: {{ number }}" 
+							class="text-dark text-decoration-none number-box__tel"
+						>
+							{# properly print tel using custom template filter #}
+							{{ number|parse_tel }}
+						</a>
+						{% if phone_number.can_whatsapp %}
+							<a 
+								href="https://wa.me/237{{number}}" 
+								class="text-success number-box__whatsapp"
+								data-bs-toggle="tooltip"
+								title="{% trans 'Contact via WhatsApp' %}"
+							>
+								<i class="fab fa-whatsapp"></i>
+							</a>
+						{% endif %}
+					</div>
+					{% endwith %}
+				{% endfor %}
+			</div>
+		</div>
+	</article>
+	<hr class="mb-4">
+	<section class="shadow-sm bg-body rounded p-3 similar-listings-wrp">
+		<h5 class="h6 mb-4">
+			{% trans 'Similar listings in' %} 
+			<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
+		</h5>
+		<div class="row">
+			{% for sim_listing, photo in zipped_list %}
+				<div class="col similar-listing">
+					<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
+						<img class="mb-2 similar-listing__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+						<p>{{ sim_listing.title }}</p>
+					</a>
+					<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
+				</div>
+			{% endfor %}
+		</div>
+	</section>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+	var $images = $('.js-photo-slide__img');
+	$images.on('click', {$images: $images}, expandImage);
+	
+	var $firstImg = $images.first(), firstImg = $firstImg.get(0);
+	$firstImg.css('border', '2px inset #198754');
+	var $expandedImg = $('.js-expanded-img');
+	$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
+
+	// initialize all tooltips on the page
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
+	});
+</script>
+{% endblock %}

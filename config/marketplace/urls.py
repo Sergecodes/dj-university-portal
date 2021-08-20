@@ -7,11 +7,11 @@ from . import views, ajax_views
 app_name = 'marketplace'
 
 urlpatterns = [
-	path('', views.ItemListingList.as_view(), name='listing-list'),
-	path(_('sell-item/'), views.ItemListingCreate.as_view(), name='listing-create'),
-	path('<int:pk>/<slug:slug>/', views.ItemListingDetail.as_view(), name='listing-detail'),
-	path('<int:pk>/', views.ItemListingDetail.as_view(), name='listing-detail'),
-	path('<slug:slug>/', views.ItemListingDetail.as_view(), name='listing-detail'),
+	path('', views.ItemListingList.as_view(), name='item-listing-list'),
+	path(_('sell-item/'), views.ItemListingCreate.as_view(), name='item-listing-create'),
+	path('<int:pk>/<slug:slug>/', views.ItemListingDetail.as_view(), name='item-listing-detail'),
+	path('<int:pk>/', views.ItemListingDetail.as_view(), name='item-listing-detail'),
+	path('<slug:slug>/', views.ItemListingDetail.as_view(), name='item-listing-detail'),
 
 	## AJAX VIEWS ##
 	path('ajax/get-item-subcategories/', ajax_views.get_item_sub_categories, name='get-item-subcategories'),

@@ -14,7 +14,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from .models import (
-	ItemListing, Ad, Institution, ItemSubCategory,
+	ItemListing, AdListing, Institution, ItemSubCategory,
 	ItemCategory, ItemListingPhoto
 )
 

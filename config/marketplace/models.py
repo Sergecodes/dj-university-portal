@@ -98,10 +98,10 @@ class ItemListingPhoto(models.Model):
 		verbose_name_plural = 'Item Listing Photos'
 
 
-class AdPhoto(models.Model):
+class AdListingPhoto(models.Model):
 	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
-	ad = models.ForeignKey(
-		'Ad',
+	ad_listing = models.ForeignKey(
+		'AdListing',
 		on_delete=models.CASCADE,
 		related_name='photos',
 		related_query_name='photo',
@@ -109,7 +109,7 @@ class AdPhoto(models.Model):
 	)
 
 	class Meta:
-		verbose_name_plural = 'Ad Photos'
+		verbose_name_plural = 'Ad Listing Photos'
 
 	@property
 	def filename(self):
@@ -254,7 +254,7 @@ class ItemListing(Post, HitCountMixin):
 
 	def get_absolute_url(self):
 		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
 	@property
 	def view_count(self):
@@ -267,12 +267,12 @@ class ItemListing(Post, HitCountMixin):
 		]
 
 
-class Ad(Post, HitCountMixin):
+class AdListing(Post, HitCountMixin):
 	owner = models.ForeignKey(
 		User, 
 		on_delete=models.CASCADE,
-		related_name='ads',
-		related_query_name='ad'
+		related_name='ad_listings',
+		related_query_name='ad_listing'
 	)
 	category = models.OneToOneField('AdCategory', on_delete=models.PROTECT)
 	price = models.PositiveIntegerField(

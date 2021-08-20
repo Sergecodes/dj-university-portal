@@ -1,0 +1,273 @@
+/** THIS SHEET IS FOR COMMON SITE STYLING AND USERS SECTION */
+
+/*
+* xs --- Extra small devices (portrait phones, < 576px)
+* No media query since this is the default in Bootstrap
+* sm --- Small devices (landscape phones, >= 576px  [576px and up])
+* md --- Medium devices (tablets, >= 768px)
+* lg --- Large devices (desktops, >= 992px)
+* xl --- Extra large devices (large desktops, >= 1200px)
+* xxl -- Extra extra large devices (larger desktops, >=1400px)
+*/
+
+img {
+	max-width: 100%;
+}
+
+.header-top {
+	padding-top: .3rem;
+	padding-bottom: .3rem;
+	background-color: #086a3d;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.logo {
+	text-align: center;
+}
+
+.register-button {
+	opacity: 0.95;
+	background-color: #dba339;
+}
+
+.register-button:hover,
+.register-button:focus {
+	opacity: 1;
+}
+
+.login-button {
+	opacity: 0.95;
+	/* background-color: #8a32ca; */
+}
+
+.login-button:hover,
+.login-button:focus {
+	opacity: 1;
+}
+
+.dropdown-login-form {
+	min-width: 20rem;
+}
+
+.header-top__text {
+	color: white;
+}
+
+.nav-menu__link {
+	font-size: 15px;
+	color: white;
+}
+
+.nav-menu__link:focus,
+.nav-menu__link:hover {
+	color: #0e1e0a;  /* dark */
+	/* color: #f0cb46; */
+}
+
+
+/* style dropdown arrow */
+.nav-menu__link::after {
+	vertical-align: 0.1em;
+}
+
+.lang-select-form {
+	width: 10rem;
+}
+
+/* .lang-select-form--unauthed {
+	
+} */
+
+.lang-select-form--authed {
+	margin-left: 2.5rem;
+}
+
+.lang-select--unauthed {
+	/* text-align: right; */
+	width: 90%;
+}
+
+/* .lang-select--authed {
+
+} */
+
+/* .notifs-and-profile {
+
+} */
+
+.register-and-login {
+	justify-content: right;
+}
+
+.header-notifs-svg {
+	position: relative;
+	top: .4rem;
+	padding-left: 1px;
+}
+
+.header-notifs-link:hover,
+.header-profile-menu:hover {
+	filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
+}
+
+.header-notifs-link,
+.header-profile-menu,
+.header-notifs-link:hover,
+.header-profile-menu:hover {
+	color: #fff;
+	text-decoration: none;
+	font-size: .65em;
+}
+
+.header-profile-svg {
+	margin-top: 3px;
+	margin-bottom: 1px;
+}
+
+.header-profile-info {
+	white-space: nowrap;
+	text-decoration: none;
+	text-align: center;
+	display: block;
+}
+
+.nav-bar-toggler {
+	border-color: #ffe484;
+	background: none;
+	opacity: 0.8;
+}
+
+.nav-bar-toggler:hover,
+.nav-bar-toggler:focus,
+.nav-bar-toggler:active {
+	box-shadow: none;
+	opacity: 1;
+}
+
+.nav-bar-toggler__icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+.institution-searchbox {
+	background-color: #21935e;
+	border-radius: 5px;
+}
+
+.form-submit-button,
+.institution-search-form__submit-button {
+	font-weight: 600;
+	color: #ffe484;
+	border-color: #ffe484;
+}
+
+.form-submit-button:active,
+.form-submit-button:hover,
+.institution-search-form__submit-button:active,
+.institution-search-form__submit-button:hover {
+	/* color: #2a2730; */
+	color: #ffe484;
+	background-color: #3f996f;
+	border-color: #ffe484;
+}
+
+.section-title {
+	font-size: 1.62rem;
+	border-bottom: 1px solid #198754;
+	/* padding-bottom: 10px; */
+	/* border-bottom: 1px solid #93999F; */
+}
+
+.section-title__text {
+	border-bottom: 2px solid #198754;
+}
+
+
+/* Footer section */
+.footer {
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.footer__subheading {
+	padding-bottom: 3px;
+	border-bottom: 1px solid #505e4c;
+	font-size: 1.7rem;
+	letter-spacing: 0.05rem;
+	color: #88d985;
+	font-weight: bold;
+}
+
+.footer__link {
+	padding-left: 0;
+	padding-bottom: 4px;
+	color: #69bd66;
+}
+
+.footer__link:hover {
+	/* color: #444; */
+	/* color: #eee; */
+	color: #69bd66; /* maintain same color */
+	text-decoration: underline;
+}
+
+.footer-channels__svg {
+	vertical-align: -2px;
+	margin-left: 5px;
+}
+
+
+/*** USER REGISTRATION & LOGIN PAGES ***/
+/* remove asterisk from required fields when using django-crispyforms */
+/* .asteriskField {
+	display: none;
+} */
+
+.user-form {
+	border: 1px solid #8cc69b;
+}
+
+.user-form--edit,
+.user-form--signup {
+	width: 60%;
+}
+
+.user-form--login {
+	width: 50%;
+}
+
+.user-form__heading {
+	color: #198754;
+	font-weight: 500;
+	border-bottom: 1px dashed #198754;
+}
+
+.user-form--login__heading,
+.user-form--password-change__heading,
+.user-form--password-reset__heading {
+	border: none;
+	text-decoration: underline;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	.dropdown:hover .dropdown-menu {
+		display: block;
+		margin-top: 0;
+	}
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	.user-form--edit,
+	.user-form--signup {
+		width: 100%;  
+	}
+
+	.user-form--login {
+		width: 90%;  
+	}
+}

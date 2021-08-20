@@ -1,0 +1,299 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR sergedurand205@gmail.com, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-03-22 21:54+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: config/settings.py:150
+msgid "English"
+msgstr "Anglais"
+
+#: config/settings.py:151
+msgid "French"
+msgstr "Français"
+
+#: config/urls.py:31
+msgid "marketplace/"
+msgstr ""
+
+#: config/urls.py:32
+msgid "hitcount/"
+msgstr ""
+
+#: hitcount/admin.py:37
+#, python-format
+msgid "Successfully blacklisted %d IPs"
+msgstr ""
+
+#: hitcount/admin.py:39
+msgid "Blacklist selected IP addresses"
+msgstr ""
+
+#: hitcount/admin.py:47
+#, python-format
+msgid "Successfully blacklisted %d User Agents"
+msgstr ""
+
+#: hitcount/admin.py:49
+msgid "Blacklist selected User Agents"
+msgstr ""
+
+#: hitcount/admin.py:55
+msgid "Delete selected hits and blacklist related IP addresses"
+msgstr ""
+
+#: hitcount/admin.py:61
+msgid "Delete selected hits and blacklist related User Agents"
+msgstr ""
+
+#: hitcount/admin.py:76
+msgid "Delete selected hits"
+msgstr ""
+
+#: hitcount/models.py:49
+msgid "hit count"
+msgstr ""
+
+#: hitcount/models.py:50
+msgid "hit counts"
+msgstr ""
+
+#: hitcount/models.py:120
+msgid "hit"
+msgstr ""
+
+#: hitcount/models.py:121
+msgid "hits"
+msgstr ""
+
+#: hitcount/models.py:156
+msgid "Blacklisted IP"
+msgstr ""
+
+#: hitcount/models.py:157
+msgid "Blacklisted IPs"
+msgstr ""
+
+#: hitcount/models.py:167
+msgid "Blacklisted User Agent"
+msgstr ""
+
+#: hitcount/models.py:168
+msgid "Blacklisted User Agents"
+msgstr ""
+
+#: marketplace/models.py:24
+msgid "Credit points"
+msgstr ""
+
+#: marketplace/models.py:31 marketplace/models.py:43 marketplace/models.py:234
+msgid "Name"
+msgstr "Nom"
+
+#: marketplace/models.py:33
+msgid "Group"
+msgstr "Groupe"
+
+#: marketplace/models.py:62
+msgid "Operator"
+msgstr ""
+
+#: marketplace/models.py:64
+msgid "Phone number"
+msgstr ""
+
+#: marketplace/models.py:66
+msgid "Enter mobile number <b>(without +237)</b>"
+msgstr ""
+
+#: marketplace/models.py:69
+msgid "Works with WhatsApp"
+msgstr "Fonctionne avec WhatsApp"
+
+#: marketplace/models.py:97
+msgid "5 days"
+msgstr ""
+
+#: marketplace/models.py:98
+msgid "1 week"
+msgstr ""
+
+#: marketplace/models.py:99
+msgid "10 days"
+msgstr ""
+
+#: marketplace/models.py:101
+msgid "1 month"
+msgstr ""
+
+#: marketplace/models.py:102
+msgid "3 months"
+msgstr ""
+
+#: marketplace/models.py:103
+msgid "5 months"
+msgstr ""
+
+#: marketplace/models.py:110
+msgid "Title"
+msgstr ""
+
+#: marketplace/models.py:113 marketplace/models.py:240
+msgid "Date/time added"
+msgstr ""
+
+#: marketplace/models.py:114
+msgid "Number of bookmarks"
+msgstr ""
+
+#: marketplace/models.py:122
+msgid "Language"
+msgstr ""
+
+#: marketplace/models.py:164
+msgid "Brand new"
+msgstr ""
+
+#: marketplace/models.py:165
+msgid "Used"
+msgstr ""
+
+#: marketplace/models.py:166
+msgid "New"
+msgstr "Nouveau"
+
+#: marketplace/models.py:167
+msgid "For parts or not working"
+msgstr ""
+
+#: marketplace/models.py:175
+msgid "Select the condition of the item you're listing"
+msgstr ""
+
+#: marketplace/models.py:178
+msgid "Condition description"
+msgstr ""
+
+#: marketplace/models.py:179
+msgid ""
+"Provide details about the condition of a non brand new item, including any "
+"defects of flaws, so that buyers know exactly what to expect."
+msgstr ""
+
+#: marketplace/models.py:236
+msgid "Location"
+msgstr ""
+
+#: marketplace/models.py:238
+msgid "Street or quarter where institution is located"
+msgstr ""
+
+#: users/managers.py:24
+msgid "The email must be set"
+msgstr ""
+
+#: users/managers.py:26
+msgid "The username must be set"
+msgstr ""
+
+#: users/managers.py:28
+msgid "The password must be set"
+msgstr ""
+
+#: users/managers.py:30
+msgid "The full name must be set"
+msgstr ""
+
+#: users/managers.py:54
+msgid "Superuser must have is_staff=True."
+msgstr ""
+
+#: users/managers.py:56
+msgid "Superuser must have is_mod=True."
+msgstr ""
+
+#: users/managers.py:58
+msgid "Superuser must have is_superuser=True."
+msgstr ""
+
+#: users/models.py:43
+msgid "Email address"
+msgstr ""
+
+#: users/models.py:46
+msgid "We will send a verification code to this email"
+msgstr ""
+
+#: users/models.py:48
+msgid "A user with that email already exists"
+msgstr ""
+
+#: users/models.py:53
+msgid "Username"
+msgstr ""
+
+#: users/models.py:56
+msgid ""
+"This is the name people will know you by on this site. You can always change "
+"it later"
+msgstr ""
+
+#: users/models.py:58
+msgid "A user with that username already exists"
+msgstr ""
+
+#: users/models.py:62
+msgid "Full name"
+msgstr ""
+
+#: users/models.py:64
+msgid "Two of your names will be okay. Please enter your real names."
+msgstr ""
+
+#: users/models.py:71
+msgid "First language"
+msgstr ""
+
+#: users/models.py:75
+msgid "Your preferred language"
+msgstr ""
+
+#: users/models.py:77
+msgid "Deletion date/time"
+msgstr ""
+
+#: users/models.py:78
+msgid "Date/time joined"
+msgstr ""
+
+#: users/models.py:79
+msgid "Last login"
+msgstr ""
+
+#: users/validators.py:11
+#, python-format
+msgid "%(number)s is not a valid phone number"
+msgstr ""
+
+#: users/validators.py:16
+msgid "Number must begin with either 2 or 6."
+msgstr ""
+
+#: users/validators.py:25
+#, python-format
+msgid "%(full_name)s is not valid"
+msgstr ""

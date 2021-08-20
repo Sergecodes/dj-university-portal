@@ -2,7 +2,7 @@ from modeltranslation.translator import register, TranslationOptions as TransOpt
 
 from .models import (
     AdCategory, ItemSubCategory, ItemCategory,
-    ItemListing, Ad, Institution
+    ItemListing, AdListing, Institution
 )
 
 
@@ -24,8 +24,8 @@ class ItemCategoryTransOptions(TransOptions):
     required_languages = ('en', 'fr')
 
 
-@register(Ad)
-class AdTransOptions(TransOptions):
+@register(AdListing)
+class AdListingTransOptions(TransOptions):
     fields = ('title', 'slug', 'description')
     required_languages = ('en', 'fr')  # for english and french, all fields are required
     # just blank=False is applied. We have to apply null=True in model.full_clean() method as per modeltranslation docs

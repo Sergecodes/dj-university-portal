@@ -3,7 +3,7 @@ from modeltranslation.admin import TranslationAdmin
 
 from .models import (
     AdCategory, ItemSubCategory, ItemListingPhoto, ItemCategory,
-    ItemListing, Ad, Institution, AdPhoto
+    ItemListing, AdListing, Institution, AdListingPhoto
 )
 
 class ItemListingPhotoInline(admin.TabularInline):
@@ -20,7 +20,7 @@ class ItemListingAdmin(TranslationAdmin):
     inlines = [ItemListingPhotoInline, ]
 
 
-class AdAdmin(TranslationAdmin):
+class AdListingAdmin(TranslationAdmin):
     pass
 
 
@@ -40,11 +40,11 @@ class AdCategoryAdmin(TranslationAdmin):
     pass
 
 
-admin.site.register(Ad, AdAdmin)
+admin.site.register(AdListing, AdListingAdmin)
 admin.site.register(ItemListing, ItemListingAdmin)
 admin.site.register(Institution, InstitutionAdmin)
 admin.site.register(ItemSubCategory, ItemSubCategoryAdmin)
 admin.site.register(AdCategory, AdCategoryAdmin)
 admin.site.register(ItemCategory, ItemCategoryAdmin)
 admin.site.register(ItemListingPhoto)
-admin.site.register(AdPhoto)
+admin.site.register(AdListingPhoto)

@@ -1,0 +1,7 @@
+/** EXTRA CSS FOR THE MARKETPLACE SITE */
+
+/** Item listing creation form */
+.django-ckeditor-widget {
+    display: block !important;
+}
+

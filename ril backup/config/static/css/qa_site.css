@@ -1,0 +1,49 @@
+/** EXTRA CSS FOR THE QA_SITE */
+
+/* Question creation forms */
+.school-question-form,
+.academic-question-form {
+	width: 80%;
+}
+
+.django-ckeditor-widget {
+	width: 100%;
+}
+
+
+/* Questions detail view pages */
+.question-header {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.question-header__title {
+	color: #3c4146;
+}
+
+.question-info {
+	font-size: .95rem;
+}
+
+.answers-header__count {
+	color: #3c4146;
+	font-size: 1.4rem;
+}
+
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	.school-question-form,
+	.academic-question-form {
+		width: 100%;
+	}
+
+}
