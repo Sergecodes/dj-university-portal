@@ -19,45 +19,15 @@
 
 {% block content %}
 <!-- 100% wide undil lg. (At lg it turns to container.) -->
-<div class="container-lg mb-5 item-listing-form-container">
+<div class="container-lg mb-5 listing-form-container">
 	<form 
 		name="item-listing-form"
 		action="{% url 'marketplace:item-listing-create' %}"
-		class="item-listing-form" 
+		class="listing-form" 
 		method="post"
-		enctype="multipart/form-data"
 	>
 		{% csrf_token %}
 		<h2 class="text-center mb-4 text-success">{% trans 'Post an item for sale'|title %}</h2>
-
-		{% comment %} <ul class="nav nav-tabs" id="myTab" role="tablist">
-			<li class="nav-item" role="presentation">
-				<button 
-					class="nav-link active" 
-					id="home-tab" 
-					data-bs-toggle="tab" 
-					data-bs-target="#home"
-					type="button"
-					role="tab" 
-					aria-controls="home"
-					aria-selected="true"
-				> Home 
-				</button>
-			</li>
-			<li class="nav-item" role="presentation">
-				<button 
-					class="nav-link active" 
-					id="profile-tab" 
-					data-bs-toggle="tab" 
-					data-bs-target="#profile"
-					type="button"
-					role="tab" 
-					aria-controls="profile"
-					aria-selected="true"
-				> Profile 
-				</button>
-			</li>
-		</ul> {% endcomment %}
 		
 		{% crispy form %}
 		

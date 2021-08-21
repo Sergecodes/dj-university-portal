@@ -7,7 +7,7 @@
 {% load marketplace_extras %}
 
 {% block title %}
-	<title>{% trans 'Items' %}</title>
+	<title>{% trans 'Adverts' %}</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -47,21 +47,21 @@
 	<nav class="">
 		<div class="nav nav-tabs" id="nav-tab">
 			<a 
-				class="nav-link active" 
+				class="nav-link" 
+				href="{% url 'marketplace:item-listing-list' %}"
 				id="nav-items-tab" 
-				data-bs-toggle="tab" 
-				data-bs-target="#nav-items" 
 				aria-controls="nav-items" 
-				aria-selected="true"
+				aria-selected="false"
 			>
 				{% trans 'Items' %}
 			</a>
 			<a 
-				class="nav-link" 
-				href="{% url 'marketplace:ad-listing-list' %}"
+				class="nav-link active" 
 				id="nav-adverts-tab" 
+				data-bs-toggle="tab" 
+				data-bs-target="#nav-adverts" 
 				aria-controls="nav-adverts" 
-				aria-selected="false"
+				aria-selected="true"
 			>
 				{% trans 'Adverts' %}
 			</a>
@@ -76,7 +76,6 @@
 			<section class="listing-list-wrp">
 				<ul class="listing-list js-listing-list">
 					<div class="js-listing-list-content">
-						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
 							<li class="d-flex p-3 pb-4 mb-2 post js-post">
 								<div class="flex-shrink-0">
@@ -99,26 +98,12 @@
 										{{ listing.institution }}
 									</a>
 									<br class="mb-1">
-									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+									<span class="fw-bold">{{ listing.price }}</span>
 									<span> | {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
 								</div>
 							</li> 
 						{% endfor %}
 					</div>
-					
-					{% comment %}
-						{% if page_obj.has_next %}
-							<a 
-								class="infinite-more-link" 
-								href="?{% query_transform request page=page_obj.next_page_number %}"
-							>
-								{% trans 'More' %}
-							</a>
-						{% endif %}
-						<div class="js-loading" style="display: none;">
-							{% trans 'Loading...' %}
-						</div>
-					{% endcomment %}
 
 					{% if is_paginated %}
 						<ul class="pagination mt-4">
@@ -256,30 +241,8 @@
 				
 			</section>
 		</div>
+		{% comment %} <div class="tab-pane fade" id="nav-adverts" aria-labelledby="nav-adverts-tab">...</div> {% endcomment %}
 	</div>
 
 </div>
 {% endblock content %}
-
-{% block extra_js %}
-<!-- 
-<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
-<script src="{% static 'js/infinite.min.js' %}"></script>
-<script>
-	console.log("{{ page_obj.paginator.page_range }}")
-	console.log("{{ page_obj.paginator.num_pages }}");
-	var infinite = new Waypoint.Infinite({
-		element: $('.js-listing-list-content').first().get(0),
-		items: '.js-post',
-		more: '.infinite-more-link',
-		onBeforePageLoad: function () {
-			$('.js-loading').show();
-		},
-		onAfterPageLoad: function ($items) {
-			var $previouslyActive = $('.active').first();
-			$('.js-loading').hide();
-		}
-	}); 
-</script> 
--->
-{% endblock %} 

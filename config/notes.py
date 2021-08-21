@@ -3,8 +3,10 @@ from marketplace import forms
 
 
 todo:
-	august 19:
-		- ad creation form page
+	august 21:
+		- verify user profile edit ... esp the phone numbers section.
+		- qa_site answer and comment forms
+		- send notification to user when he creates a form
 
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
@@ -43,6 +45,7 @@ todo:
 
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
+jquery validation plugin..
 
 TODO: users app:
 - remaining front end validations (full name, )

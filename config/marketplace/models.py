@@ -142,7 +142,7 @@ class Post(models.Model):
 
 	duration = models.DurationField(
 		choices=DURATION_OPTIONS, 
-		default=FIVE_DAYS,
+		default=ONE_MONTH,
 		help_text=_('For how long should your post be available')
 	)
 	# email address to contact for any info concerning this post.
@@ -274,24 +274,31 @@ class AdListing(Post, HitCountMixin):
 		related_name='ad_listings',
 		related_query_name='ad_listing'
 	)
-	category = models.OneToOneField('AdCategory', on_delete=models.PROTECT)
-	price = models.PositiveIntegerField(
+	category = models.ForeignKey(
+		'AdCategory', 
+		related_name='ad_listings', 
+		related_query_name='ad_listing',
+		on_delete=models.PROTECT
+	)
+	price = models.CharField(
 		_('Price'), 
-		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>-</b> for free products or services, or if the price is in the advert description."),
-		default=0
+		help_text=_("Allow this empty for free products or services or if the price is in the advert description."),
+		null=True, blank=True,
+		default='-',
+		max_length=20
 	)
 	institution = models.ForeignKey(
 		'Institution',
 		on_delete=models.CASCADE,
-		related_name='ads',
-		related_query_name='ad',
+		related_name='ad_listings',
+		related_query_name='ad_listing',
 		null=True, blank=True,
-		help_text=_('Allow this empty if this ad concerns no particular institution.')
+		help_text=_('Allow this empty if this advert concerns no particular institution.')
 	)
 
 	def get_absolute_url(self):
 		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:ad-detail', kwargs={'id': self.id, 'slug': self.slug})
+		return reverse('marketplace:ad-listing-detail', kwargs={'id': self.id, 'slug': self.slug})
 
 	@property
 	def view_count(self):

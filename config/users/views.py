@@ -94,8 +94,8 @@ class UserCreate(CreateView):
 class UserUpdate(UserPassesTestMixin, UpdateView):
 	model = User
 	form_class = UserUpdateForm
-	slug_url_kwarg = "username"
-	slug_field = "username"
+	slug_url_kwarg = 'username'
+	slug_field = 'username'
 	template_name = 'users/edit_profile.html'
 	# success_url = reverse_url('users:view-profile')
 
@@ -118,6 +118,8 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
 		else:
+			print(form.errors)
+			print(formset.errors)
 			return self.form_invalid(form)
 
 	def form_valid(self, form, phone_number_formset):

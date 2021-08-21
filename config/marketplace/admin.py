@@ -20,8 +20,13 @@ class ItemListingAdmin(TranslationAdmin):
     inlines = [ItemListingPhotoInline, ]
 
 
+class AdListingPhotoInline(admin.TabularInline):
+    model = AdListingPhoto
+    extra = 0
+
+
 class AdListingAdmin(TranslationAdmin):
-    pass
+    inlines = [AdListingPhotoInline]
 
 
 class InstitutionAdmin(TranslationAdmin):

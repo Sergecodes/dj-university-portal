@@ -290,7 +290,7 @@ function insertItemSubCategories(e) {
 			});
 			$subCategoryMenu.prepend(" \
 				<option value='' selected='selected'> \
-					- - - - - - - - - \
+					--------- \
 				</option>"
 			);
 		}

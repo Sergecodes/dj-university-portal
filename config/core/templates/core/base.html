@@ -67,7 +67,7 @@
 									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: white; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: white; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 								</g>
 							</svg>
-							<span class="d-block">{% trans '{% trans 'Notifications' %}' %}</span>
+							<span class="d-block">{% trans 'Notifications' %}</span>
 						</a>
 					</li>
 					<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
@@ -311,7 +311,7 @@
 								<a class="dropdown-item" href="#">{% trans 'Official past questions' %}</a>
 							</div>
 						</li>
-						<li class="nav-item my-1 dropdown js-headerDropdown">
+						{% comment %} <li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="change"
 								class="nav-link dropdown-toggle nav-menu__link"
@@ -326,7 +326,7 @@
 								<a class="dropdown-item" href="#">{% trans 'Ask for change' %}</a>
 								<a class="dropdown-item" href="#">{% trans 'I have change' %}</a>
 							</div>
-						</li>
+						</li> {% endcomment %}
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="socialize"
@@ -471,11 +471,11 @@
 										{% trans 'Socialize' %}
 									</a>
 								</li>
-								<li class="nav-item">
+								{% comment %} <li class="nav-item">
 									<a class="nav-link footer__link" href="#">
 										{% trans 'Find change' %}
 									</a>
-								</li>
+								</li> {% endcomment %}
 								<li class="nav-item">
 									<a class="nav-link footer__link" href="#">
 										{% trans 'Contact us' %}

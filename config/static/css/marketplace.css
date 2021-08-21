@@ -1,14 +1,13 @@
 /** EXTRA CSS FOR THE MARKETPLACE SITE */
 
-/** Item listing creation form */
-.item-listing-form-container {
+/** Listing creation forms (advert and item listings) */
+.listing-form-container {
     width: 70%;
 }
 
-.item-listing-form {
+.listing-form {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-    padding-top: 1.5rem;  /* pt-4 */
-    padding-bottom: 1.5rem;  /* pb-4 */
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
 }
 
 .gallery-container {
@@ -88,10 +87,7 @@
 /*** MEDIA QUERIES ***/
 /* Layout for desktop sizes and greater (>= lg) */
 @media (min-width: 992px) {
-	.item-listing-form {
-        padding-left: 2rem;  
-        padding-right: 1rem; 
-    }
+
 }
 
 
@@ -99,11 +95,11 @@
 @media (max-width: 991.98px) {
     .listing-search-form,
     .listing-list-container,
-    .item-listing-form-container {
+    .listing-form-container {
         width: 100%;
     }
 
-	.item-listing-form {
+	.listing-form {
         padding-left: 1rem; /* ps-3 */
         padding-right: 1rem; 
     }

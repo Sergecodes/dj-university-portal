@@ -125,24 +125,26 @@
 			</div>
 		</div>
 	</article>
-	<hr class="mb-4">
-	<section class="shadow-sm bg-body rounded p-3 similar-listings-wrp">
-		<h5 class="h6 mb-4">
-			{% trans 'Similar listings in' %} 
-			<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
-		</h5>
-		<div class="row">
-			{% for sim_listing, photo in zipped_list %}
-				<div class="col similar-listing">
-					<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
-						<img class="mb-2 similar-listing__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-						<p>{{ sim_listing.title }}</p>
-					</a>
-					<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
-				</div>
-			{% endfor %}
-		</div>
-	</section>
+	{% if similar_listings.exists %}
+		<hr class="mb-4">
+		<section class="shadow-sm bg-body rounded p-3 similar-listings-wrp">
+			<h5 class="h6 mb-4">
+				{% trans 'Similar listings in' %} 
+				<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
+			</h5>
+			<div class="row">
+				{% for sim_listing, photo in zipped_list %}
+					<div class="col similar-listing">
+						<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
+							<img class="mb-2 similar-listing__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+							<p>{{ sim_listing.title }}</p>
+						</a>
+						<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	{% endif %}
 </div>
 {% endblock content %}
 

@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import (
 	ItemListing, AdListing, Institution, ItemSubCategory,
-	ItemCategory, ItemListingPhoto
+	ItemCategory, ItemListingPhoto, AdCategory
 )
 
 
@@ -182,6 +182,90 @@ class ItemListingForm(forms.ModelForm):
 			self.add_error('price', _('The price you entered is invalid. Prices may contain only spaces and digits.'))
 		else:
 			return int(price)
+
+
+class AdListingForm(forms.ModelForm):
+	description = forms.CharField(
+		widget= CKEditorWidget(config_name='listing_description'),
+		help_text=_("Describe your advert. Use a clear and concise format to keep your description lisible.")
+	)
+
+	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
+	contact_numbers = forms.ModelMultipleChoiceField(
+		queryset=None, 
+		required=True,
+		widget=forms.CheckboxSelectMultiple()
+	)
+
+	class Meta:
+		model = AdListing
+		exclude = ('owner', 'slug', )
+		help_texts = {
+			'title': _("A descriptive title helps buyers find your advert. <br> Include words that buyers will use to search for your advert"),
+		}
+
+	def __init__(self, *args, **kwargs):
+		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
+		user = kwargs.pop('user')
+
+		super().__init__(*args, **kwargs)
+
+		external_link_svg = ' \
+			<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
+				<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
+				</path> \
+				<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
+				</polygon> \
+			</svg>'
+
+
+		# email used for notifications concerning listing is user's email by default.
+		# user may enter another email
+		self.fields['contact_email'].initial = user.email
+		self.fields['contact_name'].initial = user.full_name
+		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['category'].empty_label = None
+		self.fields['institution'].empty_label = None
+
+		self.helper = FormHelper()
+		self.helper.layout = Layout(
+			Fieldset(_('Institution & Advert Category'),
+				Row(
+					Column('institution', css_class='form-group col-md-6 mb-0'),
+					Column('category', css_class='form-group col-md-6 mb-0'),
+					css_class='form-row'
+				),
+				css_class='mb-2'
+			),
+			Fieldset(_('Listing Details'),
+				'title',
+				'duration',
+				# photo upload template here
+				PhotoFormLayout(extra_context={}),  
+				'description',
+				'price',
+				css_class='mb-2'
+			),
+			Fieldset(_("Seller's Information"),
+				'contact_email',
+				'contact_name',
+				'contact_numbers'
+			),
+			# modal button to trigger button used in the template.
+			# this button isn't inserted directly in the template so as to maintain the position/layout of elements
+			HTML(" \
+				<button \
+					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
+					type='button' \
+					data-bs-toggle='modal' \
+					data-bs-target='#leavePageModal' \
+				>" +  str(_('Edit phone numbers')) + external_link_svg + 
+				"</button>"
+			),
+			# insert original_language as hidden field.
+			HTML('<input type="hidden" name="original_language" value="{{ LANGUAGE_CODE }}" />'),
+			Submit('submit', _('Post advert'), css_class='btn-lg d-block'),
+		)
 
 
 
