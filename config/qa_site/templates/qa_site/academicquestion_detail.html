@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 {% load humanize %}
 
 {% block title %}
@@ -10,18 +11,44 @@
 
 {% block extra_css %}
 	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
-{% endblock extra_css %}
+{% endblock %}
+
+{% block extra_script_pre %}
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+{% endblock %}
 
 {% block institution_searchbox %}
 {% endblock %}
 
 
 {% block content %}
-<!-- Toast -->
+<!-- Toasts -->
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
 			{% trans "You can't vote for your own post" %}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans 'You must login before adding a post.' %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="{% url 'users:login' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'to login to your account or' %} 
+				<a href="{% url 'users:register' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans "to sign up if you don't yet have an account." %}
+			</p>
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
@@ -93,6 +120,7 @@
 						class="text-decoration-none js-downvote" 
 						data-thread="question" 
 						data-id="{{ question.id }}"
+						data-poster-id="{{ question.poster_id }}"
 						title="{% trans 'Vote this question DOWN if it is unclear or not useful. (click again to undo)' %}"
 					>
 						{% if user in question.downvoters.all %}
@@ -157,8 +185,14 @@
 						<a 
 							href="{% url 'users:view-profile' username=question.poster.username %}"
 							class="badge bg-info me-1 text-decoration-none"
+							{% if comment.poster == question.poster %}
+								title="{% trans 'This is the user who asked the question' %}"
+							{% endif %}
 						> 
 							{{ comment.poster.username }}
+							{% if comment.poster == question.poster %}
+								<i class="fas fa-pen" aria-hidden="true"></i>
+							{% endif %}
 						</a>
 						<span class="small text-muted">{{ comment.posted_datetime }}</span>
 					</div>
@@ -166,11 +200,23 @@
 			{% comment %} {% empty %}
 				<p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> {% endcomment %}
 			{% endfor %}
-			{# insert comment ck editor widget here #}
 			
-			<button class="btn btn-secondary {% if comments.exists %} mt-2 mb-3 {% else %} mt-0 mb-3 {% endif %}">
+			<a 
+				role="button" 
+				class="link-primary text-decoration-none d-inline-block mb-2 {% if comments.exists %} mt-3  {% else %} mt-2 {% endif %} js-add-question-comment"
+				title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
+			>
 				{% trans 'Add a comment' %}
-			</button>
+			</a>
+			<!-- don't separate this 2 elements, dependency in script... -->
+			<form class="d-none mt-2" method="post">
+				{% csrf_token %}
+				{% comment %} {{ qstn_comment_form.media }} {% endcomment %}
+				{{ qstn_comment_form|crispy }}
+				
+				<input type="hidden" name="question_id" value="{{ question.id }}">
+				<input type="submit" class="btn btn-sm btn-primary" name="add_question_comment" value="{% trans 'Add comment' %}">
+			</form>
 		</section>
 		<hr class="mb-2">
 
@@ -214,6 +260,7 @@
 									class="text-decoration-none js-downvote" 
 									data-thread="answer"
 									data-id="{{ answer.id }}"
+									data-poster-id="{{ answer.poster_id }}"
 									title="{% trans 'Vote this answer DOWN if it is not useful. (click again to undo)' %}"
 								>
 									{% if user in answer.downvoters.all %}
@@ -227,7 +274,7 @@
 								<span class="ms-1 text-danger">{{ answer.downvote_count }}</span>
 							</div>
 						</div>
-						<!-- insert share links here, they should be inline and not take up much space -->
+						<!-- todo insert share links here, they should be inline and not take up much space -->
 						<div></div>
 
 						{# answer comments here #}
@@ -272,62 +319,170 @@
 										<a 
 											href="{% url 'users:view-profile' username=question.poster.username %}"
 											class="badge bg-info me-1 text-decoration-none"
+											{% if comment.poster == question.poster %}
+												title="{% trans 'This is the user who asked the question' %}"
+											{% endif %}
 										> 
 											{{ comment.poster.username }}
+											{% if comment.poster == question.poster %}
+												<i class="fas fa-pen" aria-hidden="true"></i>
+											{% endif %}
 										</a>
 										<span class="small text-muted">{{ comment.posted_datetime }}</span>
 									</div>
 								</div>
 							{% endfor %}
-							{# insert comment ck editor widget here #}
-							<button class="btn btn-secondary mt-4 my-3">
+							
+							<a 
+								role="button" 
+								class="link-primary text-decoration-none mt-4 mb-3 js-add-answer-comment"
+								title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
+							>
 								{% trans 'Add a comment' %}
-							</button>
+							</a>
+							<!-- don't separate these 2 elements, dependency in script... -->
+							<form class="d-none mt-2" method="post">
+								{% csrf_token %}
+								{{ ans_comment_form|crispy }}
+								
+								<input type="hidden" name="answer_id" value="{{ answer.id }}">
+								<input type="submit" class="btn btn-sm btn-primary" name="add_answer_comment" value="{% trans 'Add comment' %}">
+							</form>
 						</div>
 					</div>
 				{% endfor %}
 
 				{# insert form to add an answer here #}
-				<div class="add-answer">
-				</div>
+				<a 
+					role="button" 
+					class="link-primary text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
+				>
+					{% trans 'Answer this question' %}
+				</a>
+				<!-- don't separate this 2 elements, dependency in script... -->
+				<form class="d-none mt-2" method="post">
+					{% csrf_token %}
+					{% comment %} {{ answer_form.media }} {% endcomment %}
+					{{ answer_form|crispy }}
+					
+					<input type="hidden" name="question_id" value="{{ question.id }}">
+					<input type="submit" class="btn btn-sm btn-primary" name="add_answer" value="{% trans 'Post Answer' %}">
+				</form>
 			</div>
 		</section>
 	</article>
-	<hr class="mb-4">
 
-	<section class="p-3 related-questions">
-		<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
-		{% for question in related_qstns %}
-			<div class="mb-2 related-question">
-				<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
-					<span 
-						class="px-2 py-1 me-3 badge {% if question.score > 0 %} bg-success {% elif question.score < 0 %}  bg-danger {% else %} bg-secondary {% endif %}"
-					>{{ question.score }}</span>
-					<span>
-						{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
-					</span>
-				</a>
-				<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
-				<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
-			</div>
-		{% endfor %}
-	</section>
+	{% if related_qstns.exists %}
+		<hr class="mb-4">
 
+		<section class="p-3 related-questions">
+			<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
+			{% for question in related_qstns %}
+				<div class="mb-2 related-question">
+					<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+						<span 
+							class="px-2 py-1 me-3 badge {% if question.score > 0 %} bg-success {% elif question.score < 0 %}  bg-danger {% else %} bg-secondary {% endif %}"
+						>{{ question.score }}</span>
+						<span>
+							{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+						</span>
+					</a>
+					<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
+					<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
+				</div>
+			{% endfor %}
+		</section>
+	{% else %}
+		<br>
+	{% endif %}
 </div>
 
 {% endblock content %}
 
-
 {% block extra_js %}
 <script>
-	var userId = "{{ user.id }}";
+	/* get current user's id.. */
+	// if user isn't logged in, user.id will be `None`
+	var currentUserId = "{{ user.id }}";
+	currentUserId = (currentUserId == "None" ? null : currentUserId);
+	console.log(currentUserId);
+
+	// hide button and display forms when button is clicked
+	$('.js-add-question-comment, .js-add-answer-comment, .js-add-answer').click(function(event) {
+		// console.log(event.target == this);  true !
+
+		// if current user isn't logged in
+		if (!currentUserId) {
+			event.stopImmediatePropagation();
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		var $this = $(this);
+		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it for the hide() method to work)
+		$this.hide();
+		var $form = $this.next();
+		$form.removeClass('d-none');
+
+		if ($this.hasClass('js-add-question-comment')) {
+			// if the add question comment button is clicked
+			$('#addQuestionCommentArea').ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic', 'Link'],  // code too
+				],
+				// width: '50%',
+				width: isMobile ? '100%' : '50%',
+
+			});
+			
+		} else if ($this.hasClass('js-add-answer-comment')) {
+			// if an add answer comment button is clicked
+			var $textArea = $form.find('textarea').first();
+			console.log($textArea);
+			// we can't use CKEDITOR.replace since it expects an element with a unique id, but we may have multiple answers hence multiple comment buttons...
+			$textArea.ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic', 'Link'],  // code too
+				],
+				// width: '50%',
+				width: isMobile ? '100%' : '50%',
+			});
+
+		} else if ($this.hasClass('js-add-answer')) {
+			/*
+			$('#addAnswerArea').ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic'],
+					['Link', 'Blockquote', 'Image'],
+					['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+					['Undo', 'Redo'],
+					['Maximize', 'Preview']
+				],
+				tabSpaces: 4,
+				width: isMobile ? '100%' : '75%',
+			});
+			*/
+		}
+	});
+
+
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
 
 	function onVote(event) {
-		if (userId === this.dataset.posterId) {
+		// if user isn't logged in
+		if (!currentUserId) {
 			// prevent other handlers from being called(prevent sending request to backend)
 			event.stopImmediatePropagation();
-			
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		// if user is voting on their post
+		if (currentUserId === this.dataset.posterId) {
+			event.stopImmediatePropagation();
 			var $myToast = $('.js-self-vote-toast').first();
 
 			// reset styles alert-danger styles since apparently, some toast styles override them. 
@@ -337,7 +492,7 @@
 			});
 
 			var bsToast = new bootstrap.Toast($myToast[0]);
-			bsToast.show();
+			bsToast.show(); 
 		}
 	}
 

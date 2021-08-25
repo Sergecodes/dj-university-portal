@@ -45,7 +45,6 @@ class UserCreationForm(forms.ModelForm):
 
 	def clean_password(self):
 		password = self.cleaned_data['password']
-		validate_password(password)
 		return password
 
 	def clean_confirm_password(self):
@@ -56,6 +55,8 @@ class UserCreationForm(forms.ModelForm):
 			# add error instead of raising error so as to continuer to validation of other fields
 			self.add_error('confirm_password', _('The passwords did not match.'))
 		else:
+			# if both passwords match, validate the password
+			validate_password(password2)
 			return password2
 	
 	def save(self, commit=True):
@@ -176,12 +177,13 @@ PhoneNumberFormset = generic_inlineformset_factory(
 	PhoneNumber, 
 	form=PhoneNumberForm, 
 	formset=BasePhoneNumberFormset, 
-	extra=1
+	extra=1   # use extra=1 for both editing and creation forms. without it, 
+	# one form's is deducted during submission by the jquery-formset package.
 )
 
 EditPhoneNumberFormset = generic_inlineformset_factory(
 	PhoneNumber, 
 	form=PhoneNumberForm, 
 	formset=BasePhoneNumberFormset, 
-	extra=0   # don't display any extra form initially
+	# extra=1   
 )

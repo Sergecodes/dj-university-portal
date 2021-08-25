@@ -6,10 +6,16 @@
 	width: 80%;
 }
 
+/* Ck-editor widgets */
+/* question form widget */
 .django-ckeditor-widget {
 	width: 100%;
 }
 
+#cke_addQuestionCommentArea,
+.cke_editor_addQuestionCommentArea {
+	width: 50%;
+}
 
 /* Questions detail view pages */
 .question-header {
@@ -31,18 +37,16 @@
 }
 
 
-
 /*** MEDIA QUERIES ***/
-/* Layout for desktop sizes and greater (>= lg) */
-@media (min-width: 992px) {
-	
-}
-
-
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
 	.school-question-form,
 	.academic-question-form {
+		width: 100%;
+	}
+
+	#cke_addQuestionCommentArea,
+	.cke_editor_addQuestionCommentArea {
 		width: 100%;
 	}
 

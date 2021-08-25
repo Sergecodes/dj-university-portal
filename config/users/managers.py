@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet, Manager
@@ -44,8 +45,6 @@ class UserManager(BaseUserManager, Manager):
 
 		# validate_username = UnicodeUsernameValidator()
 		# validate_username(username)
-
-		# validate_full_name(full_name)
 		
 		user = self.model(
 			email=email, 
@@ -55,6 +54,8 @@ class UserManager(BaseUserManager, Manager):
 			first_language=first_language,
 			**extra_fields
 		)
+		
+		validate_password(password)
 		user.set_password(password)
 
 		if commit:

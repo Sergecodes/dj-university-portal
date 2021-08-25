@@ -18,7 +18,6 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import (
 	PhoneNumberFormset,
-	EditPhoneNumberFormset,
 	UserCreationForm, 
 	UserUpdateForm
 )
@@ -35,9 +34,10 @@ class UserCreate(CreateView):
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form = self.get_form()
-		
-		formset = PhoneNumberFormset(request.POST)
 
+		print(request.POST)
+		formset = PhoneNumberFormset(request.POST)
+		print(formset.forms)
 		# Now validate both the form and formset
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -62,23 +62,19 @@ class UserCreate(CreateView):
 		# this method is called when the form has been successfully validated
 		request = self.request
 
-		with transaction.atomic():
-			self.object = form.save()
-			new_user = self.object
+		# with transaction.atomic():
+		self.object = form.save()
+		new_user = self.object
+		
+		for number_form in phone_number_formset:
+			assert number_form.is_valid(), 'Form in formset is invalid'
 
-			for number_form in phone_number_formset:
-				assert number_form.is_valid(), 'Form in formset is invalid'
-
-				phone_number = number_form.save(commit=False)
-				phone_number.content_object = new_user
-				phone_number.save()
+			phone_number = number_form.save(commit=False)
+			phone_number.content_object = new_user
+			phone_number.save()
 		
 		# log new user in
-		# email, password = form.cleaned_data['email'], form.cleaned_data['password']
-		email, password = new_user.email, new_user.password
-		user = authenticate(request, email=email, password=password)
-
-		login(request, user)
+		# login(request, new_user)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
 		return HttpResponseRedirect(self.get_success_url())
@@ -113,7 +109,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	def post(self, request, *args, **kwargs):
 		self.object = self.get_object()
 		form = self.get_form()
-		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
+		formset = PhoneNumberFormset(request.POST, instance=self.object)
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -123,16 +119,16 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 			return self.form_invalid(form)
 
 	def form_valid(self, form, phone_number_formset):
-		with transaction.atomic():
-			self.object = form.save()
-			user = self.object
+		# with transaction.atomic():
+		self.object = form.save()
+		user = self.object
+		
+		for number_form in phone_number_formset:
+			assert number_form.is_valid(), 'Form in formset is invalid'
 
-			for number_form in phone_number_formset:
-				assert number_form.is_valid(), 'Form in formset is invalid'
-
-				phone_number = number_form.save(commit=False)
-				phone_number.content_object = user
-				phone_number.save()
+			phone_number = number_form.save(commit=False)
+			phone_number.content_object = user
+			phone_number.save()
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
@@ -144,9 +140,9 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		data = super().get_context_data(**kwargs)
 		
 		if POST := self.request.POST:
-			data['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
+			data['formset'] = PhoneNumberFormset(POST, instance=self.object)
 		else:
-			data['formset'] = EditPhoneNumberFormset(instance=self.object)
+			data['formset'] = PhoneNumberFormset(instance=self.object)
 
 		return data
 

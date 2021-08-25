@@ -351,6 +351,23 @@ function expandImage(e) {
 	$expandedImg.attr({'src': img.src, 'alt': img.alt});
 }
 
+/**
+ * Display toast telling user that he needs to be logged in.
+ */
+function displayLoginRequiredToast() {
+	// this toast should be present in the html page !
+	var $myToast = $('.js-login-required-toast').first();
+
+	// reset styles alert-danger styles since apparently, some toast styles override them. 
+	$myToast.css({
+		'color': '#842029',
+		'border-color': '#f5c2c7'
+	});
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
 
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
 function init() {

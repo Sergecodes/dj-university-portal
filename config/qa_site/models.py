@@ -30,10 +30,10 @@ class Comment(models.Model):
 	class Meta:
 		abstract = True
 
-	# def __str__(self):
-	#	truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
-	#	see answer with textwrap.shorten ..
-	# 	return self.content
+	def __str__(self):
+		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
+		# see answer with textwrap.shorten ..
+		return self.content
 
 
 class SchoolQuestionComment(Comment):
@@ -331,7 +331,7 @@ class SchoolQuestion(Question):
 
 
 class AcademicQuestion(Question):
-	title = models.CharField(max_length=100, unique=True)  
+	title = models.CharField(max_length=100)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
 	content = RichTextUploadingField(blank=True)
 	slug = models.SlugField(max_length=250)
@@ -432,6 +432,7 @@ class Subject(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
+			self.name = (self.name).title
 		return super().save(*args, **kwargs)
 
 	def __str__(self):

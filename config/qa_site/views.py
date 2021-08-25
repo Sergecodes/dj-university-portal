@@ -6,13 +6,15 @@ from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 from taggit.models import TaggedItem
 
 from .forms import (
-	AcademicQuestionForm, SchoolQuestionForm
+	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
+	AcademicQuestionCommentForm, AcademicAnswerCommentForm
 )
 from .models import (
 	Subject, AcademicAnswer, SchoolAnswer,
@@ -39,14 +41,57 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(self.get_success_url())
 
 
+@method_decorator(login_required, name='post')
 class AcademicQuestionDetail(DetailView):
 	model = AcademicQuestion
 	context_object_name = 'question'
+
+	def post(self, request, *args, **kwargs):
+		"""Handle submission of forms such as comments and answers."""
+		POST = request.POST
+
+		# if question comment form was submitted
+		if 'add_question_comment' in POST:
+			comment_form = AcademicQuestionCommentForm(POST)
+			# remember if form isn't valid form will be populated with errors..
+			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
+			if comment_form.is_valid():
+				comment = comment_form.save(commit=False)
+				comment.poster = request.user
+				comment.question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
+				comment.save()
+
+		elif 'add_answer_comment' in POST:
+			comment_form = AcademicAnswerCommentForm(POST)
+			if comment_form.is_valid():
+				comment = comment_form.save(commit=False)
+				comment.poster = request.user
+				comment.answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
+				comment.save()
+
+		elif 'add_answer' in POST:
+			answer_form = AcademicAnswerForm(POST)
+			if answer_form.is_valid():
+				answer = answer_form.save(commit=False)
+				answer.poster = request.user
+				answer.question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
+				answer.save()
+
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
 		question = self.object
+
+		# initialize comment and answer forms
+		qstn_comment_form = AcademicQuestionCommentForm()
+		ans_comment_form = AcademicAnswerCommentForm()
+		answer_form = AcademicAnswerForm()
+		context['qstn_comment_form'] = qstn_comment_form
+		context['ans_comment_form'] = ans_comment_form
+		context['answer_form'] = answer_form
+		
 		answers = question.answers.prefetch_related(
 			'comments', 
 			Prefetch('upvoters', queryset=User.objects.all().only('id'))
@@ -99,15 +144,26 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(self.get_success_url())
 
 
+# @login_required
+# def add_academic_comment(request):
+# 	"""Handles addition of a comment for an academic question or answer."""
+# 	user = request.user
+# 	# thread-type can be question or answer
+# 	thread_type = request.POST.get('thread-type')
+
+# 	if thread_type == 'question':
+# 		pass
+
+
 @login_required
 def vote_academic_thread(request):
 	"""
 	This view handles upvotes and downvotes for questions, answers and comments of an academic question.
 	"""
-	user = request.user
-	thread_id, thread_type = int(request.POST.get('id')), request.POST.get('thread_type')
-	vote_action, vote_type = request.POST.get('action'), request.POST.get('vote_type')
-	print(request.POST)
+	user, POST = request.user, request.POST
+	thread_id, thread_type = int(POST.get('id')), POST.get('thread_type')
+	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
+	print(POST)
 	# possible thread types are {question, answer, question-comment, answer-comment}
 	if thread_type == 'question':
 		object = get_object_or_404(AcademicQuestion, pk=thread_id)

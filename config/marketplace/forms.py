@@ -203,6 +203,9 @@ class AdListingForm(forms.ModelForm):
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your advert. <br> Include words that buyers will use to search for your advert"),
 		}
+		widgets = {
+			'price': forms.TextInput(attrs={'placeholder': _('Ex. 10,000F per unit')})
+		}
 
 	def __init__(self, *args, **kwargs):
 		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)

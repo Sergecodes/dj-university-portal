@@ -1,4 +1,4 @@
-# from config.settings import LOGIN_URL
+import notifications.urls
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, include, reverse_lazy
@@ -9,6 +9,7 @@ from . import views
 app_name = 'users'
 
 urlpatterns = [
+	path(_('notifications/'), include(notifications.urls, namespace='notifications')),
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
 	path(
 		_('login/'),
@@ -84,12 +85,6 @@ urlpatterns = [
 	path('<str:username>/', views.UserDetail.as_view(), name='view-profile'),
 
 ]
-
-if settings.DEBUG:
-	import debug_toolbar
-	urlpatterns = [
-		path('__debug__/', include(debug_toolbar.urls)),
-	] + urlpatterns
 
 # Class-based password reset views
 # - PasswordResetView sends the mail

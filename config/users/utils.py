@@ -4,6 +4,9 @@ def parse_phone_number(tel):
     Appropriately print a phone number.
     e.g. 651234566 should return 6 51 23 45 66
     """
+    if int(tel) % 2 != 0:
+        return tel
+    
     result = tel[0]
     n = len(tel)
 

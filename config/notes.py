@@ -1,28 +1,32 @@
-from django.contrib.admin.helpers import checkbox
-from marketplace import forms
 
+njoh-fhish, les voila qui dansent, options, 
 
 todo:
 	august 21:
-		- verify user profile edit ... esp the phone numbers section.
-		- qa_site answer and comment forms
 		- send notification to user when he creates a form
 
+- implement editing and deleting by poster in various apps..
+- limit number of answers per question and comments per post in qa_site app.
+- style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; 
+- set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
 - add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
-- handle notifications.
+- use ajax for username select ... 
+- add microphone or similar icon after or before name of original poster
+- when posting items, should moderators be the ones to validate item submission?
 - translations !
+- correct phone number input in user forms. try adding a prefix on the formset.
+-also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
 - for all posts on site, when user posts, directly store in db and show on site. However, there should be a "flag" button that will permit them to flag the post for moderator attention.
 - for desktop, in question detail page, insert ck editor directly. on mobile, user should click a button before the widget should be displayed... ?
 - append (- CamerEcole) to title of each page. apparently, sites like myschool and SO do this.
 - add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
+- show help videos; e.g. how to add an image in ckedifor widget
 - use bootstrap toasts !
 - add 'draft your question advice' like stackoverflow in question creation form... ?
 - add 'send_notification' field to form/model (questions creation)(exactly like myschool)..
-- add possibility to enter code in ckeditor.
-
-- for advert list page, create it as marketplace/adverts. then route both marketplace/ and marketplace/items/ to items. It should be tabs. (Items  and Adverts). clicking on one loads its page.
+- messages framework django..
 - add sorting by price and date  in item listing page like jumia and myschool
 - infinite scroll on mobile only in item listing page like jumia. use https://stackoverflow.com/a/45717542/10526469 pagination on mobile ?... .. bootstrap position fixed bar..
 	. if i.is_lastnumber_in_list and i < total_num_pages;
@@ -32,7 +36,6 @@ todo:
 # yaiero/tagify for tags.... 	stackoverflow.com/q/10839570/10526469
 - in listing detail page, print price in words on hover over.(tooltip. see num2words library)
 - finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
-# - insert table in ckeditor widget
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 -show loading icon during ajax request -django
 - add 'FCFA' text after price input box.
@@ -75,14 +78,6 @@ Phone number:
 # to enable getting the items that a user has bookmarked(user.bookmarked_items) and also probably the number of people that have bookmarked a user's item ?
 # TODO owners won't be able to see those who bookmarked their posts, (but may see number of bookmarks?)
 # means if User is deleted, set  it/bookmarker(User) to NULL
-
-# site index view
-# def index(request):
-#     # get and sort items based on owner's points and creation date*
-#     latest_items = ItemListing.objects.select_related('owner')\
-#         .order_by('-date_added', 'owner__reputation')
-
-#     return render(request, 'index.html', {latest_items: latest_items})
 
 
 '''
