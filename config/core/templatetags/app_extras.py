@@ -1,3 +1,4 @@
+import bleach
 from django import template
 from django.template.defaultfilters import stringfilter
 
@@ -9,20 +10,26 @@ register.filter('parse_tel', parse_phone_number)
 
 @register.filter(name='zip')
 def zip_lists(list1, list2):
-    return zip(list1, list2)
+	return zip(list1, list2)
  
+ 
+@register.filter
+def remove_tags(text_body):
+	"""Strip html tags from `text_body` using the `clean` library. Django says `striptags` method isn't guaranteed to produce safe output and thus `safe` should never be applied to its output."""
+	return bleach.clean(text_body, tags=[], strip=True)
+
 
 @register.simple_tag
 def query_transform(request, **kwargs):
-    """Insert kwargs into url"""
-    updated = request.GET.copy()
-    for k, v in kwargs.items():
-        if v is not None:
-            updated[k] = v
-        else:
-            updated.pop(k, 0)
+	"""Insert kwargs into url"""
+	updated = request.GET.copy()
+	for k, v in kwargs.items():
+		if v is not None:
+			updated[k] = v
+		else:
+			updated.pop(k, 0)
 
-    return updated.urlencode()
+	return updated.urlencode()
 
 
 # @register.filter

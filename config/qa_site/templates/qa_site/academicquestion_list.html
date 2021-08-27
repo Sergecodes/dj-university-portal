@@ -1,0 +1,214 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load app_extras %}
+
+{% block title %}
+	<title>{% trans 'Academic Questions' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}"> 
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5">
+	<h2 class="text-success">{% trans 'Academic Questions' %}</h2>
+	<div class="d-flex">
+		<article class="border question-list-art">
+			<section class="px-3 pt-4 questions-page-description">
+				<p>
+					{% blocktrans %}
+						Post questions, or see solutions to questions relating to academic matters. Questions posted here are basically related to a particular subject (Maths, English, etc) or course (Science, Engineering, Arts, etc). Questions here are for smart, intellectual students, who would also like to improve on their studies. Anyone can post a question.
+					{% endblocktrans %}
+				</p>
+				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning mb-3">
+					{% trans 'Post a Question' %}
+				</a>
+			</section>
+			<section class="mb-3 questions-search-form-wrp">
+				<form method="get" class="p-3 m-3 border questions-search-form">
+					<h4>{% trans 'Filter' %}</h4>
+					{% with filter.form as form %}
+						<div class="row">
+							<div class="form-group col-12 col-md-5">
+								{{ form.subject|as_crispy_field }}
+							</div>
+							<div class="form-group col-12 col-md-6">
+								{{ form.title|as_crispy_field }}
+							</div>
+						</div>
+					{% endwith %}
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-search"></i>
+						{% trans 'Search' %}
+					</button>
+				</form>
+			</section>
+
+			<section class="questions-list-wrp">
+				<ul class="pe-4 questions-list">
+					{% for question in page_obj %}
+						<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
+							<div class="text-secondary text-center small flex-shrink-0">
+								<div class="mb-2 {% if question.score > 0 %} text-success {% elif question.score < 0 %} text-danger {% endif %} question-summary__vote-count">
+									<span class="d-block">{{ question.score }}</span>
+									<span>{% trans 'vote' %}{{ question.score|pluralize }}</span>
+								</div>
+								<div class="{% if question.num_answers > 0 %} text-success {% endif %} question-summary__answer-count">
+									<span class="d-block">{{ question.num_answers }}</span>
+									<span>{% trans 'answer' %}{{ question.num_answers|pluralize }}</span>
+								</div>
+							</div>
+							<div class="flex-grow-1 ms-3">
+								<a 
+									href="{{ question.get_absolute_url }}" 
+									class="h5 text-decoration-none d-inline-block"
+								>
+									{{ question.title }}
+								</a>
+								<p class="mb-2">
+									{# `safe` is used at the end to also remove html entities #}
+									{{ question.content|remove_tags|truncatewords:30|safe }}
+								</p>
+
+								<div class="question-meta">
+									<a 
+										class="badge rounded-pill bg-info link-light text-decoration-none" 
+										href="#"
+									>
+										{{ question.subject }}
+									</a>
+									<div class="d-inline ms-3 d-lg-block text-end ">
+										<span class="text-muted">{% trans 'asked by' %}</span>
+										<a 
+											href="{% url 'users:view-profile' username=question.poster.username %}"
+											class="text-decoration-none"
+										>
+											{{ question.poster.username }}
+										</a>
+										<span class="small text-muted">&nbsp; - &nbsp;{{ question.posted_datetime|naturaltime }}</span>
+									</div>
+								</div>
+							</div>
+						</li> 
+					{% endfor %}
+						
+					{% if is_paginated %}
+						<ul class="pagination ms-3 mb-3 mt-4">
+							{% if page_obj.has_previous %}
+								<li class="page-item">
+									<a 
+										aria-label="{% trans 'Previous' %}"
+										class="page-link" 
+										href="?{% query_transform request page=page_obj.previous_page_number %}"
+									>
+										<span aria-hidden="true">
+											<i class="fas fa-chevron-left"></i>
+										</span>
+									</a>
+								</li>
+							{% else %}
+								<li class="page-item disabled">
+									<span class="page-link">
+										<i class="fas fa-chevron-left"></i>
+									</span>
+								</li>
+							{% endif %}
+
+							{% if page_obj.number|add:'-4' > 1 %}
+								<li class="page-item">
+									<a 
+										class="page-link"
+										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
+									>
+										&hellip;
+									</a>
+								</li>
+							{% endif %}
+
+							{% for i in page_obj.paginator.page_range %}
+								{% if page_obj.number == i %}
+									<li class="page-item active">
+										<span class="page-link">
+											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+										</span>
+									</li>
+								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+									<li class="page-item">
+										<a 
+											class="page-link"
+											href="?{% query_transform request page=i %}"
+										>
+											{{ i }}
+										</a>
+									</li>
+								{% endif %}
+							{% endfor %}
+
+							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+								<li class="page-item">
+									<a 
+										class="page-link"
+										href="?{% query_transform request page=page_obj.number|add:'5' %}"
+									>
+										&hellip;
+									</a>
+								</li>
+							{% endif %}
+
+							{% if page_obj.has_next %}
+								<li class="page-item">
+									<a 
+										aria-label="{% trans 'Next' %}"
+										class="page-link" 
+										href="?{% query_transform request page=page_obj.next_page_number %}"
+									>
+										<span aria-hidden="true">
+											<i class="fas fa-chevron-right"></i>
+										</span>
+									</a>
+								</li>
+							{% else %}
+								<li class="page-item disabled">
+									<span class="page-link">
+										<i class="fas fa-chevron-right" aria-hidden="true"></i>
+									</span>
+								</li>
+							{% endif %}
+						</ul>
+					{% endif %}
+				</ul>
+			</section>
+		</article>
+
+		{# this section is visible only on lg devices and greater #}
+		<aside class="d-none d-lg-block questions-subjects-list">
+			<div class="card border-success">
+				<h5 class="card-header bg-success text-light">{% trans 'Subjects' %}</h5>
+				<ul class="list-group list-group-flush">
+					{% for subject in subjects %}
+						<li class="list-group-item">
+							<a href="#" class="text-decoration-none">{{ subject.name }} ({{ subject.academic_questions.count }})</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<p class="card-footer card-text">
+					<small class="text-muted">
+						{{ total_num_qstns }} {% trans 'question' %}{{ total_num_qstns|pluralize }}
+					</small>
+				</p>
+			</div>
+		</aside>
+	</div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %} 

@@ -1,10 +1,22 @@
 
-njoh-fhish, les voila qui dansent, options, 
 
 todo:
-	august 21:
-		- send notification to user when he creates a form
+	august 26:
+		# - questions listing page
+		# - past_papers listing page
+		- past paper detail page
+		- ad listing detail page
+		- search friend page
+		- school question detail, school question list
+		- user profile page
 
+		### update(edit views) ###
+		- item listings
+		- questions
+		- 
+
+- all create forms should have shadows. and other forms normal borders
+- socialize detail form should take visitor to socialize section of user's profile
 - implement editing and deleting by poster in various apps..
 - limit number of answers per question and comments per post in qa_site app.
 - style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; 
@@ -13,6 +25,7 @@ todo:
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
 - add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
 - use ajax for username select ... 
+- send notification to user when he creates a form
 - add microphone or similar icon after or before name of original poster
 - when posting items, should moderators be the ones to validate item submission?
 - translations !

@@ -160,6 +160,8 @@ class Post(models.Model):
 		# validators=[validate_full_name]
 	)
 	contact_numbers = GenericRelation('users.PhoneNumber')
+	# since title isn't unique, slug can't be used to get a particular object.
+	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
 	title = models.CharField(
 		_('Title'), 
 		max_length=80, 

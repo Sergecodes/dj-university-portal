@@ -16,28 +16,23 @@ class PastPaperPhotoForm(forms.ModelForm):
 
 
 class PastPaperForm(forms.ModelForm):
-	subject = forms.ModelChoiceField(
-		queryset=Subject.objects.all(),
-		required=False,
-		help_text=_('Select the subject. Leave it empty if the subject is not in the list.')
-	)
-	school = forms.ModelChoiceField(
-		queryset=Institution.objects.all(),
-		required=False,
-		help_text=_('Select the school. Allow empty if the school is not in the list.')
+	level = forms.ChoiceField(
+		choices=PastPaper.LEVELS,
+		initial=PastPaper.HIGH_SCHOOL,
+		widget=forms.Select()
 	)
 	file = forms.FileField(
-		widget=forms.FileInput(),
-		required=False,
-		help_text=_('<br> Pdf or .doc file of the past paper. Leave it empty if you will upload photos instead.')
-	)
-	# this field will be used with the PastPaperPhotoForm 
-	photos = forms.FileField(
 		widget=forms.FileInput(
-			attrs={'multiple': True, 'accept': 'application/pdf,application/msword'}
+			attrs={'accept': 'application/pdf,application/msword'}
 		),
 		required=False,
-		help_text=_('<br> Hold down "Control", or "Command" on a Mac, to select more than one. <br> Leave it empty if you have uploaded a file instead.')
+		help_text=_('Pdf or .doc file of the past paper. Leave it empty if you will upload photos instead.')
+	)
+	# this field will be used with the PastPaperPhotoForm 
+	photos = forms.ImageField(
+		widget=forms.FileInput(attrs={'multiple': True}),
+		required=False,
+		help_text=_('Hold down "Control", or "Command" on a Mac, to select more than one. <br> Leave it empty if you have uploaded a file instead.')
 	)
 	
 	class Meta:
@@ -52,8 +47,10 @@ class PastPaperForm(forms.ModelForm):
 			)
 		}
 		help_texts = {
-			'written_date': _('When this question paper was written. Just the month and year are important.'),
-			'level': _('The level for which the paper was set.')
+			'written_date': _('When this question paper was written. Just the month and year will suffice.'),
+			'level': _('The level for which the paper was set.'),
+			'school': _('Select the school. Allow empty if the school is not in the list.'),
+			'subject': _('Select the subject. Leave it empty if the subject is not in the list.'),
 		}
 
 	def clean(self):
@@ -62,5 +59,5 @@ class PastPaperForm(forms.ModelForm):
 		# if neither photos nor a file has been uploaded, raise error
 		if not data.get('photos') and not data.get('file'):
 			raise ValidationError(_("Upload either a file or some photos"))
-		return self.cleaned_data
+		return data
 		

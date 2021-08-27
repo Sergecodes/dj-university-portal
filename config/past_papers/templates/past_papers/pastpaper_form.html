@@ -3,6 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
 	<title>{% trans 'Upload a past question paper' %}</title>
@@ -27,6 +28,7 @@
 
 		{{ form|crispy }}
 
+		<input type="hidden" name="default_language" value="{{ LANGUAGE_CODE }}">
 		<button type="submit" class="btn btn-success mt-2">{% trans 'Submit' %}</button>
 	</form>
 </div>

@@ -3,16 +3,13 @@ from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from datetime import timedelta
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import m2m_changed
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
-from core.constants import MAX_TAGS_PER_QUESTION
 from marketplace.models import Institution
 from users.models import get_dummy_user
 
@@ -316,6 +313,9 @@ class SchoolQuestion(Question):
 	class Meta:
 		verbose_name = _('School Question')
 		verbose_name_plural = _('School Questions')
+		indexes = [
+			models.Index(fields=['-posted_datetime'])
+		]
 
 	@property 
 	def upvote_count(self):
@@ -380,6 +380,9 @@ class AcademicQuestion(Question):
 	class Meta:
 		verbose_name = _('Academic Question')
 		verbose_name_plural = _('Academic Questions')
+		indexes = [
+			models.Index(fields=['-posted_datetime'])
+		]
 	
 	def __str__(self, *args, **kwargs):
 		return self.title
@@ -409,21 +412,6 @@ class AcademicQuestion(Question):
 		return reverse('qa_site:academic-question-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
 
-def tags_changed(sender, instance, action, **kwargs):
-	"""Limit number of tags per question"""
-	pk_set = kwargs.get('pk_set')
-	num_new_tags = len(pk_set)
-
-	if action == "pre_add":
-		if (num_tags := instance.tags.count()) + num_new_tags > MAX_TAGS_PER_QUESTION:
-			raise ValidationError(
-				_(f"Each question should have maximum {MAX_TAGS_PER_QUESTION} tags but this one would have had {num_tags + MAX_TAGS_PER_QUESTION} tags.")
-			)
-
-m2m_changed.connect(tags_changed, sender=AcademicQuestion.tags.through)
-m2m_changed.connect(tags_changed, sender=SchoolQuestion.tags.through)
-
-
 class Subject(models.Model):
 	"""Subject for academic question"""
 	name = models.CharField(max_length=40, unique=True)
@@ -432,7 +420,7 @@ class Subject(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
-			self.name = (self.name).title
+			self.name = (self.name).title   # use python's title method (str.title)
 		return super().save(*args, **kwargs)
 
 	def __str__(self):

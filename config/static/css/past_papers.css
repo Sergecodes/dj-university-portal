@@ -12,15 +12,13 @@
     padding-bottom: 1.5rem;  /* pb-4 */
 }
 
-
-
-/*** MEDIA QUERIES ***/
-/* Layout for desktop sizes and greater (>= lg) */
-@media (min-width: 992px) {
-	
+/** Past papers listing list */
+.pastpapers-list-art {
+	width: 85%;
 }
 
 
+/*** MEDIA QUERIES ***/
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
     .pastpaper-form-container {
@@ -31,5 +29,9 @@
         padding-left: 1rem; /* ps-3 */
         padding-right: 1rem; 
     }
+
+	.pastpaper-list-art {
+		width: 100%;
+	} 
 
 }

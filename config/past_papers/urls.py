@@ -8,6 +8,9 @@ app_name = 'past_papers'
 
 
 urlpatterns = [
-    path(_('upload/'), views.PastPaperCreateView.as_view(), name='past-paper-upload'),
+    path('', views.PastPaperList.as_view(), name='past-paper-list'),
+    path(_('upload/'), views.PastPaperCreate.as_view(), name='past-paper-upload'),
+    path(_('<int:pk>/<slug:slug>/'), views.PastPaperDetail.as_view(), name='past-paper-detail'),
+	path(_('<int:pk>/'), views.PastPaperDetail.as_view(), name='past-paper-detail'),
 
 ]

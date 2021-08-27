@@ -8,7 +8,12 @@ from . import views, ajax_views
 app_name = 'qa_site'
 
 urlpatterns = [
-	# this should come before the url with a slug
+	# these should come before the url with a slug
+	path(
+		_('academic-questions/'),
+		views.AcademicQuestionList.as_view(),
+		name='academic-question-list'
+	),
 	path(
 		_('academic-questions/ask/'), 
 		views.AcademicQuestionCreate.as_view(), 
@@ -19,7 +24,6 @@ urlpatterns = [
 		views.SchoolQuestionCreate.as_view(), 
 		name='school-question-create'
 	),
-	
 	path(
 		_('academic-questions/<int:pk>/<slug:slug>/'), 
 		views.AcademicQuestionDetail.as_view(), 
@@ -27,11 +31,6 @@ urlpatterns = [
 	),
 	path(
 		_('academic-questions/<int:pk>/'), 
-		views.AcademicQuestionDetail.as_view(), 
-		name='academic-question-detail'
-	),
-	path(
-		_('academic-questions/<slug:slug>/'), 
 		views.AcademicQuestionDetail.as_view(), 
 		name='academic-question-detail'
 	),

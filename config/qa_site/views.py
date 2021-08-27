@@ -1,3 +1,4 @@
+import django_filters as filters
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -128,9 +129,47 @@ class AcademicQuestionDetail(DetailView):
 		return context
 
 
+class AcademicQuestionFilter(filters.FilterSet):
+	title = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+
+	class Meta:
+		model = AcademicQuestion
+		fields = ['subject', 'title', ]
+
+	@property
+	def qs(self):
+		parent = super().qs
+		return parent.order_by('-posted_datetime')
+
+
+class AcademicQuestionList(FilterView):
+	model = AcademicQuestion
+	# context_object_name = 'questions'
+	filterset_class = AcademicQuestionFilter
+	template_name = 'qa_site/academicquestion_list.html'
+	template_name_suffix = '_list'
+	paginate_by = 2
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		subjects = Subject.objects.all().prefetch_related(
+			Prefetch('academic_questions', queryset=AcademicQuestion.objects.all().only('id'))
+		)
+
+		num_questions = 0
+		for subject in subjects:
+			num_questions += subject.academic_questions.count()
+
+		context['subjects'] = Subject.objects.all()
+		context['total_num_qstns'] = num_questions
+		
+		return context
+
+
 class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = SchoolQuestionForm
 	model = SchoolQuestionForm
+	template_name = 'qa_site/schoolquestion_form.html'
 	success_url = reverse_lazy('qa_site:academic-question-detail')
 
 	def form_valid(self, form):
@@ -142,17 +181,6 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		school_question.save()	
 
 		return HttpResponseRedirect(self.get_success_url())
-
-
-# @login_required
-# def add_academic_comment(request):
-# 	"""Handles addition of a comment for an academic question or answer."""
-# 	user = request.user
-# 	# thread-type can be question or answer
-# 	thread_type = request.POST.get('thread-type')
-
-# 	if thread_type == 'question':
-# 		pass
 
 
 @login_required

@@ -71,7 +71,6 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		self.object = form.save(commit=False)
 		listing = self.object
 		listing.owner = request.user
-		listing.institution = form.cleaned_data['institution']
 		listing.save()
 		
 		# add phone numbers
@@ -231,24 +230,11 @@ class ItemListingFilter(filters.FilterSet):
 		return parent.order_by('-datetime_added')
 
 
-class AdListingFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Advert keyword'), lookup_expr='icontains')
-
-	class Meta:
-		model = AdListing
-		fields = ['institution', 'title', 'category', ]
-
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-datetime_added')
-
-
 class ItemListingList(FilterView):
 	model = ItemListing
 	# context_object_name = 'listings'
 	filterset_class = ItemListingFilter
-	template_name = 'marketplace/itemlisting_list'
+	template_name = 'marketplace/itemlisting_list.html'
 	template_name_suffix = '_list'
 	paginate_by = 2
 	
@@ -263,6 +249,19 @@ class ItemListingList(FilterView):
 		context = super().get_context_data(**kwargs)
 		context['first_photos'] = first_photos
 		return context
+
+
+class AdListingFilter(filters.FilterSet):
+	title = filters.CharFilter(label=_('Advert keyword'), lookup_expr='icontains')
+
+	class Meta:
+		model = AdListing
+		fields = ['institution', 'title', 'category', ]
+
+	@property
+	def qs(self):
+		parent = super().qs
+		return parent.order_by('-datetime_added')
 
 
 class AdListingList(FilterView):

@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
@@ -36,19 +39,25 @@ class PastPaperPhoto(models.Model):
 
 class PastPaper(models.Model):
 	'''Official past papers and papers for revision'''
+	PRIMARY = 'PRI'
+	SECONDARY = 'SEC'
+	HIGH_SCHOOL = 'HS'
+	BACHELORS = 'BACH'
+	MASTERS = 'MS' 
+	DOCTORATE = 'PhD'
 
 	LEVELS = (
-		('L1', _('Level 1')),
-		('L2', _('Level 2')),
-		('L3', _('Level 3')),
-		('L4', _('Level 5')),
-		('M', _('Masters')),
-		('PhD', _('Doctorate')),
-		(_('Other'), _('Other')),
+		(PRIMARY, _('Primary School')),
+		(SECONDARY, _('Secondary School')),  # secondary school(ecole secondaire)
+		(HIGH_SCHOOL, _('High School')),  # high school(lycee)
+		(BACHELORS, _("HND/Bachelor's")),  # bts/licence
+		(MASTERS, _("Master's")),
+		(DOCTORATE, _('Doctorate')),
 	)
-
-	level = models.CharField(max_length=7, choices=LEVELS)
-	title = models.CharField(max_length=255)
+	
+	level = models.CharField(max_length=5, choices=LEVELS)
+	title = models.CharField(max_length=50)
+	slug = models.SlugField(max_length=250)
 	# used for pdf files
 	file = models.FileField(null=True, blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
 	poster = models.ForeignKey(
@@ -76,7 +85,22 @@ class PastPaper(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	# those with null=True will be considered as revision papers..
 	written_date = models.DateField(null=True, blank=True)  # when the past paper was written..
+	default_language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
 
 	def __str__(self):
 		return self.title
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.title)
+		return super().save(*args, **kwargs)
+
+	def get_absolute_url(self):
+		return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id, 'slug': self.slug})
+
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['-posted_datetime'])
+		]
 
