@@ -10,58 +10,100 @@ from marketplace.models import Institution
 from qa_site.models import Subject
 from users.models import get_dummy_user
 
+User = get_user_model()
  
 class PastPaperPhoto(models.Model):
-	title = models.CharField(max_length=255) 
-	upload_datetime = models.DateTimeField(auto_now_add=True)
-	# name of photo(without extension) as uploaded by user
+	"""
+	These photos should be periodically removed from storage, since after upload they are practically useless
+	as they are used to generate the pdf file containing these photos...
+	"""
 	file = models.ImageField(upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
+
+	def __str__(self):
+		return self.name
+
+	@property
+	def actual_filename(self):
+		"""
+		Get name of file with extension (not relative path from MEDIA_URL).
+		If files have the same name, Django automatically appends a unique string to each file before storing.
+		This property(function) returns the name of a file (on disk) with its extension.
+		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+
+		This differs from self.file.name in that the latter also includes the upload_to directory of the file.
+		"""
+		import os
+
+		return os.path.basename(self.file.name)
+
+
+class Comment(models.Model):
+	content = models.TextField()
+	poster = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='past_paper_comments',
+		related_query_name='past_paper_comment'
+	)
 	past_paper = models.ForeignKey(
 		'PastPaper',
 		on_delete=models.CASCADE,
-		related_name='photos',
-		related_query_name='photo',
-		null=True, blank=True
+		related_name='comments',
+		related_query_name='comment'
 	)
+	posted_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['-posted_datetime'])
+		]
 
 	def __str__(self):
-		return self.title
-
-	def save(self, *args, **kwargs):
-		if not self.id:
-			# get file_name (here, file name is the name of the file as uploaded by user)
-			file_name = self.file.name
-			# get just file name from name and extension combination
-			short_name = file_name.split('.')[0]
-			self.title = short_name
-		super().save(*args, **kwargs)
+		return self.content
 
 
 class PastPaper(models.Model):
 	'''Official past papers and papers for revision'''
-	PRIMARY = 'PRI'
-	SECONDARY = 'SEC'
-	HIGH_SCHOOL = 'HS'
+	ORDINARY_LEVEL = 'O'
+	ADVANCED_LEVEL = 'A'
+	BEPC = 'BEPC'
+	PROBATOIRE = 'PROB'
+	BACCALAUREAT = 'BAC'
 	BACHELORS = 'BACH'
+	BTS = 'BTS'
 	MASTERS = 'MS' 
 	DOCTORATE = 'PhD'
 
 	LEVELS = (
-		(PRIMARY, _('Primary School')),
-		(SECONDARY, _('Secondary School')),  # secondary school(ecole secondaire)
-		(HIGH_SCHOOL, _('High School')),  # high school(lycee)
-		(BACHELORS, _("HND/Bachelor's")),  # bts/licence
+		(ORDINARY_LEVEL, 'Ordinary Level'),
+		(ADVANCED_LEVEL, 'Advanced Level'),
+		(BEPC, 'BEPC'), 
+		(PROBATOIRE, 'Probatoire'), 
+		(BACCALAUREAT, 'Baccalaureat'), 
+		(BACHELORS, "HND/Bachelor's"), 
+		(BTS, 'BTS'),
 		(MASTERS, _("Master's")),
 		(DOCTORATE, _('Doctorate')),
 	)
+
+	COMMERCIAL = 'COMM'
+	GENERAL = 'GEN'
+	TECHNICAL = 'TECH'
+
+	TYPES = (
+		(COMMERCIAL, _('Commercial')),
+		(GENERAL, _('General')),
+		(TECHNICAL, _('Technical'))
+	)
 	
 	level = models.CharField(max_length=5, choices=LEVELS)
-	title = models.CharField(max_length=50)
+	type = models.CharField(max_length=5, choices=TYPES, default='GEN')
+	title = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=250)
 	# used for pdf files
-	file = models.FileField(null=True, blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
+	file = models.FileField(blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
 	poster = models.ForeignKey(
-		get_user_model(),
+		User,
 		on_delete=models.SET(get_dummy_user),
 		related_name='past_papers',
 		related_query_name='past_paper'
@@ -74,13 +116,11 @@ class PastPaper(models.Model):
 		related_query_name='past_paper',
 		null=True, blank=True
 	)
-	# nullable for subjects that aren't present(yet...)
 	subject = models.ForeignKey(
 		Subject,
 		on_delete=models.PROTECT,
 		related_name='past_papers',
 		related_query_name='past_paper',
-		null=True, blank=True
 	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	# those with null=True will be considered as revision papers..
@@ -97,6 +137,24 @@ class PastPaper(models.Model):
 
 	def get_absolute_url(self):
 		return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id, 'slug': self.slug})
+
+	@property
+	def num_comments(self):
+		return self.comments.count()
+
+	@property
+	def actual_filename(self):
+		"""
+		Get name of file with extension (not relative path from MEDIA_URL).
+		If files have the same name, Django automatically appends a unique string to each file before storing.
+		This property(function) returns the name of a file (on disk) with its extension.
+		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+
+		This differs from self.file.name in that the latter also includes the upload_to directory of the file.
+		"""
+		import os
+
+		return os.path.basename(self.file.name)
 
 
 	class Meta:

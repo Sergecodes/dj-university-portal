@@ -1,4 +1,3 @@
-# import uuid
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from datetime import timedelta
@@ -10,9 +9,9 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
+from core.model_fields import TitleCaseField
 from marketplace.models import Institution
 from users.models import get_dummy_user
-
 
 User = settings.AUTH_USER_MODEL
 
@@ -414,13 +413,14 @@ class AcademicQuestion(Question):
 
 class Subject(models.Model):
 	"""Subject for academic question"""
-	name = models.CharField(max_length=40, unique=True)
+	# name = models.CharField(max_length=40, unique=True) 
+	name = TitleCaseField(max_length=30, unique=True)
 	slug = models.SlugField(max_length=200)
 
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
-			self.name = (self.name).title   # use python's title method (str.title)
+			# self.name = (self.name).title   # use python's title method (str.title)
 		return super().save(*args, **kwargs)
 
 	def __str__(self):

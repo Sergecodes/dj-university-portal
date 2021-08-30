@@ -345,6 +345,7 @@
 								{% csrf_token %}
 								{{ ans_comment_form|crispy }}
 								
+								<input type="hidden" name="question_id" value="{{ question.id }}">
 								<input type="hidden" name="answer_id" value="{{ answer.id }}">
 								<input type="submit" class="btn btn-sm btn-primary" name="add_answer_comment" value="{% trans 'Add comment' %}">
 							</form>

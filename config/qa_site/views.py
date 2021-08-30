@@ -50,6 +50,7 @@ class AcademicQuestionDetail(DetailView):
 	def post(self, request, *args, **kwargs):
 		"""Handle submission of forms such as comments and answers."""
 		POST = request.POST
+		question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
 
 		# if question comment form was submitted
 		if 'add_question_comment' in POST:
@@ -59,7 +60,7 @@ class AcademicQuestionDetail(DetailView):
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
 				comment.poster = request.user
-				comment.question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
+				comment.question = question
 				comment.save()
 
 		elif 'add_answer_comment' in POST:
@@ -75,10 +76,12 @@ class AcademicQuestionDetail(DetailView):
 			if answer_form.is_valid():
 				answer = answer_form.save(commit=False)
 				answer.poster = request.user
-				answer.question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
+				answer.question = question
 				answer.save()
 
-		return super().get(request, *args, **kwargs)
+		# redirect to get request. (SEE Post/Redirect/Get)
+		# do not to return get(self,...)
+		return HttpResponseRedirect(question.get_absolute_url())
 
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4

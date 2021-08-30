@@ -11,7 +11,7 @@ from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .models import (
 	ItemListing, AdListing, Institution, ItemSubCategory,

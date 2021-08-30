@@ -134,6 +134,7 @@
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in zipped_list %}
+				{% comment %} {% for sim_listing in similar_listings|zip:first_photos} {% endcomment %}
 					<div class="col similar-listing">
 						<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
 							<img class="mb-2 similar-listing__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">

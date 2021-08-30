@@ -53,16 +53,16 @@ class PhotoUploadView(LoginRequiredMixin, View):
 
 		# remove photo from session PS note that the photo will still stay in storage.
 		photo_filename = request.GET.get('photo_filename')
-		print(photo_filename)
+		# print(photo_filename)
 
 		username, session = request.user.username, request.session
-		user_photos = session.get(username)
+		user_photos_list = session.get(username)
 		# remove photo title from user photos and update session
-		photo_index = user_photos.index(photo_filename)
-		del user_photos[photo_index]
-		session[username] = user_photos
+		photo_index = user_photos_list.index(photo_filename)
+		del user_photos_list[photo_index]
+		session[username] = user_photos_list
 
-		print(user_photos)
+		# print(user_photos_list)
 
 		return JsonResponse({'deleted': True})
 
@@ -70,22 +70,23 @@ class PhotoUploadView(LoginRequiredMixin, View):
 		"""Called when a photo is uploaded."""
 		form = ItemPhotoForm(request.POST, request.FILES)
 		
-		print(request.FILES)
+		# print(request.FILES)
 		if form.is_valid():
 			photo = form.save()
 			user, session = request.user, request.session
 			username = user.username
-			user_photos = session.get(username, [])
-			user_photos.append(photo.filename)
-			session[username] = user_photos
-			print(session[username])
+
+			user_photos_list = session.get(username, [])
+			user_photos_list.append(photo.actual_filename)
+			session[username] = user_photos_list
+			# print(session[username])
 
 			data = {
 				'is_valid': True, 
 				'id': photo.id, 
 				'url': photo.file.url,
 				'title': photo.title,
-				'filename': photo.filename  
+				'filename': photo.actual_filename  
 			}
 			
 			# delete model instance but keep file (# todo ensure this holds even after external packages are installed...)

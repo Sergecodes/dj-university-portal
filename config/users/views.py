@@ -8,7 +8,6 @@ from django.contrib.auth import (
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ValidationError
-from django.db import transaction
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -17,9 +16,8 @@ from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import (
-	PhoneNumberFormset,
-	UserCreationForm, 
-	UserUpdateForm
+	PhoneNumberFormset, EditPhoneNumberFormset,
+	UserCreationForm, UserUpdateForm
 )
 
 User = get_user_model()
@@ -35,9 +33,8 @@ class UserCreate(CreateView):
 		self.object = None
 		form = self.get_form()
 
-		print(request.POST)
 		formset = PhoneNumberFormset(request.POST)
-		print(formset.forms)
+		
 		# Now validate both the form and formset
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -67,14 +64,12 @@ class UserCreate(CreateView):
 		new_user = self.object
 		
 		for number_form in phone_number_formset:
-			assert number_form.is_valid(), 'Form in formset is invalid'
-
 			phone_number = number_form.save(commit=False)
-			phone_number.content_object = new_user
+			phone_number.owner = new_user
 			phone_number.save()
 		
 		# log new user in
-		# login(request, new_user)
+		login(request, new_user)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
 		return HttpResponseRedirect(self.get_success_url())
@@ -109,7 +104,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	def post(self, request, *args, **kwargs):
 		self.object = self.get_object()
 		form = self.get_form()
-		formset = PhoneNumberFormset(request.POST, instance=self.object)
+		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -123,26 +118,27 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		self.object = form.save()
 		user = self.object
 		
+		# remove all previous numbers
+		user.phone_numbers.all().delete()
+		
 		for number_form in phone_number_formset:
-			assert number_form.is_valid(), 'Form in formset is invalid'
-
 			phone_number = number_form.save(commit=False)
-			phone_number.content_object = user
+			phone_number.owner = user
 			phone_number.save()
+		# print(user.phone_numbers.all())
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
 		return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': user.username}))
-		# return HttpResponseRedirect('/')
 		# return HttpResponseRedirect(self.get_success_url())
 
 	def get_context_data(self, **kwargs):
 		data = super().get_context_data(**kwargs)
 		
 		if POST := self.request.POST:
-			data['formset'] = PhoneNumberFormset(POST, instance=self.object)
+			data['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
 		else:
-			data['formset'] = PhoneNumberFormset(instance=self.object)
+			data['formset'] = EditPhoneNumberFormset(instance=self.object)
 
 		return data
 

@@ -1,11 +1,12 @@
 
 
+
 todo:
 	august 26:
 		# - questions listing page
 		# - past_papers listing page
-		- past paper detail page
-		- ad listing detail page
+		- past paper detail page .. paginate comments.
+		- ad listing detail page, ad listing list. remember not all ads have photos.
 		- search friend page
 		- school question detail, school question list
 		- user profile page
@@ -15,19 +16,31 @@ todo:
 		- questions
 		- 
 
+- cached property (with ttl) package is a must ! especially for complex computations.
+- add asterisk after condition_description when condition changes. (to show the description is required)
+- add github profile and tiktok profile in socialize app
+- permissions.
+- insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
+-show loading icon during ajax request -django
+- add 'FCFA' text after price input box.
+- add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
+- listings should disappear(be deleted or hidden) after duration expires
+- create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
+- include means to refer to another user then commenting in qa_site app. eg. @sergeman you could better explain that. then sergeman should be notified... ?
+- create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
+- limit number of images in past paper upload...
 - all create forms should have shadows. and other forms normal borders
 - socialize detail form should take visitor to socialize section of user's profile
 - implement editing and deleting by poster in various apps..
 - limit number of answers per question and comments per post in qa_site app.
-- style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; 
+- style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
 - add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
 - use ajax for username select ... 
 - send notification to user when he creates a form
-- add microphone or similar icon after or before name of original poster
-- when posting items, should moderators be the ones to validate item submission?
+- add 
 - translations !
 - correct phone number input in user forms. try adding a prefix on the formset.
 -also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
@@ -36,7 +49,6 @@ todo:
 - append (- CamerEcole) to title of each page. apparently, sites like myschool and SO do this.
 - add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
 - show help videos; e.g. how to add an image in ckedifor widget
-- use bootstrap toasts !
 - add 'draft your question advice' like stackoverflow in question creation form... ?
 - add 'send_notification' field to form/model (questions creation)(exactly like myschool)..
 - messages framework django..
@@ -49,10 +61,6 @@ todo:
 # yaiero/tagify for tags.... 	stackoverflow.com/q/10839570/10526469
 - in listing detail page, print price in words on hover over.(tooltip. see num2words library)
 - finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
-- insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
--show loading icon during ajax request -django
-- add 'FCFA' text after price input box.
-- add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
 
 - constraint on file size (maybe max 1MB)
 - minimum length constraints

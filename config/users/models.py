@@ -30,15 +30,22 @@ class PhoneNumber(models.Model):
 	operator = models.CharField(_('Operator'), choices=ISPs, max_length=8, default='MTN')
 	number = models.CharField(
 		_('Phone number'),
-		max_length=20,  # filler value since apparently, CharFields must define a max_length attribute
+		max_length=20,  # filler value since CharFields must define a max_length attribute
 		help_text=_('Enter mobile number <b>(without +237)</b>')
 	)
 	can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
 
-	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-	object_id = models.PositiveIntegerField()
-	content_object = GenericForeignKey('content_type', 'object_id')
+	owner = models.ForeignKey(
+		'User', 
+		on_delete=models.CASCADE,
+		related_name='phone_numbers',
+		related_query_name='phone_number'
+	)
 
+
+	# content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+	# object_id = models.PositiveIntegerField()
+	# content_object = GenericForeignKey('content_type', 'object_id')
 
 	def __str__(self):
 		if self.can_whatsapp:
@@ -49,6 +56,15 @@ class PhoneNumber(models.Model):
 		# unique_together = ("content_type", "object_id")
 		verbose_name = _("Phone Number")
 		verbose_name_plural = _("Phone Numbers")
+
+
+# class PhoneNumberTarget(models.Model):
+# 	"""
+# 	This table will be used as a `through` table for generic many to many field.
+# 	This is used because a phone number can point to many objects(many listings and a user)
+# 	"""
+# 	phone_number = models.ForeignKey(PhoneNumber)
+
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -67,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		('F', _('Female'))
 	)
 
-	phone_numbers = GenericRelation(PhoneNumber, related_query_name='user')
+	# phone_numbers = GenericRelation(PhoneNumber, related_query_name='user')
 	email = LowerCaseEmailField(
 		_('Email address'),
 		max_length=50,

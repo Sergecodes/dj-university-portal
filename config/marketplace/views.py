@@ -1,4 +1,5 @@
 import django_filters as filters
+import os
 from django_filters.views import FilterView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,7 +25,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 	form_class = ItemListingForm
 	model = ItemListing
 	template_name = 'marketplace/itemlisting_create.html'
-	success_url = reverse_lazy('marketplace:item-listing-list')
+	# success_url = reverse_lazy('marketplace:item-listing-list')
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs = super().get_form_kwargs(**kwargs)
@@ -34,6 +35,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 	def get(self, request, *args, **kwargs):
 		# remove photos list from session (just in case...)
 		request.session.pop(request.user.username, '')
+		
 		return super().get(request, *args, **kwargs)
 
 	def post(self, request, *args, **kwargs):
@@ -53,7 +55,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		if form.is_valid():
 			return self.form_valid(form)
 		else:
-			# remove and return photos list from session 
+			# remove and return photos list from session (note that the uploaded photos will be lost by default)
 			photos_list = request.session.pop(request.user.username, [])
 
 			# delete uploaded photos(and also remove corresponding files)
@@ -73,12 +75,13 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		listing.owner = request.user
 		listing.save()
 		
-		# add phone numbers
+		# add phone numbers (phone_numbers is a queryset)
 		phone_numbers = form.cleaned_data['contact_numbers']
+
+		# this loop isn't a case for concern since the phone numbers will generally be at most 5 right?
+		print(phone_numbers)  
 		for phone_number in phone_numbers:
 			listing.contact_numbers.add(phone_number)
-			
-		print(listing.contact_numbers.all())
 
 		# create photo instances pointing to the pre-created photos.
 		photos_list = session.get(username, [])  # get list of photo names
@@ -87,15 +90,14 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		for photo_name in photos_list:
 			photo = ItemListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = LISTING_PHOTOS_UPLOAD_DIR + photo_name
+			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
 			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 
 		request.session.pop(request.user.username)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		# return HttpResponseRedirect(self.get_success_url())
-		return HttpResponseRedirect('/')
+		return HttpResponseRedirect(listing.get_absolute_url())
 
 
 class AdListingCreate(LoginRequiredMixin, CreateView):
@@ -151,7 +153,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		for photo_name in photos_list:
 			photo = AdListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = LISTING_PHOTOS_UPLOAD_DIR + photo_name
+			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
 			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 
@@ -178,12 +180,25 @@ class ItemListingDetail(DetailView):
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 			sub_category__name__iexact=getattr(listing.sub_category, 'name', '')
 		).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+		
+		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
+		sub_category_name = getattr(listing.sub_category, 'name', '')
+		if sub_category_name:
+			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
+				institution=listing.institution,
+				sub_category__name__iexact=sub_category_name
+			).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+		else:
+			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
+				institution=listing.institution
+			).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+
 
 		# get first photos of each similar listing
 		first_photos = []
-		for listing in similar_listings:
-			first_photos.append(listing.photos.first())
-
+		for sim_listing in similar_listings:
+			first_photos.append(sim_listing.photos.first())
+		
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()
 		context['zipped_list'] = zip(similar_listings, first_photos)
@@ -208,8 +223,9 @@ class AdListingDetail(DetailView):
 
 		# get first photos of each similar listing
 		first_photos = []
-		for listing in similar_listings:
-			first_photos.append(listing.photos.first())
+		# use a name other than 'listing' because of python for loop scoping..
+		for sim_listing in similar_listings:
+			first_photos.append(sim_listing.photos.first())
 
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()

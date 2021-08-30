@@ -56,8 +56,9 @@ class ItemCategory(models.Model):
 
 
 class ItemListingPhoto(models.Model):
-	# name of photo(without extension) as uploaded by user
-	title = models.CharField(max_length=255, blank=True, null=True) 
+	# name of photo on disk (name without extension)
+	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
+	title = models.CharField(max_length=60, null=True, blank=True) 
 	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
@@ -68,30 +69,36 @@ class ItemListingPhoto(models.Model):
 		related_name='photos',
 		related_query_name='photo',
 		null=True, blank=True  
-		# in reality, each photo should belong to a listing. null is set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. 
-		# thus in our db, we should always have a photo linked to an item listing. to prevent the event of a user uploading photos but not submitting a listing: 
+		# in reality, each photo should belong to a listing. null is set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. thus in our db, we should always have a photo linked to an item listing.
+
+		# To prevent the event of a user uploading photos but not submitting a listing: 
 		# attach window.onunload event to page. if user clicks on submit button, we save a cookie ('clickedSubmit'). if he leaves page without clicking submit button(if there's no such cookie), send ajax request to server to delete photos that have been uploaded(can do so using session in backend..). Ultimately remove cookie.
 		#  the above will probably be unneccessary and will probably cause some server load. it should be done only if storage space is a concern.
 	)
 
 	def __str__(self):
-		return self.file.name  # apparently, this returns the same result as when using the filenam property
+		return self.file.name  
 
 	@property
-	def filename(self):
-		"""Get file name of file (not relative path from MEDIA_URL)"""
+	def actual_filename(self):
+		"""
+		Get file name of file with extension (not relative path from MEDIA_URL).
+		If files have the same name, Django automatically appends a unique string to each file before storing.
+		This property(function) returns the name of a file (on disk) with its extension.
+		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+		"""
 		import os
 
 		return os.path.basename(self.file.name)
 
 	def save(self, *args, **kwargs):
-		if not self.id:
-			# get file_name (here, file name is the name of the file as uploaded by user)
-			file_name = self.file.name
-			# get just file name from name and extension combination
-			short_name = file_name.split('.')[0]
-			self.title = short_name
+		# first save and store file in storage
 		super().save(*args, **kwargs)
+
+		# set title of file if it hasn't yet been saved
+		if not self.title:
+			self.title = self.actual_filename.split('.')[0]
+			self.save(update_fields=['title'])
 
 	class Meta:
 		verbose_name = 'Item Listing Photo'
@@ -99,6 +106,7 @@ class ItemListingPhoto(models.Model):
 
 
 class AdListingPhoto(models.Model):
+	title = models.CharField(max_length=60, null=True, blank=True) 
 	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
 	ad_listing = models.ForeignKey(
 		'AdListing',
@@ -112,11 +120,20 @@ class AdListingPhoto(models.Model):
 		verbose_name_plural = 'Ad Listing Photos'
 
 	@property
-	def filename(self):
+	def actual_filename(self):
 		"""Get file name of file (not relative path from MEDIA_URL)"""
 		import os
 
 		return os.path.basename(self.file.name)
+
+	def save(self, *args, **kwargs):
+		# first save and store file in storage
+		super().save(*args, **kwargs)
+
+		# set title of file if it hasn't yet been saved
+		if not self.title:
+			self.title = self.actual_filename.split('.')[0]
+			self.save(update_fields=['title'])
 
 
 class Post(models.Model):
@@ -159,7 +176,7 @@ class Post(models.Model):
 		help_text=_('Enter real names, buyers will more easily trust you if you enter a real name.'),
 		# validators=[validate_full_name]
 	)
-	contact_numbers = GenericRelation('users.PhoneNumber')
+	# contact_numbers = GenericRelation('users.PhoneNumber')
 	# since title isn't unique, slug can't be used to get a particular object.
 	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
 	title = models.CharField(
@@ -210,6 +227,10 @@ class ItemListing(Post, HitCountMixin):
 		(DEFECTIVE, _('For parts or not working'))
 	)
 
+	contact_numbers = models.ManyToManyField(
+		'users.PhoneNumber',
+		related_name='+'
+	)
 	# delete listing if user is deleted
 	owner = models.ForeignKey(
 		User, 
@@ -270,6 +291,10 @@ class ItemListing(Post, HitCountMixin):
 
 
 class AdListing(Post, HitCountMixin):
+	contact_numbers = models.ManyToManyField(
+		'users.PhoneNumber',
+		related_name='+'
+	)
 	owner = models.ForeignKey(
 		User, 
 		on_delete=models.CASCADE,

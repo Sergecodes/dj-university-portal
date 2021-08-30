@@ -5,11 +5,13 @@ from django.contrib.auth.forms import (
 	# ReadOnlyPasswordHashField
 )
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.contenttypes.forms import (
-	BaseGenericInlineFormSet,
-	generic_inlineformset_factory
-)
+
+# from django.contrib.contenttypes.forms import (
+# 	BaseGenericInlineFormSet,
+# 	generic_inlineformset_factory
+# )
 from django.core.exceptions import ValidationError
+from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
 
 from .models import PhoneNumber, User
@@ -140,12 +142,13 @@ class PhoneNumberForm(forms.ModelForm):
 		model = PhoneNumber
 		fields = ('operator', 'number', 'can_whatsapp')
 		widgets = {
-			'number': forms.NumberInput(attrs={'type': 'tel'})
+			'number': forms.NumberInput(attrs={'type': 'tel'}),
 		}
 
 
 # inherit from base class so as to override the clean method of the formset
-class BasePhoneNumberFormset(BaseGenericInlineFormSet):
+# class BasePhoneNumberFormset(BaseGenericInlineFormSet):
+class BasePhoneNumberFormset(BaseInlineFormSet):
 	def clean(self):
 		"""Checks that no two numbers are the same and that there should be at least one number that supports Whatsapp."""
 		if any(self.errors):
@@ -173,17 +176,25 @@ class BasePhoneNumberFormset(BaseGenericInlineFormSet):
 			raise ValidationError(_("Enter at least one number that supports WhatsApp."))
 
 
-PhoneNumberFormset = generic_inlineformset_factory(
+# PhoneNumberFormset = generic_inlineformset_factory(
+# 	PhoneNumber, 
+# 	form=PhoneNumberForm, 
+# 	formset=BasePhoneNumberFormset, 
+# 	extra=1
+# )
+
+PhoneNumberFormset = inlineformset_factory(
+	User,
 	PhoneNumber, 
 	form=PhoneNumberForm, 
 	formset=BasePhoneNumberFormset, 
-	extra=1   # use extra=1 for both editing and creation forms. without it, 
-	# one form's is deducted during submission by the jquery-formset package.
+	extra=1   
 )
 
-EditPhoneNumberFormset = generic_inlineformset_factory(
+EditPhoneNumberFormset = inlineformset_factory(
+	User,
 	PhoneNumber, 
 	form=PhoneNumberForm, 
 	formset=BasePhoneNumberFormset, 
-	# extra=1   
+	extra=0   
 )
