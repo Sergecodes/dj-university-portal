@@ -29,7 +29,7 @@
 					{% endblocktrans %}
 				</p>
 				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning mb-3">
-					{% trans 'Post a Question' %}
+					{% trans 'Ask a Question' %}
 				</a>
 			</section>
 			<section class="mb-3 questions-search-form-wrp">
@@ -54,50 +54,56 @@
 
 			<section class="questions-list-wrp">
 				<ul class="pe-4 questions-list">
-					{% for question in page_obj %}
-						<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
-							<div class="text-secondary text-center small flex-shrink-0">
-								<div class="mb-2 {% if question.score > 0 %} text-success {% elif question.score < 0 %} text-danger {% endif %} question-summary__vote-count">
-									<span class="d-block">{{ question.score }}</span>
-									<span>{% trans 'vote' %}{{ question.score|pluralize }}</span>
-								</div>
-								<div class="{% if question.num_answers > 0 %} text-success {% endif %} question-summary__answer-count">
-									<span class="d-block">{{ question.num_answers }}</span>
-									<span>{% trans 'answer' %}{{ question.num_answers|pluralize }}</span>
-								</div>
-							</div>
-							<div class="flex-grow-1 ms-3">
-								<a 
-									href="{{ question.get_absolute_url }}" 
-									class="h5 text-decoration-none d-inline-block"
-								>
-									{{ question.title }}
-								</a>
-								<p class="mb-2">
-									{# `safe` is used at the end to also remove html entities #}
-									{{ question.content|remove_tags|truncatewords:30|safe }}
-								</p>
-
-								<div class="question-meta">
-									<a 
-										class="badge rounded-pill bg-info link-light text-decoration-none" 
-										href="#"
-									>
-										{{ question.subject }}
-									</a>
-									<div class="d-inline ms-3 d-lg-block text-end ">
-										<span class="text-muted">{% trans 'asked by' %}</span>
-										<a 
-											href="{% url 'users:view-profile' username=question.poster.username %}"
-											class="text-decoration-none"
-										>
-											{{ question.poster.username }}
-										</a>
-										<span class="small text-muted">&nbsp; - &nbsp;{{ question.posted_datetime|naturaltime }}</span>
+					{% for question in page_content %}
+						{% with poster_username=question.poster.username score=question.score num_answers=question.num_answers %}
+							<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
+								<div class="text-secondary text-center small flex-shrink-0">
+									<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
+										<span class="d-block">{{ score }}</span>
+										<span>{% trans 'vote' %}{{ score|pluralize }}</span>
+									</div>
+									<div class="{% if num_answers > 0 %} text-success {% endif %} question-summary__answer-count">
+										<span class="d-block">{{ num_answers }}</span>
+										<span>{% trans 'answer' %}{{ num_answers|pluralize }}</span>
 									</div>
 								</div>
-							</div>
-						</li> 
+								<div class="flex-grow-1 ms-3">
+									<a 
+										href="{{ question.get_absolute_url }}" 
+										class="h5 text-decoration-none d-inline-block"
+									>
+										{{ question.title }}
+									</a>
+									<p class="mb-3">
+										{# `safe` is used at the end to also remove html entities #}
+										{{ question.content|remove_tags|truncatewords:30|safe }}
+									</p>
+
+									<div class="question-meta">
+										<a 
+											class="badge rounded-pill bg-info link-light text-decoration-none" 
+											href="#"
+										>
+											{{ question.subject }}
+										</a>
+										{# this is unnecessary coz user will need to see complete question before being able to answer unlike myschool... #}
+										{% comment %} <a href="{{ question.get_absolute_url }}" class="btn btn-sm btn-outline-success py-0 text-decoration-none">
+											{% trans 'Answer this question' %}
+										</a> {% endcomment %}
+										<div class="d-inline-block mt-2 {% if not is_mobile %} ms-5 {% endif %}">
+											<span class="text-muted">{% trans 'asked by' %}</span>
+											<a 
+												href="{% url 'users:view-profile' username=poster_username %}"
+												class="text-decoration-none"
+											>
+												{{ poster_username }}
+											</a>
+											<span class="small text-muted">&nbsp; - &nbsp;{{ question.posted_datetime|naturaltime }}</span>
+										</div>
+									</div>
+								</div>
+							</li> 
+						{% endwith %}
 					{% endfor %}
 						
 					{% if is_paginated %}

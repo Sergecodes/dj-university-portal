@@ -1,16 +1,11 @@
 from ckeditor.widgets import CKEditorWidget
-from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
 	Layout, LayoutObject, Row, Column, Fieldset, 
-	MultiField, HTML, Div, ButtonHolder,
-	Button, Hidden, Reset, Submit, Field
+	HTML, Submit
 )
 from django import forms
-from django.forms import inlineformset_factory
-from django.core.exceptions import ValidationError
 from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from .models import (
@@ -204,7 +199,7 @@ class AdListingForm(forms.ModelForm):
 			'title': _("A descriptive title helps buyers find your advert. <br> Include words that buyers will use to search for your advert"),
 		}
 		widgets = {
-			'price': forms.TextInput(attrs={'placeholder': _('Ex. 10,000F per unit')})
+			'pricing': forms.TextInput(attrs={'placeholder': _('Ex. 10,000F per unit')})
 		}
 
 	def __init__(self, *args, **kwargs):
@@ -246,7 +241,7 @@ class AdListingForm(forms.ModelForm):
 				# photo upload template here
 				PhotoFormLayout(extra_context={}),  
 				'description',
-				'price',
+				'pricing',
 				css_class='mb-2'
 			),
 			Fieldset(_("Seller's Information"),

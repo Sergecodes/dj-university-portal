@@ -1,10 +1,8 @@
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
-from datetime import timedelta
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -13,7 +11,7 @@ from core.model_fields import TitleCaseField
 from marketplace.models import Institution
 from users.models import get_dummy_user
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
 
 class Comment(models.Model):
@@ -30,6 +28,10 @@ class Comment(models.Model):
 		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
 		# see answer with textwrap.shorten ..
 		return self.content
+	
+	@property
+	def vote_count(self):
+		return self.upvoters.count()
 
 
 class SchoolQuestionComment(Comment):
@@ -56,10 +58,6 @@ class SchoolQuestionComment(Comment):
 		verbose_name = _('School Question Comment')
 		verbose_name_plural = _('School Question Comments')
 
-	@property
-	def vote_count(self):
-		return self.upvoters.count()
-
 
 class AcademicQuestionComment(Comment):
 	question = models.ForeignKey(
@@ -84,10 +82,6 @@ class AcademicQuestionComment(Comment):
 	class Meta:
 		verbose_name = _('Academic Question Comment')
 		verbose_name_plural = _('Academic Question Comments')
-		
-	@property
-	def vote_count(self):
-		return self.upvoters.count()
 
 
 class SchoolAnswerComment(Comment):
@@ -114,10 +108,6 @@ class SchoolAnswerComment(Comment):
 		verbose_name = _('School Answer Comment')
 		verbose_name_plural = _('School Answer Comments')
 
-	@property
-	def vote_count(self):
-		return self.upvoters.count()
-
 
 class AcademicAnswerComment(Comment):
 	answer = models.ForeignKey(
@@ -143,10 +133,6 @@ class AcademicAnswerComment(Comment):
 		verbose_name = _('Academic Answer Comment')
 		verbose_name_plural = _('Academic Answer Comments')
 
-	@property
-	def vote_count(self):
-		return self.upvoters.count()
-		
 
 class Answer(models.Model):
 	content = RichTextUploadingField()
@@ -157,6 +143,18 @@ class Answer(models.Model):
 
 	class Meta:
 		abstract = True
+
+	@property 
+	def upvote_count(self):
+		return self.upvoters.count()
+
+	@property 
+	def downvote_count(self):
+		return self.downvoters.count()
+
+	@property
+	def score(self):
+		return self.upvote_count - self.downvote_count
 
 
 class SchoolAnswer(Answer):
@@ -189,18 +187,6 @@ class SchoolAnswer(Answer):
 		verbose_name = _('School Question Answer')
 		verbose_name_plural = _('School Question Answers')
 
-	@property 
-	def upvote_count(self):
-		return self.upvoters.count()
-
-	@property 
-	def downvote_count(self):
-		return self.downvoters.count()
-
-	@property
-	def score(self):
-		return self.upvote_count - self.downvote_count
-
 
 class AcademicAnswer(Answer):
 	question = models.ForeignKey(
@@ -232,6 +218,19 @@ class AcademicAnswer(Answer):
 		verbose_name = _('Academic Question Answer')
 		verbose_name_plural = _('Academic Question Answers')
 
+
+class Question(models.Model):
+	posted_datetime = models.DateTimeField(auto_now_add=True)
+	# upvote_count = models.PositiveIntegerField(default=0)
+	# downvote_count = models.PositiveIntegerField(default=0)
+
+	class Meta:
+		abstract = True
+	
+	@property
+	def num_answers(self):
+		return self.answers.count()
+
 	@property 
 	def upvote_count(self):
 		return self.upvoters.count()
@@ -245,22 +244,26 @@ class AcademicAnswer(Answer):
 		return self.upvote_count - self.downvote_count
 
 
-class Question(models.Model):
-	posted_datetime = models.DateTimeField(auto_now_add=True)
-	# upvote_count = models.PositiveIntegerField(default=0)
-	# downvote_count = models.PositiveIntegerField(default=0)
-
-	class Meta:
-		abstract = True
-
-
 class SchoolQuestionTag(models.Model):
 	"""Used to define the tags for a school question."""
 	# Tags include words like  registration, fees, etc...
-	name = models.CharField(max_length=30, unique=True)  
+	name = models.CharField(max_length=30, unique=True) 
+	slug = models.SlugField(max_length=100) 
+	datetime_added = models.DateTimeField(auto_now_add=True)
+
+	def save(self, *args, **kwargs):
+		if not self.id:
+			self.slug = slugify(self.name)
+		return super().save(*args, **kwargs)
 
 	def __str__(self):
-		return self.name
+		return self.name.lower()
+
+	class Meta:
+		ordering = ['name']
+		indexes = [
+			models.Index(fields=['name'])
+		]
 	
 
 class SchoolQuestion(Question):
@@ -316,17 +319,11 @@ class SchoolQuestion(Question):
 			models.Index(fields=['-posted_datetime'])
 		]
 
-	@property 
-	def upvote_count(self):
-		return self.upvoters.count()
+	def __str__(self):
+		return self.content
 
-	@property 
-	def downvote_count(self):
-		return self.downvoters.count()
-
-	@property
-	def score(self):
-		return self.upvote_count - self.downvote_count
+	def get_absolute_url(self):
+		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})
 
 
 class AcademicQuestion(Question):
@@ -385,22 +382,6 @@ class AcademicQuestion(Question):
 	
 	def __str__(self, *args, **kwargs):
 		return self.title
-
-	@property
-	def num_answers(self):
-		return self.answers.count()
-
-	@property 
-	def upvote_count(self):
-		return self.upvoters.count()
-
-	@property 
-	def downvote_count(self):
-		return self.downvoters.count()
-
-	@property
-	def score(self):
-		return self.upvote_count - self.downvote_count
 		
 	def save(self, *args, **kwargs):
 		if not self.id:
@@ -416,6 +397,7 @@ class Subject(models.Model):
 	# name = models.CharField(max_length=40, unique=True) 
 	name = TitleCaseField(max_length=30, unique=True)
 	slug = models.SlugField(max_length=200)
+	datetime_added = models.DateTimeField(auto_now_add=True)
 
 	def save(self, *args, **kwargs):
 		if not self.id:

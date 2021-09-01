@@ -18,7 +18,7 @@
 {% block content %}
 <div class="mb-5 school-question-form-wrp">
 	<h2 class="mb-4 text-success school-question-form-wrp__heading">{% trans 'Ask a question concerning a school' %}</h2>
-	<form method="post" class="p-3 shadow bg-body rounded school-question-form">
+	<form method="post" class="p-3 shadow rounded school-question-form">
 		{% csrf_token %}
 		{{ form.media }}
 		{{ form|crispy }}

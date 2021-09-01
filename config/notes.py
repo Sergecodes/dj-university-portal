@@ -2,26 +2,27 @@
 
 
 todo:
-	august 26:
-		# - questions listing page
-		# - past_papers listing page
-		- past paper detail page .. paginate comments.
-		- ad listing detail page, ad listing list. remember not all ads have photos.
+		Sep 1:
 		- search friend page
-		- school question detail, school question list
 		- user profile page
-
-		### update(edit views) ###
+		
+		### update(edit views) ### (do those other sites permit this ?)
 		- item listings
 		- questions
 		- 
 
-- cached property (with ttl) package is a must ! especially for complex computations.
+- lost and found items app
+- each model should have a datetime_added field.
+- one page for posts deletion.
 - add asterisk after condition_description when condition changes. (to show the description is required)
-- add github profile and tiktok profile in socialize app
+- add github profile, likee, tiktok profile in socialize app
 - permissions.
+- footer. check out font awesome's footer on mobile.
+- try to set default for slug field in admin 
+- checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 -show loading icon during ajax request -django
+- enable bookmarking of posts. (questions, listings)
 - add 'FCFA' text after price input box.
 - add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
 - listings should disappear(be deleted or hidden) after duration expires
@@ -40,7 +41,6 @@ todo:
 - add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
 - use ajax for username select ... 
 - send notification to user when he creates a form
-- add 
 - translations !
 - correct phone number input in user forms. try adding a prefix on the formset.
 -also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
@@ -101,6 +101,7 @@ Phone number:
 # means if User is deleted, set  it/bookmarker(User) to NULL
 
 
+- cached property (with ttl) package is a must ! especially for complex computations.(in future)
 '''
 previous formset code in form_valid method in UserCreateView
 

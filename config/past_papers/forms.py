@@ -29,7 +29,6 @@ class CommentForm(forms.ModelForm):
 			'content': forms.Textarea(attrs={
 				'placeholder': _('Enter your comment...'),
 				'rows': '2',
-				'class': 'w-50'
 			})
 		}
 

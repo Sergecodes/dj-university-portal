@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR
 from marketplace.models import Institution
+from past_papers.models import PastPaper
 
 
 class SocialMediaFollow(models.Model):
@@ -29,16 +30,6 @@ class SocialProfile(models.Model):
 	GENDERS = (
 		('M', _('Male')), 
 		('F', _('Female'))   
-	)
-
-	LEVELS = (
-		('L1', _('Level 1')),
-		('L2', _('Level 2')),
-		('L3', _('Level 3')),
-		('L4', _('Level 5')),
-		('M', _('Masters')),
-		('PhD', _('Doctorate')),
-		(_('Other'), _('Other')),
 	)
 
 	CURRENT_RELATIONSHIPS = (
@@ -88,7 +79,7 @@ class SocialProfile(models.Model):
 		# related_query_name='social_profile'  # related_query_name = related_name if rel_name is specified
 		primary_key=True
 	)
-	level = models.CharField(_('Level'), choices=LEVELS, max_length=7, default=None)
+	level = models.CharField(_('Level'), choices=PastPaper.LEVELS, max_length=5, default=None)
 	social_media = models.OneToOneField(
 		SocialMediaFollow, 
 		on_delete=models.SET_NULL,

@@ -19,7 +19,7 @@
 
 {% block content %}
 <!-- 100% wide until lg. (At lg it turns to container.) -->
-<div class="container-lg px-0">
+<div class="container-lg">
 	<article class="border mb-4 p-3 ">
 		<div class="d-flex justify-content-between">
 			<h2 class="mb-2">{{ past_paper.title }}</h2>
@@ -164,7 +164,7 @@
 			
 			<hr class="mb-4">
 			{# form to add comment #}
-			<form method="post" action='.' class="">
+			<form method="post" class="pastpaper-comment-form">
 				<h4>{% trans 'Leave a comment' %}</h4>
 				{% csrf_token %}		
 				{{ comment_form|crispy }}

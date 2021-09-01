@@ -19,6 +19,7 @@ from .validators import validate_full_name
 
 
 class PhoneNumber(models.Model):
+	# don't add any `datetime_added` field coz when user edits profile, all his phone numbers are removed and his phone numbers are recreated.
 	ISPs = (
 		('MTN', 'MTN'),
 		('Nexttel', 'Nexttel'),
@@ -34,7 +35,6 @@ class PhoneNumber(models.Model):
 		help_text=_('Enter mobile number <b>(without +237)</b>')
 	)
 	can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
-
 	owner = models.ForeignKey(
 		'User', 
 		on_delete=models.CASCADE,

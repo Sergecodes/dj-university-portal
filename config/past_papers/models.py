@@ -63,7 +63,7 @@ class Comment(models.Model):
 
 
 class PastPaper(models.Model):
-	'''Official past papers and papers for revision'''
+	"""Official past papers and papers for revision."""
 	ORDINARY_LEVEL = 'O'
 	ADVANCED_LEVEL = 'A'
 	BEPC = 'BEPC'
@@ -71,6 +71,7 @@ class PastPaper(models.Model):
 	BACCALAUREAT = 'BAC'
 	BACHELORS = 'BACH'
 	BTS = 'BTS'
+	LICENCE = 'LIC'
 	MASTERS = 'MS' 
 	DOCTORATE = 'PhD'
 
@@ -82,6 +83,7 @@ class PastPaper(models.Model):
 		(BACCALAUREAT, 'Baccalaureat'), 
 		(BACHELORS, "HND/Bachelor's"), 
 		(BTS, 'BTS'),
+		(LICENCE, 'Licence'),
 		(MASTERS, _("Master's")),
 		(DOCTORATE, _('Doctorate')),
 	)

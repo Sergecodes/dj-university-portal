@@ -22,6 +22,10 @@
     width: 70%;
 }
 
+.pastpaper-comment-form {
+    width: 55%;
+}
+
 
 /*** MEDIA QUERIES ***/
 /* xs, sm, md. (lg is from >= 992px) */
@@ -40,6 +44,10 @@
 	} 
 
     .pastpaper-comments {
+        width: 100%;
+    }
+
+    .pastpaper-comment-form {
         width: 100%;
     }
 

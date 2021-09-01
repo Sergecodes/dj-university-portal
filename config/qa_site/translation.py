@@ -17,7 +17,7 @@ class TaggitTransOptions(TransOptions):
 
 @register(SchoolQuestionTag)
 class SchoolQuestionTagTransOptions(TransOptions):
-	fields = ('name', )
+	fields = ('name', 'slug')
 	required_languages = ('en', 'fr')
 
 

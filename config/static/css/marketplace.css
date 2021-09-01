@@ -31,11 +31,17 @@
 .photo-slide__img {
     cursor: pointer;
     width: 9rem;
+    height: 5rem;
     max-width: 100%;
 }
 
 .expanded-img-wrp {
     width: 95%;
+}
+
+.expanded-img {
+    width: 700px;
+    height: 300px;
 }
 
 .warning-wrp {
@@ -57,8 +63,14 @@
 
 .similar-listing__img {
     width: 10rem;
+    height: 4rem;
 }
 
+.similar-listing__img--ad {
+    /* (width, height) = (80px, 80px) is the pair corresponding to fa-5x on font-awesom icon */
+    width: 80px;
+    height: 80px; 
+}
 
 /** Item listing list */
 .listing-list-container {
@@ -87,7 +99,10 @@
 /*** MEDIA QUERIES ***/
 /* Layout for desktop sizes and greater (>= lg) */
 @media (min-width: 992px) {
-
+    .advert-info,
+    .item-info {
+        width: 35%;
+    }
 }
 
 

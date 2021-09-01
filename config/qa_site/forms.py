@@ -1,18 +1,9 @@
 import uuid
 from taggit.models import Tag
-from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
-from crispy_forms.layout import (
-	Layout, LayoutObject, Row, Column, Fieldset, 
-	MultiField, HTML, Div, ButtonHolder,
-	Button, Hidden, Reset, Submit, Field
-)
 from django import forms
 from django.core.exceptions import ValidationError
-from django.urls import reverse, reverse_lazy
-from django.urls.base import set_urlconf
-from django.utils.html import escape
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from core.constants import MAX_TAGS_PER_QUESTION
 from marketplace.models import Institution
@@ -130,7 +121,7 @@ class SchoolQuestionForm(forms.ModelForm):
 		widget= CKEditorUploadingWidget(config_name='add_question'),
 		help_text=_("Include all the information someone would need to answer your question"),
 		label=_('Body'),
-		required=False
+		required=True
 	)
 	tags = forms.ModelMultipleChoiceField(
 		queryset=SchoolQuestionTag.objects.all().order_by('name'),
@@ -143,9 +134,64 @@ class SchoolQuestionForm(forms.ModelForm):
 		fields = ['school', 'content', 'tags']
 
 	def clean(self):
-		tags = self.cleaned_data['tags']
-		if tags.count() > MAX_TAGS_PER_QUESTION:
-			raise ValidationError(_(f"Maximum {MAX_TAGS_PER_QUESTION} tags are allowed."))
+		tags = self.cleaned_data.get('tags')
+		# if not tags:
+		# 	raise ValidationError(_('Select at least one tag'))
+
+		if tags and tags.count() > MAX_TAGS_PER_QUESTION:
+			self.add_error('tags', ValidationError(_(f"Maximum {MAX_TAGS_PER_QUESTION} tags are allowed.")))
 		
 		return self.cleaned_data
 		
+
+class SchoolAnswerForm(forms.ModelForm):
+	content = forms.CharField(
+		# use ckeditor widget due to server upload image functionality. it doesn't work with dynamically created instances via js.
+		widget=CKEditorUploadingWidget(config_name='add_answer'),
+		label=_('Your Answer'),
+		required=True
+	)
+
+	class Meta:
+		model = SchoolAnswer
+		fields = ['content', ]
+
+
+class SchoolQuestionCommentForm(forms.ModelForm):
+	# a ckeditor will be generated from this on the frontent
+	content = forms.CharField(
+		widget= forms.Textarea(
+			attrs={
+				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+				'id': 'addQuestionCommentArea',
+				# 'rows': '3',
+			}
+		),
+		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
+		label='',
+		required=True
+	)
+
+	class Meta:
+		model = SchoolQuestionComment
+		fields = ['content', ]
+
+
+class SchoolAnswerCommentForm(forms.ModelForm):
+	content = forms.CharField(
+		widget= forms.Textarea(
+			attrs={
+				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
+				'id': str(uuid.uuid4()).split('-')[0]
+			}
+		),
+		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
+		label='',
+		required=True
+	)
+
+	class Meta:
+		model = SchoolAnswerComment
+		fields = ['content', ]
+

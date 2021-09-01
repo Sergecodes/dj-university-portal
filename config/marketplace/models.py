@@ -21,6 +21,7 @@ User = settings.AUTH_USER_MODEL
 
 class AdCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=35)
+	datetime_added = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.name
@@ -37,6 +38,7 @@ class ItemSubCategory(models.Model):
 		related_name='sub_categories',
 		related_query_name='sub_category'
 	)
+	datetime_added = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.name
@@ -47,6 +49,7 @@ class ItemSubCategory(models.Model):
 
 class ItemCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=30)
+	datetime_added = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.name
@@ -107,7 +110,8 @@ class ItemListingPhoto(models.Model):
 
 class AdListingPhoto(models.Model):
 	title = models.CharField(max_length=60, null=True, blank=True) 
-	image = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
+	file = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
+	upload_datetime = models.DateTimeField(auto_now_add=True)
 	ad_listing = models.ForeignKey(
 		'AdListing',
 		on_delete=models.CASCADE,
@@ -307,9 +311,9 @@ class AdListing(Post, HitCountMixin):
 		related_query_name='ad_listing',
 		on_delete=models.PROTECT
 	)
-	price = models.CharField(
-		_('Price'), 
-		help_text=_("Allow this empty for free products or services or if the price is in the advert description."),
+	pricing = models.CharField(
+		_('Pricing'), 
+		help_text=_("Allow this empty for free products and services or if the pricing is in the advert description."),
 		null=True, blank=True,
 		default='-',
 		max_length=20
@@ -325,7 +329,7 @@ class AdListing(Post, HitCountMixin):
 
 	def get_absolute_url(self):
 		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:ad-listing-detail', kwargs={'id': self.id, 'slug': self.slug})
+		return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
 	@property
 	def view_count(self):

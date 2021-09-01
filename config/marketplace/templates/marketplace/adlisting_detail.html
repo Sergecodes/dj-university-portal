@@ -21,47 +21,40 @@
 <div class="container-lg mb-5">
 	<article class="d-flex shadow rounded p-3 mb-5 listing-wrp">
 		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
-		<div class="d-lg-flex mb-4">
-			<div>
-				<div class="row mb-4 photo-slide">
-					{% for photo in photos %}
-					<div class="col-4 col-lg-3 my-2"> 
-						<img 
-							src="{{ photo.file.url }}"
-							class="photo-slide__img js-photo-slide__img"
-							alt="{{ photo.title }}"
-						> 
+		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
+			{% if photos.exists %}
+				<div>
+					<div class="row mb-4 photo-slide">
+						{% for photo in photos %}
+						<div class="col-4 col-lg-3 my-2"> 
+							<img 
+								src="{{ photo.file.url }}"
+								class="photo-slide__img js-photo-slide__img"
+								alt="{{ photo.title }}"
+							> 
+						</div>
+						{% endfor %}
 					</div>
-					{% endfor %}
+					<div class="expanded-img-wrp">
+						<img class="w-100 expanded-img js-expanded-img">
+					</div>
 				</div>
-				<div class="expanded-img-wrp">
-					<img class="w-100 expanded-img js-expanded-img">
-				</div>
-			</div>
-			<div class="ms-3 mt-4 item-info">
+			{% endif %}
+			<div class="ms-3 mt-4 advert-info">
 				<table class="table table-bordered">
 					<tr>
-						<th colspan="2" class="text-center">{% trans 'Item Info' %}</th>
+						<th colspan="2" class="text-center">{% trans 'Advert Info' %}</th>
 					</tr>
 					<tr class="fs-5">
-						<td>{% trans 'Price' %}</td>
+						<td>{% trans 'Pricing' %}</td>
 						<td>
-							<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+							<span class="fw-bold">{{ listing.pricing }}</span>
 						</td>
 					</tr>
 					<tr>
 						<td>{% trans 'School' %}</td>
 						<td>
 							<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
-						</td>
-					</tr>
-					<tr>
-						<td>{% trans 'Item Condition' %}</td>
-						<td>
-							<span class="fw-bold">{{ listing.get_condition_display }}</span> 
-							{% if listing.condition_description %}
-								<span>; {{ listing.condition_description }}</span>
-							{% endif %}
 						</td>
 					</tr>
 					<tr>
@@ -81,7 +74,7 @@
 			</div>
 		</div>
 		<div class="mb-4">
-			<h3 class="mb-3">{% trans 'Item Description' %}</h3>
+			<h3 class="mb-3">{% trans 'Advert Description' %}</h3>
 			<div>{{ listing.description|safe }}</div>
 		</div>
 		<div class="alert alert-warning w-75 pb-1 mb-5 warning-wrp" role="alert">
@@ -129,17 +122,26 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
-				{% trans 'Similar listings in' %} 
+				{% trans 'Similar adverts in' %} 
 				<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}
 					<div class="col-4 col-lg-3 similar-listing">
-						<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
-							<img class="mb-2 similar-listing__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-							<p>{{ sim_listing.title }}</p>
-						</a>
-						<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
+						{% if photo %}
+							<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
+								<img class="mb-2 similar-listing__img--ad" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+								<p>{{ sim_listing.title }}</p>
+							</a>
+						{% else %}
+							<a href="{{ sim_listing.get_absolute_url }}" class="d-inline-block link-secondary">
+								<i class="far fa-image fa-5x opacity-50 mb-2"></i>
+								<p>{{ sim_listing.title }}</p>
+							</a>
+						{% endif %}
+						{% if sim_listing.pricing != '-' %}
+							<span class="text-muted">{{ sim_listing.pricing }}</span>
+						{% endif %}
 					</div>
 				{% endfor %}
 			</div>
@@ -150,13 +152,15 @@
 
 {% block extra_js %}
 <script>
-	var $images = $('.js-photo-slide__img');
-	$images.on('click', {$images: $images}, expandImage);
-	
-	var $firstImg = $images.first(), firstImg = $firstImg.get(0);
-	$firstImg.css('border', '2px inset #198754');
-	var $expandedImg = $('.js-expanded-img');
-	$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
+	{% if photos.exists %}
+		var $images = $('.js-photo-slide__img');
+		$images.on('click', {$images: $images}, expandImage);
+		
+		var $firstImg = $images.first(), firstImg = $firstImg.get(0);
+		$firstImg.css('border', '2px inset #198754');
+		var $expandedImg = $('.js-expanded-img');
+		$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
+	{% endif %}
 
 	// initialize all tooltips on the page
 	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

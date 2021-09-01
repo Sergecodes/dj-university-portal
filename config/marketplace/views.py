@@ -12,6 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, 
+	AD_PHOTOS_UPLOAD_DIR,
 	MIN_LISTING_PHOTOS_LENGTH
 )
 from .forms import ItemListingForm, AdListingForm
@@ -113,7 +114,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 
 	def get(self, request, *args, **kwargs):
 		# remove photos list from session (just in case...)
-		request.session.pop(request.user.username, '')
+		request.session.pop(request.user.username, [])
 		return super().get(request, *args, **kwargs)
 
 	def post(self, request, *args, **kwargs):
@@ -128,9 +129,9 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 
 			# delete uploaded photos(and also remove corresponding files)
 			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
-			for photo_name in photos_list:
-				# todo code to delete file here..
-				pass
+			# for photo_name in photos_list:
+			# 	# todo code to delete file here..
+			# 	pass
 
 			print(form.errors)
 			return self.form_invalid(form)
@@ -153,15 +154,14 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		for photo_name in photos_list:
 			photo = AdListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
+			photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
 			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 
-		request.session.pop(request.user.username)
+		request.session.pop(request.user.username, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		# return HttpResponseRedirect(self.get_success_url())
-		return HttpResponseRedirect('/')
+		return HttpResponseRedirect(self.get_success_url())
 
 
 class ItemListingDetail(DetailView):
@@ -178,7 +178,7 @@ class ItemListingDetail(DetailView):
 		similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 			institution=listing.institution,
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
-			sub_category__name__iexact=getattr(listing.sub_category, 'name', '')
+			sub_category__name=getattr(listing.sub_category, 'name', '')
 		).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
 		
 		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
@@ -186,7 +186,7 @@ class ItemListingDetail(DetailView):
 		if sub_category_name:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				institution=listing.institution,
-				sub_category__name__iexact=sub_category_name
+				sub_category__name=sub_category_name
 			).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
 		else:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
@@ -201,12 +201,14 @@ class ItemListingDetail(DetailView):
 		
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()
-		context['zipped_list'] = zip(similar_listings, first_photos)
+		context['first_photos'] = first_photos
+		context['similar_listings'] = similar_listings
 		return context
 
 
 class AdListingDetail(DetailView):
 	model = AdListing
+	template_name = 'marketplace/adlisting_detail.html'
 	context_object_name = 'listing'
 
 	def get_context_data(self, **kwargs):
@@ -218,18 +220,24 @@ class AdListingDetail(DetailView):
 		
 		similar_listings = AdListing.objects.prefetch_related('photos').filter(
 			institution=listing.institution,
-			category__name__iexact=listing.category.name
-		).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+			category__name=listing.category.name
+		).only('title', 'pricing', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+		print(similar_listings)
 
 		# get first photos of each similar listing
 		first_photos = []
-		# use a name other than 'listing' because of python for loop scoping..
+		# use a name other than 'listing' because of python's for loop scoping...
 		for sim_listing in similar_listings:
-			first_photos.append(sim_listing.photos.first())
+			if sim_listing.photos.exists():
+				first_photos.append(sim_listing.photos.first())
+			else:
+				first_photos.append(None)
 
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()
-		context['zipped_list'] = zip(similar_listings, first_photos)
+		context['similar_listings'] = similar_listings
+		context['first_photos'] = first_photos
+		
 		return context
 
 
@@ -289,13 +297,16 @@ class AdListingList(FilterView):
 	paginate_by = 2
 	
 	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
 		listings = self.object_list
 		
-		# get first photos of each listing
+		# get first photos of each listing (for listings without photos, append `None`)
 		first_photos = []
 		for listing in listings:
-			first_photos.append(listing.photos.first())
+			if listing.photos.exists():
+				first_photos.append(listing.photos.first())
+			else:
+				first_photos.append(None)
 		
-		context = super().get_context_data(**kwargs)
 		context['first_photos'] = first_photos
 		return context

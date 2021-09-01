@@ -20,6 +20,11 @@ urlpatterns = [
 		name='academic-question-create'
 	),
 	path(
+		_('school-based-questions/'),
+		views.SchoolQuestionList.as_view(),
+		name='school-question-list'
+	),
+	path(
 		_('school-based-questions/ask/'), 
 		views.SchoolQuestionCreate.as_view(), 
 		name='school-question-create'
@@ -33,6 +38,11 @@ urlpatterns = [
 		_('academic-questions/<int:pk>/'), 
 		views.AcademicQuestionDetail.as_view(), 
 		name='academic-question-detail'
+	),
+	path(
+		_('school-based-questions/<int:pk>/'), 
+		views.SchoolQuestionDetail.as_view(), 
+		name='school-question-detail'
 	),
 
 	# VOTES #

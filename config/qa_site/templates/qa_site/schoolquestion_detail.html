@@ -1,0 +1,610 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block title %}
+	<title>{{ question.title }}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
+{% endblock %}
+
+{% block extra_script_pre %}
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+
+{% block content %}
+<!-- Toasts -->
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans "You can't vote for your own post" %}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans 'You must login before adding a post.' %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="{% url 'users:login' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'to login to your account or' %} 
+				<a href="{% url 'users:register' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans "to sign up if you don't yet have an account." %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="border py-3 mb-5 container-lg">
+	<article class="js-question" data-id="{{ question.id }}">
+		{% with question_poster=question.poster %}
+			<div class="text-end mb-2 me-4">
+				<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-warning">
+					{% trans 'Ask a Question' %}
+				</a>
+			</div>
+			{# question info #}
+			<p>
+				<span class="mx-1">
+					{% trans 'Asked' %}
+					<strong title="{{ question.posted_datetime }}">
+						{{ question.posted_datetime|naturaltime }}
+					</strong> 
+				</span>
+				<span class="mx-1">
+					{% trans 'By' %}
+					<a 
+						class="text-decoration-none" 
+						href="{% url 'users:view-profile' username=question_poster.username %}"
+					>
+						{{ question_poster.username }}
+					</a>
+				</span>
+				<span class="mx-1">
+					{% trans 'Concerning' %}
+					<a href="#" class="text-decoration-none">{{ question.school.name }}</a>
+				</span>
+			</p>
+			<hr class="mb-3">
+
+			<section class="mb-5 px-3 question-layout">
+				<div class="mt-3 mb-4 question-content">
+					{{ question.content|safe }}
+				</div>
+				<div class="question-taglist">
+					{% for tag in question_tags %}
+						<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
+					{% endfor %}
+				</div>
+				<div class="mt-3 mb-4 question-reaction">
+					<div class="d-inline mx-2 question-reaction-upvote">
+						<a 
+							role="button" 
+							class="text-decoration-none js-upvote" 
+							data-id="{{ question.id }}"
+							data-poster-id="{{ question.poster_id }}"
+							data-thread="question"
+							title="{% trans 'Vote this question UP if it is useful and clear. (click again to undo)' %}"
+						>
+							{% if user in question.upvoters.all %}
+								<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
+								{% trans 'Liked' %}
+							{% else %}
+								<i class="far fa-thumbs-up" aria-hidden="true"></i>
+								{% trans 'Like' %}
+							{% endif %}
+						</a>
+						<span class="ms-1 text-success">{{ question.upvote_count }}</span>
+					</div>
+					<div class="d-inline mx-2 question-reaction-downvote">
+						<a 
+							role="button" 
+							class="text-decoration-none js-downvote" 
+							data-thread="question" 
+							data-id="{{ question.id }}"
+							data-poster-id="{{ question.poster_id }}"
+							title="{% trans 'Vote this question DOWN if it is unclear or not useful. (click again to undo)' %}"
+						>
+							{% if user in question.downvoters.all %}
+								<i class="fas fa-thumbs-down js-selected" aria-hidden="true"></i>
+								{% trans 'Disliked' %}
+							{% else %}
+								<i class="far fa-thumbs-down" aria-hidden="true"></i>
+								{% trans 'Dislike' %}
+							{% endif %}
+						</a>
+						<span class="ms-1 text-danger">{{ question.downvote_count }}</span>
+					</div>
+				</div>
+				<p>
+					<a href="#" class="btn btn-sm btn-secondary">{% trans 'Click here' %} </a> 
+					{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' %}
+				</p>
+				<!-- insert share links here, they should be inline and not take up much space -->
+				<div></div>
+			</section>
+
+			<section class="px-3 question-comments">
+				{% for comment in comments %}
+					{% with comment_poster=comment.poster %}
+						<div class="d-flex border-top border-bottom pt-2 pb-1 question-comment">
+							<div class="ms-2">
+								<span class="text-muted">
+									{% if comment.vote_count %}
+										{{ comment.vote_count }}
+									{% else %}
+										&nbsp; &nbsp;
+									{% endif %}
+								</span>
+								<div class="d-inline-flex flex-column">
+									<a 
+										role="button" 
+										class="mx-2 pb-1 js-upvote" 
+										data-id="{{ comment.id }}" 
+										data-poster-id="{{ comment.poster_id }}"
+										data-thread="question-comment"
+										title="{% trans 'This comment adds something useful to the post' %}"
+									>
+										{% if user in comment.upvoters.all %}
+											<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Liked' %}</span>
+										{% else %}
+											<i class="far fa-thumbs-up" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Like' %}</span>
+										{% endif %}
+									</a>
+									<a 
+										role="button" 
+										class="mx-2 link-secondary" 
+									>
+										<i class="far fa-flag" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Flag comment' %}</span>
+									</a>
+								</div>
+							</div>
+							<div class="ms-3 js-comment-wrp">
+								{{ comment.content|safe }}
+								<span>-</span>
+								<a 
+									href="{% url 'users:view-profile' username=question_poster.username %}"
+									class="badge bg-info me-1 text-decoration-none"
+									{% if comment_poster == question_poster %}
+										title="{% trans 'This is the user who asked the question' %}"
+									{% endif %}
+								> 
+									{{ comment_poster.username }}
+									{% if comment_poster == question_poster %}
+										<i class="fas fa-pen" aria-hidden="true"></i>
+									{% endif %}
+								</a>
+								<span class="small text-muted">{{ comment.posted_datetime }}</span>
+							</div>
+						</div>
+					{% endwith %}
+				{% comment %} {% empty %}
+					<p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> {% endcomment %}
+				{% endfor %}
+				
+				<a 
+					role="button" 
+					class="link-primary text-decoration-none d-inline-block mb-2 {% if comments.exists %} mt-3  {% else %} mt-2 {% endif %} js-add-question-comment"
+					title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
+				>
+					{% trans 'Add a comment' %}
+				</a>
+				<!-- don't separate this 2 elements, dependency in script... -->
+				<form class="d-none mt-2" method="post">
+					{% csrf_token %}
+					{{ qstn_comment_form|crispy }}
+					
+					<input type="hidden" name="question_id" value="{{ question.id }}">
+					<input type="submit" class="btn btn-sm btn-primary" name="add_question_comment" value="{% trans 'Add comment' %}">
+				</form>
+			</section>
+			<hr class="mb-2">
+
+			<section class="px-3 question-answers">
+				<div class="d-flex answers-header">
+					<span class="answers-header__count">
+						{{ num_answers }} {% trans 'Answer' %}{{ num_answers|pluralize }}
+					</span>
+					<!-- insert order_by dropdown form here (like myschool ...) -->
+					<div></div>
+				</div>
+				<div class="answers-list">
+					{% for answer in answers %}
+						<div class="pt-2 pb-3 answer-layout {% if not forloop.last %} border-bottom {% endif %}">
+							<div class="mt-3 mb-4 answer-content">
+								{{ answer.content|safe }}
+							</div>
+							<div class="mt-3 mb-4 answer-reaction">
+								<div class="d-inline mx-2 answer-reaction-upvote">
+									<a 
+										role="button" 
+										class="text-decoration-none js-upvote"
+										data-id="{{ answer.id }}" 
+										data-poster-id="{{ answer.poster_id }}"
+										data-thread="answer" 
+										title="{% trans 'Vote this answer UP if it is useful. (click again to undo)' %}"
+									>
+										{% if user in answer.upvoters.all %}
+											<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
+											{% trans 'Liked' %}
+										{% else %}
+											<i class="far fa-thumbs-up" aria-hidden="true"></i>
+											{% trans 'Like' %}
+										{% endif %}
+									</a>
+									<span class="ms-1 text-success">{{ answer.upvote_count }}</span>
+								</div>
+								<div class="d-inline mx-2 answer-reaction-downvote">
+									<a 
+										role="button" 
+										class="text-decoration-none js-downvote" 
+										data-thread="answer"
+										data-id="{{ answer.id }}"
+										data-poster-id="{{ answer.poster_id }}"
+										title="{% trans 'Vote this answer DOWN if it is not useful. (click again to undo)' %}"
+									>
+										{% if user in answer.downvoters.all %}
+											<i class="fas fa-thumbs-down js-selected" aria-hidden="true"></i>
+											{% trans 'Disliked' %}
+										{% else %}
+											<i class="far fa-thumbs-down" aria-hidden="true"></i>
+											{% trans 'Dislike' %}
+										{% endif %}
+									</a>
+									<span class="ms-1 text-danger">{{ answer.downvote_count }}</span>
+								</div>
+							</div>
+							<!-- todo insert share links here, they should be inline and not take up much space -->
+							<div></div>
+
+							{# answer comments here #}
+							<div class="px-3 answer-comments">
+								{% for comment in answer.comments.all %}
+									{% with comment_poster=comment.poster %}
+										<div class="d-flex border-top border-bottom pt-2 pb-1 answer-comment">
+											<span class="text-muted">
+												{% if comment.vote_count %}
+													{{ comment.vote_count }}
+												{% else %}
+													&nbsp; &nbsp;
+												{% endif %}
+											</span>
+											<div class="d-inline-flex flex-column">
+												<a 
+													role="button" 
+													class="mx-2 pb-1 js-upvote" 
+													data-id="{{ comment.id }}" 
+													data-poster-id="{{ comment.poster_id }}"
+													data-thread="answer-comment"
+													title="{% trans 'This comment adds something useful to the post' %}"
+												>
+													{% if user in comment.upvoters.all %}
+														<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
+														<span class="visually-hidden">{% trans 'Liked' %}</span>
+													{% else %}
+														<i class="far fa-thumbs-up" aria-hidden="true"></i>
+														<span class="visually-hidden">{% trans 'Like' %}</span>
+													{% endif %}
+												</a>
+												<a 
+													role="button" 
+													class="mx-2 link-secondary" 
+												>
+													<i class="far fa-flag" aria-hidden="true"></i>
+													<span class="visually-hidden">{% trans 'Flag comment' %}</span>
+												</a>
+											</div>
+											<div class="ms-3 js-comment-wrp">
+												{{ comment.content|safe }}
+												<span>-</span>
+												<a 
+													href="{% url 'users:view-profile' username=question_poster.username %}"
+													class="badge bg-info me-1 text-decoration-none"
+													{% if comment_poster == question_poster %}
+														title="{% trans 'This is the user who asked the question' %}"
+													{% endif %}
+												> 
+													{{ comment_poster.username }}
+													{% if comment_poster == question_poster %}
+														<i class="fas fa-pen" aria-hidden="true"></i>
+													{% endif %}
+												</a>
+												<span class="small text-muted">{{ comment.posted_datetime }}</span>
+											</div>
+										</div>
+									{% endwith %}
+								{% endfor %}
+								
+								<a 
+									role="button" 
+									class="link-primary text-decoration-none mt-4 mb-3 js-add-answer-comment"
+									title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
+								>
+									{% trans 'Add a comment' %}
+								</a>
+								<!-- don't separate these 2 elements, dependency in script... -->
+								<form class="d-none mt-2" method="post">
+									{% csrf_token %}
+									{{ ans_comment_form|crispy }}
+									
+									<input type="hidden" name="question_id" value="{{ question.id }}">
+									<input type="hidden" name="answer_id" value="{{ answer.id }}">
+									<input type="submit" class="btn btn-sm btn-primary" name="add_answer_comment" value="{% trans 'Add comment' %}">
+								</form>
+							</div>
+						</div>
+					{% endfor %}
+
+					<a 
+						role="button" 
+						class="link-primary text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
+					>
+						{% trans 'Answer this question' %}
+					</a>
+					<!-- don't separate this 2 elements, dependency in script... -->
+					<form class="d-none mt-2" method="post">
+						{% csrf_token %}
+						{{ answer_form|crispy }}
+						
+						<input type="hidden" name="question_id" value="{{ question.id }}">
+						<input type="submit" class="btn btn-primary" name="add_answer" value="{% trans 'Post Answer' %}">
+					</form>
+				</div>
+			</section>
+		{% endwith %}
+	</article>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+	/* get current user's id.. */
+	// if user isn't logged in, user.id will be `None`
+	var currentUserId = "{{ user.id }}";
+	currentUserId = (currentUserId == "None" ? null : currentUserId);
+	console.log(currentUserId);
+
+	// hide button and display forms when button is clicked
+	$('.js-add-question-comment, .js-add-answer-comment, .js-add-answer').click(function(event) {
+		// console.log(event.target == this);  true !
+
+		// if current user isn't logged in
+		if (!currentUserId) {
+			event.stopImmediatePropagation();
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		var $this = $(this);
+		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it first for the hide() method to work)
+		$this.hide();
+		var $form = $this.next();
+		$form.removeClass('d-none');
+
+		if ($this.hasClass('js-add-question-comment')) {
+			// if the add question comment button is clicked
+			$('#addQuestionCommentArea').ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic', 'Link'],  // code too
+				],
+				// width: '50%',
+				width: isMobile ? '100%' : '50%',
+
+			});
+			
+		} else if ($this.hasClass('js-add-answer-comment')) {
+			// if an add answer comment button is clicked
+			var $textArea = $form.find('textarea').first();
+			console.log($textArea);
+			// we can't use CKEDITOR.replace since it expects an element with a unique id, but we may have multiple answers hence multiple comment buttons...
+			$textArea.ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic', 'Link'],  // code too
+				],
+				// width: '50%',
+				width: isMobile ? '100%' : '50%',
+			});
+
+		} else if ($this.hasClass('js-add-answer')) {
+			/*
+			$('#addAnswerArea').ckeditor({
+				toolbar: 'Custom',
+				toolbar_Custom: [
+					['Bold', 'Italic'],
+					['Link', 'Blockquote', 'Image'],
+					['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+					['Undo', 'Redo'],
+					['Maximize', 'Preview']
+				],
+				tabSpaces: 4,
+				width: isMobile ? '100%' : '75%',
+			});
+			*/
+		}
+	});
+
+
+	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
+
+	function onVote(event) {
+		// if user isn't logged in
+		if (!currentUserId) {
+			// prevent other handlers from being called(prevent sending request to backend)
+			event.stopImmediatePropagation();
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		// if user is voting on their post
+		if (currentUserId === this.dataset.posterId) {
+			event.stopImmediatePropagation();
+			var $myToast = $('.js-self-vote-toast').first();
+
+			// reset styles alert-danger styles since apparently, some toast styles override them. 
+			$myToast.css({
+				'color': '#842029',
+				'border-color': '#f5c2c7'
+			});
+
+			var bsToast = new bootstrap.Toast($myToast[0]);
+			bsToast.show(); 
+		}
+	}
+
+	$upvoteTriggerer.click(onVote);
+	$downvoteTriggerer.click(onVote);
+
+	// enable username to be directly after comment
+	$('.js-comment-wrp').children().css('display', 'inline');
+
+	/* UPVOTES */
+	$upvoteTriggerer.click(function() {
+		var $this = $(this);
+		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
+		
+		// possible thread types are {question, answer, question-comment, answer-comment}
+		var voteType = 'up', threadType = this.dataset.thread;
+
+		// if user is trying to undo the vote(the upvote)
+		if ($icon.hasClass('js-selected')) {
+			var voteAction = 'recall-vote';
+
+			$.ajax({
+				url: "{% url 'qa_site:school-thread-vote' %}",
+				type: 'POST',
+				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(response) {
+					if (isNumeric(response)) {
+						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+						$icon.removeClass('fas js-selected').addClass('far');
+
+						// update number of votes
+						if (threadType == 'question-comment' || threadType == 'answer-comment') {
+						// span comes before vote icon for comments
+							$this.parent().prev().text(response);
+						} else {
+							$this.next().text(response);
+							// update text
+							var textNode = $icon[0].nextSibling;
+							textNode.textContent = " {% trans 'Like' %}";
+						}
+					}
+				}
+			});
+
+		} else {
+			// if user is adding a new vote
+			var voteAction = 'vote';
+
+			$.ajax({
+				url: "{% url 'qa_site:school-thread-vote' %}",
+				type: 'POST',
+				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(response) {
+					if (isNumeric(response)) {
+						// remove far class and set to fas
+						$icon.removeClass('far').addClass('fas js-selected');
+
+						if (threadType == 'question-comment' || threadType == 'answer-comment') {
+							$this.parent().prev().text(response);
+						} else {
+							$this.next().text(response);
+							var textNode = $icon[0].nextSibling;
+							textNode.textContent = " {% trans 'Liked' %}";
+						}
+					}
+				},
+				error: function() {
+					console.error("Error");
+				}
+			});
+		}
+	});
+
+	/* DOWNVOTES */
+	$downvoteTriggerer.click(function() {
+		var $this = $(this);
+		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
+		var voteType = 'down', threadType = this.dataset.thread;
+
+		// if user is trying to undo the vote(the upvote)
+		if ($icon.hasClass('js-selected')) {
+			var voteAction = 'recall-vote';
+
+			$.ajax({
+				url: "{% url 'qa_site:school-thread-vote' %}",
+				type: 'POST',
+				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(response) {
+					if (isNumeric(response)) {
+						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+						$icon.removeClass('fas js-selected').addClass('far');
+
+						// update number of votes
+						$this.next().text(response);
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Dislike' %}";
+					}
+				}
+			});
+
+		} else {
+			// if user is adding a new vote
+			var voteAction = 'vote';
+
+			$.ajax({
+				url: "{% url 'qa_site:school-thread-vote' %}",
+				type: 'POST',
+				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(response) {
+					if (isNumeric(response)) {
+						// remove far class and set to fas
+						$icon.removeClass('far').addClass('fas js-selected');
+
+						$this.next().text(response);
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Disliked' %}";
+					}
+				}
+			});
+		}
+
+	});
+</script>
+{% endblock %}

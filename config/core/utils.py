@@ -1,4 +1,5 @@
 import os
+import re
 from django.conf import settings
 from django.core.files import File
 from fpdf import FPDF
@@ -26,4 +27,15 @@ def generate_pdf(imagelist, gen_file_name, dir='media', gen_files_dir='past_pape
 
 	# return generated file's name (with extension)
 	return gen_file_name + '.pdf'
+
+
+def is_mobile(request):
+	"""Return `True` if the request comes from a mobile device and `False` otherwise."""
+	MOBILE_AGENT_RE = re.compile(r".*(iphone|mobile|androidtouch)", re.IGNORECASE)
+
+	if MOBILE_AGENT_RE.match(request.META['HTTP_USER_AGENT']):
+		return True
+
+	return False
+
 
