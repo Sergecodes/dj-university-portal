@@ -35,6 +35,7 @@ urlpatterns += i18n_patterns(
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
     path(_('socialize/'), include('socialize.urls', namespace='socialize')),
+    path(_('lost-and-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     # path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),

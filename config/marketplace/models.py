@@ -1,8 +1,8 @@
 from ckeditor.fields import RichTextField
 from datetime import timedelta
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
-# from django.core.validators import validate_email
+# from django.contrib.contenttypes.fields import GenericRelation
+from django.core.validators import validate_email
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -171,8 +171,8 @@ class Post(models.Model):
 	contact_email = LowerCaseEmailField(
 		_('Email address'),
 		max_length=50,
-		help_text=_("Email address to use for notifications"),
-		# validators=[validate_email]
+		help_text=_("Email address to contact; enter a valid email"),
+		validators=[validate_email]
 	)
 	contact_name = TitleCaseField(
 		_('Full name'),
@@ -242,6 +242,12 @@ class ItemListing(Post, HitCountMixin):
 		related_name='item_listings',
 		related_query_name='item_listing'
 	)
+	institution = models.ForeignKey(
+		'Institution',
+		on_delete=models.CASCADE,
+		related_name='item_listings',
+		related_query_name='item_listing'
+	)
 	category = models.ForeignKey(
 		'ItemCategory', 
 		related_name='item_listings', 
@@ -270,12 +276,6 @@ class ItemListing(Post, HitCountMixin):
 	price = models.PositiveIntegerField(
 		_('Price'), 
 		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>0</b> for free products or services."),
-	)
-	institution = models.ForeignKey(
-		'Institution',
-		on_delete=models.CASCADE,
-		related_name='item_listings',
-		related_query_name='item_listing'
 	)
 
 

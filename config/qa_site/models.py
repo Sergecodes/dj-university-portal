@@ -335,7 +335,7 @@ class AcademicQuestion(Question):
 	# to get tags of a given user, do something like. similar reverse relationships are also permitted.
 	#	Tag.objects.filter(academicquestion__poster=user)
 	#	Tag.objects.filter(academicquestion__id=a.id)  # get tags of a given question from Tag model
-
+	# as a matter of fact, Tag has fields ('id', 'academicquestion', 'name_en', 'name_fr', 'slug', 'taggit_taggeditem_items')
 	subject = models.ForeignKey(
 		'Subject',
 		on_delete=models.PROTECT,

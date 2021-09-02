@@ -107,7 +107,8 @@ class AcademicQuestionDetail(DetailView):
 		).all()
 
 		related_items = TaggedItem.objects.none()
-		for tag in question.tags.all():
+		question_tags = question.tags.all()
+		for tag in question_tags:
 			# build queryset of all TaggedItems. 
 			# a TaggedItem contains each tag and the object it's linked to, so get union(|) of these querysets
 			related_items |= tag.taggit_taggeditem_items.exclude(object_id = question.id)
@@ -115,17 +116,18 @@ class AcademicQuestionDetail(DetailView):
 		# TaggedItem doesn't have a direct link to the object, so grap object ids and use them
 		ids = related_items.values_list('object_id', flat=True)
 
+		users = User.objects.all()
 		related_qstns = AcademicQuestion.objects.filter(
 			id__in=ids
 		).only('title') \
 		.prefetch_related(
 			Prefetch('answers', queryset=AcademicAnswer.objects.all().defer('content')),
-			Prefetch('upvoters', queryset=User.objects.all().only('id')),
-			Prefetch('downvoters', queryset=User.objects.all().only('id'))
+			Prefetch('upvoters', queryset=users.only('id')),
+			Prefetch('downvoters', queryset=users.only('id'))
 		) \
 		.order_by('-posted_datetime')[:NUM_RELATED_QSTNS]
 		
-		context['question_tags'] = question.tags.all()
+		context['question_tags'] = question_tags
 		context['answers'] = answers
 		context['comments'] = comments
 		context['num_answers'] = answers.count()

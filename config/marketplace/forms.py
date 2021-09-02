@@ -71,7 +71,8 @@ class ItemListingForm(forms.ModelForm):
 	# initially, it should contain the sub categories of the current(initial) selected parent category. also some user's listings might not have sub categories
 	sub_category = forms.ModelChoiceField(
 		required=False,
-		queryset=ItemSubCategory.objects.all(),
+		# queryset=ItemSubCategory.objects.all(),
+		queryset=ItemSubCategory.objects.none(),
 		widget=forms.Select(attrs={'class': 'js-subcategory'})
 	)
 	price = forms.CharField(
@@ -223,7 +224,7 @@ class AdListingForm(forms.ModelForm):
 		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['category'].empty_label = None
-		self.fields['institution'].empty_label = None
+		# self.fields['institution'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(

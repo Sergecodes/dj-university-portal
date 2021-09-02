@@ -3,21 +3,25 @@
 
 todo:
 		Sep 1:
+		- lost and found items app
 		- search friend page
 		- user profile page
-		
+		- add website link, github profile, likee, tiktok profile in socialize app
+			.. do research on environment variables
 		### update(edit views) ### (do those other sites permit this ?)
 		- item listings
 		- questions
 		- 
 
-- lost and found items app
-- each model should have a datetime_added field.
+- vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
+- remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow). in fact, tags to listings too using django-taggit
+- remove empty p tags from ck editor submitted texts.
 - one page for posts deletion.
+- add original_language field for most models ... Yep !! remove it from frontend. it should be set on backend since user could easily modify its value on the frontend.
 - add asterisk after condition_description when condition changes. (to show the description is required)
-- add github profile, likee, tiktok profile in socialize app
 - permissions.
-- footer. check out font awesome's footer on mobile.
+- cron jobs
+- footer. check out font awesome's footer on mobile., ilost.co's footer too
 - try to set default for slug field in admin 
 - checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
@@ -31,6 +35,7 @@ todo:
 - create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
 - limit number of images in past paper upload...
 - all create forms should have shadows. and other forms normal borders
+- eventually, add possibility to upload photos of lost items.
 - socialize detail form should take visitor to socialize section of user's profile
 - implement editing and deleting by poster in various apps..
 - limit number of answers per question and comments per post in qa_site app.

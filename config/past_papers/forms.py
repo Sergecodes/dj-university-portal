@@ -24,8 +24,6 @@ class CommentForm(forms.ModelForm):
 			'content': _('Comment')
 		}
 		widgets = {
-			'poster': forms.HiddenInput(),
-			'past_paper': forms.HiddenInput(),
 			'content': forms.Textarea(attrs={
 				'placeholder': _('Enter your comment...'),
 				'rows': '2',

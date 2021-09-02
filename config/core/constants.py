@@ -1,7 +1,7 @@
 """
 File contains constants that will be used through out application
 """
-
+from datetime import timedelta
 
 # MARKETPLACE app
 MIN_LISTING_PHOTOS_LENGTH = 3
@@ -20,3 +20,8 @@ PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
 
 # SOCIALIZE APP
 PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
+
+### LOST_AND_FOUND APP ###
+# period for which a post is valid(active)
+# determines for how long a post will be displayed on the site.
+LOST_OR_FOUND_ITEM_VALIDITY_PERIOD = timedelta(weeks=1)

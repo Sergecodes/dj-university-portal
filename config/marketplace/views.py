@@ -61,9 +61,9 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 
 			# delete uploaded photos(and also remove corresponding files)
 			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
-			for photo_name in photos_list:
-				# todo code to delete file here..
-				pass
+			# for photo_name in photos_list:
+			# 	# todo code to delete file here..
+			# 	pass
 
 			print(form.errors)
 			return self.form_invalid(form)

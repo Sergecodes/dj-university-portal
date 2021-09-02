@@ -12,6 +12,7 @@ from users.models import get_dummy_user
 
 User = get_user_model()
  
+ 
 class PastPaperPhoto(models.Model):
 	"""
 	These photos should be periodically removed from storage, since after upload they are practically useless

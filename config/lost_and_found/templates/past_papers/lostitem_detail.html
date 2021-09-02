@@ -168,8 +168,6 @@
 				<h4>{% trans 'Leave a comment' %}</h4>
 				{% csrf_token %}		
 				{{ comment_form|crispy }}
-				{{ comment_form.fields.poster }}
-				{{ comment_form.fields.past_paper }}
 
 				<input type="hidden" name="past_paper_id" value="{{ past_paper.id }}">
 				<input type="submit" class="btn btn-sm btn-secondary" value="{% trans 'Add comment' %}">
