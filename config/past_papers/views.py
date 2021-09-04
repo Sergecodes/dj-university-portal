@@ -130,5 +130,6 @@ class PastPaperList(FilterView):
 
 		context['subjects'] = Subject.objects.all()
 		context['total_num_papers'] = num_papers
+		context['levels'] = PastPaper.LEVELS
 		
 		return context

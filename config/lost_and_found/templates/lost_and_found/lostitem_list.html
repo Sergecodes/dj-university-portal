@@ -1,0 +1,237 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+<!-- {% load app_extras %} -->
+
+{% block title %}
+	<title>{% trans 'Reported Lost Items' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/lost_and_found.css' %}"> 
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5 lostitems-list-container">
+	<h2 class="text-success">{% trans 'Items Lost' %}</h2>
+	<article class="border lostitems-list-art">
+		<section class="px-3 pt-4">
+			<p>
+				{% blocktrans %}
+					Statistics say 80% of missing items are in good hands. Have you lost an item ? <br>
+					Publish items that you've lost here.
+				{% endblocktrans %}
+			</p>
+			<a href="{% url 'lost_and_found:lost-item-create' %}" class="btn btn-warning mb-3">
+				{% trans 'Publish a lost item' %}
+			</a>
+		</section>
+		<!-- search form -->
+		<section class="mb-3">
+			<form method="get" class="p-3 m-3 border lostitems-search-form">
+				<h4>{% trans 'Filter' %}</h4>
+				{% with filter.form as form %}
+					<div class="row">
+						<div class="form-group col-12 col-md-5">
+							{{ form.school|as_crispy_field }}
+						</div>
+						<div class="form-group col-12 col-md-5">
+							{{ form.item_lost|as_crispy_field }}
+						</div>
+					</div>
+				{% endwith %}
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search" aria-hidden="true"></i>
+					{% trans 'Search' %}
+				</button>
+			</form>
+		</section>
+
+		<!-- lost items list -->
+		<section>
+			<ul>
+				{% for lost_item, photo in page_obj|zip:first_photos %}
+					{% with poster_username=lost_item.poster.username %}
+						<li class="d-flex p-3 pb-4 mb-2 lostitem-item">
+							<div class="flex-shrink-0">
+								{% if photo %}
+									<a href="{{ lost_item.get_absolute_url }}">
+										<img class="py-2 lostitem-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								{% else %}
+									<a href="{{ lost_item.get_absolute_url }}" class="d-inline-block link-secondary">
+										<i class="far fa-image fa-7x px-4 opacity-50"></i>
+									</a>
+								{% endif %}
+							</div>
+							<div class="flex-grow-1 ms-4">
+								<a 
+									href="{{ lost_item.get_absolute_url }}" 
+									class="h5 text-decoration-none"
+								>
+									{{ lost_item.item_lost }}
+								</a>
+								<br class="mb-4">
+								<a 
+									class="text-decoration-none" 
+									href="#"
+								>
+									{{ lost_item.school }}
+								</a>
+								<br class="mb-1">
+								<span>
+									{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}
+									{% trans 'by' %}
+									<a href="{% url 'users:view-profile' username=poster_username %}" class="text-decoration-none">{{ poster_username }}</a>
+								</span>
+							</div>
+						</li> 
+					{% endwith %}
+				{% endfor %}
+
+				{% if is_paginated %}
+					<ul class="pagination mt-4">
+						{% if page_obj.has_previous %}
+							<li class="page-item">
+								<a 
+									aria-label="{% trans 'Previous' %}"
+									class="page-link" 
+									href="?{% query_transform request page=page_obj.previous_page_number %}"
+								>
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-left"></i>
+									</span>
+								</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">
+									<i class="fas fa-chevron-left"></i>
+								</span>
+							</li>
+						{% endif %}
+
+						{% if page_obj.number|add:'-4' > 1 %}
+							<li class="page-item">
+								<a 
+									class="page-link"
+									href="?{% query_transform request page=page_obj.number|add:'-5' %}"
+								>
+									&hellip;
+								</a>
+							</li>
+						{% endif %}
+
+						{% for i in page_obj.paginator.page_range %}
+							{% if page_obj.number == i %}
+								<li class="page-item active">
+									<span class="page-link">
+										{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+									</span>
+								</li>
+							{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+								<li class="page-item">
+									<a 
+										class="page-link"
+										href="?{% query_transform request page=i %}"
+									>
+										{{ i }}
+									</a>
+								</li>
+							{% endif %}
+						{% endfor %}
+
+						{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+							<li class="page-item">
+								<a 
+									class="page-link"
+									href="?{% query_transform request page=page_obj.number|add:'5' %}"
+								>
+									&hellip;
+								</a>
+							</li>
+						{% endif %}
+
+						{% if page_obj.has_next %}
+							<li class="page-item">
+								<a 
+									aria-label="{% trans 'Next' %}"
+									class="page-link" 
+									href="?{% query_transform request page=page_obj.next_page_number %}"
+								>
+									<span aria-hidden="true">
+										<i class="fas fa-chevron-right"></i>
+									</span>
+								</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">
+									<i class="fas fa-chevron-right" aria-hidden="true"></i>
+								</span>
+							</li>
+						{% endif %}
+					</ul>
+
+					{% comment %} <ul class="pagination mt-4">
+						{% if page_obj.has_previous %}
+							<li class="page-item">
+								<a 
+									aria-label="{% trans 'Previous' %}"
+									class="page-link" 
+									href="?{% query_transform request page=page_obj.previous_page_number %}"
+								>
+									<span aria-hidden="true">&laquo;</span>
+								</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">&laquo;</span>
+							</li>
+						{% endif %}
+						{% for i in paginator.page_range %}
+							{% if page_obj.number == i %}
+							<li class="page-item active">
+								<span class="page-link">
+									{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+								</span>
+							</li>
+							{% else %}
+							<li class="page-item">
+								<a class="page-link" href="?{% query_transform request page=i %}">
+									{{ i }}
+								</a>
+							</li>
+							{% endif %}
+						{% endfor %}
+						{% if page_obj.has_next %}
+							<li class="page-item">
+								<a 
+									aria-label="{% trans 'Next' %}"
+									class="page-link" 
+									href="?{% query_transform request page=page_obj.next_page_number %}"
+								>
+									<span aria-hidden="true">&raquo;</span>
+								</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<span class="page-link">&raquo;</span>
+							</li>
+						{% endif %}
+					</ul> {% endcomment %}
+				{% endif %}
+			</ul>
+		</section>
+	</article>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %} 

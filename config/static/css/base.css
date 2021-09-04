@@ -249,6 +249,33 @@ img {
 	text-decoration: underline;
 }
 
+/** PHOTO UPLOAD TEMPLATE */
+.gallery-container {
+    width: 90%;
+}
+
+.photo-wrp__img {
+    width: 130px;
+    height: 70px;
+}
+
+/** IMAGES GALLERY IN SOME DETAIL VIEWS(e.g. marketplace, lostitem) */
+.photo-slide__img {
+    cursor: pointer;
+    width: 9rem;
+    height: 5rem;
+    max-width: 100%;
+}
+
+.expanded-img-wrp {
+    width: 95%;
+}
+
+.expanded-img {
+    width: 700px;
+    height: 300px;
+}
+
 
 /*** MEDIA QUERIES ***/
 /* Layout for desktop sizes and greater (>= lg) */

@@ -1,15 +1,11 @@
 {% extends "core/base.html" %}
 
-{% load static %}
+<!-- {% load static %} -->
 {% load i18n %}
 
 {% block title %}
 	<title>{% trans 'Photo upload demo' %}</title>
 {% endblock %}
-
-{% block extra_css %}
-	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
-{% endblock extra_css %}
 
 {% block header %}
 {% endblock %}
@@ -24,7 +20,7 @@
 			<i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 
 			{% trans 'Upload photos' %}
 		</button>
-		<span class="form-text text-muted js-upload-help-text">{% trans 'Upload at least 3 photos.' %}</span>
+		<span class="form-text text-muted">{{ upload_help_text }}</span>
 
 		{# input type="file" to be used by the file upload plugin, dispay set to none. #}
 		{# note that the name attribute should be the same name used in the backend form #}
@@ -33,7 +29,7 @@
 			type="file" 
 			name="file"
 			style="display: none;" 
-			data-url="{% url 'marketplace:photo-upload' %}"
+			data-url="{% url 'core:photo-upload' form_for=form_for %}"
 			data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'
 			multiple 
 		>
@@ -51,22 +47,23 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-				<h4 class="modal-title">{% trans 'Uploading' %}...</h4>
+					<h4 class="modal-title">{% trans 'Uploading' %}...</h4>
 				</div>
 				<div class="modal-body">
-				<div class="progress">
-					<div 
-						class="progress-bar js-progress-bar" 
-						role="progressbar" 
-						style="width: 0%;"
-					>
-						0%
+					<div class="progress">
+						<div 
+							class="progress-bar js-progress-bar" 
+							role="progressbar" 
+							style="width: 0%;"
+						>
+							0%
+						</div>
 					</div>
-				</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
 {% endblock content %}
 
 {% block footer %}
@@ -129,7 +126,7 @@
 						</div>"
 					);
 				} else {
-					alert("{% trans 'Invalid' %}");
+					console.error(result.error);
 				}
 			}
 		});
@@ -147,7 +144,7 @@
 
 			// call ajax to delete photo from backend
 			$.ajax({
-				url: "{% url 'marketplace:photo-delete' %}" + '?photo_filename=' + photoFileName,
+				url: "{% url 'core:photo-delete' %}" + '?photo_filename=' + photoFileName,
 				type: 'DELETE',
 				dataType: 'json',
 				beforeSend: function (xhr) {
@@ -179,7 +176,7 @@
 
 			// call ajax to delete photo from backend
 			$.ajax({
-				url: "{% url 'marketplace:photo-delete' %}" + '?photo_id=' + photoId,
+				url: "{% url 'core:photo-delete' %}" + '?photo_id=' + photoId,
 				type: 'DELETE',
 				dataType: 'json',
 				beforeSend: function (xhr) {

@@ -3,7 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
-{% load app_extras %}
+<!-- {% load app_extras %} -->
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
@@ -58,10 +58,6 @@
 
 {% block extra_js %}
 <script>
-	// change help text of photo upload button
-	var newHelpText = "{% blocktrans %}It isn't obligatory to post a photo.{% endblocktrans %}";
-	$('.js-upload-help-text').text(newHelpText);
-
 	// place listing description help text directly after label instead of below the ckeditor widget
 	var $descriptionLabel = $("[for='id_description']");
 	$descriptionLabel.css({'margin-bottom': '0', 'display': 'block'});

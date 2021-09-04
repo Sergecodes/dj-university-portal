@@ -1,6 +1,6 @@
 /** EXTRA CSS FOR THE PAST_PAPERS SITE */
 
-/** Item listing creation form */
+/** Past paper creation form */
 .pastpaper-form-container {
     width: 70%;
     padding-left: 2rem;  
@@ -12,7 +12,7 @@
     padding-bottom: 1.5rem;  /* pb-4 */
 }
 
-/** Past papers listing list */
+/** Past papers list */
 .pastpapers-list-art {
 	width: 85%;
 }
@@ -39,7 +39,7 @@
         padding-right: 1rem; 
     }
 
-	.pastpaper-list-art {
+	.pastpapers-list-art {
 		width: 100%;
 	} 
 

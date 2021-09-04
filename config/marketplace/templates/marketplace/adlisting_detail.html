@@ -19,7 +19,7 @@
 {% block content %}
 <!-- 100% wide undil lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
-	<article class="d-flex shadow rounded p-3 mb-5 listing-wrp">
+	<article class="d-flex flex-column shadow rounded p-3 mb-5">
 		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
 		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
 			{% if photos.exists %}
@@ -36,11 +36,12 @@
 						{% endfor %}
 					</div>
 					<div class="expanded-img-wrp">
-						<img class="w-100 expanded-img js-expanded-img">
+						<img class="expanded-img js-expanded-img">
 					</div>
 				</div>
 			{% endif %}
-			<div class="ms-3 mt-4 advert-info">
+			<!-- apparently "advert-info" is a browser class that is initially set to display none !important -->
+			<div class="ms-3 mt-4 d-lg-block ad-info">
 				<table class="table table-bordered">
 					<tr>
 						<th colspan="2" class="text-center">{% trans 'Advert Info' %}</th>
@@ -77,7 +78,7 @@
 			<h3 class="mb-3">{% trans 'Advert Description' %}</h3>
 			<div>{{ listing.description|safe }}</div>
 		</div>
-		<div class="alert alert-warning w-75 pb-1 mb-5 warning-wrp" role="alert">
+		<div class="alert alert-warning pb-1 mb-5 warning-wrp" role="alert">
 			<h4 class="alert-heading">{% trans 'WARNING!' %}</h4>
 			<ul>
 				<li>{% trans "You should ensure you physically inspect or see the product to be purchased, and transact face to face." %}</li>
@@ -89,12 +90,14 @@
 			<hr>
 			<p>{% trans "If you understand the above warnings, contact the seller using the details below." %}<p>
 		</div>		
-		<div class="contact-details">
+
+		<!-- contact details -->
+		<section>
 			<h4 class="text-success">{% trans 'Contact' %} {{ listing.contact_name }}</h4>
-			<div class="fs-4 px-3 shadow-sm rounded number-box-wrp">
+			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
-					<div class="py-2 d-flex number-box">
+					<div class="py-2 d-flex justify-content-between number-box">
 						<a 
 							href="tel: {{ number }}" 
 							class="text-dark text-decoration-none number-box__tel"
@@ -116,7 +119,7 @@
 					{% endwith %}
 				{% endfor %}
 			</div>
-		</div>
+		</section>
 	</article>
 	{% if similar_listings.exists %}
 		<hr class="mb-4">
@@ -134,8 +137,8 @@
 								<p>{{ sim_listing.title }}</p>
 							</a>
 						{% else %}
-							<a href="{{ sim_listing.get_absolute_url }}" class="d-inline-block link-secondary">
-								<i class="far fa-image fa-5x opacity-50 mb-2"></i>
+							<a href="{{ sim_listing.get_absolute_url }}" class="d-inline-block text-decoration-none">
+								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2"></i>
 								<p>{{ sim_listing.title }}</p>
 							</a>
 						{% endif %}

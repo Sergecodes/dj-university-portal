@@ -7,11 +7,11 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Past Papers' %}</title>
+	<title>{% trans 'Reported Found Items' %}</title>
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" href="{% static 'css/past_papers.css' %}"> 
+	<link rel="stylesheet" href="{% static 'css/lost_and_found.css' %}"> 
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
@@ -19,19 +19,20 @@
 
 {% block content %}
 <div class="container-lg mb-5">
-	<h2 class="text-success">{% trans 'Past Papers' %}</h2>
-	<article class="border pastpapers-list-art">
+	<h2 class="text-success">{% trans 'Items Found' %}</h2>
+	<article class="border founditems-list-art">
 		<section class="px-3 pt-4">
 			<p>
 				{% blocktrans %}
-					Upload your revision papers and past papers from your school, and view and download past papers from other schools.
+					Statistics say 80% of missing items are in good hands. Have you found a missing item in your school ? <br>
+					Publish items you've found here.
 				{% endblocktrans %}
 			</p>
-			<a href="{% url 'past_papers:past-paper-upload' %}" class="btn btn-warning mb-3">
-				{% trans 'Upload a past paper' %}
+			<a href="{% url 'lost_and_found:found-item-create' %}" class="btn btn-warning mb-3">
+				{% trans 'Publish an item you found' %}
 			</a>
 		</section>
-		<section class="mb-3 pastpapers-search-form-wrp">
+		<section class="mb-3">
 			<form method="get" class="p-3 m-3 border">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
@@ -40,67 +41,49 @@
 							{{ form.school|as_crispy_field }}
 						</div>
 						<div class="form-group col-12 col-md-5">
-							{{ form.level|as_crispy_field }}
-						</div>
-						<div class="form-group col-12 col-md-5">
-							{{ form.subject|as_crispy_field }}
-						</div>
-						<div class="form-group col-12 col-md-5">
-							{{ form.title|as_crispy_field }}
+							{{ form.item_found|as_crispy_field }}
 						</div>
 					</div>
 				{% endwith %}
 				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-search"></i>
+					<i class="fas fa-search" aria-hidden="true"></i>
 					{% trans 'Search' %}
 				</button>
 			</form>
 		</section>
 
-		<section class="pastpapers-list-wrp">
-			<ul class="list-group list-group-flush pe-4">
-				{% for past_paper in page_obj %}
-					<li class="list-group-item pb-3 mb-2 ms-2 {% if forloop.first %} pt-3 {% endif %}">
-						<a 
-							href="{{ past_paper.get_absolute_url }}" 
-							class="fw-bold text-decoration-none"
-						>
-							{{ past_paper.title }}
-						</a>
-						<div class="mt-2 past_paper-meta">
+		<section>
+			<ul class="list-group list-group-flush ms-5 pe-4">
+				{% for found_item in page_obj %}
+					{% with poster_username=found_item.poster.username %}
+						<li class="list-group-item pb-3 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">
 							<a 
-								class="badge bg-info link-light text-decoration-none" 
-								href="#"
-								title="{{ past_paper.get_level_display }}"
+								href="{{ found_item.get_absolute_url }}" 
+								class="fw-bold text-decoration-none"
 							>
-								{{ past_paper.level }}
+								{{ found_item.item_found }}
 							</a>
-							<a 
-								class="badge bg-secondary ms-2 link-light text-decoration-none" 
-								href="#"
-							>
-								{{ past_paper.subject }}
-							</a>
-							{% if past_paper.school %}
+							<!-- found item meta -->
+							<div class="mt-2">
 								<a 
 									class="small text-decoration-none" 
 									href="#"
 								>
-									&nbsp; ({{ past_paper.school }})
+									({{ found_item.school }})
 								</a>
-							{% endif %}
-							<div class="d-inline ms-3 small">
-								<span class="text-muted">{% trans 'uploaded by' %}</span>
-								<a 
-									href="{% url 'users:view-profile' username=past_paper.poster.username %}"
-									class="text-decoration-none"
-								>
-									{{ past_paper.poster.username }}
-								</a>
-								<span class="small text-muted">&nbsp; - &nbsp;{{ past_paper.posted_datetime|naturaltime }}</span>
+								<div class="d-inline ms-3">
+									<span class="text-muted">{% trans 'Published by' %}</span>
+									<a 
+										href="{% url 'users:view-profile' username=poster_username %}"
+										class="text-decoration-none"
+									>
+										{{ poster_username }}
+									</a>
+									<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>
+								</div>
 							</div>
-						</div>
-					</li> 
+						</li> 
+					{% endwith %}
 				{% endfor %}
 					
 				{% if is_paginated %}

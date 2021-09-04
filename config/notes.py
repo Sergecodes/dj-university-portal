@@ -1,23 +1,36 @@
 
 
-
 todo:
-		Sep 1:
-		- lost and found items app
+		Sep 3:
 		- search friend page
 		- user profile page
-		- add website link, github profile, likee, tiktok profile in socialize app
+		- add website link, youtube profile, github profile, likee, tiktok profile in socialize app
+		(also say these links aren't obligatory)
 			.. do research on environment variables
+
 		### update(edit views) ### (do those other sites permit this ?)
 		- item listings
 		- questions
 		- 
 
+- in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
+- add email to contact details in detail views.
+- when filtering, consider only 'unexpired' posts. (`is_outdated` field on all 'outdate-able' models.); also add an index on this field.
+- change all datetime_added fields to posted_datetime (for most models where it makes sense). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
+- backgound-color on filter forms
+- optimize queries, especially on list view. selec_related on poster...
+
+- photo upload modal stuff too for past_papers site
+- enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
+- app storage for items.
 - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
 - remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow). in fact, tags to listings too using django-taggit
+- when listing forms have errors, ensure previously uploaded photos are maintained ! 
 - remove empty p tags from ck editor submitted texts.
 - one page for posts deletion.
+- place common models in core app such as Institution, PhoneNumber, 
 - add original_language field for most models ... Yep !! remove it from frontend. it should be set on backend since user could easily modify its value on the frontend.
+- change external_link_svg to font-awesome icon
 - add asterisk after condition_description when condition changes. (to show the description is required)
 - permissions.
 - cron jobs

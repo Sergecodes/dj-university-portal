@@ -29,6 +29,7 @@ urlpatterns = [
 # i18n_patterns can only be used in a root urlconf file, 
 # will throw ImproperlyConfigured error if used in an included URLconf
 urlpatterns += i18n_patterns(
+    path(_('core/'), include('core.urls', namespace='core')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
     path(_('users/'), include('users.urls', namespace='users')),

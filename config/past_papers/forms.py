@@ -8,7 +8,10 @@ from .models import PastPaper, PastPaperPhoto, Comment
 
 
 class PastPaperPhotoForm(forms.ModelForm):
-	file = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+	file = forms.FileField(
+		widget=forms.ClearableFileInput(attrs={'multiple': True}), 
+		help_text=_('These photos will be converted to a PDF file.')
+	)
 
 	class Meta:
 		model = PastPaperPhoto

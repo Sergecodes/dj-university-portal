@@ -26,12 +26,19 @@
 				{% blocktrans %}
 					Upload your revision papers and past papers from your school, and view and download past papers from other schools.
 				{% endblocktrans %}
+				{# hide this for desktop screens coz the title attribute is supported. #}
+				<p class="d-lg-none">{% trans 'The codes for the levels are: ' %}</p>
+				<ul>
+					{% for entry in levels %}
+						<li>'{{ entry[0] }}' - {{ entry[1] }}</li>
+					{% endfor %}
+				</ul>
 			</p>
 			<a href="{% url 'past_papers:past-paper-upload' %}" class="btn btn-warning mb-3">
 				{% trans 'Upload a past paper' %}
 			</a>
 		</section>
-		<section class="mb-3 pastpapers-search-form-wrp">
+		<section class="mb-3">
 			<form method="get" class="p-3 m-3 border">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
@@ -57,26 +64,27 @@
 			</form>
 		</section>
 
-		<section class="pastpapers-list-wrp">
-			<ul class="list-group list-group-flush pe-4">
+		<section class="">
+			<ul class="list-group list-group-flush ms-5 pe-4">
 				{% for past_paper in page_obj %}
-					<li class="list-group-item pb-3 mb-2 ms-2 {% if forloop.first %} pt-3 {% endif %}">
+					<li class="list-group-item pb-4 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">
 						<a 
 							href="{{ past_paper.get_absolute_url }}" 
 							class="fw-bold text-decoration-none"
 						>
 							{{ past_paper.title }}
 						</a>
-						<div class="mt-2 past_paper-meta">
+						<!-- past paper meta -->
+						<div class="mt-2">
 							<a 
-								class="badge bg-info link-light text-decoration-none" 
+								class="badge bg-info link-light opacity-75 text-decoration-none" 
 								href="#"
 								title="{{ past_paper.get_level_display }}"
 							>
 								{{ past_paper.level }}
 							</a>
 							<a 
-								class="badge bg-secondary ms-2 link-light text-decoration-none" 
+								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
 								href="#"
 							>
 								{{ past_paper.subject }}

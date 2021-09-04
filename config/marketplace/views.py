@@ -13,7 +13,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, 
 	AD_PHOTOS_UPLOAD_DIR,
-	MIN_LISTING_PHOTOS_LENGTH
+	MIN_LISTING_PHOTOS_LENGTH  # todo enforce this !
 )
 from .forms import ItemListingForm, AdListingForm
 from .models import (
@@ -34,8 +34,8 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		return form_kwargs
 
 	def get(self, request, *args, **kwargs):
-		# remove photos list from session (just in case...)
-		request.session.pop(request.user.username, '')
+		# remove photos list from session (just in case... e.g if user previously started filling form but didn't finish..)
+		request.session.pop(request.user.username, [])
 		
 		return super().get(request, *args, **kwargs)
 
@@ -259,10 +259,12 @@ class ItemListingList(FilterView):
 	# context_object_name = 'listings'
 	filterset_class = ItemListingFilter
 	template_name = 'marketplace/itemlisting_list.html'
+	# change the suffix coz by default filterview expects '_filter'
 	template_name_suffix = '_list'
 	paginate_by = 2
 	
 	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
 		listings = self.object_list
 		
 		# get first photos of each listing
@@ -270,7 +272,6 @@ class ItemListingList(FilterView):
 		for listing in listings:
 			first_photos.append(listing.photos.first())
 		
-		context = super().get_context_data(**kwargs)
 		context['first_photos'] = first_photos
 		return context
 

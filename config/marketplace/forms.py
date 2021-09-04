@@ -1,52 +1,21 @@
 from ckeditor.widgets import CKEditorWidget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
-	Layout, LayoutObject, Row, Column, Fieldset, 
-	HTML, Submit
+	Layout, Row, Column,
+	Fieldset, HTML, Submit
 )
 from django import forms
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
+from core.forms import PhotoFormLayout
 from .models import (
 	ItemListing, AdListing, Institution, ItemSubCategory,
-	ItemCategory, ItemListingPhoto, AdCategory
+	ItemCategory, ItemListingPhoto, AdCategory, AdListingPhoto
 )
 
 
-class PhotoFormLayout(LayoutObject):
-	""" 
-	Render the the photo upload template, as though it were a Field.
-	Accepts the names (as a string) of template to use.
-	Used to insert item listing & ad photo upload templates into their respective forms.
-
-	Examples:
-		PhotoFormLayout('photo_form')
-		PhotoFormLayout('photo_form', template='...')
-		PhotoFormLayout('photo_form', template='...', extra_context={...})
-	"""
-
-	template = 'marketplace/photos_upload.html'
-	extra_context = {}
-
-	def __init__(self, template=None, *args, **kwargs):
-		# retrieve and store extra context
-		self.extra_context = kwargs.pop('extra_context', self.extra_context)
-
-		# Override class variable with an instance level variable
-		if template:
-			# print(template)
-			self.template = template
-		
-	def render(self, form, form_style, context, **kwargs):
-		if self.extra_context:
-			context.update(self.extra_context)
-
-		return render_to_string(self.template, context.flatten())
-
-
 class ItemListingPhotoForm(forms.ModelForm):
-
 	class Meta:
 		model = ItemListingPhoto
 		fields = ('file', )
@@ -140,7 +109,10 @@ class ItemListingForm(forms.ModelForm):
 					css_class='form-row'
 				),
 				# photo upload template here
-				PhotoFormLayout(extra_context={}),  
+				PhotoFormLayout(extra_context={
+					'form_for': 'item_listing', 
+					'upload_help_text': _('Upload at least 3 photos.')
+				}),  
 				'description',
 				'price',
 				css_class='mb-2'
@@ -178,6 +150,12 @@ class ItemListingForm(forms.ModelForm):
 			self.add_error('price', _('The price you entered is invalid. Prices may contain only spaces and digits.'))
 		else:
 			return int(price)
+
+
+class AdListingPhotoForm(forms.ModelForm):
+	class Meta:
+		model = AdListingPhoto
+		fields = ('file', )
 
 
 class AdListingForm(forms.ModelForm):
@@ -240,7 +218,10 @@ class AdListingForm(forms.ModelForm):
 				'title',
 				'duration',
 				# photo upload template here
-				PhotoFormLayout(extra_context={}),  
+				PhotoFormLayout(extra_context={
+					'form_for': 'ad_listing', 
+					'upload_help_text': _("It isn't obligatory to post a photo.")
+				}),  
 				'description',
 				'pricing',
 				css_class='mb-2'

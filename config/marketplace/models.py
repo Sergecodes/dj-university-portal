@@ -102,6 +102,8 @@ class ItemListingPhoto(models.Model):
 		if not self.title:
 			self.title = self.actual_filename.split('.')[0]
 			self.save(update_fields=['title'])
+			
+		return self
 
 	class Meta:
 		verbose_name = 'Item Listing Photo'
@@ -138,6 +140,8 @@ class AdListingPhoto(models.Model):
 		if not self.title:
 			self.title = self.actual_filename.split('.')[0]
 			self.save(update_fields=['title'])
+
+		return self
 
 
 class Post(models.Model):

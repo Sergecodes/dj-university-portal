@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
+from core.ajax_views import PhotoUploadView
 from . import views, ajax_views
 
 app_name = 'marketplace'
@@ -21,6 +22,4 @@ urlpatterns = [
 
 	## AJAX VIEWS ##
 	path('ajax/get-item-subcategories/', ajax_views.get_item_sub_categories, name='get-item-subcategories'),
-	path('ajax/upload-photo/', ajax_views.PhotoUploadView.as_view(), name='photo-upload'),
-	path('ajax/delete-photo/', ajax_views.PhotoUploadView.as_view(), name='photo-delete'),
 ]
