@@ -1,11 +1,9 @@
-
+# I either give an order or my point of view. I don't give advices. - Draco
 
 todo:
-		Sep 3:
-		- search friend page
+		Sep 6:
 		- user profile page
-		- add website link, youtube profile, github profile, likee, tiktok profile in socialize app
-		(also say these links aren't obligatory)
+		- home page
 			.. do research on environment variables
 
 		### update(edit views) ### (do those other sites permit this ?)
@@ -13,16 +11,37 @@ todo:
 		- questions
 		- 
 
+# profile/qa site
+- insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
+- add my answers(aca and school-based) and my bookmarked questions.
+
+- abeg use prefetch_related and select_related in situations of duplicate queries ! !!!
+see example in profile/QA view.. there should be no duplicate queries on any page !!!
+- change pencil icon to may be microphone icon in question detail.
+- remove unneccessary margin and padding classes and use responsive ones such as me-sm-0, my-sm-2, etc...
+- in item/ad listing, make tab items clickable (links.)
+- show best users on both pc and mobile; display vertically on mobile.
+- tell user his age won't be visible to other users.
+- label pages sections for accessibility...
+- set bootstrap "shadow" on icons and images in listings . perhaps with padding too.
+- reduce size (height) of listing results.
+- initially, remove count of items. perhaps in future, will display count...
+- remove unused css class name from each template. use comments for potential future class names .
+- aria-hidden on icons, svgs, etc..; alt text on images, 
+- tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
+- add help text (enter at least one social media account..)
+- remove tags from school questions ...?
+- in create forms, convert 'raise' to sef.add_error()
+- before(above) each create view, create a sort of bootstrap alert that explains users the use ...; also say that all fields marked or ending with * are required.
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
 - add email to contact details in detail views.
 - when filtering, consider only 'unexpired' posts. (`is_outdated` field on all 'outdate-able' models.); also add an index on this field.
 - change all datetime_added fields to posted_datetime (for most models where it makes sense). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
-- backgound-color on filter forms
+- backgound-color on filter forms(see ex form marketplace )
 - optimize queries, especially on list view. selec_related on poster...
-
 - photo upload modal stuff too for past_papers site
 - enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
-- app storage for items.
+- number of results when filtering.. ?
 - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
 - remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow). in fact, tags to listings too using django-taggit
 - when listing forms have errors, ensure previously uploaded photos are maintained ! 
@@ -48,7 +67,6 @@ todo:
 - create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
 - limit number of images in past paper upload...
 - all create forms should have shadows. and other forms normal borders
-- eventually, add possibility to upload photos of lost items.
 - socialize detail form should take visitor to socialize section of user's profile
 - implement editing and deleting by poster in various apps..
 - limit number of answers per question and comments per post in qa_site app.
@@ -82,7 +100,6 @@ todo:
 
 - constraint on file size (maybe max 1MB)
 - minimum length constraints
-- when user presses button to delete photo, wait for x seconds before deleting
 - remove confirm password field, implement show password checkbox
 
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
@@ -97,19 +114,27 @@ TODO: users app:
 
 - make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
 
-# 1. VALIDATIONS: front-end first
-Full name validation:
-	. no number in full name, just letters(unicode) and hyphen
-	. made up of 2 strings
-Password validation:
-	. at least 8 chars
-	. shouldn't be entirely numeric
-	. passwords should match
-Phone number:
-	. only numbers and spaces, no other character
 
+### redirect to next url.. ; use in class based views.  ###
+def get_success_url(self):
+	try:
+		next = self.request.GET['next']
+	except KeyError:
+		next = self.success_url
+	return next
 
-# photo not required for advert. 
+### to get users tags from question creation form,  ###
+user enters 'tag1, tag2,   tag3'
+tags = self.cleaned_data.get('tags')
+correct_tags = ''
+# validate: remove all other characters apart from comma.
+# in frontend, tell user that tags will be correctly parsed. 
+for char in tags:
+	if char is alphanumeric or char is comma or char is space:
+		correct_tags += char
+
+tags_list = tags.replace(' ', '').split(',')
+# returns tags_list = ['tag1', 'tag2', 'tag3']
 
 # django-anymail, django-mailer,
 

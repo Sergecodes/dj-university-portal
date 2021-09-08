@@ -134,14 +134,15 @@ class SchoolQuestionForm(forms.ModelForm):
 		fields = ['school', 'content', 'tags']
 
 	def clean(self):
-		tags = self.cleaned_data.get('tags')
+		cleaned_data = self.cleaned_data
+		tags = cleaned_data.get('tags')
 		# if not tags:
 		# 	raise ValidationError(_('Select at least one tag'))
 
 		if tags and tags.count() > MAX_TAGS_PER_QUESTION:
 			self.add_error('tags', ValidationError(_(f"Maximum {MAX_TAGS_PER_QUESTION} tags are allowed.")))
 		
-		return self.cleaned_data
+		return cleaned_data
 		
 
 class SchoolAnswerForm(forms.ModelForm):

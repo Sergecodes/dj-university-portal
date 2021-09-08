@@ -25,6 +25,7 @@ from .models import (
 	AcademicQuestion, SchoolQuestion, SchoolQuestionTag,
 	AcademicQuestionComment, SchoolQuestionComment
 )
+
 User = get_user_model()
 
 
@@ -88,7 +89,7 @@ class AcademicQuestionDetail(DetailView):
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
-		question = self.object
+		question, all_users = self.object, User.objects.all()
 
 		# initialize comment and answer forms
 		qstn_comment_form = AcademicQuestionCommentForm()
@@ -100,10 +101,10 @@ class AcademicQuestionDetail(DetailView):
 		
 		answers = question.answers.prefetch_related(
 			'comments', 
-			Prefetch('upvoters', queryset=User.objects.all().only('id'))
+			Prefetch('upvoters', queryset=all_users.only('id'))
 		).all()
 		comments = question.comments.prefetch_related(
-			Prefetch('upvoters', queryset=User.objects.all().only('id'))
+			Prefetch('upvoters', queryset=all_users.only('id'))
 		).all()
 
 		related_items = TaggedItem.objects.none()
@@ -116,14 +117,13 @@ class AcademicQuestionDetail(DetailView):
 		# TaggedItem doesn't have a direct link to the object, so grap object ids and use them
 		ids = related_items.values_list('object_id', flat=True)
 
-		users = User.objects.all()
 		related_qstns = AcademicQuestion.objects.filter(
 			id__in=ids
 		).only('title') \
 		.prefetch_related(
 			Prefetch('answers', queryset=AcademicAnswer.objects.all().defer('content')),
-			Prefetch('upvoters', queryset=users.only('id')),
-			Prefetch('downvoters', queryset=users.only('id'))
+			Prefetch('upvoters', queryset=all_users.only('id')),
+			Prefetch('downvoters', queryset=all_users.only('id'))
 		) \
 		.order_by('-posted_datetime')[:NUM_RELATED_QSTNS]
 		
@@ -132,7 +132,6 @@ class AcademicQuestionDetail(DetailView):
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
 		context['related_qstns'] = related_qstns
-
 		return context
 
 

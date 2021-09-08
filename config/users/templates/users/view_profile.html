@@ -1,0 +1,40 @@
+<!-- this isn't useful; delete ...when no other file references it. -->
+
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+
+{% block title %}
+	<title>{% trans 'My Profile' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	{% comment %} <link rel="stylesheet" href="{% static 'css/socialize.css' %}">  {% endcomment %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5">
+	<div class="d-lg-flex align-items-start border p-3">
+		<!-- no role="tablist" applied to this nav element so as to permit browsers know its semantic meaning(as advised by bootstrap); instead create a child div for this. -->
+		<nav> 
+			<div id="nav-tab" class="nav nav-pills me-3 {% if not is-mobile %} mb-3 {% endif %}" {% if not is_mobile %} aria-orientation="vertical" {% endif %}>
+				<a id="nav-home-tab" class="nav-link active" data-bs-toggle="tab" data-bs-target="#nav-home" aria-controls="nav-home" aria-selected="true">Home</a>
+				<a id="nav-profile-tab" class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-profile" aria-controls="nav-profile" aria-selected="true">Profile</a>
+			</div>
+		</nav>
+		<div class="tab-content" id="nav-tabContent">
+			<div class="tab-pane active" id="nav-home" aria-labelledby="nav-home-tab">
+				{% lorem 2 %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %} 

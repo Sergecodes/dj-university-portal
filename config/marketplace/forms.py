@@ -239,7 +239,8 @@ class AdListingForm(forms.ModelForm):
 					type='button' \
 					data-bs-toggle='modal' \
 					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + external_link_svg + 
+				>" +  str(_('Edit phone numbers')) + 
+					'<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>' + 
 				"</button>"
 			),
 			# insert original_language as hidden field.

@@ -1,8 +1,7 @@
-from django.conf import settings
-from django.urls import path, include
+from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
-from . import views, ajax_views
+from . import views
 
 
 app_name = 'qa_site'

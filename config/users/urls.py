@@ -1,5 +1,4 @@
 import notifications.urls
-from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, include, reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -8,7 +7,8 @@ from . import views
 
 app_name = 'users'
 
-urlpatterns = [
+
+auth_patterns = [
 	path(_('notifications/'), include(notifications.urls, namespace='notifications')),
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
 	path(
@@ -81,10 +81,22 @@ urlpatterns = [
 		),
 		name='password-reset-complete'
 	),
-	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
-	path('<str:username>/', views.UserDetail.as_view(), name='view-profile'),
 
 ]
+
+profile_patterns = [
+	path(_('profile/dashboard/'), views.Dashboard.as_view(), name='profile-dashboard'),
+	path(_('profile/marketplace/'), views.Marketplace.as_view(), name='profile-marketplace'),
+	path(_('profile/questions-and-answers/'), views.QuestionsAndAnswers.as_view(), name='profile-qa'),
+	path(_('profile/lost-and-found/'), views.LostAndFound.as_view(), name='profile-lostfound'),
+	path(_('profile/past-papers/'), views.PastPaper.as_view(), name='profile-pastpapers'),
+
+	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
+	path(_('<str:username>/'), views.UserDetail.as_view(), name='view-profile'),
+
+]
+
+urlpatterns = auth_patterns + profile_patterns
 
 # Class-based password reset views
 # - PasswordResetView sends the mail

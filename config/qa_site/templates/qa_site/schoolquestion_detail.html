@@ -6,7 +6,7 @@
 {% load humanize %}
 
 {% block title %}
-	<title>{{ question.title }}</title>
+	<title>{% trans 'School-Based Question' %} - {{ question.id }}</title>
 {% endblock %}
 
 {% block extra_css %}

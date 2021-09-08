@@ -68,15 +68,15 @@ class PhoneNumber(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	ACTIVE = 'A'
-	DELETED = 'D'
-	SUSPENDED = 'S'
+	# ACTIVE = 'A'
+	# DELETED = 'D'
+	# SUSPENDED = 'S'
 
-	STATUSES = (
-		(ACTIVE, _('active')),
-		(DELETED, _('deleted')),
-		(SUSPENDED, _('suspended'))
-	)
+	# STATUSES = (
+	# 	(ACTIVE, _('active')),
+	# 	(DELETED, _('deleted')),
+	# 	(SUSPENDED, _('suspended'))
+	# )
 
 	GENDERS = (
 		('M', _('Male')),
@@ -99,7 +99,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		_('Username'),
 		max_length=15,
 		unique=True,
-		help_text=_('This name will be used in the questions/answers site, you can always change it later.'),
+		help_text=_('This could be your nickname. You can always change it later.'),
 		error_messages={
 			'unique': _('A user with that username already exists.'),
 		},
@@ -137,7 +137,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 	
 	# site points can be used for one-day-listing, {video call developer(me), site bonuses, rankings  etc}
 	site_points = models.PositiveIntegerField(_('Site points'), default=5)  # +5 points for joining the site lol
-	status = models.CharField(choices=STATUSES, default='A', max_length=2)
+	# status = models.CharField(choices=STATUSES, default='A', max_length=2)
+
+	# determine if users profile page is visible to other users
+	# is_visible = models.BooleanField(
+	# 	_('Profile visible to other users'),
+	# 	default=False, 
+	# 	help_text=_("Enable other users to be able to view your profile. <br>This means they will be able to see information such as your phone numbers.")
+	# )
 	deactivation_datetime = models.DateTimeField(_('Deactivation date/time'), null=True, blank=True)
 	datetime_joined = models.DateTimeField(_('Date/time joined'), default=timezone.now)
 	last_login = models.DateTimeField(_('Last login'), auto_now=True)
@@ -150,6 +157,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 	REQUIRED_FIELDS = ['username', 'full_name']   # USERNAME_FIELD and password are required by default
 
 	objects = UserManager()
+
+	class Meta:
+		indexes = [
+			models.Index(fields=['-site_points'])
+		]
 
 	def __str__(self):
 		return f'{self.username}, {self.full_name}'
@@ -176,6 +188,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 	
 	def get_absolute_url(self):
 		return reverse('users:view-profile', kwargs={'username': self.username})
+
+	def get_earnings(self):
+		"""Get user's earnings from his points"""
+		# for now, return the user's points.  # todo
+		return self.site_points
+
+	@property
+	def can_withdraw(self):
+		return False # for now... todo!
+
+	@property
+	def has_social_profile(self):
+		"""Determines whether user has activated a social profile(Socialize account)"""
+		if hasattr(self, 'social_profile'):
+			return True
+		return False
 
 	@property
 	def current_suspension(self):

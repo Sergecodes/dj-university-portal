@@ -1,6 +1,5 @@
-from django.conf import settings
-from django.urls import path, include
-from django.utils.translation import ugettext_lazy as _
+from django.urls import path
+from django.utils.translation import gettext_lazy as _
 
 from . import views
 

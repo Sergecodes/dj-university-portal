@@ -86,7 +86,7 @@ class PastPaper(models.Model):
 		(BTS, 'BTS'),
 		(LICENCE, 'Licence'),
 		(MASTERS, _("Master's")),
-		(DOCTORATE, _('Doctorate')),
+		(DOCTORATE, _('Doctorate'))
 	)
 
 	COMMERCIAL = 'COMM'

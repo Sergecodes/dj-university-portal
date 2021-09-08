@@ -1,4 +1,3 @@
-from users.models import PhoneNumber
 from django.contrib.auth import (
 	authenticate, 
 	login, 
@@ -7,14 +6,17 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.views import logout_then_login
-from django.core.exceptions import ValidationError
+from django.db.models.query import Prefetch
 from django.http import Http404
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic import DetailView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
+from core.utils import is_mobile
+from qa_site.models import SchoolAnswer, AcademicAnswer
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
 	UserCreationForm, UserUpdateForm
@@ -99,6 +101,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		return self.request.user.username == passed_username
 
 	def get_test_func(self):
+		# should return a function (not a call to a function) hence no parentheses
 		return self.username_matches
 
 	def post(self, request, *args, **kwargs):
@@ -129,30 +132,78 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
-		return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': user.username}))
+		return HttpResponseRedirect(user.get_absolute_url())
+		# return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': user.username}))
 		# return HttpResponseRedirect(self.get_success_url())
 
 	def get_context_data(self, **kwargs):
-		data = super().get_context_data(**kwargs)
+		context = super().get_context_data(**kwargs)
+		context['formset'] = EditPhoneNumberFormset(
+			self.request.POST or None, 
+			instance=self.object
+		)
 		
-		if POST := self.request.POST:
-			data['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
-		else:
-			data['formset'] = EditPhoneNumberFormset(instance=self.object)
-
-		return data
+		return context
+		# if (POST := self.request.POST):
+		# 	context['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
+		# else:
+		# 	context['formset'] = EditPhoneNumberFormset(instance=self.object)
 
 
 class UserDetail(DetailView):
 	model = User
 	slug_url_kwarg = "username"
 	slug_field = "username"
-	template_name = 'users/view_profile.html'
+	template_name = 'users/profile/dashboard.html'
 
 
 def logout_and_login(request):
 	"""Logout the redirect user to login page."""
 	return logout_then_login(request)
+
+
+### PROFILE TEMPLATES SECTIONS ###
+
+class Dashboard(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/dashboard.html"
+	# todo add notifications to context... to this page.
+
+
+class Marketplace(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/marketplace.html"
+
+
+class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/qa-site.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user, all_users = self.request.user, User.objects.all()
+
+		user_school_questions = user.school_questions.select_related('school').prefetch_related(
+			Prefetch('upvoters', queryset=all_users.only('id')),
+			Prefetch('downvoters', queryset=all_users.only('id')),
+			Prefetch('answers', queryset=SchoolAnswer.objects.all().only('id'))
+		).order_by('-posted_datetime')
+		user_academic_questions = user.academic_questions.prefetch_related(
+			Prefetch('upvoters', queryset=all_users.only('id')),
+			Prefetch('downvoters', queryset=all_users.only('id')),
+			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
+		).order_by('-posted_datetime')
+
+		context['school_questions'] = user_school_questions
+		context['academic_questions'] = user_academic_questions
+		return context
+
+
+class LostAndFound(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/lost-and-found.html"
+
+
+class PastPaper(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/past-papers.html"
+
+
 
 # Override auth views by redirecting user to appropriate page if he isn't logged in.
 # class UserLogin(auth_views.LoginView):

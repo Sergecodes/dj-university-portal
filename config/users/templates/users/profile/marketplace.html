@@ -1,0 +1,86 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}
+	<title>{% trans 'Profile - Marketplace' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-lg mb-5">
+	<div class="d-lg-flex align-items-start border p-3">
+		{% include './tab-section.html' with active_item='marketplace' %}
+
+		<div class="tab-content flex-grow-1 mt-2 py-2 ms-lg-4 ps-lg-4 pe-lg-3 px-3 px-lg-0 border" id="nav-tabContent">
+			<div class="tab-pane active" id="nav-marketplace" aria-labelledby="nav-marketplace-tab">
+				<h2 class="text-success text-center mb-3">{% trans 'Items & Adverts' %}</h2>
+
+				<!-- user's item listings -->
+				<section class="mb-4">
+					<h4 class="text-success">
+						{% trans 'My Items' %}
+						<span class="text-muted">({{ user.item_listings.count }})</span>
+					</h4>
+					{% if not user.item_listings.exists %}
+						<div class="alert alert-info" role="alert">
+							{% trans 'You have not posted any item for sale yet.' %} <br>
+							{% trans 'Click' %}
+							<a href="{% url 'marketplace:item-listing-create' %}">{% trans 'here' %}</a>
+							{% trans 'to post an item for sell.' %}
+						</div>
+					{% else %}
+						{% for listing in user.item_listings.all %}
+							<div class="mb-2">
+								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
+									{{ listing.title }}
+								</a>
+								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+							</div>
+						{% endfor %}
+					{% endif %}		
+				</section>	
+
+				<!-- user's advert listings -->
+				<section class="mb-4">
+					<h4 class="text-success">
+						{% trans 'My Adverts' %}
+						<span class="text-muted">({{ user.ad_listings.count }})</span>
+					</h4>
+					{% if not user.ad_listings.exists %}
+						<div class="alert alert-info" role="alert">
+							{% trans 'You have not posted any advert yet.' %} <br>
+							{% trans 'Click' %}
+							<a href="{% url 'marketplace:ad-listing-create' %}">{% trans 'here' %}</a>
+							{% trans 'to advertize something.' %}
+						</div>
+					{% else %}
+						{% for listing in user.ad_listings.all %}
+							<div class="mb-2">
+								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
+									{{ listing.title }}
+								</a>
+								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+							</div>
+						{% endfor %}
+					{% endif %}		
+				</section>	
+
+				{# add for bookmarked items and adverts separately. #}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+{% endblock %} 

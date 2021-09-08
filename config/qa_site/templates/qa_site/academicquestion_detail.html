@@ -33,7 +33,6 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
@@ -54,6 +53,7 @@
 	</div>
 </div>
 
+
 <div class="border py-3 mb-5 container-lg">
 	<article class="js-question" data-id="{{ question.id }}">
 		<div class="d-flex question-header">
@@ -73,7 +73,7 @@
 				{% trans 'By' %}
 				<a 
 					class="text-decoration-none" 
-					href="{% url 'users:view-profile' username=question.poster.username %}"
+					href="{{ question.poster.get_absolute_url }}"
 				>
 					{{ question.poster.username }}
 				</a>
@@ -373,16 +373,17 @@
 		</section>
 	</article>
 
+	<!-- related questions -->
 	{% if related_qstns.exists %}
 		<hr class="mb-4">
 
-		<section class="p-3 related-questions">
+		<section class="p-3">
 			<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
 			{% for question in related_qstns %}
-				<div class="mb-2 related-question">
+				<div class="mb-2"> <!-- class 'related-question' -->
 					<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 						<span 
-							class="px-2 py-1 me-3 badge {% if question.score > 0 %} bg-success {% elif question.score < 0 %}  bg-danger {% else %} bg-secondary {% endif %}"
+							class="badge align-middle px-2 py-1 me-2 {% if question.score > 0 %} bg-success {% elif question.score < 0 %} bg-danger {% else %} bg-secondary {% endif %}"
 						>{{ question.score }}</span>
 						<span>
 							{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>

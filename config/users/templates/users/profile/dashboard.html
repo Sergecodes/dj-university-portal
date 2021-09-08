@@ -1,0 +1,96 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}
+	<title>{% trans 'Profile - Dashboard' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- Toasts -->
+<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-withdrawInfoToast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans "Sorry, you have not earned enough yet to withdraw." %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'for more information.' %} 
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="container-lg mb-5">
+	<div class="d-lg-flex align-items-start border p-3">
+		{% include './tab-section.html' %}
+
+		<div class="tab-content flex-grow-1 mt-2 py-2 ms-lg-4 ps-lg-4 pe-lg-3 px-3 px-lg-0 border" id="nav-tabContent">
+			<div class="tab-pane active" id="nav-dashboard" aria-labelledby="nav-dashboard-tab">
+				<h2 class="text-success mb-3">{% trans 'Dashboard' %}</h2>
+				<div class="row mb-4">
+					<div class="col col-lg-5">
+						<div class="card text-white text-center bg-success opacity-75 mb-3">
+							<div class="card-body">
+								<h5 class="card-title">
+									{{ user.site_points|intcomma }} {% trans 'point' %}{{ user.site_points|pluralize }}
+								</h5>
+								<h5 class="card-title">
+									{% trans 'Earnings' %}:
+									{# todo get earnings from points #}
+									<span class="ms-2">{{ user.get_earnings|intcomma }} FCFA</span>
+								</h5>
+							</div>
+							<div class="card-footer text-center">
+								<a href="#" class="text-decoration-none link-warning">
+									{% trans 'More info' %}
+									{% comment %} <i class="fas fa-angle-double-right" aria-hidden="true"></i> {% endcomment %}
+									<i class="far fa-arrow-alt-circle-right" aria-hidden="true"></i>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				{# display traditional button if user can't withdraw otherwise a link to withdraw page #}
+				{% if user.can_withdraw %}
+					<a class="btn btn-outline-primary mb-3" href="">
+						{% trans 'Withdraw earnings' %}
+					</a>
+				{% else %}
+					<button class="btn btn-outline-primary mb-3 js-withdrawBtn">
+						{% trans 'Withdraw earnings' %}
+					</button>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+<script>
+	{% if not user.can_withdraw %}
+		var $withdrawBtn = $('.js-withdrawBtn').first();
+
+		$withdrawBtn.click(function(event) {
+			// event.stopImmediatePropagation();
+
+			var $myToast = $('.js-withdrawInfoToast').first();
+			var bsToast = new bootstrap.Toast($myToast[0]);
+			bsToast.show(); 
+		});
+	{% endif %}
+</script>
+{% endblock %} 

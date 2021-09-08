@@ -1,0 +1,192 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	<title>{% trans 'Search Results' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/socialize.css' %}"> 
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5 profiles-list-container">
+	<h2 class="text-success">{% trans 'Search Results' %}</h2>
+	<div class="d-flex">
+		<article class="border profiles-list-art">
+			<section class="px-3 pt-4">
+				<a href="{% url 'socialize:find-friend' %}" class="btn btn-warning mb-3">
+					{% trans 'Back to Filter' %}
+				</a>
+				{# todo add filter for old and new members...; like myschool #}
+			</section>
+
+			<!-- results list -->
+			<section>
+				<ul>
+					{% for profile in page_obj %}
+						{% with dp=profile.profile_image user=profile.user %}
+							<li class="d-flex px-3 pb-3 mb-2 profile-item">
+								<div class="flex-shrink-0">
+									{% if dp %}
+										<a href="{{ profile.get_absolute_url }}">
+											<img class="py-2 profile-item__img" src="{{ dp.url }}" alt="{{ dp.profile_filename }}">
+										</a>
+									{% else %}
+										<a href="{{ profile.get_absolute_url }}" class="d-inline-block link-secondary">
+											<i class="far fa-user fa-5x px-3 py-3 shadow opacity-50"></i>
+										</a>
+									{% endif %}
+								</div>
+								<div class="flex-grow-1 ms-4 small">
+									<a 
+										href="{{ profile.get_absolute_url }}" 
+										class="h5 text-decoration-none d-inline-block"
+									>
+										{{ user.username }}
+									</a>
+									<div>
+										<strong>{% trans 'Age Range' %}:</strong>
+										{{ profile.age_range }} &nbsp; | &nbsp; {{ profile.actual_gender }}
+									</div>
+									<div>
+										<strong>{% trans 'School' %}:</strong>
+										{{ profile.school }}
+									</div>
+									<div>
+										<strong>{% trans 'Level' %}:</strong>
+										{% if profile.level == 'N/A' %}
+											{% trans 'Confidential' %}
+										{% else %}
+											{{ profile.get_level_display }}
+										{% endif %}
+									</div>
+									<div>
+										<strong>{% trans 'Interested in' %}:</strong>
+										{{ profile.interested_relationship }}
+									</div>
+								</div>
+							</li> 
+						{% endwith %}
+					{% endfor %}
+
+					{% if is_paginated %}
+						<ul class="pagination mt-4">
+							{% if page_obj.has_previous %}
+								<li class="page-item">
+									<a 
+										aria-label="{% trans 'Previous' %}"
+										class="page-link" 
+										href="?{% query_transform request page=page_obj.previous_page_number %}"
+									>
+										<span aria-hidden="true">
+											<i class="fas fa-chevron-left"></i>
+										</span>
+									</a>
+								</li>
+							{% else %}
+								<li class="page-item disabled">
+									<span class="page-link">
+										<i class="fas fa-chevron-left"></i>
+									</span>
+								</li>
+							{% endif %}
+
+							{% if page_obj.number|add:'-4' > 1 %}
+								<li class="page-item">
+									<a 
+										class="page-link"
+										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
+									>
+										&hellip;
+									</a>
+								</li>
+							{% endif %}
+
+							{% for i in page_obj.paginator.page_range %}
+								{% if page_obj.number == i %}
+									<li class="page-item active">
+										<span class="page-link">
+											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+										</span>
+									</li>
+								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+									<li class="page-item">
+										<a 
+											class="page-link"
+											href="?{% query_transform request page=i %}"
+										>
+											{{ i }}
+										</a>
+									</li>
+								{% endif %}
+							{% endfor %}
+
+							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+								<li class="page-item">
+									<a 
+										class="page-link"
+										href="?{% query_transform request page=page_obj.number|add:'5' %}"
+									>
+										&hellip;
+									</a>
+								</li>
+							{% endif %}
+
+							{% if page_obj.has_next %}
+								<li class="page-item">
+									<a 
+										aria-label="{% trans 'Next' %}"
+										class="page-link" 
+										href="?{% query_transform request page=page_obj.next_page_number %}"
+									>
+										<span aria-hidden="true">
+											<i class="fas fa-chevron-right"></i>
+										</span>
+									</a>
+								</li>
+							{% else %}
+								<li class="page-item disabled">
+									<span class="page-link">
+										<i class="fas fa-chevron-right" aria-hidden="true"></i>
+									</span>
+								</li>
+							{% endif %}
+						</ul>
+					{% endif %}
+				</ul>
+			</section>
+		</article>
+
+		{# this section is visible only on lg devices and greater #}
+		<aside class="d-none d-lg-block w-25">
+			<div class="card border-success">
+				<h5 class="card-header bg-success text-light">{% trans 'Top users' %}</h5>
+				<ul class="list-group list-group-flush">
+					{% for profile in best_users %}
+						{% with user=profile.user %}
+							<li class="list-group-item">
+								<a href="{{ profile.get_absolute_url }}" class="text-decoration-none">
+									{{ user.username }}
+								</a> 
+								<span class="small">
+									({{ profile.gender }}) &nbsp; - &nbsp; {{ user.site_points }} {% trans 'point' %}{{ user.site_points|pluralize}}
+								</span>
+							</li>
+						{% endwith %}
+					{% endfor %}
+				</ul>
+			</div>
+		</aside>
+	</div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %} 

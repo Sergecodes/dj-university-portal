@@ -1,0 +1,41 @@
+<!-- Template for the tab section -->
+{% load i18n %}
+
+<nav class="navbar navbar-expand-lg"> 
+    <div class="navbar-toggler" role="button" data-bs-toggle="collapse" data-bs-target="#nav-tab" aria-controls="nav-tab" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
+        <i class="fas fa-bars py-1 px-2 border" aria-hidden="true"></i>
+        <span>{% trans 'Profile Menu' %}</span>
+    </div>
+
+    <div id="nav-tab" class="collapse navbar-collapse">
+        <div class="navbar-nav list-group flex-lg-column me-auto mb-2 mb-lg-0">
+            <a 
+                id="nav-dashboard-tab" 
+                href="{% url 'users:profile-dashboard' %}" 
+                class="list-group-item list-group-item-action {% if not active_item or active_item == 'dashboard' %} active {% endif %}"
+                aria-controls="nav-dashboard" 
+                aria-selected="{% if not active_item or active_item == 'dashboard' %} true {% else %} false {% endif %}"
+            >
+                {% trans 'Dashboard' %}
+            </a>
+            <a id="nav-marketplace-tab" href="{% url 'users:profile-marketplace' %}" class="list-group-item list-group-item-action {% if active_item == 'marketplace' %} active {% endif %}" aria-controls="nav-marketplace" aria-selected="{% if active_item == 'marketplace' %} true {% else %} false {% endif %}">
+                {% trans 'Marketplace' %}
+            </a>
+            <a id="nav-qa-tab" href="{% url 'users:profile-qa' %}" class="list-group-item list-group-item-action {% if active_item == 'qa' %} active {% endif %}" aria-controls="nav-qa" aria-selected="{% if active_item == 'qa' %} true {% else %} false {% endif %}">
+                {% trans 'Questions & Answers' %}
+            </a>
+            <a id="nav-lostfound-tab" href="{% url 'users:profile-lostfound' %}" class="list-group-item list-group-item-action {% if active_item == 'lostfound' %} active {% endif %}" aria-controls="nav-lostfound" aria-selected="{% if active_item == 'lostfound' %} true {% else %} false {% endif %}">
+                {% trans 'Lost & Found Items' %}
+            </a>
+            <a id="nav-pastpapers-tab" href="{% url 'users:profile-pastpapers' %}" class="list-group-item list-group-item-action {% if active_item == 'pastpapers' %} active {% endif %}" aria-controls="nav-pastpapers" aria-selected="{% if active_item == 'pastpapers' %} true {% else %} false {% endif %}">
+                {% trans 'Past Papers' %}
+            </a>
+            <a id="nav-socialprofile-tab" href="{% url 'socialize:update-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'socialprofile' %} active {% endif %}" aria-controls="nav-socialprofile" aria-selected="{% if active_item == 'socialprofile' %} true {% else %} false {% endif %}">
+                {% trans 'Update Social Profile' %}
+            </a>
+            <a id="nav-userprofile-tab" href="{% url 'users:edit-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'userprofile' %} active {% endif %}" aria-controls="nav-userprofile" aria-selected="{% if active_item == 'userprofile' %} true {% else %} false {% endif %}">
+                {% trans 'Update User Profile' %}
+            </a>
+        </div>
+    </div>
+</nav>

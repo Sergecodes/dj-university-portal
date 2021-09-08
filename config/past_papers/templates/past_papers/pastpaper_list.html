@@ -100,7 +100,7 @@
 							<div class="d-inline ms-3 small">
 								<span class="text-muted">{% trans 'uploaded by' %}</span>
 								<a 
-									href="{% url 'users:view-profile' username=past_paper.poster.username %}"
+									href="{{ past_paper.poster.get_absolute_url }}"
 									class="text-decoration-none"
 								>
 									{{ past_paper.poster.username }}

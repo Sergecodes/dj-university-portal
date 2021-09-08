@@ -66,7 +66,7 @@
 							<p class="text-break m-0">{{ comment.content }}</p>
 							{% comment %} <span class="text-muted">&nbsp; - &nbsp;</span> {% endcomment %}
 							<a 
-								href="{% url 'users:view-profile' username=comment.poster.username %}" 
+								href="{{ comment.poster.get_absolute_url }}" 
 								class="text-decoration-none"
 							>
 								{{ comment.poster.username }}
