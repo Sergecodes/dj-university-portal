@@ -15,13 +15,12 @@ User = get_user_model()
  
 class PastPaperPhoto(models.Model):
 	"""
-	These photos should be periodically removed from storage, since after upload they are practically useless
-	as they are used to generate the pdf file containing these photos...
+	These photos should be periodically removed from storage, since after upload they are practically useless since they are used solely to generate the pdf file containing these photos...
 	"""
 	file = models.ImageField(upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
 
 	def __str__(self):
-		return self.name
+		return self.actual_filename
 
 	@property
 	def actual_filename(self):
@@ -36,6 +35,11 @@ class PastPaperPhoto(models.Model):
 		import os
 
 		return os.path.basename(self.file.name)
+
+	@property
+	def title(self):
+		"""Get alternate name that can be used for the photo in template."""
+		return self.actual_filename.split('.')[0]
 
 
 class Comment(models.Model):
@@ -55,6 +59,7 @@ class Comment(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
+		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime'])
 		]
@@ -103,7 +108,7 @@ class PastPaper(models.Model):
 	type = models.CharField(max_length=5, choices=TYPES, default='GEN')
 	title = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=250)
-	# used for pdf files
+	# actual file corresponding to past paper
 	file = models.FileField(blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
 	poster = models.ForeignKey(
 		User,
@@ -124,6 +129,7 @@ class PastPaper(models.Model):
 		on_delete=models.PROTECT,
 		related_name='past_papers',
 		related_query_name='past_paper',
+		blank=True, null=True
 	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	# those with null=True will be considered as revision papers..
@@ -161,6 +167,7 @@ class PastPaper(models.Model):
 
 
 	class Meta:
+		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime'])
 		]

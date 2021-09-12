@@ -125,6 +125,7 @@ class SocialProfile(models.Model):
 		default='M', 
 		max_length=2
 	)
+	creation_datetime = models.DateTimeField(auto_now_add=True)
 	# determine if users profile page is visible to other users
 	# is_visible = models.BooleanField(
 	# 	_('Profile visible to other users'),
@@ -132,10 +133,11 @@ class SocialProfile(models.Model):
 	# 	help_text=_("<br>Enable <em>Socialize</em> and allow other users to be able to view my social profile.")
 	# )
 
-	# class Meta:
-	# 	indexes = [
-	# 		models.Index(fields=['name'])
-	# 	]
+	class Meta:
+		ordering = ['-creation_datetime']
+		indexes = [
+			models.Index(fields=['-creation_datetime'])
+		]
 
 	@property
 	def profile_filename(self):

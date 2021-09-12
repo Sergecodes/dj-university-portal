@@ -297,6 +297,7 @@ class SchoolQuestion(Question):
 		related_query_name='downvoted_school_question',
 		blank=True
 	)
+	# score = models.IntegerField(editable=False)  # do this for more performance gains...
 	# users following the question
 	followers = models.ManyToManyField(
 		User,
@@ -315,6 +316,7 @@ class SchoolQuestion(Question):
 	class Meta:
 		verbose_name = _('School Question')
 		verbose_name_plural = _('School Questions')
+		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime'])
 		]
@@ -327,7 +329,7 @@ class SchoolQuestion(Question):
 
 
 class AcademicQuestion(Question):
-	title = models.CharField(max_length=100)  
+	title = models.CharField(max_length=150)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
 	content = RichTextUploadingField(blank=True)
 	slug = models.SlugField(max_length=250)
@@ -376,6 +378,7 @@ class AcademicQuestion(Question):
 	class Meta:
 		verbose_name = _('Academic Question')
 		verbose_name_plural = _('Academic Questions')
+		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime'])
 		]

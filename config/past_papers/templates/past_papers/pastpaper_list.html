@@ -26,13 +26,20 @@
 				{% blocktrans %}
 					Upload your revision papers and past papers from your school, and view and download past papers from other schools.
 				{% endblocktrans %}
-				{# hide this for desktop screens coz the title attribute is supported. #}
-				<p class="d-lg-none">{% trans 'The codes for the levels are: ' %}</p>
-				<ul>
-					{% for entry in levels %}
-						<li>'{{ entry[0] }}' - {{ entry[1] }}</li>
-					{% endfor %}
-				</ul>
+				
+				{# dropdown menu #}
+				<div class="btn-group d-block">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="levelsMenuButton" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false">
+						{% trans 'Levels' %}
+					</button>
+					<div class="dropdown-menu ps-3 pt-3" aria-labelledby="levelsMenuButton">
+					<p>{% trans 'The codes for the levels are as follows: ' %}</p>
+					<ul class="row">
+						{% for entry in levels %}
+							<li class="col-lg-2 mx-lg-1 mb-2">{{ entry.0 }} - {{ entry.1 }}</li>
+						{% endfor %}
+					</ul>
+				</div>
 			</p>
 			<a href="{% url 'past_papers:past-paper-upload' %}" class="btn btn-warning mb-3">
 				{% trans 'Upload a past paper' %}

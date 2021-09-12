@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-form-container">
 	<form 
 		name="item-listing-form"
@@ -66,7 +66,7 @@
 	// var NEW = 'N', USED = 'U', DEFECTIVE = 'D';
 	var CONDITIONS_AND_HELP_TEXTS = {
 		'N': "{% trans 'A brand-new, unused, unopened, undamaged item in its original packaging (where packaging is applicable). The item may have a custom package but it should be new. ' %}",
-		'U': "{% trans 'An item that has been used previously. The item may have some signs of cosmetic wear, but is fully operational and functions as intended.' %}",
+		'U': "{% trans 'An item that has been used previously. The item may have some signs of cosmetic wear, but it is fully operational and functions as intended.' %}",
 		'D': "{% trans 'An item that does not function as intended and is not fully operational. This includes items that are defective in ways that render them difficult to use, items that require service or repair, or items missing essential components.' %}"
 	};
 	// get help text of initial listing condition

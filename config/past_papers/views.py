@@ -3,6 +3,8 @@ import os
 from django_filters.views import FilterView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
+from django.core.files import File
 from django.core.paginator import Paginator
 from django.db.models import Prefetch
 from django.http.response import HttpResponse, HttpResponseRedirect
@@ -10,12 +12,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import slugify
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from core.constants import PAST_PAPERS_UPLOAD_DIR
-from core.utils import generate_pdf
+from core.constants import (
+	PAST_PAPERS_UPLOAD_DIR, 
+	PAST_PAPERS_PHOTOS_UPLOAD_DIR,
+	PAST_PAPER_SUFFIX,
+)
+from core.utils import generate_pdf, get_photos
 from qa_site.models import Subject
 from .forms import PastPaperForm, PastPaperPhotoForm, CommentForm
 from .models import PastPaper, PastPaperPhoto, Subject
@@ -24,15 +30,84 @@ from .models import PastPaper, PastPaperPhoto, Subject
 class PastPaperCreate(LoginRequiredMixin, CreateView):
 	model = PastPaper
 	form_class = PastPaperForm
-	success_url = '/'
+
+	def get_form_kwargs(self, **kwargs):
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		photos_list = request.session.get(request.user.username + PAST_PAPER_SUFFIX, [])
+		
+		form_kwargs['initial_photos'] = get_photos(
+			PastPaperPhoto, 
+			photos_list, 
+			PAST_PAPERS_PHOTOS_UPLOAD_DIR
+		)
+		return form_kwargs
+
+	def post(self, request, *args, **kwargs):
+		self.object, user = None, request.user
+		form = self.get_form()
+		photos_list = request.session.get(user.username + PAST_PAPER_SUFFIX, [])
+
+		# this validation isn't done in the form's clean coz we won't have access to the request object to get the session
+		file = request.FILES.get('file')
+
+		if file and photos_list:
+			form.add_error(None, ValidationError(_('Either upload a file or photo(s), not both.')))
+		
+		if not file and not photos_list:
+			form.add_error(None, ValidationError(_('Upload a file or photo(s)')))
+
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			return self.form_invalid(form)
 
 	def form_valid(self, form):
 		request = self.request
 		self.object = form.save(commit=False)
+		session, user = request.session, request.user
 		past_paper = self.object
-		past_paper.poster = request.user
-		# past_paper.save()
+		past_paper.poster = user
+		past_paper.default_language = get_language()
+	
+		# get list of photo names, remember photos are not compulsory, so use empty list as default
+		photos_list = session.get(user.username + PAST_PAPER_SUFFIX, [])
+		instance_list = []
 
+		# create photo instances pointing to the pre-created photos 
+		# recall that these photos are already in the file system
+		# can use bulk_create() since this model doesn't have any custom save method, etc..
+		for photo_name in photos_list:
+			photo_path = os.path.join(PAST_PAPERS_PHOTOS_UPLOAD_DIR, photo_name)
+			f = open(photo_path, 'rb')
+			django_file = File(f)
+			instance_list.append(PastPaperPhoto(file=django_file))
+			f.close()
+
+		instance_list = PastPaperPhoto.objects.bulk_create(instance_list)
+		# point past_paper file to generated file
+		past_paper.file.name = os.path.join(
+			PAST_PAPERS_UPLOAD_DIR, generate_pdf(instance_list, slugify(past_paper.title))
+		)
+		past_paper.save()
+
+		# remove photos list from session 
+		request.session.pop(user.username + PAST_PAPER_SUFFIX, [])
+
+		return HttpResponseRedirect(past_paper.get_absolute_url())
+
+		'''
+		for photo_name in photos_list:
+			photo = PastPaperPhoto()
+			# path to file (relative path from MEDIA_ROOT)
+			photo.file.name = os.path.join(PAST_PAPERS_PHOTOS_UPLOAD_DIR, photo_name)
+			# since photo already has file, no file will be created, just the model instance.
+			# save instance anyways, it may have some statistical/analytical uses in the future...
+			photo.save()
+			instance_list.append(photo)
+		'''
+
+		'''
+		## this is the previous code for saving photos when the upload modal wasn't yet used
 		# save photos to file system
 		uploaded_photos = request.FILES.getlist('photos')
 		# images will be cast to a list
@@ -44,8 +119,8 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 			PAST_PAPERS_UPLOAD_DIR, generate_pdf(images, slugify(past_paper.title))
 		)
 		past_paper.save()
-		
-		return HttpResponseRedirect(self.get_success_url())
+		'''
+
 
 
 @method_decorator(login_required, name='post')

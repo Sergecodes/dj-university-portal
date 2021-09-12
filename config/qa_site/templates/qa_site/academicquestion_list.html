@@ -26,7 +26,7 @@
 			<section class="px-3 pt-4">
 				<p>
 					{% blocktrans %}
-						Post questions, or see solutions to questions relating to academic matters. Questions posted here are basically related to a particular subject (Maths, English, etc) or course (Science, Engineering, Arts, etc). Questions here are for smart, intellectual students, who would also like to improve on their studies. Anyone can post a question.
+						Post questions, or see solutions to questions relating to academic matters. Questions posted here are basically related to a particular subject (Maths, English, etc) or course (Science, Engineering, Arts, etc). Questions here are for students who would like to improve on their studies and help other students. Anyone can post and answer a question.
 					{% endblocktrans %}
 				</p>
 				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning mb-3">
@@ -93,7 +93,7 @@
 										{% comment %} <a href="{{ question.get_absolute_url }}" class="btn btn-sm btn-outline-success py-0 text-decoration-none">
 											{% trans 'Answer this question' %}
 										</a> {% endcomment %}
-										<div class="d-inline-block mt-2 {% if not is_mobile %} ms-5 {% endif %}">
+										<div class="d-inline-block mt-2 ms-lg-5">
 											<span class="text-muted">{% trans 'asked by' %}</span>
 											<a 
 												href="{% url 'users:view-profile' username=poster_username %}"

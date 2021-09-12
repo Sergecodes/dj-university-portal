@@ -34,7 +34,6 @@ class UserCreate(CreateView):
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form = self.get_form()
-
 		formset = PhoneNumberFormset(request.POST)
 		
 		# Now validate both the form and formset
@@ -122,7 +121,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 		user = self.object
 		
 		# remove all previous numbers
-		user.phone_numbers.all().delete()
+		user.phone_numbers.clear()
 		
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
@@ -142,12 +141,7 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 			self.request.POST or None, 
 			instance=self.object
 		)
-		
 		return context
-		# if (POST := self.request.POST):
-		# 	context['formset'] = EditPhoneNumberFormset(POST, instance=self.object)
-		# else:
-		# 	context['formset'] = EditPhoneNumberFormset(instance=self.object)
 
 
 class UserDetail(DetailView):
@@ -184,12 +178,12 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id')),
 			Prefetch('answers', queryset=SchoolAnswer.objects.all().only('id'))
-		).order_by('-posted_datetime')
+		)
 		user_academic_questions = user.academic_questions.prefetch_related(
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id')),
 			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
-		).order_by('-posted_datetime')
+		)
 
 		context['school_questions'] = user_school_questions
 		context['academic_questions'] = user_academic_questions

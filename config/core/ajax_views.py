@@ -6,84 +6,98 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
-from core.constants import MAX_LOST_ITEM_PHOTOS
+from core.constants import (
+	MAX_LOST_ITEM_PHOTOS, PAST_PAPER_SUFFIX,
+	ITEM_LISTING_SUFFIX, LOST_ITEM_SUFFIX,
+	AD_LISTING_SUFFIX
+)
 from lost_and_found.forms import LostItemPhotoForm
 from marketplace.forms import (
 	ItemListingPhotoForm as ItemPhotoForm,
 	AdListingPhotoForm as AdPhotoForm
 )
+from past_papers.forms import PastPaperPhotoForm
 
 
 class PhotoUploadView(LoginRequiredMixin, View):
-	# def get(self, request):
-		# use this view just to test the file upload functionality on a separate url
-	# 	photos = ItemListingPhoto.objects.all()
-	# 	context = {'photos': photos}
-	# 	return render(request, 'core/photos_upload.html', context)
-
 	def delete(self, request):
 		"""Called when a photo is deleted. Removes photo from list of photos."""
-		# Remember, when a photo is posted, the database instance is deleted but the photo isn't.
-		# todo.. I have two options: 
-			# 1. remove photo from frontend but allow in backend storage.
-			# 2. find photo(perhaps by name) and actually remove it from backend storage. this will cause unneccessary load on server... and besides we can always periodically remove photos not attached to model instances using cron jobs or some packages.
-		# I'll go with option 1 for now.
 
-		# photo_id = request.GET.get('photo_id')
-		# get_object_or_404(ItemListingPhoto, pk=photo_id).delete()
-		# # todo also remove file from storage
-
-		# remove photo from session. PS note that the photo will still stay in storage.
+		FORM_AND_SUFFIX = {
+			'item_listing': ITEM_LISTING_SUFFIX,
+			'ad_listing': AD_LISTING_SUFFIX,
+			'lost_item': LOST_ITEM_SUFFIX,
+			'past_paper': PAST_PAPER_SUFFIX
+		}
 		photo_filename = request.GET.get('photo_filename')
-		# print(photo_filename)
+		form_for = request.GET.get('form_for')
 
 		# in normal circumstances, this shouldn't be the case
-		if not photo_filename:
-			return JsonResponse({'deleted': False})
-
+		if not (photo_filename and form_for):
+			return JsonResponse(
+				{'deleted': False, 'error': _('Invalid GET params')},
+				status=400  # BadRequest
+			)
+		
 		username, session = request.user.username, request.session
-		user_photos_list = session.get(username)
+		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
 
 		# remove photo title from user photos and update session
 		try:
 			photo_index = user_photos_list.index(photo_filename)
 		except ValueError:
 			# in normal circumstances, this shouldn't be the case
-			return JsonResponse({'deleted': False, 'error': _('Photo not in list')})
+			return JsonResponse(
+				{'deleted': False, 'error': _('Photo not in list, bizarre')},
+				status=400
+			)
 
 		del user_photos_list[photo_index]
-		session[username] = user_photos_list
-		# print(user_photos_list)
+		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 
 		return JsonResponse({'deleted': True})
 
 
 	def post(self, request, form_for):
 		"""Called when a photo is uploaded."""
+
+		FORM_AND_SUFFIX = {
+			'item_listing': ITEM_LISTING_SUFFIX,
+			'ad_listing': AD_LISTING_SUFFIX,
+			'lost_item': LOST_ITEM_SUFFIX,
+			'past_paper': PAST_PAPER_SUFFIX
+		}
+
 		if form_for == 'item_listing':
 			form = ItemPhotoForm(request.POST, request.FILES)
 		elif form_for == 'ad_listing':
 			form = AdPhotoForm(request.POST, request.FILES)
 		elif form_for == 'lost_item':
 			form = LostItemPhotoForm(request.POST, request.FILES)
+		elif form_for == 'past_paper':
+			form = PastPaperPhotoForm(request.POST, request.FILES)
 		else:
 			# return HttpResponseBadRequest(_('Invalid value for form_for'))
-			return JsonResponse({'is_valid': False, 'error': _('Unsupported form used.')})
+			# BadRequest
+			return JsonResponse({'is_valid': False}, status=400)
 		
-		user, session = request.user, request.session
-		username = user.username
-		user_photos_list = session.get(username, [])
+		username, session = request.user.username, request.session
+		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
 
 		# if lost item num_photos already at maximum 
 		if form_for == 'lost_item' and len(user_photos_list) == MAX_LOST_ITEM_PHOTOS:
-			return JsonResponse({'is_valid': False, 'error': _('Max number of photos attained')})
+			return JsonResponse(
+				{'is_valid': False, 'error': _('Maximum number of photos attained')},
+				status=405  # NotAllowed
+			)
 
 		# print(request.FILES)
+		# if upload was successful, add photo name to user session variable
+		# we'll save the model instance (hence  storing the file) then later delete it
 		if form.is_valid():
 			photo = form.save()
 			user_photos_list.append(photo.actual_filename)
-			session[username] = user_photos_list
-			# print(session[username])
+			session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 
 			data = {
 				'is_valid': True, 
@@ -93,11 +107,14 @@ class PhotoUploadView(LoginRequiredMixin, View):
 				'filename': photo.actual_filename  
 			}
 			
-			# delete model instance but keep file (# todo ensure this holds even after external packages are installed...)
+			# delete model instance but keep file(django doesn't delete the actual file) 
+			# (# todo ensure this holds even after external packages are installed...)
 			# this is so that when posting the overall form, the instances are recreated from the photos and there should be no duplicate instances
-			photo.delete()  
+			photo.delete()
+
+		# eg. when user submits wrong file type..
 		else:
-			data = {'is_valid': False, 'error': _('Form contains errors. Bizarre !')}
+			data = {'is_valid': False, 'error': _('Invalid file type, upload a valid image.')}
 
 		return JsonResponse(data)
 

@@ -1,16 +1,16 @@
 {% load i18n %}
+{% load static %}
+
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
 	{% block title %}
-		<title>CamerÉcole</title>
+	<title>CamerÉcole</title>
 	{% endblock title %}
 
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	{% load static %}
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
@@ -31,12 +31,11 @@
 				<div class="col-xs-10 col-lg-3 ps-0 logo">
 					<a class="d-inline-block" href="{% url 'home' %}">
 						<span class="visually-hidden">CamerÉcole</span>
-						<h2 class="header-top__text">CamerÉcole</h2> <!-- TODO change this to clickable SVG Logo -->
+						<h2 class="header-top__text">CamerÉcole</h2> 
 					</a>
 				</div>
 				<div class="d-none d-lg-block col-lg-5 ps-0 header-search-form">
 					<form class="d-flex" method="get">
-						<!-- ml -> ms; mr -> me -->
     				<input class="form-control me-2" type="search" placeholder="{% trans 'Enter your search keywords here...' %}" aria-label="{% trans 'Search' %}">
     				<!-- <button class="btn btn-outline-light" type="submit">{% trans 'Search' %}</button> -->
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
@@ -48,7 +47,7 @@
 					{% csrf_token %}
 					<input name="next" type="hidden" value="{{ redirect_to }}">
 					<select name="language" class="form-select js-languageSelect {% if not user.is_authenticated %} form-select-sm lang-select--unauthed {% else %}  {% endif %}">
-							{% get_current_language as LANGUAGE_CODE %}
+							{% comment %} {% get_current_language as LANGUAGE_CODE %} {% endcomment %}
 							{% get_available_languages as LANGUAGES %}
 							{% get_language_info_list for LANGUAGES as languages %}
 							{% for language in languages %}
@@ -154,7 +153,6 @@
 					{% csrf_token %}
 					<input name="next" type="hidden" value="{{ redirect_to }}">
 					<select name="language" class="form-select form-select-sm js-languageSelect {% if not user.is_authenticated %} lang-select--unauthed {% else %} {% endif %}">
-							{% get_current_language as LANGUAGE_CODE %}
 							{% get_available_languages as LANGUAGES %}
 							{% get_language_info_list for LANGUAGES as languages %}
 							{% for language in languages %}
@@ -263,14 +261,25 @@
 								{% trans 'Buy/Sell an item' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="buySellItem">
-								<a class="dropdown-item" href="#">{% trans 'Buy an item' %}</a>
-								<a class="dropdown-item" href="#">{% trans 'Sell an item' %}</a>
+								<a class="dropdown-item" href="{% url 'marketplace:item-listing-list' %}">{% trans 'Buy an item' %}</a>
+								<a class="dropdown-item" href="{% url 'marketplace:item-listing-create' %}">{% trans 'Sell an item' %}</a>
 							</div>
 						</li>
-						<li class="nav-item my-1">
-							<a class="nav-link nav-menu__link" href="#">
-								{% trans 'Post an advert' %}
+						<li class="nav-item my-1 dropdown js-headerDropdown">
+							<a
+								id="viewPostAdvert"
+								class="nav-link dropdown-toggle nav-menu__link"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								href="#"
+								role="button"
+							>
+								{% trans 'Post an Advert' %}
 							</a>
+							<div class="dropdown-menu" aria-labelledby="viewPostAdvert">
+								<a class="dropdown-item" href="{% url 'marketplace:ad-listing-create' %}">{% trans 'Post an advert' %}</a>
+								<a class="dropdown-item" href="{% url 'marketplace:ad-listing-list' %}">{% trans 'All Adverts' %}</a>
+							</div>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
@@ -284,51 +293,59 @@
 								{% trans 'Ask a question' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="askQuestion">
-								<a class="dropdown-item" href="#">{% trans 'Academic Questions' %}</a>
-								<a class="dropdown-item" href="#">{% trans 'School-Based Questions' %}</a>
+								<a class="dropdown-item" href="{% url 'qa_site:academic-question-create' %}">{% trans 'Academic Question' %}</a>
+								<a class="dropdown-item" href="{% url 'qa_site:school-question-create' %}">{% trans 'School-Based Question' %}</a>
+								<a class="dropdown-item" href="{% url 'qa_site:questions-explain' %}">{% trans 'All Questions' %}</a>
 							</div>
-						</li>
-						<!-- <li class="nav-item my-1 dropdown js-headerDropdown"></li>
-							<a class="nav-link nav-menu__link" href="#">
-								{% trans 'Latest News' %}
-							</a>
-						</li> -->
-						<li class="nav-item my-1">
-							<a class="nav-link nav-menu__link" href="#">
-								{% trans 'Concours & Scholarships' %}
-							</a>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
-								id="classroom"
+								id="lostItems"
 								class="nav-link dropdown-toggle nav-menu__link"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
 								role="button"
 							>
-								{% trans 'Classroom' %}
+								{% trans 'Publish a lost item' %}
 							</a>
-							<div class="dropdown-menu" aria-labelledby="classroom">
-								<a class="dropdown-item" href="#">{% trans 'Official past questions' %}</a>
+							<div class="dropdown-menu" aria-labelledby="lostItems">
+								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-create' %}">{% trans 'Publish a lost item' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-list' %}">{% trans 'Lost items' %}</a>
 							</div>
 						</li>
-						{% comment %} <li class="nav-item my-1 dropdown js-headerDropdown">
+						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
-								id="change"
+								id="foundItems"
 								class="nav-link dropdown-toggle nav-menu__link"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
 								role="button"
 							>
-								{% trans 'Get change' %}
+								{% trans 'Publish a found item' %}
 							</a>
-							<div class="dropdown-menu" aria-labelledby="change">
-								<a class="dropdown-item" href="#">{% trans 'Ask for change' %}</a>
-								<a class="dropdown-item" href="#">{% trans 'I have change' %}</a>
+							<div class="dropdown-menu" aria-labelledby="foundItems">
+								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-create' %}">{% trans 'Publish a found item' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-list' %}">{% trans 'Found items' %}</a>
 							</div>
-						</li> {% endcomment %}
+						</li>
+						<li class="nav-item my-1 dropdown js-headerDropdown">
+							<a
+								id="pastPapers"
+								class="nav-link dropdown-toggle nav-menu__link"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								href="#"
+								role="button"
+							>
+								{% trans 'Upload a past paper' %}
+							</a>
+							<div class="dropdown-menu" aria-labelledby="pastPapers">
+								<a class="dropdown-item" href="{% url 'past_papers:past-paper-upload' %}">{% trans 'Upload a past paper' %}</a>
+								<a class="dropdown-item" href="{% url 'past_papers:past-paper-list' %}">{% trans 'Past papers' %}</a>
+							</div>
+						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="socialize"
@@ -341,8 +358,11 @@
 								{% trans 'Socialize' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="socialize">
-								<a class="dropdown-item" href="#">{% trans 'Find a pal' %}</a>
-								<a class="dropdown-item" href="#">{% trans 'View/Update profile' %}</a>
+								{% if not user.social_profile %}
+									<a class="dropdown-item" href="{% url 'socialize:create-social-profile' %}">{% trans 'Create social profile' %}</a>
+								{% endif %}
+								<a class="dropdown-item" href="{% url 'socialize:find-friend' %}">{% trans 'Find a pal' %}</a>
+								<a class="dropdown-item" href="{% url 'socialize:update-profile' username=user.username %}">{% trans 'View/Update social profile' %}</a>
 							</div>
 						</li>
 					</ul>
@@ -357,7 +377,7 @@
 	{% endblock %}
 
   	{% block institution_searchbox %}
-	<div class="container pt-3 pb-2 mb-4 institution-searchbox">
+	{% comment %} <div class="container pt-3 pb-2 mb-4 institution-searchbox">
 		<form method="get" class="institution-search-form">
 			<div class="row">
 				<div class="col-12 col-md-3 mb-2">
@@ -375,66 +395,35 @@
 				</div>
 			</div>
 		</form>
-	</div>
+	</div> {% endcomment %}
 	{% endblock %}
 
 	{% block content %}
-	<article class="container">
-		<section class="py-3 mb-2">
-			<!-- pb-lg-3 is set because if the horizontal size of the screen is very small and pb-3 is used, an undesired behaviour occurs -->
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'Latest and Trending' %}</span>
-			</h2>
-		</section>
-		<section class="py-3 mb-2">
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'Revision and Official Past Questions' %}</span>
-			</h2>
-		</section>
-		<section class="py-3 mb-2">
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'Marketplace' %}</span>
-			</h2>
-		</section>
-		<section class="py-3 mb-2">
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'Questions' %}</span>
-			</h2>
-		</section>
-		<section class="py-3 mb-2">
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'User Ads' %}</span>
-			</h2>
-		</section>
-		<section class="py-3 mb-2">
-			<h2 class="section-title text-success pb-lg-3">
-				<span class="section-title__text pb-lg-3">{% trans 'Concours and Scholarships' %}</span>
-			</h2>
-		</section>
-	</article>
 	{% endblock %}
 
 	{% block footer %}
 	<footer class="bg-success bg-gradient pb-2 pt-4 footer">
 		<div class="container-lg ">
 			<div class="row">
-				<div class="col-6 col-md-3 footer-info">
+				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-info">
 					<h2 class="footer__subheading">CamerÉcole</h2>
 					<p class="small">
 						{% trans 'We provide you with information and resources for schools in Cameroon.' %}
 					</p>
 					<div class="mt-3">
 						<form method="get">
-							<div class="row">
-								<div class="col d-flex flex-column">
+							<div class="row flex-column">
+								<div class="col-sm-12 col-lg-8">
 									<input class="form-control mb-2" type="search" placeholder="{% trans 'Search...' %}" aria-label="{% trans 'Search' %}">
+								</div>
+								<div class="col col-lg-6">
 									<button class="btn btn-sm btn-light text-break w-50 py-1" type="submit">{% trans 'SEARCH' %}</button>
 								</div>
 							</div>
 						</form>
 					</div>
 				</div>
-				<div class="col-6 col-md-4 mb-3 mb-lg-auto footer-explore">
+				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-explore">
 					<h2 class="footer__subheading">{% trans 'Explore' %}</h2>
 					<div class="row">
 						<div class="col pe-lg-0 ">
@@ -487,7 +476,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-6 col-md-2 footer-channels">
+				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-channels">
 					<h2 class="footer__subheading">{% trans 'Channels' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">
@@ -527,7 +516,7 @@
 						</li>
 					</ul>
 				</div>
-				<div class="col-6 col-md-3 col-lg-2 ms-lg-5 pe-lg-0 footer-legal">
+				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-legal">
 					<h2 class="footer__subheading">{% trans 'Legal' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">

@@ -1,6 +1,343 @@
 {% extends "core/base.html" %}
+
 {% load i18n %}
+{% load static %}
+{% load humanize %}
+{% load app_extras %}
 
 {% block title %}
 	<title>{% trans 'Home' %}</title>
 {% endblock %}
+
+{% block content %}
+	<article class="container">
+		{# Questions section #}
+		<section class="py-3 mb-4">
+			<!-- each span in section-title can be called section-title__span or section-title__text -->
+			<!-- can replace `section-title__text` with `border-2 border-success border-bottom` -->
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Questions' %}</span>
+			</h2>
+			<div class="row ms-0 mb-3">
+				<div class="col-lg-6 mb-4 mb-lg-0">
+					<div class="d-flex mb-3">
+						<div class="flex-shrink-0 me-3">
+							<a href="{% url 'qa_site:academic-question-list' %}">
+								<img src="{% static 'images/chillpill.jpg' %}" alt="{% trans 'Academic questions image' %}" class="rounded extra-info-img">
+							</a>
+						</div>
+						<div>
+							<h5>
+								<a href="{% url 'qa_site:academic-question-list' %}" class="text-decoration-none d-inline-block mb-1">
+									{% trans 'Academic Questions' %}
+								</a>
+							</h5>
+							<a href="{% url 'qa_site:academic-question-list' %}" class="btn btn-outline-success me-2 mb-1 mb-lg-0">
+								{% trans 'View Questions' %}
+							</a>
+							<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-outline-success">
+								{% trans 'Ask a Question' %}
+							</a>
+						</div>
+					</div>
+					{% for question in academic_questions %}
+						<div class="mb-2">
+							<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+								<span>
+									{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+								</span>
+							</a>
+							<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
+							<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
+						</div>
+					{% endfor %}
+				</div>
+				<div class="col-lg-6">
+					<div class="d-flex mb-3">
+						<div class="flex-shrink-0 me-3">
+							<a href="{% url 'qa_site:school-question-list' %}">
+								<img src="{% static 'images/460791.jpg' %}" alt="{% trans 'School-based questions image' %}" class="rounded extra-info-img">
+							</a>
+						</div>
+						<div>
+							<h5>
+								<a href="{% url 'qa_site:school-question-list' %}" class="text-decoration-none d-inline-block mb-1">
+									{% trans 'School-Based Questions' %}
+								</a>
+							</h5>
+							<a href="{% url 'qa_site:school-question-list' %}" class="btn btn-outline-success mb-1 mb-lg-0 me-2">
+								{% trans 'View Questions' %}
+							</a>
+							<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-outline-success">
+								{% trans 'Ask a Question' %}
+							</a>
+						</div>
+					</div>
+					{% for question in school_questions %}
+						<div class="mb-2">
+							<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+								<span>
+									{# `safe` is used at the end to also remove html entities #}
+									{{ question.content|remove_tags|truncatewords:50|safe }}
+									<span class="small">({{ question.school }})</span>
+									- <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+								</span>
+							</a>
+							<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
+							<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
+				{% trans 'All Questions' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'qa_site:questions-explain' %}">
+				{% trans 'Post a Question' %}
+			</a>
+		</section>
+
+		{# Marketplace/items section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Latest Items' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for listing, photo in items_and_photos %}
+					{% with cond=listing.condition %}
+						<li class="col-lg-4 mb-4 index-page-list__item">
+							<div class="d-flex">
+								<div class="flex-shrink-0">
+									<a href="{{ listing.get_absolute_url }}">
+										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								</div>
+								<div class="flex-grow-1 small ms-4">
+									<a 
+										href="{{ listing.get_absolute_url }}" 
+										class="h5 text-decoration-none"
+									>
+										{{ listing.title|truncatechars:35 }}
+									</a>
+									<br class="mb-3">
+									<a 
+										class="text-decoration-none" 
+										href="#"
+									>
+										{{ listing.institution }}
+									</a>
+									&nbsp;- &nbsp;
+									<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
+									<br class="mb-1">
+									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+									<span> - {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+								</div>
+							</div>
+						</li> 
+					{% endwith %}
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+				{% trans 'View Items' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'marketplace:item-listing-create' %}">
+				{% trans 'Sell an Item' %}
+			</a>
+		</section>
+
+		{# Marketplace/adverts section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Latest Adverts' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for listing, photo in ads_and_photos %}
+					<li class="col-lg-4 mb-4 index-page-list__item">
+						<div class="d-flex">
+							<div class="flex-shrink-0">
+								{% if photo %}
+									<a href="{{ listing.get_absolute_url }}">
+										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								{% else %}
+									<a href="{{ listing.get_absolute_url }}" class="d-inline-block link-secondary">
+										<i class="far fa-image fa-6x px-4 shadow opacity-50"></i>
+									</a>
+								{% endif %}
+							</div>
+							<div class="flex-grow-1 small ms-4">
+								<a 
+									href="{{ listing.get_absolute_url }}" 
+									class="h5 text-decoration-none"
+								>
+									{{ listing.title|truncatechars:35 }}
+								</a>
+								<br class="mb-3">
+								<a 
+									class="text-decoration-none" 
+									href="#"
+								>
+									{{ listing.institution }}
+								</a>
+								<br class="mb-1">
+								{% if listing.pricing == '-' %}
+									<span>{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+								{% else %}
+									<span class="fw-bold">{{ listing.pricing }}</span>
+									<span> - {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+								{% endif %}
+							</div>
+						</div>
+					</li> 
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:ad-listing-list' %}">
+				{% trans 'View Adverts' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'marketplace:ad-listing-create' %}">
+				{% trans 'Post an Advert' %}
+			</a>
+		</section>
+
+		{# past papers section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for past_paper in past_papers %}
+					<li class="col-lg-4 mb-4 index-page-list__item">
+						<a 
+							href="{{ past_paper.get_absolute_url }}" 
+							class="fw-bold text-decoration-none"
+						>
+							{{ past_paper.title }}
+						</a>
+						<!-- past paper meta -->
+						<div class="mt-2">
+							<a 
+								class="badge bg-info link-light opacity-75 text-decoration-none" 
+								href="#"
+								title="{{ past_paper.get_level_display }}"
+							>
+								{{ past_paper.level }}
+							</a>
+							<a 
+								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
+								href="#"
+							>
+								{{ past_paper.subject }}
+							</a>
+							{% if past_paper.school %}
+								<a 
+									class="small text-decoration-none" 
+									href="#"
+								>
+									&nbsp; ({{ past_paper.school }})
+								</a>
+							{% endif %}
+							<div class="d-inline ms-3 small">
+								<span class="text-muted">{% trans 'Uploaded' %} </span>
+								<span class="small text-muted">{{ past_paper.posted_datetime|naturaltime }}</span>
+							</div>
+						</div>
+					</li> 
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+				{% trans 'View Past Papers' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'marketplace:item-listing-create' %}">
+				{% trans 'Upload a Past Paper' %}
+			</a>
+		</section>
+
+		{# Lost items section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Lost Items' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for lost_item, photo in lost_items_and_photos %}
+					<li class="col-lg-4 mb-4 index-page-list__item">
+						<div class="d-flex">
+							<div class="flex-shrink-0">
+								{% if photo %}
+									<a href="{{ lost_item.get_absolute_url }}">
+										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								{% else %}
+									<a href="{{ lost_item.get_absolute_url }}" class="d-inline-block link-secondary">
+										<i class="far fa-image fa-6x px-4 shadow opacity-50"></i>
+									</a>
+								{% endif %}
+							</div>
+							<div class="flex-grow-1 small ms-4">
+								<a 
+									href="{{ lost_item.get_absolute_url }}" 
+									class="h5 text-decoration-none"
+								>
+									{{ lost_item.item_lost|truncatechars:35 }}
+								</a>
+								<br class="mb-3">
+								<a 
+									class="text-decoration-none" 
+									href="#"
+								>
+									{{ lost_item.school }}
+								</a>
+								<br class="mb-1">
+								<span>{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}</span>	
+							</div>
+						</div>
+					</li> 
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_and_found:lost-item-list' %}">
+				{% trans 'View Lost Items' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'lost_and_found:lost-item-create' %}">
+				{% trans 'Publish a lost item' %}
+			</a>
+		</section>
+
+		{# found items section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Found Items' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for found_item in found_items %}
+					<li class="col-lg-3 mb-4 index-page-list__item">
+						<a 
+							href="{{ found_item.get_absolute_url }}" 
+							class="fw-bold text-decoration-none"
+						>
+							{{ found_item.item_found|truncatechars:35 }}
+						</a>
+						<div class="mt-2">
+							<a 
+								class="text-decoration-none" 
+								href="#"
+							>
+								({{ found_item.school }})
+							</a>
+							<div class="d-inline ms-3">
+								<span class="d-block text-muted small">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
+							</div>
+						</div>
+					</li> 
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_and_found:found-item-list' %}">
+				{% trans 'View Found Items' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'lost_and_found:found-item-create' %}">
+				{% trans 'Publish a found item' %}
+			</a>
+		</section>
+	</article>
+	{% endblock %}
+
+{% block extra_js %}
+{% endblock %} 

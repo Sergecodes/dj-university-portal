@@ -10,6 +10,14 @@ EXTERNAL_LINK_SVG = ' \
 		<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
 		</polygon> \
 	</svg>'
+EXTERNAL_LINK_ICON = '<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>'
+
+
+# Photo upload key suffixes
+ITEM_LISTING_SUFFIX = '_itemlisting_photos'
+AD_LISTING_SUFFIX = '_adlisting_photos'
+PAST_PAPER_SUFFIX = '_pastpaper_photos'
+LOST_ITEM_SUFFIX = '_lostitem_photos'
 
 
 # MARKETPLACE app

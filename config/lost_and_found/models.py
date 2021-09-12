@@ -22,11 +22,12 @@ User = get_user_model()
 class Post(models.Model):
 	# tags will be obtained from the name of the item. ex. red pen => 'red', 'pen'
 	# tags = TaggableManager()
-	# i don't see the need for tags. search via normal field with search vector(Postgres) form more efficiency
+	# i don't see the need for tags. todo search via normal field with search vector(Postgres) form more efficiency
 	slug = models.SlugField(max_length=100)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
+	# when the post will be considered expired. see save method for implementation
+	expiry_datetime = models.DateTimeField()
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, default='en')
-	is_outdated = models.BooleanField(default=False, editable=False)
 	contact_name = TitleCaseField(
 		_('Full name'),
 		max_length=25,
@@ -44,13 +45,17 @@ class Post(models.Model):
 		validators=[validate_email]
 	)
 
-	@property
-	def expiry_datetime(self):
-		"""When the post has to expire"""
-		return self.posted_datetime + VALIDITY_PERIOD
+	def save(self, *args, **kwargs):
+		if not self.id:
+			# since object hasn't yet been saved, its posted_datetime field will be None.
+			# set it to appropriate value
+			self.posted_datetime = timezone.now()
+			self.expiry_datetime = self.posted_datetime + VALIDITY_PERIOD
+		return super().save(*args, **kwargs)
 
+	@property
 	def is_outdated(self):
-		"""Returns whether a post is outdated (has expired)"""
+		"""Returns whether a post is outdated(has expired)"""
 		return self.expiry_datetime < timezone.now()
 
 	class Meta:
@@ -58,8 +63,8 @@ class Post(models.Model):
 
 
 class FoundItem(Post):
-	item_found = models.CharField(max_length=50, help_text=_('What have you found?'))
-	area_found = models.CharField(max_length=100, help_text=_('Where did you find the item?'))
+	item_found = models.CharField(max_length=100, help_text=_('What have you found?'))
+	area_found = models.CharField(max_length=250, help_text=_('Where did you find the item?'))
 	how_found = models.TextField(help_text=_('Explain how you found the item'))
 	school = models.ForeignKey(
 		Institution,
@@ -85,17 +90,17 @@ class FoundItem(Post):
 	def get_absolute_url(self):
 		return reverse('lost_and_found:found-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
-	# class Meta:
-	# 	indexes = [
-	# 		models.Index(fields=['is_outdated']),
-	# 		models.Index(fields=['is_outdated', '-posted_datetime']),
-	# 	]
+	class Meta:
+		ordering = ['-posted_datetime']
+		indexes = [
+			models.Index(fields=['-posted_datetime']),
+		]
 
 
 class LostItem(Post):
-	item_lost = models.CharField(max_length=50, help_text=_('What have you lost?'))
+	item_lost = models.CharField(max_length=100, help_text=_('What have you lost?'))
 	item_description = models.TextField(help_text=_('Describe the lost item stating its important aspects.'))
-	area_lost = models.CharField(max_length=100, help_text=_('Where do you think you lost the item?'))
+	area_lost = models.CharField(max_length=250, help_text=_('Where do you think you lost the item?'))
 	how_lost = models.TextField(help_text=_('Explain how you think you lost the item, stating areas you passed across or visited'), default=_('Good day, ... '))
 	bounty = models.CharField(
 		max_length=100,
@@ -126,11 +131,11 @@ class LostItem(Post):
 	def get_absolute_url(self):
 		return reverse('lost_and_found:lost-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
 
-	# class Meta:
-	# 	indexes = [
-	# 		models.Index(fields=['is_outdated']),
-	# 		models.Index(fields=['is_outdated', '-posted_datetime']),
-	# 	]
+	class Meta:
+		ordering = ['-posted_datetime']
+		indexes = [
+			models.Index(fields=['-posted_datetime']),
+		]
 
 
 class LostItemPhoto(models.Model):

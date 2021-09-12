@@ -47,9 +47,12 @@
 	margin-right: 1.5rem; /* me-4 */
 }
 
-/* .questions-subjects-list {
-	width: 25%;
-} */
+/** Questions explain page */
+.qstn-descr-img {
+	height: 12rem;
+}
+
+
 
 /*** MEDIA QUERIES ***/
 /* xs, sm, md. (lg is from >= 992px) */

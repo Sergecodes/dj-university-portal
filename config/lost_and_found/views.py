@@ -12,7 +12,8 @@ from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
-from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR
+from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR, LOST_ITEM_SUFFIX
+from core.utils import get_photos
 from .forms import FoundItemForm, LostItemForm
 from .models import FoundItem, LostItem, LostItemPhoto
 
@@ -61,13 +62,13 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 	template_name = 'lost_and_found/lostitem_create.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		form_kwargs['user'] = self.request.user
-		return form_kwargs
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		user = request.user
+		photos_list = request.session.get(user.username + LOST_ITEM_SUFFIX, [])
 
-	def get(self, request, *args, **kwargs):
-		request.session.pop(request.user.username, [])
-		return super().get(request, *args, **kwargs)
+		form_kwargs['user'] = user
+		form_kwargs['photos'] = get_photos(LostItemPhoto, photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
+		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
 		self.object = None
@@ -77,7 +78,7 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 			return self.form_valid(form)
 		else:
 			# remove and return photos list from session (note that the uploaded photos will be lost by default)
-			photos_list = request.session.pop(request.user.username, [])
+			# photos_list = request.session.pop(request.user.username+LOST_ITEM_SUFFIX, [])
 
 			# delete uploaded photos(and also remove corresponding files)
 			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
@@ -105,7 +106,7 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 			lost_item.contact_numbers.add(phone_number)
 
 		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(username, [])  # get list of photo names
+		photos_list = session.get(username + LOST_ITEM_SUFFIX, [])  # get list of photo names
 		print(photos_list)
 
 		for photo_name in photos_list:
@@ -115,7 +116,8 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 			lost_item.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 
-		request.session.pop(user.username)
+		# pop() default is empty list since photos are optional
+		request.session.pop(user.username + LOST_ITEM_SUFFIX, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
 		return HttpResponseRedirect(lost_item.get_absolute_url())

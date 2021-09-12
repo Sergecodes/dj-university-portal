@@ -1,16 +1,17 @@
-from django.conf import settings
-from django.urls import path, include
+from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
-from core.ajax_views import PhotoUploadView
 from . import views, ajax_views
+
 
 app_name = 'marketplace'
 
 urlpatterns = [
+	path('', views.ListingsExplain.as_view(), name='listings-explain'),
+
 	## ITEM LISTING ##
 	path(_('items/'), views.ItemListingList.as_view(), name='item-listing-list'),
-	path(_('items/sell-item/'), views.ItemListingCreate.as_view(), name='item-listing-create'),
+	path(_('items/sell-an-item/'), views.ItemListingCreate.as_view(), name='item-listing-create'),
 	path(_('items/<int:pk>/<slug:slug>/'), views.ItemListingDetail.as_view(), name='item-listing-detail'),
 	path(_('items/<int:pk>/'), views.ItemListingDetail.as_view(), name='item-listing-detail'),
 

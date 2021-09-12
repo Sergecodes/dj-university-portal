@@ -73,36 +73,40 @@
 		>	
 			<section class="listing-list-wrp">
 				<ul class="listing-list js-listing-list">
-					<div class="js-listing-list-content">
+					{% comment %} <div class="js-listing-list-content"> {% endcomment %}
 						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
-							<li class="d-flex p-3 pb-4 mb-2 post js-post">
-								<div class="flex-shrink-0">
-									<a href="{{ listing.get_absolute_url }}">
-										<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-									</a>
-								</div>
-								<div class="flex-grow-1 ms-4">
-									<a 
-										href="{{ listing.get_absolute_url }}" 
-										class="h5 text-decoration-none"
-									>
-										{{ listing.title }}
-									</a>
-									<br class="mb-4">
-									<a 
-										class="text-decoration-none" 
-										href="#"
-									>
-										{{ listing.institution }}
-									</a>
-									<br class="mb-1">
-									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
-									<span> | {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
-								</div>
-							</li> 
+							{% with cond=listing.condition %}
+								<li class="d-flex p-3 pb-4 mb-2 post js-post">
+									<div class="flex-shrink-0">
+										<a href="{{ listing.get_absolute_url }}">
+											<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										</a>
+									</div>
+									<div class="flex-grow-1 ms-4">
+										<a 
+											href="{{ listing.get_absolute_url }}" 
+											class="h5 text-decoration-none"
+										>
+											{{ listing.title }}
+										</a>
+										<br class="mb-4">
+										<a 
+											class="text-decoration-none" 
+											href="#"
+										>
+											{{ listing.institution }}
+										</a>
+										&nbsp;- &nbsp;
+										<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
+										<br class="mb-1">
+										<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+										<span> - {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+									</div>
+								</li> 
+							{% endwith %}
 						{% endfor %}
-					</div>
+					{% comment %} </div> {% endcomment %}
 					
 					{% comment %}
 						{% if page_obj.has_next %}

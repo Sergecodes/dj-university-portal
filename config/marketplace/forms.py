@@ -8,6 +8,7 @@ from django import forms
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from .models import (
 	ItemListing, AdListing, Institution, ItemSubCategory,
@@ -35,7 +36,8 @@ class ItemListingForm(forms.ModelForm):
 	category = forms.ModelChoiceField(
 		queryset=ItemCategory.objects.all(), 
 		empty_label=None,
-		widget=forms.Select(attrs={'class': 'js-category'})  # add this class
+		# this class will be used in js script
+		widget=forms.Select(attrs={'class': 'js-category'})  
 	)
 	# initially, it should contain the sub categories of the current(initial) selected parent category. also some user's listings might not have sub categories
 	sub_category = forms.ModelChoiceField(
@@ -49,6 +51,7 @@ class ItemListingForm(forms.ModelForm):
 	)
 
 	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
+	# so for now set it to None
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
 		required=True,
@@ -71,17 +74,8 @@ class ItemListingForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
-		user = kwargs.pop('user')
-
+		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
 		super().__init__(*args, **kwargs)
-
-		external_link_svg = ' \
-			<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
-				<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
-				</path> \
-				<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
-				</polygon> \
-			</svg>'
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
@@ -111,7 +105,8 @@ class ItemListingForm(forms.ModelForm):
 				# photo upload template here
 				PhotoFormLayout(extra_context={
 					'form_for': 'item_listing', 
-					'upload_help_text': _('Upload at least 3 photos.')
+					'upload_help_text': _('Upload at least 3 photos.'),
+					'initial_photos': initial_photos
 				}),  
 				'description',
 				'price',
@@ -130,7 +125,7 @@ class ItemListingForm(forms.ModelForm):
 					type='button' \
 					data-bs-toggle='modal' \
 					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + external_link_svg + 
+				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</button>"
 			),
 			# insert original_language as hidden field.
@@ -182,19 +177,8 @@ class AdListingForm(forms.ModelForm):
 		}
 
 	def __init__(self, *args, **kwargs):
-		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
-		user = kwargs.pop('user')
-
+		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
 		super().__init__(*args, **kwargs)
-
-		external_link_svg = ' \
-			<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
-				<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
-				</path> \
-				<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
-				</polygon> \
-			</svg>'
-
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
@@ -220,7 +204,8 @@ class AdListingForm(forms.ModelForm):
 				# photo upload template here
 				PhotoFormLayout(extra_context={
 					'form_for': 'ad_listing', 
-					'upload_help_text': _("It isn't obligatory to post a photo.")
+					'upload_help_text': _("It isn't obligatory to post a photo."),
+					'initial_photos': initial_photos
 				}),  
 				'description',
 				'pricing',
@@ -239,8 +224,7 @@ class AdListingForm(forms.ModelForm):
 					type='button' \
 					data-bs-toggle='modal' \
 					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + 
-					'<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>' + 
+				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON +
 				"</button>"
 			),
 			# insert original_language as hidden field.

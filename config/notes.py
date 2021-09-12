@@ -1,42 +1,52 @@
 # I either give an order or my point of view. I don't give advices. - Draco
+# Don't get that twisted
+# camerschools ?? - yep
+
 
 todo:
-		Sep 6:
-		- user profile page
-		- home page
-			.. do research on environment variables
-
+		- ensure in past_paper form that either photos or a file should be uploaded, not both.
+		- if i can edit posts, add updated_datetime field with auto_now=True
+		- item listing update view
+		
 		### update(edit views) ### (do those other sites permit this ?)
 		- item listings
 		- questions
-		- 
 
+# geeksforgeeks.org/built-in-custom-model-managers-in-django		
+- convert title field of files to property... 
+- remove duration from listings for now right... perhaps implement in future. yep.
+- you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
+- convert all lists with div to ul > li; 
+- add page to questions/ like my school; same with marketplace/ ; explaining difference between items and adverts...
+- remove zip filter from template and do the zip in view. ?... django performance improvement recommendations
+- remove default_language hidden field from template and assign it in view...
+- add select_related... on filter views. (overriden qs property)
+- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
+- convert index page each section to the other myschool format... (see screenshot in phone)
 # profile/qa site
 - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
 - add my answers(aca and school-based) and my bookmarked questions.
-
 - abeg use prefetch_related and select_related in situations of duplicate queries ! !!!
 see example in profile/QA view.. there should be no duplicate queries on any page !!!
 - change pencil icon to may be microphone icon in question detail.
 - remove unneccessary margin and padding classes and use responsive ones such as me-sm-0, my-sm-2, etc...
+- add modal photo upload functionality to past papers form.
 - in item/ad listing, make tab items clickable (links.)
 - show best users on both pc and mobile; display vertically on mobile.
 - tell user his age won't be visible to other users.
 - label pages sections for accessibility...
-- set bootstrap "shadow" on icons and images in listings . perhaps with padding too.
 - reduce size (height) of listing results.
 - initially, remove count of items. perhaps in future, will display count...
 - remove unused css class name from each template. use comments for potential future class names .
 - aria-hidden on icons, svgs, etc..; alt text on images, 
 - tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
-- add help text (enter at least one social media account..)
 - remove tags from school questions ...?
 - in create forms, convert 'raise' to sef.add_error()
 - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; also say that all fields marked or ending with * are required.
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
 - add email to contact details in detail views.
 - when filtering, consider only 'unexpired' posts. (`is_outdated` field on all 'outdate-able' models.); also add an index on this field.
-- change all datetime_added fields to posted_datetime (for most models where it makes sense). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
+- change all datetime_added fields to posted_datetime (for most models where it makes sense;). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
 - backgound-color on filter forms(see ex form marketplace )
 - optimize queries, especially on list view. selec_related on poster...
 - photo upload modal stuff too for past_papers site
@@ -105,6 +115,8 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
 jquery validation plugin..
+
+- eventually students projects. support for ranking too
 
 TODO: users app:
 - remaining front end validations (full name, )

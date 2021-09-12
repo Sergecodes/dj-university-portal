@@ -242,19 +242,28 @@ function itemListingFormSubmit(e) {
 		alert(data.alertContent);
 	}
 
+	// get error container and empty it just in case..
+	var $photoErrWrp = $('.js-photo-errors');
 	if (!photoValid) {
 		e.preventDefault();
-		// get error container and empty it just in case..
-		var $photoErrWrp = $('.js-photo-errors');
 		$photoErrWrp.text('').addClass('alert alert-danger');
 		$photoErrWrp.append("<p>" + data.photoError + "</p>");
+	} else {
+		// if photo was first invalid but is not valid..
+		// in short, remove errors container just in case it is present
+		$photoErrWrp.text('');
+		// remove any classes such as alert, alert-danger
+		$photoErrWrp.removeClass();
 	}
 
+	var $priceErrWrp = $('.js-price-errors'); 
 	if (!priceValid) {
 		e.preventDefault();
-		var $priceErrWrp = $('.js-price-errors');
 		$priceErrWrp.text('').addClass('alert alert-danger');
 		$priceErrWrp.append("<p>" + data.priceError + "</p>");
+	} else {
+		$priceErrWrp.text('');
+		$priceErrWrp.removeClass();
 	}
 
 }

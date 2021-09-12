@@ -228,6 +228,10 @@ class SocialProfileFilter(filters.FilterSet):
 
 def friend_finder(request):
 	NUM_USERS = 7
+
+	if not request.user.social_profile:
+		return redirect(reverse('socialize:create-profile'))	
+
 	# use empty queryset since we won't be displaying any results on this template.
 	filter = SocialProfileFilter(request.GET, queryset=SocialProfile.objects.none())
 

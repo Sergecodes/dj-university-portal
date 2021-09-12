@@ -57,7 +57,7 @@
 		<section>
 			<ul>
 				{% for lost_item, photo in page_obj|zip:first_photos %}
-					{% with poster_username=lost_item.poster.username %}
+					{% with poster=lost_item.poster %}
 						<li class="d-flex p-3 pb-4 mb-2 lostitem-item">
 							<div class="flex-shrink-0">
 								{% if photo %}
@@ -88,7 +88,7 @@
 								<span>
 									{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}
 									{% trans 'by' %}
-									<a href="{% url 'users:view-profile' username=poster_username %}" class="text-decoration-none">{{ poster_username }}</a>
+									<a href="{{ poster.get_absolute_url }}" class="text-decoration-none">{{ poster.username }}</a>
 								</span>
 							</div>
 						</li> 

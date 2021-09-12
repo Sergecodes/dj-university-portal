@@ -8,13 +8,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import (
-	LISTING_PHOTOS_UPLOAD_DIR, 
-	AD_PHOTOS_UPLOAD_DIR,
+	LISTING_PHOTOS_UPLOAD_DIR, AD_PHOTOS_UPLOAD_DIR,
+	ITEM_LISTING_SUFFIX, AD_LISTING_SUFFIX,
 	MIN_LISTING_PHOTOS_LENGTH  # todo enforce this !
 )
+from core.utils import get_photos
 from .forms import ItemListingForm, AdListingForm
 from .models import (
 	ItemListing, ItemCategory, 
@@ -22,27 +24,33 @@ from .models import (
 )
 
 
+class ListingsExplain(TemplateView):
+	template_name = 'marketplace/listings_explain.html'
+
+
 class ItemListingCreate(LoginRequiredMixin, CreateView):
 	form_class = ItemListingForm
 	model = ItemListing
 	template_name = 'marketplace/itemlisting_create.html'
-	# success_url = reverse_lazy('marketplace:item-listing-list')
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		form_kwargs['user'] = self.request.user
-		return form_kwargs
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		user = request.user
+		photos_list = request.session.get(user.username + ITEM_LISTING_SUFFIX, [])
 
-	def get(self, request, *args, **kwargs):
-		# remove photos list from session (just in case... e.g if user previously started filling form but didn't finish..)
-		request.session.pop(request.user.username, [])
-		
-		return super().get(request, *args, **kwargs)
+		form_kwargs['user'] = user
+		form_kwargs['initial_photos'] = get_photos(
+			ItemListingPhoto, 
+			photos_list, 
+			LISTING_PHOTOS_UPLOAD_DIR
+		)
+		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form = self.get_form()
 
+		# print(request.POST, request.FILES)
 		# print(form.data)
 		# print(form.data['sub_category'])
 		# print(dir(form.fields['sub_category']))
@@ -57,7 +65,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 			return self.form_valid(form)
 		else:
 			# remove and return photos list from session (note that the uploaded photos will be lost by default)
-			photos_list = request.session.pop(request.user.username, [])
+			# photos_list = request.session.pop(request.user.username+ITEM_LISTING_SUFFIX, [])
 
 			# delete uploaded photos(and also remove corresponding files)
 			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
@@ -76,26 +84,28 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		listing.owner = request.user
 		listing.save()
 		
-		# add phone numbers (phone_numbers is a queryset)
+		# add phone numbers to listing(phone_numbers is a queryset)
 		phone_numbers = form.cleaned_data['contact_numbers']
+		listing.contact_numbers.add(*[
+			phone_number.id for phone_number in phone_numbers
+		])
 
-		# this loop isn't a case for concern since the phone numbers will generally be at most 5 right?
-		print(phone_numbers)  
-		for phone_number in phone_numbers:
-			listing.contact_numbers.add(phone_number)
+		# get list of photo names
+		photos_list = session.get(username + ITEM_LISTING_SUFFIX)  
 
-		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(username, [])  # get list of photo names
-		print(photos_list)
-
+		# create photo instances pointing to the pre-created photos 
+		# recall that these photos are already in the file system
 		for photo_name in photos_list:
 			photo = ItemListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
 			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
-			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
+			# bulk=False saves the photo instance before adding
+			# since photo already has file, no file will be created, just the model instance
+			# note that this also implicitly does `photo.item_listing = listing`
+			listing.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		request.session.pop(request.user.username)
+		request.session.pop(request.user.username + ITEM_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
 		return HttpResponseRedirect(listing.get_absolute_url())
@@ -105,17 +115,19 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 	form_class = AdListingForm
 	model = AdListing
 	template_name = 'marketplace/adlisting_create.html'
-	success_url = reverse_lazy('marketplace:ad-listing-list')
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		form_kwargs['user'] = self.request.user
-		return form_kwargs
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		user = request.user
+		photos_list = request.session.get(user.username + AD_LISTING_SUFFIX, [])
 
-	def get(self, request, *args, **kwargs):
-		# remove photos list from session (just in case...)
-		request.session.pop(request.user.username, [])
-		return super().get(request, *args, **kwargs)
+		form_kwargs['user'] = user
+		form_kwargs['initial_photos'] = get_photos(
+			AdListingPhoto, 
+			photos_list, 
+			AD_PHOTOS_UPLOAD_DIR
+		)
+		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
 		self.object = None
@@ -125,7 +137,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 			return self.form_valid(form)
 		else:
 			# remove and return photos list from session 
-			photos_list = request.session.pop(request.user.username, [])
+			# photos_list = request.session.pop(request.user.username+AD_LISTING_SUFFIX, [])
 
 			# delete uploaded photos(and also remove corresponding files)
 			# no need to delete photos. this will cause unneccessary load on server. instead, just allow the photos, but regularly remove photos not linked to model instances.
@@ -144,13 +156,14 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		listing.owner = request.user
 		listing.save()
 		
-		# add phone numbers
+		# add phone numbers to listing(phone_numbers is a queryset)
 		phone_numbers = form.cleaned_data['contact_numbers']
-		for phone_number in phone_numbers:
-			listing.contact_numbers.add(phone_number)
+		listing.contact_numbers.add(*[
+			phone_number.id for phone_number in phone_numbers
+		])
 
 		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(username, [])  # get list of photo names
+		photos_list = session.get(username + AD_LISTING_SUFFIX, [])  # get list of photo names
 		for photo_name in photos_list:
 			photo = AdListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
@@ -158,10 +171,11 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
 
 		# remove photos list from session 
-		request.session.pop(request.user.username, [])
+		# pop() default is empty list since adverts mustn't have photos
+		request.session.pop(request.user.username + AD_LISTING_SUFFIX, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(self.get_success_url())
+		return HttpResponseRedirect(listing.get_absolute_url())
 
 
 class ItemListingDetail(DetailView):
@@ -179,7 +193,7 @@ class ItemListingDetail(DetailView):
 			institution=listing.institution,
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 			sub_category__name=getattr(listing.sub_category, 'name', '')
-		).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+		).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
 		
 		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 		sub_category_name = getattr(listing.sub_category, 'name', '')
@@ -187,11 +201,11 @@ class ItemListingDetail(DetailView):
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				institution=listing.institution,
 				sub_category__name=sub_category_name
-			).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
 		else:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				institution=listing.institution
-			).only('title', 'price', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
 
 
 		# get first photos of each similar listing
@@ -221,7 +235,7 @@ class AdListingDetail(DetailView):
 		similar_listings = AdListing.objects.prefetch_related('photos').filter(
 			institution=listing.institution,
 			category__name=listing.category.name
-		).only('title', 'pricing', 'datetime_added').order_by('-datetime_added')[0:NUM_LISTINGS]
+		).only('title', 'pricing', 'datetime_added')[0:NUM_LISTINGS]
 		print(similar_listings)
 
 		# get first photos of each similar listing
@@ -248,10 +262,10 @@ class ItemListingFilter(filters.FilterSet):
 		model = ItemListing
 		fields = ['institution', 'title', 'category', ]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-datetime_added')
+	# @property
+	# def qs(self):
+	# 	parent = super().qs
+	# 	return parent.order_by('-datetime_added')
 
 
 class ItemListingList(FilterView):
@@ -259,13 +273,13 @@ class ItemListingList(FilterView):
 	# context_object_name = 'listings'
 	filterset_class = ItemListingFilter
 	template_name = 'marketplace/itemlisting_list.html'
-	# change the suffix coz by default filterview expects '_filter'
+	# change the suffix coz by default FilterView expects '_filter'
 	template_name_suffix = '_list'
 	paginate_by = 2
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		listings = self.object_list
+		listings = self.object_list.prefetch_related('photos')
 		
 		# get first photos of each listing
 		first_photos = []
@@ -283,10 +297,10 @@ class AdListingFilter(filters.FilterSet):
 		model = AdListing
 		fields = ['institution', 'title', 'category', ]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-datetime_added')
+	# @property
+	# def qs(self):
+	# 	parent = super().qs
+	# 	return parent.order_by('-datetime_added')
 
 
 class AdListingList(FilterView):
@@ -299,7 +313,7 @@ class AdListingList(FilterView):
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		listings = self.object_list
+		listings = self.object_list.prefetch_related('photos')
 		
 		# get first photos of each listing (for listings without photos, append `None`)
 		first_photos = []

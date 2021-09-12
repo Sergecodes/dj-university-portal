@@ -80,7 +80,7 @@ class ItemListingPhoto(models.Model):
 	)
 
 	def __str__(self):
-		return self.file.name  
+		return self.actual_filename
 
 	@property
 	def actual_filename(self):
@@ -95,7 +95,7 @@ class ItemListingPhoto(models.Model):
 		return os.path.basename(self.file.name)
 
 	def save(self, *args, **kwargs):
-		# first save and store file in storage
+		# first save and store file in storage 
 		super().save(*args, **kwargs)
 
 		# set title of file if it hasn't yet been saved
@@ -124,6 +124,9 @@ class AdListingPhoto(models.Model):
 
 	class Meta:
 		verbose_name_plural = 'Ad Listing Photos'
+
+	def __str__(self):
+		return self.actual_filename
 
 	@property
 	def actual_filename(self):
@@ -189,7 +192,7 @@ class Post(models.Model):
 	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
 	title = models.CharField(
 		_('Title'), 
-		max_length=80, 
+		max_length=100, 
 		help_text=_('A descriptive title helps buyers find your item. <br> State exactly what your post is.')
 	)
 	slug = models.SlugField(max_length=255)
@@ -205,7 +208,7 @@ class Post(models.Model):
 		choices=settings.LANGUAGES,
 		default='fr', 
 		max_length=3,
-		help_text=_('Initial language in which post was entered in.')
+		help_text=_('Initial language in which post was entered.')
 	)
 
 	def __str__(self):
@@ -231,8 +234,8 @@ class ItemListing(Post, HitCountMixin):
 	DEFECTIVE = 'D'
 	CONDITIONS = (
 		(NEW, _('New')),  # maybe not packaged but not yet used or fairly used (still new)
-		(USED, _('Used')),  # already used
-		(DEFECTIVE, _('For parts or not working'))
+		(USED, _('Used')),  # already used but still working
+		(DEFECTIVE, _('Defective(some parts are not working)'))  # for parts or not working
 	)
 
 	contact_numbers = models.ManyToManyField(
@@ -293,6 +296,7 @@ class ItemListing(Post, HitCountMixin):
 
 	class Meta:
 		verbose_name_plural = 'Item Listings'
+		ordering = ['-datetime_added']
 		indexes = [
 			models.Index(fields=['-datetime_added'])
 		]
@@ -340,6 +344,7 @@ class AdListing(Post, HitCountMixin):
 		return self.hitcount.num_of_hits
 
 	class Meta:
+		ordering = ['-datetime_added']
 		indexes = [
 			models.Index(fields=['-datetime_added'])
 		]

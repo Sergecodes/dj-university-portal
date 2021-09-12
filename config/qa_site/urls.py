@@ -7,7 +7,8 @@ from . import views
 app_name = 'qa_site'
 
 urlpatterns = [
-	# these should come before the url with a slug
+	# these paths should come before the url with a slug
+	path('', views.QuestionsExplain.as_view(), name='questions-explain'),
 	path(
 		_('academic-questions/'),
 		views.AcademicQuestionList.as_view(),
@@ -38,6 +39,7 @@ urlpatterns = [
 		views.AcademicQuestionDetail.as_view(), 
 		name='academic-question-detail'
 	),
+	# no slug for school-based questions coz they have no title
 	path(
 		_('school-based-questions/<int:pk>/'), 
 		views.SchoolQuestionDetail.as_view(), 

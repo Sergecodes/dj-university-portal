@@ -10,10 +10,10 @@ from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from taggit.models import TaggedItem
 
-from core.utils import is_mobile
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -27,6 +27,10 @@ from .models import (
 )
 
 User = get_user_model()
+
+
+class QuestionsExplain(TemplateView):
+	template_name = "qa_site/questions_explain.html"
 
 
 class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
@@ -168,7 +172,6 @@ class AcademicQuestionList(FilterView):
 
 		context['subjects'] = Subject.objects.all()
 		context['total_num_qstns'] = num_questions
-		context['is_mobile'] = is_mobile(self.request)
 
 		# optimise queries by using prefetch related on objects for the current page
 		page_obj = context.get('page_obj')
@@ -226,7 +229,6 @@ class SchoolQuestionList(FilterView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['is_mobile'] = is_mobile(self.request)
 
 		# optimise queries by using prefetch related on objects for the current page
 		page_obj = context.get('page_obj')
@@ -469,3 +471,5 @@ def vote_school_thread(request):
 				return HttpResponse('Error - Unknown vote type or no vote to recall')
 		else:
 			return HttpResponse('Error - bad action')
+
+

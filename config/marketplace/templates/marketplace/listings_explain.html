@@ -1,0 +1,61 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+	<title>{% trans 'Create a listing' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
+{% endblock extra_css %}
+
+{% block content %}
+<article class="container-lg mb-5 pt-3">
+	<h2 class="text-success">{% trans 'Create a Listing' %}</h2>
+	<section class="border pt-4 p-2">
+		<div class="row mb-5">
+			<div class="col-lg-4">
+				<img src="{% static 'images/chillpill.jpg' %}" alt="{% trans 'Item listing image' %}" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 listing-descr-img">
+			</div>
+			<div class="col-lg-8">
+				<h4>{% trans 'Items' %}</h4>
+				<p>
+					{% blocktrans %}
+						Here, you can sell items you have or buy items from other students. Items can be used, new or defective(not functioning properly). When buying, you can negotiate with the seller for a more convenient price and schedule for a meet-up. Anyone can buy and sell an item.
+					{% endblocktrans %}
+				</p>
+				<a href="{% url 'marketplace:item-listing-list' %}" class="btn btn-outline-success me-2">
+					{% trans 'View Items' %}
+				</a>
+				<a href="{% url 'marketplace:item-listing-create' %}" class="btn btn-outline-success">
+					{% trans 'Sell an Item' %}
+				</a>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<div class="col-lg-4">
+                <img src="{% static 'images/460791.jpg' %}" alt="{% trans 'Ad listing image' %}" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 listing-descr-img">
+			</div>
+			<div class="col-lg-8">
+				<h4>{% trans 'Adverts' %}</h4>
+				<p>
+					{% blocktrans %}
+						Here, you can advertize anything you want and view adverts posted by other students. 
+					{% endblocktrans %}
+				</p>
+				<a href="{% url 'marketplace:ad-listing-list' %}" class="btn btn-outline-success me-2">
+					{% trans 'View Adverts' %}
+				</a>
+				<a href="{% url 'marketplace:ad-listing-create' %}" class="btn btn-outline-success">
+					{% trans 'Post an Advert' %}
+				</a>
+			</div>
+		</div>
+	</section>
+</article>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %} 
