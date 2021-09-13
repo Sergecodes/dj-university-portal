@@ -2,18 +2,20 @@
 # Don't get that twisted
 # camerschools ?? - yep
 
+# geeksforgeeks.org/built-in-custom-model-managers-in-django	
 
 todo:
-		- ensure in past_paper form that either photos or a file should be uploaded, not both.
-		- if i can edit posts, add updated_datetime field with auto_now=True
-		- item listing update view
+		Sep 13
+		- question bookmarking/following plus icons... both academic question / school-based.
+		(is following important ??)  use @username ... mentions too, django notifications..
 		
 		### update(edit views) ### (do those other sites permit this ?)
-		- item listings
 		- questions
 
-# geeksforgeeks.org/built-in-custom-model-managers-in-django		
-- convert title field of files to property... 
+- change owner to poster.. marketplace.
+- implement editing and deleting by poster in various apps..	
+- if user is authed, on header, change profile icon to his profile image. 
+- arrange socialize dropdown...
 - remove duration from listings for now right... perhaps implement in future. yep.
 - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
 - convert all lists with div to ul > li; 
@@ -22,6 +24,7 @@ todo:
 - remove default_language hidden field from template and assign it in view...
 - add select_related... on filter views. (overriden qs property)
 - clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
+- make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block
 - convert index page each section to the other myschool format... (see screenshot in phone)
 # profile/qa site
 - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
@@ -62,7 +65,6 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - change external_link_svg to font-awesome icon
 - add asterisk after condition_description when condition changes. (to show the description is required)
 - permissions.
-- cron jobs
 - footer. check out font awesome's footer on mobile., ilost.co's footer too
 - try to set default for slug field in admin 
 - checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
@@ -78,7 +80,6 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - limit number of images in past paper upload...
 - all create forms should have shadows. and other forms normal borders
 - socialize detail form should take visitor to socialize section of user's profile
-- implement editing and deleting by poster in various apps..
 - limit number of answers per question and comments per post in qa_site app.
 - style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;

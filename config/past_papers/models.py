@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
@@ -18,25 +19,24 @@ class PastPaperPhoto(models.Model):
 	These photos should be periodically removed from storage, since after upload they are practically useless since they are used solely to generate the pdf file containing these photos...
 	"""
 	file = models.ImageField(upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
+	upload_datetime = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.actual_filename
 
-	@property
+	@cached_property
 	def actual_filename(self):
 		"""
-		Get name of file with extension (not relative path from MEDIA_URL).
+		Get file name of file with extension (not relative path from MEDIA_URL).
 		If files have the same name, Django automatically appends a unique string to each file before storing.
 		This property(function) returns the name of a file (on disk) with its extension.
 		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-
-		This differs from self.file.name in that the latter also includes the upload_to directory of the file.
 		"""
 		import os
 
 		return os.path.basename(self.file.name)
 
-	@property
+	@cached_property
 	def title(self):
 		"""Get alternate name that can be used for the photo in template."""
 		return self.actual_filename.split('.')[0]

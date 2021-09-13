@@ -7,17 +7,21 @@ from . import views, ajax_views
 app_name = 'marketplace'
 
 urlpatterns = [
-	path('', views.ListingsExplain.as_view(), name='listings-explain'),
+	# path('', views.ListingsExplain.as_view(), name='listings-explain'),
 
 	## ITEM LISTING ##
 	path(_('items/'), views.ItemListingList.as_view(), name='item-listing-list'),
 	path(_('items/sell-an-item/'), views.ItemListingCreate.as_view(), name='item-listing-create'),
+	path(_('items/<int:pk>/edit/'), views.ItemListingUpdate.as_view(), name='item-listing-update'),
+	path(_('items/<int:pk>/delete/'), views.ItemListingDelete.as_view(), name='item-listing-delete'),
 	path(_('items/<int:pk>/<slug:slug>/'), views.ItemListingDetail.as_view(), name='item-listing-detail'),
 	path(_('items/<int:pk>/'), views.ItemListingDetail.as_view(), name='item-listing-detail'),
 
 	## AD LISTING ##
 	path(_('adverts/'), views.AdListingList.as_view(), name='ad-listing-list'),
 	path(_('adverts/advertize/'), views.AdListingCreate.as_view(), name='ad-listing-create'),
+	path(_('adverts/<int:pk>/edit/'), views.AdListingUpdate.as_view(), name='ad-listing-update'),
+	path(_('adverts/<int:pk>/delete/'), views.AdListingDelete.as_view(), name='ad-listing-delete'),
 	path(_('adverts/<int:pk>/<slug:slug>/'), views.AdListingDetail.as_view(), name='ad-listing-detail'),
 	path(_('adverts/<int:pk>/'), views.AdListingDetail.as_view(), name='ad-listing-detail'),
 

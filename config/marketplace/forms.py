@@ -60,7 +60,7 @@ class ItemListingForm(forms.ModelForm):
 
 	class Meta:
 		model = ItemListing
-		exclude = ('owner', 'slug', )
+		exclude = ('owner', 'slug', 'original_language')
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
 			'condition': _("Select the condition of the item you're listing."),
@@ -75,6 +75,7 @@ class ItemListingForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
+		update = kwargs.pop('update', False)
 		super().__init__(*args, **kwargs)
 
 		# email used for notifications concerning listing is user's email by default.
@@ -82,7 +83,7 @@ class ItemListingForm(forms.ModelForm):
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-
+		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Institution & Item Category'),
@@ -128,10 +129,15 @@ class ItemListingForm(forms.ModelForm):
 				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</button>"
 			),
-			# insert original_language as hidden field.
-			HTML('<input type="hidden" name="original_language" value="{{ LANGUAGE_CODE }}" />'),
-			Submit('submit', _('List item'), css_class='btn-lg d-block'),
+			# no submit button inserted so as to use same form (different values for the submit button)
+			# for create and update forms (eg List Item vs Update Item)
 		)
+
+		# if i insert the submit button via the html template, it will be out of the form.
+		if update:
+			self.helper.add_input(Submit('submit', _('Update item'), css_class="btn-lg d-block"))
+		else:
+			self.helper.add_input(Submit('submit', _('Post item'), css_class="btn-lg d-block"))
 
 	def clean_price(self):
 		"""Price should contain only spaces and digits. """
@@ -168,9 +174,9 @@ class AdListingForm(forms.ModelForm):
 
 	class Meta:
 		model = AdListing
-		exclude = ('owner', 'slug', )
+		exclude = ('owner', 'slug', 'original_language')
 		help_texts = {
-			'title': _("A descriptive title helps buyers find your advert. <br> Include words that buyers will use to search for your advert"),
+			'title': _("A descriptive title helps others easily find your advert. <br> Include words that others will use to search for your advert"),
 		}
 		widgets = {
 			'pricing': forms.TextInput(attrs={'placeholder': _('Ex. 10,000F per unit')})
@@ -178,6 +184,7 @@ class AdListingForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
+		update = kwargs.pop('update', False)
 		super().__init__(*args, **kwargs)
 
 		# email used for notifications concerning listing is user's email by default.
@@ -227,23 +234,9 @@ class AdListingForm(forms.ModelForm):
 				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON +
 				"</button>"
 			),
-			# insert original_language as hidden field.
-			HTML('<input type="hidden" name="original_language" value="{{ LANGUAGE_CODE }}" />'),
-			Submit('submit', _('Post advert'), css_class='btn-lg d-block'),
 		)
+		if update:
+			self.helper.add_input(Submit('submit', _('Update advert'), css_class="btn-lg d-block"))
+		else:
+			self.helper.add_input(Submit('submit', _('Post advert'), css_class="btn-lg d-block"))
 
-
-
-'''
-class ItemListingUpdateForm(forms.ModelForm):
-	"""A form for updating item listings."""
-	
-	class Meta:
-		model = ItemListing
-		fields = ['email', 'full_name', 'username', 'first_language', 'gender', ]
-		widgets = {
-			'first_language': forms.RadioSelect,
-			'gender': forms.RadioSelect,
-		}
-'''
- 

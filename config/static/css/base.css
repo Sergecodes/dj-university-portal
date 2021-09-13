@@ -12,7 +12,24 @@
 
 img {
 	max-width: 100%;
+	/* break word in case image alt text is greater than container */
+	/* equivalent to bootstrap 5 class 'text-break',  */
+	word-wrap: break-word;
+	word-break: break-word;
 }
+
+/* button that looks like link */
+/* .button-link {
+	border: none;
+	outline: none;
+	background: none;
+	cursor: pointer;
+	padding: 0;
+	color: #0000EE;
+	text-decoration: underline;
+	font-family: inherit;
+	font-size: inherit;
+} */
 
 .header-top {
 	padding-top: .3rem;

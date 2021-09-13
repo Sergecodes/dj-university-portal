@@ -161,7 +161,7 @@
 		// [0] is used to get the dom element from the jQuery object
 		var photoFileName = $photo[0].dataset['filename'];
 		
-		var errorMessage = {% blocktrans %} "An error occurred, perhaps you aren't connected to the internet" {% endblocktrans %};
+		var errorMessage = {% blocktrans %} "An error occurred, try to refresh the page then try again." {% endblocktrans %};
 
 		// call ajax to delete photo from backend
 		$.ajax({

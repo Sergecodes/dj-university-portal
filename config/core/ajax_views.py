@@ -98,6 +98,7 @@ class PhotoUploadView(LoginRequiredMixin, View):
 			photo = form.save()
 			user_photos_list.append(photo.actual_filename)
 			session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
+			print(session.get(username + FORM_AND_SUFFIX[form_for]))
 
 			data = {
 				'is_valid': True, 

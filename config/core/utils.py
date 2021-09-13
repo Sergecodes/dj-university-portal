@@ -45,12 +45,13 @@ def is_mobile(request):
 
 def get_photos(model, photos_name_list, dir):
 	"""
-	Return list of model photo instances from photos names. Mostly used in CreateView.get_form_kwargs() to construct list of initial_photos of the template. \n
+	Return list of model photo instances from photos names. Mostly used in CreateView and UpdateView get_form_kwargs() to construct list of initial_photos of the template. \n
 	`model` name of model containing the photo. eg ItemListingPhoto
 	`photos_name_list` is the list of the names of the photos \n
 	`dir` is the folder in MEDIA_ROOT where the photos are stored. eg. 'item_photos'. Can obtain some dir names from `core.constants.py`
 	"""
 	if not photos_name_list:
+		print('No photos in list')
 		return []
 	
 	photo_instances = []

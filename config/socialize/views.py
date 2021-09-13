@@ -226,6 +226,7 @@ class SocialProfileFilter(filters.FilterSet):
 		return parent.order_by('-user__site_points')
 
 
+@login_required
 def friend_finder(request):
 	NUM_USERS = 7
 

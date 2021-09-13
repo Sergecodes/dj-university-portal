@@ -5,7 +5,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-	<title>{% trans 'Advertize something' %}</title>
+	<title>{% trans 'Edit advert listing' %}</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -16,11 +16,11 @@
 {% endblock %}
 
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-form-container">
-	<form action="." class="listing-form" method="post">
+	<form class="listing-form" method="post">
 		{% csrf_token %}
-		<h2 class="text-center mb-4 text-success">{% trans 'Advertize something'|title %}</h2>
+		<h2 class="text-center mb-4 text-success">{% trans 'Edit Advert' %}</h2>
 		
 		{% crispy form %}
 	</form>

@@ -91,18 +91,22 @@
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
 							<div class="px-4 py-2">
-								<a href="{% url 'users:view-profile' username=user.username %}" class="header-profile-info" role="button">
+								<a href="{{ user.get_absolute_url }}" class="header-profile-info" role="button">
 									<span class="d-block">{{ user.username }}</span>
 									<span class="small text-dark fw-bold">{{ user.full_name }}</span>
 								</a>
 							</div>
 							<hr class="dropdown-divider">
-							<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "Dashboard" %}</a>
-							<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "View Profile" %}</a>
-							<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans "Update Profile" %}</a>
+							<a href="{{ user.get_absolute_url }}" class="dropdown-item">{% trans 'Dashboard' %}</a>
+							<a href="{{ user.get_absolute_url }}" class="dropdown-item">{% trans 'View Profile' %}</a>
+							<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans 'Update Profile' %}</a>
 							<hr class="dropdown-divider">
-
-							<a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a>
+							
+							<form action="{% url 'users:logout' %}" method="post">
+								{% csrf_token %}
+								<button type="submit" class="dropdown-item link-danger">{% trans 'Logout' %}</button>
+							</form>
+							<!-- <a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans 'Logout' %}</a> -->
 						</div>
 					</li>
 				</ul>
@@ -201,11 +205,15 @@
 									</a>
 								</div>
 								<hr class="dropdown-divider">
-								<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "Dashboard" %}</a>
-								<a href="{% url 'users:view-profile' username=user.username %}" class="dropdown-item">{% trans "View Profile" %}</a>
+								<a href="{{ user.get_absolute_url }}" class="dropdown-item">{% trans "Dashboard" %}</a>
+								<a href="{{ user.get_absolute_url }}" class="dropdown-item">{% trans "View Profile" %}</a>
 								<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans "Update Profile" %}</a>
 								<hr class="dropdown-divider">
-								<a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a>
+								<form action="{% url 'users:logout' %}" method="post">
+									{% csrf_token %}
+									<button type="submit" class="dropdown-item link-danger">{% trans 'Logout' %}</button>
+								</form>
+								<!-- <a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a> -->
 							</div>
 						</li>
 					</ul>
@@ -359,10 +367,12 @@
 							</a>
 							<div class="dropdown-menu" aria-labelledby="socialize">
 								{% if not user.social_profile %}
-									<a class="dropdown-item" href="{% url 'socialize:create-social-profile' %}">{% trans 'Create social profile' %}</a>
+									<a class="dropdown-item" href="{% url 'socialize:create-profile' %}">{% trans 'Create social profile' %}</a>
 								{% endif %}
 								<a class="dropdown-item" href="{% url 'socialize:find-friend' %}">{% trans 'Find a pal' %}</a>
-								<a class="dropdown-item" href="{% url 'socialize:update-profile' username=user.username %}">{% trans 'View/Update social profile' %}</a>
+								{% if user.social_profile %}
+									<a class="dropdown-item" href="{% url 'socialize:update-profile' username=user.username %}">{% trans 'View/Update social profile' %}</a>
+								{% endif %}
 							</div>
 						</li>
 					</ul>

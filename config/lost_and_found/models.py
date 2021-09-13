@@ -5,6 +5,7 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
@@ -141,7 +142,7 @@ class LostItem(Post):
 class LostItemPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, null=True, blank=True) 
 	file = models.ImageField(upload_to=LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	lost_item = models.ForeignKey(
@@ -155,7 +156,7 @@ class LostItemPhoto(models.Model):
 	def __str__(self):
 		return self.file.name  
 
-	@property
+	@cached_property
 	def actual_filename(self):
 		"""
 		Get file name of file with extension (not relative path from MEDIA_URL).
@@ -167,16 +168,20 @@ class LostItemPhoto(models.Model):
 
 		return os.path.basename(self.file.name)
 
-	def save(self, *args, **kwargs):
-		# first save and store file in storage
-		super().save(*args, **kwargs)
+	@cached_property
+	def title(self):
+		return self.actual_filename.split('.')[0]
 
-		# set title of file if it hasn't yet been saved
-		if not self.title:
-			self.title = self.actual_filename.split('.')[0]
-			self.save(update_fields=['title'])
+	# def save(self, *args, **kwargs):
+	# 	# first save and store file in storage
+	# 	super().save(*args, **kwargs)
+
+	# 	# set title of file if it hasn't yet been saved
+	# 	if not self.title:
+	# 		self.title = self.actual_filename.split('.')[0]
+	# 		self.save(update_fields=['title'])
 			
-		return self
+	# 	return self
 
 	class Meta:
 		verbose_name = 'Lost Items Photo'

@@ -6,6 +6,7 @@ from django.core.validators import validate_email
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
@@ -61,7 +62,7 @@ class ItemCategory(models.Model):
 class ItemListingPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, null=True, blank=True) 
 	file = models.ImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
@@ -82,7 +83,7 @@ class ItemListingPhoto(models.Model):
 	def __str__(self):
 		return self.actual_filename
 
-	@property
+	@cached_property
 	def actual_filename(self):
 		"""
 		Get file name of file with extension (not relative path from MEDIA_URL).
@@ -94,16 +95,20 @@ class ItemListingPhoto(models.Model):
 
 		return os.path.basename(self.file.name)
 
-	def save(self, *args, **kwargs):
-		# first save and store file in storage 
-		super().save(*args, **kwargs)
+	@cached_property
+	def title(self):
+		return self.actual_filename.split('.')[0]
 
-		# set title of file if it hasn't yet been saved
-		if not self.title:
-			self.title = self.actual_filename.split('.')[0]
-			self.save(update_fields=['title'])
+	# def save(self, *args, **kwargs):
+	# 	# first save and store file in storage 
+	# 	super().save(*args, **kwargs)
+
+	# 	# set title of file if it hasn't yet been saved
+	# 	if not self.title:
+	# 		self.title = self.actual_filename.split('.')[0]
+	# 		self.save(update_fields=['title'])
 			
-		return self
+	# 	return self
 
 	class Meta:
 		verbose_name = 'Item Listing Photo'
@@ -111,7 +116,7 @@ class ItemListingPhoto(models.Model):
 
 
 class AdListingPhoto(models.Model):
-	title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, null=True, blank=True) 
 	file = models.ImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	ad_listing = models.ForeignKey(
@@ -128,23 +133,32 @@ class AdListingPhoto(models.Model):
 	def __str__(self):
 		return self.actual_filename
 
-	@property
+	@cached_property
 	def actual_filename(self):
-		"""Get file name of file (not relative path from MEDIA_URL)"""
+		"""
+		Get file name of file with extension (not relative path from MEDIA_URL).
+		If files have the same name, Django automatically appends a unique string to each file before storing.
+		This property(function) returns the name of a file (on disk) with its extension.
+		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+		"""
 		import os
 
 		return os.path.basename(self.file.name)
 
-	def save(self, *args, **kwargs):
-		# first save and store file in storage
-		super().save(*args, **kwargs)
+	@cached_property
+	def title(self):
+		return self.actual_filename.split('.')[0]
 
-		# set title of file if it hasn't yet been saved
-		if not self.title:
-			self.title = self.actual_filename.split('.')[0]
-			self.save(update_fields=['title'])
+	# def save(self, *args, **kwargs):
+	# 	# first save and store file in storage
+	# 	super().save(*args, **kwargs)
 
-		return self
+	# 	# set title of file if it hasn't yet been saved
+	# 	if not self.title:
+	# 		self.title = self.actual_filename.split('.')[0]
+	# 		self.save(update_fields=['title'])
+
+	# 	return self
 
 
 class Post(models.Model):
@@ -201,8 +215,8 @@ class Post(models.Model):
 		help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.')
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
+	updated_datetime = models.DateTimeField(auto_now=True, editable=False)
 	# language in which post was created 
-	# in template form, default language should be user's current language code (passed as a hidden field)
 	original_language = models.CharField(
 		_('Initial language'),
 		choices=settings.LANGUAGES,
