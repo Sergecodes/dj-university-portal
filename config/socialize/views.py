@@ -11,6 +11,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views import View 
+from django.views.decorators.http import require_GET
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -20,6 +21,12 @@ from .forms import SocialProfileForm, SocialMediaFollowForm
 from .models import SocialProfile, SocialMediaFollow
 
 User = get_user_model()
+
+
+class HasSocialProfileMixin(LoginRequiredMixin, UserPassesTestMixin):
+	def test_func(self):
+		if self.request.user.has_social_profile:
+			return True
 
 
 class SocialProfileCreate(LoginRequiredMixin, View):
@@ -50,28 +57,19 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 		})
 
 
-class SocialProfileUpdate(UserPassesTestMixin, View):
+class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 	template_name = 'socialize/socialprofile_update_form.html'
-	
-	def is_valid_user(self):
-		"""
-		Permit access to logged in users whose username matches with that passed in the url and who have social profiles.
-		If no match, 403 Forbidden is raised.
-		"""
-		passed_username = self.kwargs.get('username', '')
-		user = self.request.user
 
-		if user.username == passed_username and user.social_profile:
+	def test_func(self):
+		"""
+		Restrict access to only users whose username is the current username and user should have a social profile.
+		"""
+		user, passed_username = self.request.user, self.kwargs.get('username')
+		if user.username == passed_username and user.has_social_profile:
 			return True
 
-		return False
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.is_valid_user
-
 	def get(self, request, *args, **kwargs):
-		# this will always be non-null coz there's a text to ensure only user's with social profiles can access these methods
+		# this will always be non-null coz there's a test to ensure only users with social profiles can access these methods
 		object = request.user.social_profile
 
 		return render(request, self.template_name, {
@@ -226,7 +224,21 @@ class SocialProfileFilter(filters.FilterSet):
 		return parent.order_by('-user__site_points')
 
 
+class SocialProfileDetail(HasSocialProfileMixin, DetailView):
+	"""This view permits a user who has a social profile to view another user's social profile."""
+	# User's username will be used, hence use the User model
+	model = SocialProfile
+	slug_url_kwarg = "username"
+	slug_field = "username"
+	template_name = 'socialize/socialprofile_detail.html'
+
+	def get_object(self):
+		# directly return social profile since thanks to our mixin, we are sure user has social profile
+		return self.user.social_profile
+
+
 @login_required
+@require_GET
 def friend_finder(request):
 	NUM_USERS = 7
 

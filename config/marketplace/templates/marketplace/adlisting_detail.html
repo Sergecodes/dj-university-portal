@@ -17,6 +17,63 @@
 {% endblock %}
 
 {% block content %}
+<!-- toasts -->
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans 'You must login before adding a post.' %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="{% url 'users:login' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'to login to your account or' %} 
+				<a href="{% url 'users:register' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans "to sign up if you don't yet have an account." %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'An error occured, refresh the page then try again.' %} <br>
+				{% trans 'If it persists, contact us.' %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was added to your' %} 
+				<a href="#">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was removed from your' %} 
+				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
 <!-- 100% wide undil lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
@@ -78,6 +135,33 @@
 			<h3 class="mb-3">{% trans 'Advert Description' %}</h3>
 			<div>{{ listing.description|safe }}</div>
 		</div>
+
+		<!-- post activities -->
+		<div class="mb-4">
+			<!-- bookmark -->
+			<div class="d-inline ms-4">
+				<a 
+					role="button" 
+					data-id="{{ listing.id }}"
+					class="text-decoration-none js-bookmark" 
+					title="{% trans 'Add this item to your favourites. (click again to undo)' %}"
+				>
+					{% if user in bookmarkers %}
+						<i class="fas fa-star js-selected" aria-hidden="true"></i>
+						{% trans 'Bookmarked' %}
+					{% else %}
+						<i class="far fa-star" aria-hidden="true"></i>
+						{% trans 'Bookmark' %}
+					{% endif %}
+				</a>
+				<span class="ms-1 text-primary">
+					&nbsp;|&nbsp; 
+					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
+				</span>
+			</div>
+			<!-- todo report(flag) here -->
+		</div>
+
 		<div class="alert alert-warning pb-1 mb-5 warning-wrp" role="alert">
 			<h4 class="alert-heading">{% trans 'WARNING!' %}</h4>
 			<ul>
@@ -130,7 +214,7 @@
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}
-					<div class="col-4 col-lg-3 similar-listing">
+					<div class="col-sm-5 col-lg-3 mb-4 similar-listing">
 						{% if photo %}
 							<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
 								<img class="mb-2 similar-listing__img--ad" src="{{ photo.file.url }}" alt="{{ photo.title }}">
@@ -155,6 +239,12 @@
 
 {% block extra_js %}
 <script>
+	// initialize all tooltips on the page
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
+	});
+
 	{% if photos.exists %}
 		var $images = $('.js-photo-slide__img');
 		$images.on('click', {$images: $images}, expandImage);
@@ -165,10 +255,90 @@
 		$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
 	{% endif %}
 
-	// initialize all tooltips on the page
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
+	/** Bookmarking  */
+	// get current user's id.. 
+	// if user isn't logged in, user.id will be `None`
+	var currentUserId = "{{ user.id }}";
+	currentUserId = (currentUserId == "None" ? null : currentUserId);
+	var url = "{% url 'marketplace:ad-bookmark-toggle' %}";
+	var bookmarkCount = {{ bookmarkers.count }}, $bookmarkCounter = $('.js-bookmarkCount').first();
+
+	$('.js-bookmark').click(function(event) {
+		// if user isn't logged in
+		if (!currentUserId) {
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		var $this = $(this);
+		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
+		
+		// if user is trying to undo the bookmark
+		if ($icon.hasClass('js-selected')) {
+			var voteAction = 'recall-bookmark';
+
+			$.ajax({
+				url: url,
+				type: 'POST',
+				data: {id: id, action: voteAction},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result['unbookmarked']) {
+						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+						$icon.removeClass('fas js-selected').addClass('far');
+
+						// update bookmark count
+						var newCount = parseInt($bookmarkCounter.text(), 10);
+						$bookmarkCounter.text(newCount - 1);
+						// $this.next().text(newCount - 1);
+
+						// update text
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Bookmark' %}";
+						displayListingBookmarkToggleToast(false);
+
+					} else {
+						console.error(result);
+						displayErrorOccurredToast();
+					}
+				}
+			});
+
+		} else {
+			// if user is adding a new bookmark
+			var voteAction = 'bookmark';
+
+			$.ajax({
+				url: url,
+				type: 'POST',
+				data: {id: id, action: voteAction},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result['bookmarked']) {
+						// remove far class and set to fas
+						$icon.removeClass('far').addClass('fas js-selected');
+
+						// update bookmark count
+						var newCount = parseInt($bookmarkCounter.text(), 10);
+						$bookmarkCounter.text(newCount + 1);
+
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Bookmarked' %}";
+						displayListingBookmarkToggleToast(true);
+					} else {
+						console.error(result);
+						displayErrorOccurredToast();
+					}
+				}
+			});
+		}
 	});
+
 </script>
 {% endblock %}

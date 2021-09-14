@@ -166,7 +166,7 @@
 		// call ajax to delete photo from backend
 		$.ajax({
 			url: "{% url 'core:photo-delete' %}" + '?photo_filename=' + photoFileName + '&form_for=' + '{{ form_for }}',
-			type: 'DELETE',
+			type: 'DELETE',  // send DELETE request to backend
 			dataType: 'json',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');

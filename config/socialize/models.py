@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -191,7 +192,7 @@ class SocialProfile(models.Model):
 			return _('30 Above')
 
 	def get_absolute_url(self):
-		return self.user.get_absolute_url()
+		return reverse('socialize:view-profile', kwargs={'username': self.user.username})
 
 	def __str__(self):
 		return str(self.user)

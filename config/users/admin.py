@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
 from .forms import AdminUserCreationForm, AdminUserChangeForm
-from .models import User, PhoneNumber, Suspension
+from .models import User, PhoneNumber
 
 # class PhoneNumberInline(GenericTabularInline):
 #     model = PhoneNumber
@@ -50,5 +50,4 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(PhoneNumber)
-admin.site.register(Suspension)
 admin.site.register(User, UserAdmin)

@@ -1,15 +1,17 @@
 import django_filters as filters
 import os
 from django_filters.views import FilterView
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Prefetch
+from django.http import JsonResponse
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView, ListView
-from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from core.constants import (
@@ -24,9 +26,23 @@ from .models import (
 	ItemListingPhoto, AdListing, AdListingPhoto
 )
 
+User = get_user_model()
+
 
 # class ListingsExplain(TemplateView):
 # 	template_name = 'marketplace/listings_explain.html'
+
+
+class IsListingOwnerOrModeratorMixin(LoginRequiredMixin, UserPassesTestMixin):
+	"""Custom mixin to ensure user is owner of listing or moderator."""
+
+	def test_func(self):
+		# Permit access to only post owners (and moderators)
+		user = self.request.user
+		if user.is_mod:
+			return True
+
+		return user == self.get_object().owner
 
 
 class ItemListingCreate(LoginRequiredMixin, CreateView):
@@ -104,19 +120,10 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(listing.get_absolute_url())
 
 
-class ItemListingUpdate(UserPassesTestMixin, UpdateView):
+class ItemListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
 	form_class = ItemListingForm
 	model = ItemListing
 	template_name = 'marketplace/itemlisting_update.html'
-
-	def user_is_owner(self):
-		"""Permit access to only post owners (and moderators)"""
-		listing = get_object_or_404(ItemListing, pk=self.kwargs.get('pk'))
-		return self.request.user == listing.owner
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.user_is_owner
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs = super().get_form_kwargs(**kwargs)
@@ -242,22 +249,15 @@ class ItemListingDetail(DetailView):
 		
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()
+		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['first_photos'] = first_photos
 		context['similar_listings'] = similar_listings
 		return context
 
 
-class ItemListingDelete(UserPassesTestMixin, DeleteView):
+class ItemListingDelete(IsListingOwnerOrModeratorMixin, DeleteView):
 	model = ItemListing
 	success_url = reverse_lazy('marketplace:item-listing-list')
-
-	def user_is_owner(self):
-		"""Permit access to only post owners (and moderators)"""
-		return self.request.user == self.get_object().owner
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.user_is_owner
 
 
 class ItemListingFilter(filters.FilterSet):
@@ -344,19 +344,10 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(listing.get_absolute_url())
 
 
-class AdListingUpdate(UserPassesTestMixin, UpdateView):
+class AdListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
 	form_class = AdListingForm
 	model = AdListing
 	template_name = 'marketplace/adlisting_update.html'
-
-	def user_is_owner(self):
-		"""Permit access to only post owners (and moderators)"""
-		listing = self.get_object()
-		return self.request.user == listing.owner
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.user_is_owner
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs = super().get_form_kwargs(**kwargs)
@@ -460,23 +451,16 @@ class AdListingDetail(DetailView):
 
 		context['photos'] = listing_photos
 		context['contact_numbers'] = listing.contact_numbers.all()
+		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['similar_listings'] = similar_listings
 		context['first_photos'] = first_photos
 		
 		return context
 
 
-class AdListingDelete(UserPassesTestMixin, DeleteView):
+class AdListingDelete(IsListingOwnerOrModeratorMixin, DeleteView):
 	model = AdListing
 	success_url = reverse_lazy('marketplace:ad-listing-list')
-
-	def user_is_owner(self):
-		"""Permit access to only post owners (and moderators)"""
-		return self.request.user == self.get_object().owner
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.user_is_owner
 
 
 class AdListingFilter(filters.FilterSet):

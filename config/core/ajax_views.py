@@ -1,8 +1,5 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from django.http.response import HttpResponseBadRequest
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
@@ -20,6 +17,8 @@ from past_papers.forms import PastPaperPhotoForm
 
 
 class PhotoUploadView(LoginRequiredMixin, View):
+	http_method_names = ['DELETE', 'POST']
+	
 	def delete(self, request):
 		"""Called when a photo is deleted. Removes photo from list of photos."""
 
@@ -56,7 +55,6 @@ class PhotoUploadView(LoginRequiredMixin, View):
 		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 
 		return JsonResponse({'deleted': True})
-
 
 	def post(self, request, form_for):
 		"""Called when a photo is uploaded."""

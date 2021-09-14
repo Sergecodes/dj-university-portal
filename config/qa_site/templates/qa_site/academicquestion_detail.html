@@ -24,15 +24,7 @@
 
 
 {% block content %}
-<!-- Toasts -->
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans "You can't vote for your own post" %}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
+<!-- toasts -->
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
@@ -52,17 +44,53 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'An error occured, refresh the page then try again.' %} <br>
+				{% trans 'If it persists, contact us.' %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was added to your' %} 
+				<a href="#">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was removed from your' %} 
+				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
 
 
 <div class="border py-3 mb-5 container-lg">
 	<article class="js-question" data-id="{{ question.id }}">
-		<div class="d-flex question-header">
-			<h1 class="h2 mb-3 question-header__title">{{ question.title }}</h1>
-			<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning">
-				{% trans 'Ask a Question' %}
-			</a>
+		{% with question_poster=question.poster %}
+		<div class="d-md-flex flex-row-reverse mb-3 mb-md-0 question-header">
+			<p class="text-end me-3">
+				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning">
+					{% trans 'Ask a Question' %}
+				</a>
+			</p>
+			<h1 class="h2 question-header__title">{{ question.title }}</h1>
 		</div>
-		<p class="question-info">
+		<p class="mb-lg-1 question-info">
 			<span class="mx-1">
 				{% trans 'Asked' %}
 				<strong title="{{ question.posted_datetime }}">
@@ -71,20 +99,47 @@
 			</span>
 			<span class="mx-1">
 				{% trans 'By' %}
-				<a 
-					class="text-decoration-none" 
-					href="{{ question.poster.get_absolute_url }}"
-				>
-					{{ question.poster.username }}
-				</a>
+				{% if question_poster.has_social_profile %}
+					<a 
+						class="text-decoration-none" 
+						href="{{ question_poster.get_absolute_url }}"
+					>
+						{{ question_poster.username }}
+					</a>
+				{% else %}
+					<span title='{% trans "User doesn't have a social profile" %}'>{{ question_poster.username }}</span>
+				{% endif %}
 			</span>
 			<span class="mx-1">
 				{% trans 'In' %}
 				<a href="#" class="text-decoration-none">{{ question.subject.name }}</a>
 			</span>
 		</p>
-		<hr class="mb-3">
 
+		<!-- Bookmark section -->
+		<div class="text-end me-2">
+			<a 
+				role="button" 
+				data-id="{{ question.id }}"
+				class="text-decoration-none js-bookmark" 
+				title="{% trans 'Add this question to your favourites. (click again to undo)' %}"
+			>
+				{% if user in bookmarkers %}
+					<i class="fas fa-star js-selected" aria-hidden="true"></i>
+					{% trans 'Bookmarked' %}
+				{% else %}
+					<i class="far fa-star" aria-hidden="true"></i>
+					{% trans 'Bookmark' %}
+				{% endif %}
+			</a>
+			<span class="ms-1 text-primary">
+				&nbsp;|&nbsp; 
+				<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
+			</span>
+		</div>
+		<!-- todo report(flag) here -->
+
+		<hr class="mb-3">
 		<section class="mb-5 px-3 question-layout">
 			<div class="mt-3 mb-4 question-content">
 				{{ question.content|safe }}
@@ -138,12 +193,13 @@
 				<a href="#" class="btn btn-sm btn-secondary">{% trans 'Click here' %} </a> 
 				{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' %}
 			</p>
-			<!-- insert share links here, they should be inline and not take up much space -->
+			<!-- todo insert share links here, they should be inline and not take up much space -->
 			<div></div>
 		</section>
 
 		<section class="px-3 question-comments">
 			{% for comment in comments %}
+				{% with comment_poster=comment.poster %}
 				<div class="d-flex border-top border-bottom pt-2 pb-1 question-comment">
 					<div class="ms-2">
 						<span class="text-muted">
@@ -182,21 +238,26 @@
 					<div class="ms-3 js-comment-wrp">
 						{{ comment.content|safe }}
 						<span>-</span>
-						<a 
-							href="{% url 'users:view-profile' username=question.poster.username %}"
-							class="badge bg-info me-1 text-decoration-none"
-							{% if comment.poster == question.poster %}
-								title="{% trans 'This is the user who asked the question' %}"
-							{% endif %}
-						> 
-							{{ comment.poster.username }}
-							{% if comment.poster == question.poster %}
-								<i class="fas fa-pen" aria-hidden="true"></i>
-							{% endif %}
-						</a>
+						{% if comment_poster.has_social_profile %}
+							<a 
+								href="{{ comment_poster.get_absolute_url }}"
+								class="badge bg-info me-1 text-decoration-none"
+								{% if comment_poster == question_poster %}
+									title="{% trans 'This is the user who asked the question' %}"
+								{% endif %}
+							> 
+								{{ comment_poster.username }}
+								{% if comment_poster == question_poster %}
+									<i class="fas fa-pen" aria-hidden="true"></i>
+								{% endif %}
+							</a>
+						{% else %}
+						<span title='{% trans "User doesn't have a social profile" %}'>{{ comment_poster.username }}</span>
+						{% endif %}
 						<span class="small text-muted">{{ comment.posted_datetime }}</span>
 					</div>
 				</div>
+				{% endwith %}
 			{% comment %} {% empty %}
 				<p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> {% endcomment %}
 			{% endfor %}
@@ -280,6 +341,7 @@
 						{# answer comments here #}
 						<div class="px-3 answer-comments">
 							{% for comment in answer.comments.all %}
+								{% with comment_poster=comment.poster %}
 								<div class="d-flex border-top border-bottom pt-2 pb-1 answer-comment">
 									<span class="text-muted">
 										{% if comment.vote_count %}
@@ -316,21 +378,26 @@
 									<div class="ms-3 js-comment-wrp">
 										{{ comment.content|safe }}
 										<span>-</span>
-										<a 
-											href="{% url 'users:view-profile' username=question.poster.username %}"
-											class="badge bg-info me-1 text-decoration-none"
-											{% if comment.poster == question.poster %}
-												title="{% trans 'This is the user who asked the question' %}"
-											{% endif %}
-										> 
-											{{ comment.poster.username }}
-											{% if comment.poster == question.poster %}
-												<i class="fas fa-pen" aria-hidden="true"></i>
-											{% endif %}
-										</a>
+										{% if comment_poster.has_social_profile %}
+											<a 
+												href="{{ comment_poster.get_absolute_url }}"
+												class="badge bg-info me-1 text-decoration-none"
+												{% if comment_poster == question_poster %}
+													title="{% trans 'This is the user who asked the question' %}"
+												{% endif %}
+											> 
+												{{ comment_poster.username }}
+												{% if comment_poster == question_poster %}
+													<i class="fas fa-pen" aria-hidden="true"></i>
+												{% endif %}
+											</a>
+										{% else %}
+											<span title='{% trans "User doesn't have a social profile" %}'>{{ comment_poster.username }}</span>
+										{% endif %}
 										<span class="small text-muted">{{ comment.posted_datetime }}</span>
 									</div>
 								</div>
+								{% endwith %}
 							{% endfor %}
 							
 							<a 
@@ -371,12 +438,12 @@
 				</form>
 			</div>
 		</section>
+		{% endwith %}
 	</article>
 
 	<!-- related questions -->
 	{% if related_qstns.exists %}
 		<hr class="mb-4">
-
 		<section class="p-3">
 			<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
 			{% for question in related_qstns %}
@@ -403,11 +470,48 @@
 
 {% block extra_js %}
 <script>
+	// possible thread types are {question, answer, question-comment, answer-comment}
+	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
+	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
+
 	/* get current user's id.. */
 	// if user isn't logged in, user.id will be `None`
 	var currentUserId = "{{ user.id }}";
 	currentUserId = (currentUserId == "None" ? null : currentUserId);
 	console.log(currentUserId);
+
+	// enable username to be directly after comment
+	$('.js-comment-wrp').children().css('display', 'inline');
+
+
+	function onVote(event) {
+		// if user isn't logged in
+		if (!currentUserId) {
+			// prevent other handlers from being called(prevent sending request to backend)
+			event.stopImmediatePropagation();
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		// if thread type is invalid
+		var threadType = event.currentTarget.dataset.thread;
+		console.log(threadType);
+		if (!THREAD_TYPES.includes(threadType)) {
+			event.stopImmediatePropagation();
+			displayErrorOccurredToast();
+			return false;
+		}
+
+		// if user is voting for their post
+		if (currentUserId === this.dataset.posterId) {
+			event.stopImmediatePropagation();
+			displaySelfVoteToast();
+			return false;
+		}
+	}
+
+	$upvoteTriggerer.click(onVote);
+	$downvoteTriggerer.click(onVote);
 
 	// hide button and display forms when button is clicked
 	$('.js-add-question-comment, .js-add-answer-comment, .js-add-answer').click(function(event) {
@@ -431,7 +535,7 @@
 			$('#addQuestionCommentArea').ckeditor({
 				toolbar: 'Custom',
 				toolbar_Custom: [
-					['Bold', 'Italic', 'Link'],  // code too
+					['Bold', 'Italic', 'Link'],  // todo code too
 				],
 				// width: '50%',
 				width: isMobile ? '100%' : '50%',
@@ -470,40 +574,6 @@
 		}
 	});
 
-
-	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
-
-	function onVote(event) {
-		// if user isn't logged in
-		if (!currentUserId) {
-			// prevent other handlers from being called(prevent sending request to backend)
-			event.stopImmediatePropagation();
-			displayLoginRequiredToast();
-			return false;
-		}
-
-		// if user is voting on their post
-		if (currentUserId === this.dataset.posterId) {
-			event.stopImmediatePropagation();
-			var $myToast = $('.js-self-vote-toast').first();
-
-			// reset styles alert-danger styles since apparently, some toast styles override them. 
-			$myToast.css({
-				'color': '#842029',
-				'border-color': '#f5c2c7'
-			});
-
-			var bsToast = new bootstrap.Toast($myToast[0]);
-			bsToast.show(); 
-		}
-	}
-
-	$upvoteTriggerer.click(onVote);
-	$downvoteTriggerer.click(onVote);
-
-	// enable username to be directly after comment
-	$('.js-comment-wrp').children().css('display', 'inline');
-
 	/* UPVOTES */
 	$upvoteTriggerer.click(function() {
 		var $this = $(this);
@@ -511,13 +581,14 @@
 		
 		// possible thread types are {question, answer, question-comment, answer-comment}
 		var voteType = 'up', threadType = this.dataset.thread;
+		var url = "{% url 'qa_site:academic-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
 			var voteAction = 'recall-vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:academic-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
@@ -530,7 +601,7 @@
 
 						// update number of votes
 						if (threadType == 'question-comment' || threadType == 'answer-comment') {
-						// span comes before vote icon for comments
+							// span comes before vote icon for comments
 							$this.parent().prev().text(response);
 						} else {
 							$this.next().text(response);
@@ -538,6 +609,9 @@
 							var textNode = $icon[0].nextSibling;
 							textNode.textContent = " {% trans 'Like' %}";
 						}
+					} else {
+						console.error(response);
+						displayErrorOccurredToast();
 					}
 				}
 			});
@@ -547,7 +621,7 @@
 			var voteAction = 'vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:academic-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
@@ -565,6 +639,9 @@
 							var textNode = $icon[0].nextSibling;
 							textNode.textContent = " {% trans 'Liked' %}";
 						}
+					} else {
+						console.error(response);
+						displayErrorOccurredToast();
 					}
 				},
 				error: function() {
@@ -579,13 +656,14 @@
 		var $this = $(this);
 		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
 		var voteType = 'down', threadType = this.dataset.thread;
+		var url = "{% url 'qa_site:academic-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
 			var voteAction = 'recall-vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:academic-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
@@ -600,6 +678,12 @@
 						$this.next().text(response);
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Dislike' %}";
+					} else {
+						// todo if user already has upvote or downvote on question
+						// display toast...
+						// else display error occurred toast
+						console.error(response);
+						displayErrorOccurredToast();
 					}
 				}
 			});
@@ -609,7 +693,7 @@
 			var voteAction = 'vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:academic-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
@@ -623,11 +707,98 @@
 						$this.next().text(response);
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Disliked' %}";
+					} else {
+						console.error(response);
+						displayErrorOccurredToast();
 					}
 				}
 			});
 		}
 
+	});
+
+	/** Bookmarking  */
+	// get current user's id.. 
+	// if user isn't logged in, user.id will be `None`
+	var currentUserId = "{{ user.id }}";
+	currentUserId = (currentUserId == "None" ? null : currentUserId);
+	var url = "{% url 'qa_site:academic-bookmark-toggle' %}";
+	var bookmarkCount = {{ bookmarkers.count }}, $bookmarkCounter = $('.js-bookmarkCount').first();
+
+	$('.js-bookmark').click(function(event) {
+		// if user isn't logged in
+		if (!currentUserId) {
+			displayLoginRequiredToast();
+			return false;
+		}
+
+		var $this = $(this);
+		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
+		
+		// if user is trying to undo the bookmark
+		if ($icon.hasClass('js-selected')) {
+			var voteAction = 'recall-bookmark';
+
+			$.ajax({
+				url: url,
+				type: 'POST',
+				data: {id: id, action: voteAction},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result['unbookmarked']) {
+						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+						$icon.removeClass('fas js-selected').addClass('far');
+
+						// update bookmark count
+						var newCount = parseInt($bookmarkCounter.text(), 10);
+						$bookmarkCounter.text(newCount - 1);
+
+						// update text
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Bookmark' %}";
+						displayListingBookmarkToggleToast(false);
+
+					} else {
+						console.error(result);
+						displayErrorOccurredToast();
+					}
+				}
+			});
+
+		} else {
+			// if user is adding a new bookmark
+			var voteAction = 'bookmark';
+
+			$.ajax({
+				url: url,
+				type: 'POST',
+				data: {id: id, action: voteAction},
+				dataType: 'json',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+				},
+				success: function(result) {
+					if (result['bookmarked']) {
+						// remove far class and set to fas
+						$icon.removeClass('far').addClass('fas js-selected');
+
+						// update bookmark count
+						var newCount = parseInt($bookmarkCounter.text(), 10);
+						$bookmarkCounter.text(newCount + 1);
+
+						var textNode = $icon[0].nextSibling;
+						textNode.textContent = " {% trans 'Bookmarked' %}";
+						displayListingBookmarkToggleToast(true);
+					} else {
+						console.error(result);
+						displayErrorOccurredToast();
+					}
+				}
+			});
+		}
 	});
 </script>
 {% endblock %}

@@ -233,6 +233,10 @@ class Post(models.Model):
 		""" Post is active if duration is not yet exhausted """
 		return (timezone.now() - self.duration).total_seconds() > 0
 
+	@property
+	def bookmark_count(self):
+		return self.bookmarkers.count()
+
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.title)
@@ -298,6 +302,12 @@ class ItemListing(Post, HitCountMixin):
 		_('Price'), 
 		help_text=_("Figures and spaces only, no commas or dots. <br> Enter <b>0</b> for free products or services."),
 	)
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_item_listings',
+		related_query_name='bookmarked_item_listing',
+		blank=True
+	)
 
 
 	def get_absolute_url(self):
@@ -347,6 +357,12 @@ class AdListing(Post, HitCountMixin):
 		related_query_name='ad_listing',
 		null=True, blank=True,
 		help_text=_('Allow this empty if this advert concerns no particular institution.')
+	)
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_ad_listings',
+		related_query_name='bookmarked_ad_listing',
+		blank=True
 	)
 
 	def get_absolute_url(self):

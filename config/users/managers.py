@@ -59,7 +59,7 @@ class UserManager(BaseUserManager, Manager):
 		user.set_password(password)
 
 		if commit:
-			user.save(using=self._db)
+			user.save()   # user.save(using=self._db)
 
 		return user
 

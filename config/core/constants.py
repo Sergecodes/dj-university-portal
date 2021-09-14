@@ -13,12 +13,19 @@ EXTERNAL_LINK_SVG = ' \
 EXTERNAL_LINK_ICON = '<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>'
 
 
-# Photo upload key suffixes
+# APP PERMISSIONS
+
+
+# Photo upload key suffixes (for session)
 ITEM_LISTING_SUFFIX = '_itemlisting_photos'
 AD_LISTING_SUFFIX = '_adlisting_photos'
 PAST_PAPER_SUFFIX = '_pastpaper_photos'
 LOST_ITEM_SUFFIX = '_lostitem_photos'
 
+
+# USERS APP
+# dummy email
+DELETED_USER_EMAIL = 'deleted@gmail.com'
 
 # MARKETPLACE app
 MIN_LISTING_PHOTOS_LENGTH = 3

@@ -97,8 +97,10 @@ function loginDropdownMouseLeave() {
 	dropdownMenu.hide();
 }
 
-/** Verify if val contains only numeric characters(digits).
- * Used in form validation.
+/** 
+ * Verify if val contains only numeric characters(digits). 
+ * 
+ * `val` string or number
  */
 function isNumeric(val) {
 	return /^\d+$/.test(val);
@@ -362,6 +364,7 @@ function expandImage(e) {
 
 /**
  * Display toast telling user that he needs to be logged in.
+ * Toast should be present in the html page
  */
 function displayLoginRequiredToast() {
 	// this toast should be present in the html page !
@@ -372,6 +375,57 @@ function displayLoginRequiredToast() {
 		'color': '#842029',
 		'border-color': '#f5c2c7'
 	});
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
+/**
+ * Display toast telling user that he can't vote for his post
+ * Toast should be present in the html page
+ */
+ function displaySelfVoteToast() {
+	// this toast should be present in the html page !
+	var $myToast = $('.js-self-vote-toast').first();
+
+	// reset styles alert-danger styles since apparently, some toast styles override them. 
+	$myToast.css({
+		'color': '#842029',
+		'border-color': '#f5c2c7'
+	});
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
+/**
+ * Display toast telling user that an error occurred(generally an unexpected error)
+ * Toast should be present in the html page
+ */
+ function displayErrorOccurredToast() {
+	// this toast should be present in the html page !
+	var $myToast = $('.js-error-occurred-toast').first();
+
+	// reset styles alert-danger styles since apparently, some toast styles override them. 
+	$myToast.css({
+		'color': '#842029',
+		'border-color': '#f5c2c7'
+	});
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
+/**
+ * Display toast telling user that they have successfully bookmarked or unbookmarked a post
+ * Toast should be present in the html page
+ * `bookmarkAdded` true if bookmark was added else false
+ */
+ function displayListingBookmarkToggleToast(bookmarkAdded) {
+	if (bookmarkAdded) 
+		var $myToast = $('.js-bookmark-added-toast').first();
+	else 
+		var $myToast = $('.js-bookmark-removed-toast').first();
 
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show(); 

@@ -240,6 +240,10 @@ class Question(models.Model):
 		return self.downvoters.count()
 
 	@property
+	def bookmark_count(self):
+		return self.bookmarkers.count()
+
+	@property
 	def score(self):
 		return self.upvote_count - self.downvote_count
 

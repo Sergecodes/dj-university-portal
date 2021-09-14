@@ -7,15 +7,11 @@ from django.contrib.auth import (
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.views import logout_then_login
 from django.db.models.query import Prefetch
-from django.http import Http404
 from django.http.response import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.views.generic import DetailView
+from django.shortcuts import  redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from core.utils import is_mobile
 from qa_site.models import SchoolAnswer, AcademicAnswer
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
@@ -83,7 +79,7 @@ class UserCreate(CreateView):
 		return data
 
 
-class UserUpdate(UserPassesTestMixin, UpdateView):
+class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	model = User
 	form_class = UserUpdateForm
 	slug_url_kwarg = 'username'
@@ -91,17 +87,13 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 	template_name = 'users/edit_profile.html'
 	# success_url = reverse_url('users:view-profile')
 
-	def username_matches(self):
-		"""
-		Permit access to logged in users whose username matches with that passed in the url.
-		If no match, 403 Forbidden is raised.
-		"""
-		passed_username = self.kwargs.get('username', '')
-		return self.request.user.username == passed_username
-
-	def get_test_func(self):
-		# should return a function (not a call to a function) hence no parentheses
-		return self.username_matches
+	def test_func(self):
+		# Permit access only to current user 
+		# note that we can't permit access to staff too because he will instead be 
+		# trying to edit his own profile...
+		user = self.request.user
+		passed_username = self.kwargs.get('username')
+		return user.username == passed_username
 
 	def post(self, request, *args, **kwargs):
 		self.object = self.get_object()
@@ -142,13 +134,6 @@ class UserUpdate(UserPassesTestMixin, UpdateView):
 			instance=self.object
 		)
 		return context
-
-
-class UserDetail(DetailView):
-	model = User
-	slug_url_kwarg = "username"
-	slug_field = "username"
-	template_name = 'users/profile/dashboard.html'
 
 
 def logout_and_login(request):
@@ -198,6 +183,13 @@ class PastPaper(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/past-papers.html"
 
 
+# class MyProfile(LoginRequiredMixin, DetailView):
+# 	model = User
+# 	template_name = 'users/profile/dashboard.html'
+
+# 	def get_object(self, queryset=None):
+# 		return self.request.user
+	
 
 # Override auth views by redirecting user to appropriate page if he isn't logged in.
 # class UserLogin(auth_views.LoginView):

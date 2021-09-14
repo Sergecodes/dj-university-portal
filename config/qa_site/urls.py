@@ -1,7 +1,7 @@
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
-from . import views
+from . import views, ajax_views
 
 
 app_name = 'qa_site'
@@ -46,8 +46,9 @@ urlpatterns = [
 		name='school-question-detail'
 	),
 
-	# VOTES #
+	## AJAX VIEWS
 	path('ajax/academic-thread/vote/', views.vote_academic_thread, name='academic-thread-vote'),
 	path('ajax/school-thread/vote/', views.vote_school_thread, name='school-thread-vote'),
-
+	path('ajax/school-question/bookmark/', ajax_views.school_question_bookmark_toggle, name='school-bookmark-toggle'),
+	path('ajax/academic-question/bookmark/', ajax_views.academic_question_bookmark_toggle, name='academic-bookmark-toggle'),
 ]

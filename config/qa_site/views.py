@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
@@ -136,6 +137,7 @@ class AcademicQuestionDetail(DetailView):
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
 		context['related_qstns'] = related_qstns
+		context['bookmarkers'] = question.bookmarkers.only('id')
 		return context
 
 
@@ -305,14 +307,17 @@ class SchoolQuestionDetail(DetailView):
 		context['answers'] = answers
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
+		context['bookmarkers'] = question.bookmarkers.only('id')
 
 		return context
 
 
 @login_required
+@require_POST
 def vote_academic_thread(request):
 	"""
 	This view handles upvotes and downvotes for questions, answers and comments of an academic question.
+	It should be called via client side..
 	"""
 	user, POST = request.user, request.POST
 	thread_id, thread_type = int(POST.get('id')), POST.get('thread_type')
@@ -329,7 +334,7 @@ def vote_academic_thread(request):
 	elif thread_type == 'answer-comment':
 		object = get_object_or_404(AcademicAnswerComment, pk=thread_id)
 	else:
-		raise ValueError("_(Invalid thread type)")
+		return HttpResponse(_('Invalid thread type'))
 
 	if thread_type == 'question' or thread_type == 'answer':
 		# verify if user has already upvoted and downvoted question or answer
@@ -349,9 +354,9 @@ def vote_academic_thread(request):
 					return HttpResponse(object.downvote_count)
 
 				else:
-					return HttpResponse('Error - Unknown vote type')
+					return HttpResponse(_('Error - Unknown vote type'))
 			else:
-				return HttpResponse('Error - Already voted')
+				return HttpResponse(_('Error - Already voted'))
 
 		# if user is retracting a vote
 		elif vote_action == 'recall-vote':
@@ -363,9 +368,9 @@ def vote_academic_thread(request):
 				object.downvoters.remove(user)
 				return HttpResponse(object.downvote_count)
 			else:
-				return HttpResponse('Error - Unknown vote type or no vote to recall')
+				return HttpResponse(_('Error - Unknown vote type or no vote to recall'))
 		else:
-			return HttpResponse('Error - bad action')
+			return HttpResponse(_('Error - bad action'))
 	
 	# only upvotes are supported on comments
 	elif thread_type == 'question-comment' or thread_type == 'answer-comment':
@@ -377,21 +382,22 @@ def vote_academic_thread(request):
 					object.upvoters.add(user)
 					return HttpResponse(object.vote_count)
 				else:
-					return HttpResponse('Error - Unknown vote type')
+					return HttpResponse(_('Error - Unknown vote type'))
 			else:
-				return HttpResponse('Error - Already voted')
+				return HttpResponse(_('Error - Already voted'))
 
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up' and already_upvoted:
 				object.upvoters.remove(user)
 				return HttpResponse(object.vote_count)
 			else:
-				return HttpResponse('Error - Unknown vote type or no vote to recall')
+				return HttpResponse(_('Error - Unknown vote type or no vote to recall'))
 		else:
-			return HttpResponse('Error - bad action')
+			return HttpResponse(_('Error - bad action'))
 
 
 @login_required
+@require_POST
 def vote_school_thread(request):
 	"""
 	This view handles upvotes and downvotes for questions, answers and comments of as school-based question.
@@ -411,7 +417,7 @@ def vote_school_thread(request):
 	elif thread_type == 'answer-comment':
 		object = get_object_or_404(SchoolAnswerComment, pk=thread_id)
 	else:
-		raise ValueError("_(Invalid thread type)")
+		return HttpResponse(_('Invalid thread type'))
 
 	if thread_type == 'question' or thread_type == 'answer':
 		# verify if user has already upvoted and downvoted question or answer
@@ -431,9 +437,9 @@ def vote_school_thread(request):
 					return HttpResponse(object.downvote_count)
 
 				else:
-					return HttpResponse('Error - Unknown vote type')
+					return HttpResponse(_('Error - Unknown vote type'))
 			else:
-				return HttpResponse('Error - Already voted')
+				return HttpResponse(_('Error - Already voted'))
 
 		# if user is retracting a vote
 		elif vote_action == 'recall-vote':
@@ -445,9 +451,9 @@ def vote_school_thread(request):
 				object.downvoters.remove(user)
 				return HttpResponse(object.downvote_count)
 			else:
-				return HttpResponse('Error - Unknown vote type or no vote to recall')
+				return HttpResponse(_('Error - Unknown vote type or no vote to recall'))
 		else:
-			return HttpResponse('Error - bad action')
+			return HttpResponse(_('Error - bad action'))
 	
 	# only upvotes are supported on comments
 	elif thread_type == 'question-comment' or thread_type == 'answer-comment':
@@ -459,17 +465,17 @@ def vote_school_thread(request):
 					object.upvoters.add(user)
 					return HttpResponse(object.vote_count)
 				else:
-					return HttpResponse('Error - Unknown vote type')
+					return HttpResponse(_('Error - Unknown vote type'))
 			else:
-				return HttpResponse('Error - Already voted')
+				return HttpResponse(_('Error - Already voted'))
 
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up' and already_upvoted:
 				object.upvoters.remove(user)
 				return HttpResponse(object.vote_count)
 			else:
-				return HttpResponse('Error - Unknown vote type or no vote to recall')
+				return HttpResponse(_('Error - Unknown vote type or no vote to recall'))
 		else:
-			return HttpResponse('Error - bad action')
+			return HttpResponse(_('Error - bad action'))
 
 

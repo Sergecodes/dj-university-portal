@@ -6,16 +6,28 @@
 
 todo:
 		Sep 13
-		- question bookmarking/following plus icons... both academic question / school-based.
-		(is following important ??)  use @username ... mentions too, django notifications..
+			# - implement permissions (moderator) (PermissionsMixin...)
+			- update user profile/dashboard accordingly
+			- social_profile_detail.html page. upon clicking on the name of a user, go to this page.
+			- insert delete and edit links. ps moderator can delete only if post has x num of flags.
 		
+		- notifications(small practices on django-notifications-hq perhaps via terminal)
+		- check out django-flag-app - question/listing reporting
+
+		- questions following ( icons...) both academic question / school-based.
+		- username @username ... mentions 
+		- share links on detail pages... 
+
 		### update(edit views) ### (do those other sites permit this ?)
 		- questions
 
+- try to set self.object in mixin; (self.object=self.object()) to prevent calling it again in post.
 - change owner to poster.. marketplace.
+- change question voting to json response ..
 - implement editing and deleting by poster in various apps..	
 - if user is authed, on header, change profile icon to his profile image. 
 - arrange socialize dropdown...
+- remove all exceptions raised in server-side, apart from in forms. (assert and raise)
 - remove duration from listings for now right... perhaps implement in future. yep.
 - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
 - convert all lists with div to ul > li; 
@@ -33,7 +45,6 @@ todo:
 see example in profile/QA view.. there should be no duplicate queries on any page !!!
 - change pencil icon to may be microphone icon in question detail.
 - remove unneccessary margin and padding classes and use responsive ones such as me-sm-0, my-sm-2, etc...
-- add modal photo upload functionality to past papers form.
 - in item/ad listing, make tab items clickable (links.)
 - show best users on both pc and mobile; display vertically on mobile.
 - tell user his age won't be visible to other users.
@@ -41,7 +52,6 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - reduce size (height) of listing results.
 - initially, remove count of items. perhaps in future, will display count...
 - remove unused css class name from each template. use comments for potential future class names .
-- aria-hidden on icons, svgs, etc..; alt text on images, 
 - tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
 - remove tags from school questions ...?
 - in create forms, convert 'raise' to sef.add_error()
@@ -113,6 +123,7 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - minimum length constraints
 - remove confirm password field, implement show password checkbox
 
+- test with codecov(codecoverage)
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
 jquery validation plugin..

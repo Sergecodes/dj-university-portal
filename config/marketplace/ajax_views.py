@@ -1,14 +1,63 @@
+"""Basically for views that return a JsonResponse"""
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.views import View
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_GET, require_POST
 
-from .forms import ItemListingPhotoForm as ItemPhotoForm
-from .models import ItemCategory
+from .models import ItemCategory, ItemListing, AdListing
 
 
 @login_required
+@require_POST
+def item_bookmark_toggle(request):
+	"""This view handles bookmarking for item listings"""
+	user, POST = request.user, request.POST
+	id, action = int(POST.get('id')), POST.get('action')
+	listing = get_object_or_404(ItemListing, pk=id)
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		user.bookmark_listing(listing)
+		return JsonResponse({
+			'bookmarked': True,
+			# coerce _('foo') (__proxy__ ) to string to permit concatenation
+			# 'content': str(bookmark_count) + ' ' + (str(_('bookmarks')) if bookmark_count > 1 else str(_('bookmark')))
+		}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		user.unbookmark_listing(listing)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
+
+
+@login_required
+@require_POST
+def ad_bookmark_toggle(request):
+	"""This view handles bookmarking for ad listings"""
+	user, POST = request.user, request.POST
+	id, action = int(POST.get('id')), POST.get('action')
+	listing = get_object_or_404(AdListing, pk=id)
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		user.bookmark_listing(listing)
+		return JsonResponse({'bookmarked': True}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		user.unbookmark_listing(listing)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
+
+
+@login_required
+@require_GET
 def get_item_sub_categories(request):
 	"""Return the sub categories of a given item category via ajax"""
 

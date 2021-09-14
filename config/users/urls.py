@@ -85,6 +85,7 @@ auth_patterns = [
 ]
 
 profile_patterns = [
+	path(_('profile/'), views.Dashboard.as_view(), name='profile-dashboard'),
 	path(_('profile/dashboard/'), views.Dashboard.as_view(), name='profile-dashboard'),
 	path(_('profile/marketplace/'), views.Marketplace.as_view(), name='profile-marketplace'),
 	path(_('profile/questions-and-answers/'), views.QuestionsAndAnswers.as_view(), name='profile-qa'),
@@ -92,7 +93,6 @@ profile_patterns = [
 	path(_('profile/past-papers/'), views.PastPaper.as_view(), name='profile-pastpapers'),
 
 	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
-	path(_('<str:username>/'), views.UserDetail.as_view(), name='view-profile'),
 
 ]
 

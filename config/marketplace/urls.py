@@ -26,5 +26,7 @@ urlpatterns = [
 	path(_('adverts/<int:pk>/'), views.AdListingDetail.as_view(), name='ad-listing-detail'),
 
 	## AJAX VIEWS ##
+	path('ajax/items/bookmark/', ajax_views.item_bookmark_toggle, name='item-bookmark-toggle'),
+	path('ajax/adverts/bookmark/', ajax_views.ad_bookmark_toggle, name='ad-bookmark-toggle'),
 	path('ajax/get-item-subcategories/', ajax_views.get_item_sub_categories, name='get-item-subcategories'),
 ]
