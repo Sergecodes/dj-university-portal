@@ -1,10 +1,12 @@
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from flag.models import Flag
 from taggit.managers import TaggableManager
 
 from core.model_fields import TitleCaseField
@@ -15,6 +17,7 @@ User = get_user_model()
 
 
 class Comment(models.Model):
+	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	content = RichTextField()
 	last_modified = models.DateTimeField(auto_now=True)
@@ -135,6 +138,7 @@ class AcademicAnswerComment(Comment):
 
 
 class Answer(models.Model):
+	flags = GenericRelation(Flag)
 	content = RichTextUploadingField()
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -219,8 +223,10 @@ class AcademicAnswer(Answer):
 		verbose_name_plural = _('Academic Question Answers')
 
 
-class Question(models.Model):
+class Question(models.Model):# the django-flag-app package requires that the name of this field be `flags`
+	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)
 

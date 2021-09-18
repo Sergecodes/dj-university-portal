@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load notifications_tags %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -213,7 +214,6 @@
 									{% csrf_token %}
 									<button type="submit" class="dropdown-item link-danger">{% trans 'Logout' %}</button>
 								</form>
-								<!-- <a href="{% url 'users:logout' %}" class="dropdown-item link-danger">{% trans "Logout" %}</a> -->
 							</div>
 						</li>
 					</ul>
@@ -308,34 +308,20 @@
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
-								id="lostItems"
+								id="lostFoundItems"
 								class="nav-link dropdown-toggle nav-menu__link"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								href="#"
 								role="button"
 							>
-								{% trans 'Publish a lost item' %}
+								{% trans 'Lost/Found Items' %}
 							</a>
-							<div class="dropdown-menu" aria-labelledby="lostItems">
+							<div class="dropdown-menu" aria-labelledby="lostFoundItems">
 								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-create' %}">{% trans 'Publish a lost item' %}</a>
-								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-list' %}">{% trans 'Lost items' %}</a>
-							</div>
-						</li>
-						<li class="nav-item my-1 dropdown js-headerDropdown">
-							<a
-								id="foundItems"
-								class="nav-link dropdown-toggle nav-menu__link"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-								href="#"
-								role="button"
-							>
-								{% trans 'Publish a found item' %}
-							</a>
-							<div class="dropdown-menu" aria-labelledby="foundItems">
+								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-list' %}">{% trans 'View lost items' %}</a>
 								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-create' %}">{% trans 'Publish a found item' %}</a>
-								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-list' %}">{% trans 'Found items' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-list' %}">{% trans 'View found items' %}</a>
 							</div>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
@@ -371,15 +357,16 @@
 								{% endif %}
 								<a class="dropdown-item" href="{% url 'socialize:find-friend' %}">{% trans 'Find a pal' %}</a>
 								{% if user.social_profile %}
-									<a class="dropdown-item" href="{% url 'socialize:update-profile' username=user.username %}">{% trans 'View/Update social profile' %}</a>
+									<a class="dropdown-item" href="{% url 'socialize:view-profile' username=user.username %}">{% trans 'View social profile' %}</a>
+									<a class="dropdown-item" href="{% url 'socialize:update-profile' username=user.username %}">{% trans 'Update social profile' %}</a>
 								{% endif %}
 							</div>
 						</li>
 					</ul>
 					<form class="d-flex w-75 mx-auto my-2 d-lg-none">
-		        <input class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
-		        <button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
-		      </form>
+						<input class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
+					</form>
 				</div>
 			</nav>
 		</div>

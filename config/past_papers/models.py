@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from flag.models import Flag
 
 from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
 from marketplace.models import Institution
@@ -43,6 +45,7 @@ class PastPaperPhoto(models.Model):
 
 
 class Comment(models.Model):
+	flags = GenericRelation(Flag)
 	content = models.TextField()
 	poster = models.ForeignKey(
 		User,
@@ -108,6 +111,7 @@ class PastPaper(models.Model):
 	type = models.CharField(max_length=5, choices=TYPES, default='GEN')
 	title = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=250)
+	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
 	file = models.FileField(blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
 	poster = models.ForeignKey(

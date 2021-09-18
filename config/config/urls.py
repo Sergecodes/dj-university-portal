@@ -32,6 +32,7 @@ urlpatterns += i18n_patterns(
     path(_('core/'), include('core.urls', namespace='core')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
+    path(_('flag/'), include('flag.urls', namespace='flag')),  # django-flag-app
     path(_('users/'), include('users.urls', namespace='users')),
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
@@ -39,7 +40,7 @@ urlpatterns += i18n_patterns(
     path(_('lost-and-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     # path(_('captcha/'), include('captcha.urls')),
     path(_('admin/'), admin.site.urls),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
     path('', HomePageView.as_view(), name='home'),
 
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

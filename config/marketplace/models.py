@@ -1,7 +1,7 @@
 from ckeditor.fields import RichTextField
 from datetime import timedelta
 from django.conf import settings
-# from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import validate_email
 from django.db import models
 from django.urls import reverse
@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from flag.models import Flag
 
 from core.constants import (
 	AD_PHOTOS_UPLOAD_DIR, 
@@ -201,7 +202,8 @@ class Post(models.Model):
 		help_text=_('Enter real names, buyers will more easily trust you if you enter a real name.'),
 		# validators=[validate_full_name]
 	)
-	# contact_numbers = GenericRelation('users.PhoneNumber')
+	# the django-flag-app package requires that the name of this field be `flags`
+	flags = GenericRelation(Flag)
 	# since title isn't unique, slug can't be used to get a particular object.
 	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
 	title = models.CharField(
@@ -215,7 +217,7 @@ class Post(models.Model):
 		help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.')
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
-	updated_datetime = models.DateTimeField(auto_now=True, editable=False)
+	last_modified = models.DateTimeField(auto_now=True)
 	# language in which post was created 
 	original_language = models.CharField(
 		_('Initial language'),

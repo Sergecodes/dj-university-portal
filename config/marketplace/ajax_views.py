@@ -20,7 +20,7 @@ def item_bookmark_toggle(request):
 
 	# if vote is new (not removing bookmark)
 	if action == 'bookmark':
-		user.bookmark_listing(listing)
+		listing.bookmarkers.add(user)
 		return JsonResponse({
 			'bookmarked': True,
 			# coerce _('foo') (__proxy__ ) to string to permit concatenation
@@ -29,7 +29,7 @@ def item_bookmark_toggle(request):
 
 	# if user is retracting bookmark
 	elif action == 'recall-bookmark':
-		user.unbookmark_listing(listing)
+		listing.bookmarkers.remove(user)
 		return JsonResponse({'unbookmarked': True}, status=200)
 	else:
 		return JsonResponse({'error': _('Invalid action')}, status=400)
@@ -45,12 +45,12 @@ def ad_bookmark_toggle(request):
 
 	# if vote is new (not removing bookmark)
 	if action == 'bookmark':
-		user.bookmark_listing(listing)
+		listing.bookmarkers.add(user)
 		return JsonResponse({'bookmarked': True}, status=200)
 
 	# if user is retracting bookmark
 	elif action == 'recall-bookmark':
-		user.unbookmark_listing(listing)
+		listing.bookmarkers.remove(user)
 		return JsonResponse({'unbookmarked': True}, status=200)
 	else:
 		return JsonResponse({'error': _('Invalid action')}, status=400)

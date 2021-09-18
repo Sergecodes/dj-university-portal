@@ -11,7 +11,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
-from core.constants import DELETED_USER_EMAIL
+from core.constants import (
+	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS,
+	MAX_ANSWER_PER_USER_PER_QUESTION
+)
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from marketplace.models import ItemListing, AdListing
 # from qa_site.models import AcademicQuestion, SchoolQuestion
@@ -43,10 +46,6 @@ class PhoneNumber(models.Model):
 		related_name='phone_numbers',
 		related_query_name='phone_number'
 	)
-
-	# content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-	# object_id = models.PositiveIntegerField()
-	# content_object = GenericForeignKey('content_type', 'object_id')
 
 	def __str__(self):
 		if self.can_whatsapp:
@@ -194,21 +193,94 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# for now, return the user's points.  # todo
 		return self.site_points
 
-	def bookmark_question(self, question, output=False):
-		question.bookmarkers.add(self)
-		return question.bookmark_count if output else None
+	def add_answer(self, question, answer):
+		"""Add answer to question. Returns True if answer added else False"""
+		
+		answerers_id = []
+		for answer in question.answers:
+			answerers_id.append(answer.poster_id)
 
-	def unbookmark_question(self, question, output=False):
-		question.bookmarkers.remove(self)
-		return question.bookmark_count if output else None
+		# if user has already exceeded limit for number of answers to this question
+		# do not add answer
+		if answerers_id.count(self.id) == MAX_ANSWER_PER_USER_PER_QUESTION:
+			print("User has exceeded limit.")
+			return (
+				False, 
+				_("You can have at most {} answers per question.").format(MAX_ANSWER_PER_USER_PER_QUESTION)
+			)
 
-	def bookmark_listing(self, listing, output=False):
-		listing.bookmarkers.add(self)
-		return listing.bookmark_count if output else None
+		question.answers.add(answer)
+		return (True, '')
 
-	def unbookmark_listing(self, listing, output=False):
-		listing.bookmarkers.remove(self)
-		return listing.bookmark_count if output else None
+	'''Upvoting/downvoting questions and answers'''
+	# def upvote_question(self, question, output=False):
+	# 	question.upvoters.add(self)
+	# 	return question.upvote_count if output else None
+
+	# def unupvote_question(self, question, output=False):
+	# 	question.upvoters.remove(self)
+	# 	return question.upvote_count if output else None
+
+	# def upvote_answer(self, answer, output=False):
+	# 	answer.upvoters.add(self)
+	# 	return answer.upvote_count if output else None
+
+	# def unupvote_answer(self, answer, output=False):
+	# 	answer.upvoters.remove(self)
+	# 	return answer.upvote_count if output else None	
+
+	
+	def downvote_question(self, question, output=False):
+		# staff can always downvote question
+		if not self.is_staff:
+			# user should have enough points to downvote
+			if self.site_points < REQUIRED_DOWNVOTE_POINTS:
+				print("User doesn't have enough points to downvote")
+				return (
+					False, 
+					_("You need at least {} points to be able to dislike a post").format(REQUIRED_DOWNVOTE_POINTS)
+				)
+
+		question.downvoters.add(self)
+		return (True, question.downvote_count) if output else (True, '')
+
+	# def undownvote_question(self, question, output=False):
+	# 	question.downvoters.remove(self)
+	# 	return question.downvote_count if output else None
+
+	def downvote_answer(self, answer, output=False):
+		# staff can always downvote answer
+		if not self.is_staff:
+			# user should have enough points to downvote
+			if self.site_points < REQUIRED_DOWNVOTE_POINTS:
+				print("User doesn't have enough points to downvote")
+				return (
+					False, 
+					_("You need at least {} points to be able to downvote a post").format(REQUIRED_DOWNVOTE_POINTS)
+				)
+
+		answer.downvoters.add(self)
+		return (True, answer.downvote_count) if output else (True, '')
+
+	# def undownvote_answer(self, answer, output=False):
+	# 	answer.downvoters.remove(self)
+	# 	return answer.downvote_count if output else None	
+
+	# def bookmark_question(self, question, output=False):
+	# 	question.bookmarkers.add(self)
+	# 	return question.bookmark_count if output else None
+
+	# def unbookmark_question(self, question, output=False):
+	# 	question.bookmarkers.remove(self)
+	# 	return question.bookmark_count if output else None
+
+	# def bookmark_listing(self, listing, output=False):
+	# 	listing.bookmarkers.add(self)
+	# 	return listing.bookmark_count if output else None
+
+	# def unbookmark_listing(self, listing, output=False):
+	# 	listing.bookmarkers.remove(self)
+	# 	return listing.bookmark_count if output else None
 
 
 def get_dummy_user():

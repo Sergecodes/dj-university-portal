@@ -13,9 +13,6 @@ EXTERNAL_LINK_SVG = ' \
 EXTERNAL_LINK_ICON = '<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>'
 
 
-# APP PERMISSIONS
-
-
 # Photo upload key suffixes (for session)
 ITEM_LISTING_SUFFIX = '_itemlisting_photos'
 AD_LISTING_SUFFIX = '_adlisting_photos'
@@ -34,6 +31,8 @@ AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
 
 
 # QA_SITE APP
+REQUIRED_DOWNVOTE_POINTS = 15  # number of points that user must have to be able to downvote
+MAX_ANSWER_PER_USER_PER_QUESTION = 2  # each user can have max 2 answers per question
 MAX_TAGS_PER_QUESTION = 5
 
 

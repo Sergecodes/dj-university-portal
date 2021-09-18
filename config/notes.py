@@ -12,17 +12,27 @@ todo:
 			- insert delete and edit links. ps moderator can delete only if post has x num of flags.
 		
 		- notifications(small practices on django-notifications-hq perhaps via terminal)
-		- check out django-flag-app - question/listing reporting
 
 		- questions following ( icons...) both academic question / school-based.
 		- username @username ... mentions 
 		- share links on detail pages... 
+		- test item listing list filter
 
 		### update(edit views) ### (do those other sites permit this ?)
-		- questions
+		- questions/answers/comments (remember restrictions on edits and deletions; num_of likes, etc..). hide delete button to ensure restriction. ensure too that update and delete views enforce restrictions.
 
+- remove poster from list view ??
+- apply style to current nav link.
+- so-so signal sent after a flag, to update some fields etc..
+- add restriction for downvote(num of likes required) in frontend and backend
+- don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
+- in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
+- use dropdown-menu-end on soclialize link like user=account.(generally, arrange the header.) it should be responsive
+- for any textarea that can't be resized (horizontally), try removing the width on the font-control class.. eg. ckeditor
 - try to set self.object in mixin; (self.object=self.object()) to prevent calling it again in post.
 - change owner to poster.. marketplace.
+- create a general usage page where each section of the site will be explained. eg. Questions:
+you can't see the user that likes ur posts...
 - change question voting to json response ..
 - implement editing and deleting by poster in various apps..	
 - if user is authed, on header, change profile icon to his profile image. 
@@ -169,145 +179,8 @@ tags_list = tags.replace(' ', '').split(',')
 
 
 - cached property (with ttl) package is a must ! especially for complex computations.(in future)
-'''
-previous formset code in form_valid method in UserCreateView
-
-Now we process the phone number formset
-also remove those that were marked to be deleted
-phone_numbers = formset.save(commit=False)  # https://djangoproject.com/en/3.1/topics/forms/modelforms/#saving-objects-in-the-formset
-
-for phone_number in phone_numbers:
-	phone_number.owner = user
-	phone_number.save()
-'''
-
-'''
-def get(self, request, *args, **kwargs):
-	"""
-	Prevent users who aren't logged in and those whose usernames don't match with that passed in the request from editing a profile.
-	"""
-	user = request.user
-	# if user isn't logged in, go to login page
-	if not user.is_authenticated:
-		return redirect(reverse('users:login'))
-
-	# just for testing, don't forget to remove this.
-	if user.username == 'sergeman':
-		return super().get(request, *args, **kwargs)
-
-	# if user is logged in but username in url isn't his, raise 404 error(like StackOverflow)
-	passed_username = self.kwargs.get('username')
-	if user.username != passed_username:
-		raise Http404
-
-	return super().get(request, *args, **kwargs)
-'''
-
-'''
-def clean(self):
-	cleaned_data = super().clean()
-	password = cleaned_data.get('password')
-	confirm_password = cleaned_data.get('confirm_password')
-
-	if password != confirm_password:
-		self.add_error('confirm_password', _('The passwords do not match.'))
-
-	return cleaned_data
-'''
 
 
-# see https://stackoverflow.com/a/43549692
-class Formset(LayoutObject):
-	""" 
-	Renders an entire formset, as though it were a Field.
-	Accepts the names (as a string) of formset and helper as they
-	are defined in the context
-
-	Examples:
-		Formset('contact_formset')
-		Formset('contact_formset', 'contact_formset_helper')
-	"""
-
-	# template = "%s/formset.html" % TEMPLATE_PACK
-	template = 'marketplace/formset.html'
-
-	def __init__(self, formset_context_name, helper_context_name=None, template=None, label=None):
-		self.formset_context_name = formset_context_name
-		self.helper_context_name = helper_context_name
-
-		# crispy_forms/layout.py:302 requires us to have a fields property
-		self.fields = []
-
-		# Overrides class variable with an instance level variable
-		if template:
-			print(template)
-			self.template = template
-
-	def render(self, form, form_style, context, **kwargs):
-		formset = context.get(self.formset_context_name)
-		helper = context.get(self.helper_context_name)
-		# closes form prematurely if this isn't explicitly stated
-		if helper:
-			helper.form_tag = False
-
-		context.update({'formset': formset, 'helper': helper})
-		return render_to_string(self.template, context.flatten())
-
-
-.....
-@login_required
-def create_item_listing(request):
-	user = request.user
-
-	if POST := request.POST:
-		# Sending user object to the form so as to display user's info
-		listing_form = ItemListingForm(POST, user=user)
-
-		if listing_form.is_valid():
-			new_listing = listing_form.save(commit=False)
-			new_listing.owner = user
-			new_listing.institution = listing_form.cleaned_data['institution']
-			# new_listing.save()
-
-			return HttpResponseRedirect('/')
-		else:
-			print(listing_form.errors)
-	else:
-		listing_form = ItemListingForm(user=user)
-	
-	return render(
-		request, 
-		'marketplace/listing_create.html', 
-		{'form': listing_form}
-	)
-
-
-# dating
-# 	- social media account (-facebook link, twitter link) for this, only users'
-	- see how stackoverflow does something similar on a user's profile page
-#	(usernames will be entered by user, with some help links explaining to them how to get usernames..)
-
-# TODO reputation is not visible to users, only used internally (maybe trivial advantages, post rankings, etc..)
-#  added when users confirm transaction;  also add credit points). Only a user can see his credit points
-
-# credit points can be used for one-day-listing, {video call developer(me), site bonuses etc}
-
-
-
-IMPLEMENTATION TIPS:
-- users should not pay for each perk with cash, they should use their credit_points. However, credit points can be bought.
-
-# TODO moderator should have his own view of the site; they should be able to see pending reports, etc.
-# TIPS:
-# scheduling listing
-# on items page, give user tip that "if he sees an item he's interested in, he should contact the
-# owner if the price if understandable. They may still bargain on an agreeable price"
-
-# make money when user post ads:
-# bold title in search results (like ebay) cheapest
-# subtitle in listing
-# boost up posts(faire remonter) (like jumia) cheaper
-# vip (like jumia)
 
 # on post description, user shouldnt put contact details nor now web links (scam, spam, etc..)
 # In fact, remove all weblinks from source b4 adding to db..

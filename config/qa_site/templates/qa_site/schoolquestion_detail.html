@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
+{% load flag_tags %}
 
 {% block title %}
 	<title>{% trans 'School-Based Question' %} - {{ question.id }}</title>
@@ -40,6 +41,14 @@
 				</a> 
 				{% trans "to sign up if you don't yet have an account." %}
 			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans "You can't vote for your own post" %} 
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
@@ -133,6 +142,8 @@
 					&nbsp;|&nbsp; 
 					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
 				</span>
+				<!-- flag form -->
+				{% render_flag_form question user request %}
 			</div>
 			<!-- todo report(flag) here -->
 
@@ -561,6 +572,7 @@
 			$.ajax({
 				url: "{% url 'qa_site:school-thread-vote' %}",
 				type: 'POST',
+				dataType: 'json',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
@@ -727,7 +739,7 @@
 						// update text
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Bookmark' %}";
-						displayListingBookmarkToggleToast(false);
+						displayBookmarkToggleToast(false);
 
 					} else {
 						console.error(result);
@@ -759,7 +771,7 @@
 
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Bookmarked' %}";
-						displayListingBookmarkToggleToast(true);
+						displayBookmarkToggleToast(true);
 					} else {
 						console.error(result);
 						displayErrorOccurredToast();

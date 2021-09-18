@@ -421,7 +421,7 @@ function displayLoginRequiredToast() {
  * Toast should be present in the html page
  * `bookmarkAdded` true if bookmark was added else false
  */
- function displayListingBookmarkToggleToast(bookmarkAdded) {
+ function displayBookmarkToggleToast(bookmarkAdded) {
 	if (bookmarkAdded) 
 		var $myToast = $('.js-bookmark-added-toast').first();
 	else 
@@ -452,6 +452,7 @@ function init() {
 
 	} else if (isMobile) {
 		// detach all event handlers and let Bootstrap default click functionality for dropdowns
+		// todo: try specifying the events to detach. eg. .off(event)
 		$headerDropdown.off();
 		$headerAccountInfo.off();
 		$loginDropdown.off();

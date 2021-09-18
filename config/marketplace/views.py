@@ -4,8 +4,7 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Prefetch
-from django.http import JsonResponse
+from django.db.models import Prefetch, Q
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -13,6 +12,7 @@ from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from functools import reduce
 
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, AD_PHOTOS_UPLOAD_DIR,
@@ -261,11 +261,22 @@ class ItemListingDelete(IsListingOwnerOrModeratorMixin, DeleteView):
 
 
 class ItemListingFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Item keyword'), lookup_expr='icontains')
+	title = filters.CharFilter(label=_('Item keyword'), method='filter_title')
 
 	class Meta:
 		model = ItemListing
 		fields = ['institution', 'title', 'category', ]
+
+	def filter_title(self, queryset, name, value):
+		print(value)
+		value_list = value.split()
+		print(value_list)
+
+		qs = queryset.filter(
+			reduce(lambda x, y: x | y, [Q(title__icontains=word) for word in value_list])
+		)
+		print(qs) 
+		return qs
 
 	# @property
 	# def qs(self):

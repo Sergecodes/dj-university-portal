@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load app_extras %}  {# custom tag #}
+{% load flag_tags %}
 
 {% block title %}
 	<title>{{ listing.title }}</title>
@@ -162,7 +163,8 @@
 					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
 				</span>
 			</div>
-			<!-- todo report(flag) here -->
+			<!-- flag form -->
+			{% render_flag_form listing user request %}
 		</div>
 
 		<div class="alert alert-warning pb-1 mb-5 warning-wrp" role="alert">

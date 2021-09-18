@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import validate_email
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -7,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from flag.models import Flag
 
 from core.constants import (
 	LOST_ITEMS_PHOTOS_UPLOAD_DIR,
@@ -21,6 +23,7 @@ User = get_user_model()
 
 
 class Post(models.Model):
+	flags = GenericRelation(Flag)
 	# tags will be obtained from the name of the item. ex. red pen => 'red', 'pen'
 	# tags = TaggableManager()
 	# i don't see the need for tags. todo search via normal field with search vector(Postgres) form more efficiency

@@ -47,8 +47,8 @@ urlpatterns = [
 	),
 
 	## AJAX VIEWS
-	path('ajax/academic-thread/vote/', views.vote_academic_thread, name='academic-thread-vote'),
-	path('ajax/school-thread/vote/', views.vote_school_thread, name='school-thread-vote'),
+	path('ajax/academic-thread/vote/', ajax_views.vote_academic_thread, name='academic-thread-vote'),
+	path('ajax/school-thread/vote/', ajax_views.vote_school_thread, name='school-thread-vote'),
 	path('ajax/school-question/bookmark/', ajax_views.school_question_bookmark_toggle, name='school-bookmark-toggle'),
 	path('ajax/academic-question/bookmark/', ajax_views.academic_question_bookmark_toggle, name='academic-bookmark-toggle'),
 ]
