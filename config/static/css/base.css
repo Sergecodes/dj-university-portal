@@ -18,6 +18,15 @@ img {
 	word-break: break-word;
 }
 
+.border-bottom-dotted {
+	border-bottom: dotted;
+}
+
+/* make bootstrap tooltips flexible, use alongsite data-container="body" */
+.tooltip-inner {
+	max-width: 100%;
+}
+
 /* button that looks like link */
 /* .button-link {
 	border: none;

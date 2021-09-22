@@ -7,13 +7,15 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 # from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db import models
+from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 from core.constants import (
-	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS,
-	MAX_ANSWER_PER_USER_PER_QUESTION
+	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, POST_UPVOTE_POINTS_CHANGE,
+	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE,
+	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
 )
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from marketplace.models import ItemListing, AdListing
@@ -193,8 +195,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# for now, return the user's points.  # todo
 		return self.site_points
 
-	def add_answer(self, question, answer):
-		"""Add answer to question. Returns True if answer added else False"""
+	def add_answer(self, question, answer, question_type):
+		"""Add answer to question."""
+		# question_type can be 'academic' or 'school-based'
+		# note that answer hasn't yet been saved, it's just an Answer() instance.
 		
 		answerers_id = []
 		for answer in question.answers:
@@ -202,14 +206,25 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		# if user has already exceeded limit for number of answers to this question
 		# do not add answer
-		if answerers_id.count(self.id) == MAX_ANSWER_PER_USER_PER_QUESTION:
-			print("User has exceeded limit.")
+		if answerers_id.count(self.id) == MAX_ANSWERS_PER_USER_PER_QUESTION:
 			return (
 				False, 
-				_("You can have at most {} answers per question.").format(MAX_ANSWER_PER_USER_PER_QUESTION)
+				_("You can have at most {} answers per question.").format(MAX_ANSWERS_PER_USER_PER_QUESTION)
 			)
 
-		question.answers.add(answer)
+		answer.poster = self
+		answer.question = question
+		answer.save()
+
+		# update user's number of points
+		if question_type == 'school-based':
+			self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
+		elif question_type == 'academic':
+			self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
+		else:
+			raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'school-based' not '{question_type}'.")
+
+		self.save(update_fields=['site_points'])
 		return (True, '')
 
 	'''Upvoting/downvoting questions and answers'''
@@ -230,17 +245,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# 	return answer.upvote_count if output else None	
 
 	
-	def downvote_question(self, question, output=False):
+	def downvote_question(self, question, output=False, for_html=False):
 		# staff can always downvote question
 		if not self.is_staff:
 			# user should have enough points to downvote
-			if self.site_points < REQUIRED_DOWNVOTE_POINTS:
-				print("User doesn't have enough points to downvote")
+			if for_html:
+				# boldface the required number of points.
 				return (
 					False, 
-					_("You need at least {} points to be able to dislike a post").format(REQUIRED_DOWNVOTE_POINTS)
+					_("You need at least <strong>{} points</strong> to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 				)
 
+			return (
+				False, 
+				_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
+			)
+		question_owner = question.poster
+		question_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
 		question.downvoters.add(self)
 		return (True, question.downvote_count) if output else (True, '')
 
@@ -248,15 +269,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# 	question.downvoters.remove(self)
 	# 	return question.downvote_count if output else None
 
-	def downvote_answer(self, answer, output=False):
+	def downvote_answer(self, answer, output=False, for_html=False):
 		# staff can always downvote answer
 		if not self.is_staff:
-			# user should have enough points to downvote
+			# user doesn't have enough points to downvote
 			if self.site_points < REQUIRED_DOWNVOTE_POINTS:
-				print("User doesn't have enough points to downvote")
+				if for_html:
+					return (
+						False, 
+						_("You need at least <strong>{} points</strong> to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
+					)
+
 				return (
 					False, 
-					_("You need at least {} points to be able to downvote a post").format(REQUIRED_DOWNVOTE_POINTS)
+					_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 				)
 
 		answer.downvoters.add(self)

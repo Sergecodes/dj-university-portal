@@ -6,7 +6,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from flag.models import Flag
+from flagging.models import Flag
 from taggit.managers import TaggableManager
 
 from core.model_fields import TitleCaseField
@@ -352,7 +352,9 @@ class AcademicQuestion(Question):
 		'Subject',
 		on_delete=models.PROTECT,
 		related_name='academic_questions',
-		related_query_name='academic_question'
+		related_query_name='academic_question',
+		null=True, blank=True,
+		help_text=_('Allow empty if your subject is not present.')
 	)
 	poster = models.ForeignKey(
 		User,
@@ -401,8 +403,11 @@ class AcademicQuestion(Question):
 			self.slug = slugify(self.title)
 		super().save(*args, **kwargs)
 
-	def get_absolute_url(self):
-		return reverse('qa_site:academic-question-detail', kwargs={'pk': self.id, 'slug': self.slug})
+	def get_absolute_url(self, with_slug=True):
+		if with_slug:
+			return reverse('qa_site:academic-question-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		
+		return reverse('qa_site:academic-question-detail', kwargs={'pk': self.id})
 
 
 class Subject(models.Model):

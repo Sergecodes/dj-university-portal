@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
+  let modal = document.querySelector('.js-flag-report-modal');
+
   let headers = {
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/x-www-form-urlencoded'
@@ -44,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
+  // # modified 
   const toggleText = function (element, action) {
     // element that contains flag 
     const spanEle = element.querySelector('span');
@@ -60,22 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
         textSpan.textContent = text;
       }
     }
-  };
-
-  const toggleTitle = function (element, action) {
-    // element that contains flag 
-    const spanEle = element.querySelector('span');
-
-    // if element previously had a title, update the title
-    if (spanEle.hasAttribute('title')) {
-      if (action == 'add') {
-        var text = document.querySelector('.js-remove-flag').textContent;
-        spanEle.setAttribute('title', text);
-      } else {
-        var text = document.querySelector('.js-report-content').textContent;
-        spanEle.setAttribute('title', text);
-      }
-    }
+    
   };
 
   const createInfoElement = function (responseEle, status, msg, duration = 2) {
@@ -120,14 +108,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   };
 
-  const hideModal = function (modal) {
+  const hideModal = function () {
     modal.style.display = 'none';
     modal.querySelector('form').reset();
     modal.querySelector('textarea').style.display = 'none';
   };
 
   const showModal = function (e) {
-    const modal = e.currentTarget.nextElementSibling;
+    // const modal = e.currentTarget.nextElementSibling;
+    console.log(modal);
     modal.style.display = "block";
   };
 
@@ -172,17 +161,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }).then(function (response) {
       return response.json();
     }).then(function (response) {
+      // const addClass = 'user-has-flagged';
+      // const removeClass = 'user-has-not-flagged';
+      /* added classes to support font-awesome icon by draco  */
       const addClass = ['user-has-flagged', 'fas'];
       const removeClass = ['user-has-not-flagged', 'far'];
       const flagIcon = flagEle.querySelector('.flag-icon');
       
       if (response) {
         createInfoElement(flagEle.parentElement, response.status, response.msg);
-        const modal = flagEle.nextElementSibling;
+        // const modal = flagEle.nextElementSibling;
         let action;
         if (response.flag === 1) {
           action = 'add';
-          hideModal(modal);
+          hideModal();
           flagEle.removeEventListener('click', showModal);
           flagEle.addEventListener('click', removeFlag);
           
@@ -195,11 +187,9 @@ document.addEventListener('DOMContentLoaded', function () {
         
         toggleClass(flagIcon, addClass, removeClass, action);
         toggleText(flagEle, action); 
-        toggleTitle(flagEle, action);
       }
     }).catch(function (error) {
-      console.error(error);  
-      
+      console.error(error);  // added 
       // get flag error message
       var alertMsg = document.querySelector('.js-flag-alert-msg').textContent;
       // Note: toast(.js-custom-error-toast) must be in html 
@@ -211,11 +201,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!parent) {
       parent = flagEle.nextElementSibling.parentElement;
     };
-    const modal = parent.querySelector('.flag-report-modal');
+    // const modal = parent.querySelector('.flag-report-modal');
     flagEle.addEventListener('click', showModal);
     const span = parent.querySelector(".report-modal-close");
-    span.onclick = function () {
-      hideModal(modal);
+    const closeSpan = document.querySelector('.report-modal-close');
+    closeSpan.onclick = function () {
+      hideModal();
     };
     // when the user clicks on the last reason , open the info box
     const flagForm = parent.querySelector('.report-modal-form');
@@ -239,19 +230,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const parents = document.getElementsByClassName("report-modal-form-combined");
   for (const parent of parents) {
-    const modal = parent.querySelector('.flag-report-modal');
+    // const modal = parent.querySelector('.flag-report-modal');
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function (event) {
       if (event.target == modal) {
-        hideModal(modal);
+        hideModal();
       };
     };
 
     const flagEle = parent.querySelector(".flag-report-icon");
     const flagIcon = flagEle.querySelector('.flag-icon');
     if (flagIcon.classList.contains('user-has-not-flagged')) {
+      console.log('user hasnot flagged');
       prepareFlagModal(flagEle, parent);
     } else {
+      console.log('user has flagged');
       flagEle.addEventListener('click', removeFlag);
     };
   };

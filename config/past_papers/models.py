@@ -6,7 +6,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from flag.models import Flag
+from flagging.models import Flag
 
 from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
 from marketplace.models import Institution
@@ -148,8 +148,10 @@ class PastPaper(models.Model):
 			self.slug = slugify(self.title)
 		return super().save(*args, **kwargs)
 
-	def get_absolute_url(self):
-		return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id, 'slug': self.slug})
+	def get_absolute_url(self, with_slug=True):
+		if with_slug:
+			return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id})
 
 	@property
 	def num_comments(self):

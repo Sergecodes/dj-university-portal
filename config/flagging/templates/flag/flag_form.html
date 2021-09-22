@@ -1,52 +1,39 @@
 <!-- This template overrides the default form used by django-flag-app. -->
 <!-- the flag_form.html and flag_icon.html templates used by django-flag-app have been modified, same as the flag.css file. -->
 {# NOTE: Any class on any of these templates should not be removed! This may disrupt the javascript functionality. To restyle an element, comment out its style in the flag.css stylesheet. Before modifying any element, be 100% sure that it won't disrupt the js functionality. #}
+{# ensure modal and files are in html template #}
 {% load i18n %}
-{% load static %}
-{% load flag_tags %}
+{% comment %} {% load flag_tags %} {% endcomment %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
 
 {% if user.is_anonymous %}
-	{% get_login_url as login_url %}
+	{% comment %} {% get_login_url as login_url %}
 
 	<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="ms-3 link-danger text-decoration-none">
 		<span>
-			<span>
-				{% if has_flagged %} 
-					{% trans 'Remove flag' %}
-				{% else %} 
-					{% trans 'Report content' %} 
-				{% endif %}
-			</span>
 			{% include "flag/flag_icon.html" %}
 		</span>
-	</a>
+	</a> {% endcomment %}
 {% else %}
+	<span class="d-none js-flag-alert-msg">{% trans 'The report request could not be processed. Please refresh the page and try again.' %}</span>
 	<span class="d-none js-remove-flag">{% trans 'Remove flag' %}</span>
 	<span class="d-none js-report-content">{% trans 'Report content' %}</span>
 	<div class="d-inline report-modal-form-combined">
-		<div class="d-inline ms-3 link-danger flag-report-icon"
-			data-url="{% url 'flag:flag' %}"
+		<div class="d-inline link-danger flag-report-icon js-flag-report-icon"
+			data-url="{% url 'flagging:flag' %}"
 			data-app-name="{{ app_name }}"
 			data-model-name="{{ model_name }}"
 			data-model-id="{{ model_id }}"
 			data-csrf="{{ csrf_token }}"
 			role="button"
 		>
-			<span>
-				<span>
-					{% if has_flagged %} 
-						{% trans 'Remove flag' %}
-					{% else %} 
-						{% trans 'Report content' %} 
-					{% endif %}
-				</span>
+			{# span element; don't even dare modify this :) #}
+			<span {% if display_title %}title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report content' %} {% endif %}" {% endif %}>
 				{% include "flag/flag_icon.html" %}
 			</span>
 		</div>
 		{# use text-start to conteract text-end in question detail templates #}
-		<div class="w-100 text-start flag-report-modal">
+		<div class="w-100 text-start flag-report-modal js-flag-report-modal">
 			<div class="w-75 report-modal-content">
 				<span class="report-modal-close">&times;</span>
 				<div class="report-modal-flag-form">
@@ -58,13 +45,13 @@
 								{% for reason in flag_reasons  %}
 								<div class="form-check mb-3">
 									<input
-										id="{{ reason.reason }}"
+										id="{{ reason.reason }}-{{ random_uid }}"
 										type="radio"
 										value="{{ reason.value }}"
 										class="form-check-input my-2 flag-reason {% if forloop.last %} last-flag-reason {% endif %}"
 										name="reason" required
 									>
-									<label class="form-check-label" for="{{ reason.reason }}">{{ reason.reason }}</label>
+									<label class="form-check-label" for="{{ reason.reason }}-{{ random_uid }}">{{ reason.reason }}</label>
 								</div>
 								{% endfor %}
 							</div>
@@ -79,5 +66,4 @@
 		</div>
 	</div>
 
-	<script type="text/javascript" src="{% static 'js/flag.js' %}"></script>
 {% endif %}

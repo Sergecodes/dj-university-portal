@@ -1,0 +1,85 @@
+<!-- Display social share tooltip box -->
+
+{% load i18n %}
+
+<!-- success message toast -->
+<div class="toast hide alert alert-success align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<!-- error message toast -->
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<div class="d-inline">
+   <!-- tooltip link -->
+   <a 
+		role="button" 
+		data-tip="{{ random_uid }}"
+		class="link-dark text-decoration-none js-tooltip-link"
+	>
+     {% trans 'Share' %}
+   </a>
+
+   <!-- tooltip content -->
+	{# id should be same as data-tip of tooltip link. #}
+	<div id="{{ random_uid }}" class="hide">
+		<h5>{% trans 'Share a link to this' %} {{ use_name }}</h5>
+		<input class="form-control js-link-input" type="text" value="{{ object_url }}" readonly>
+
+		<a class="small js-copy-button" role="button">{% trans 'Copy link' %}</a>
+		<a class="text-decoration-none me-2" href="#">
+			<span class="visually-hidden">{% trans 'Share on Facebook' %}</span>
+			<i class="fab fa-facebook-square" aria-hidden="true"></i>
+		</a>
+		<a class="text-decoration-none" href="#">
+			<span class="visually-hidden">{% trans 'Share on Twitter' %}</span>
+			<i class="fab fa-twitter-square" aria-hidden="true"></i>
+		</a>
+	</div>
+</div>
+
+<script>
+	// tooltip functionality
+	$('.js-tooltip-link').each(function () {
+		var $this = $(this);
+		var tooltip = new bootstrap.Tooltip($this.next().get(0), {
+			html: true,
+			title: $('#' + $this.data('tip')).html()
+		});
+		tooltip.show();
+		/*
+		$this.tooltip({
+			html: true,
+			title: $('#' + $this.data('tip')).html()
+		});
+		*/
+	});
+
+	// copying to clipboard functionality
+	$('.js-copy-button').first().click(function() {
+		// get and select the text field
+		var linkInput = document.querySelector('.js-link-input');
+		linkInput.select();
+		linkInput.setSelectionRange(0, 99999);  // for mobile devices
+
+		// copy the text inside the text field
+		navigator.clipboard.writeText(linkInput.value).then(function() {
+			var successMsg = "{% trans 'Link copied to clipboard.' %}";
+			displayCustomSuccessToast(successMsg);
+		}, function() {
+			var errMsg = "{% blocktrans %} An error occured when copying the link. <br> Try to copy it manually by selecting the text and copying. {% endblocktrans %}";
+			displayCustomErrorToast(errMsg);
+		});
+	});
+</script>

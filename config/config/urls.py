@@ -14,13 +14,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from core.views import HomePageView
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
+
+from core.views import HomePageView
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
@@ -32,7 +33,7 @@ urlpatterns += i18n_patterns(
     path(_('core/'), include('core.urls', namespace='core')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
-    path(_('flag/'), include('flag.urls', namespace='flag')),  # django-flag-app
+    path(_('flag/'), include('flagging.urls', namespace='flagging')),  
     path(_('users/'), include('users.urls', namespace='users')),
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),

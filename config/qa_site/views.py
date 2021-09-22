@@ -3,9 +3,10 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import F
 from django.db.models.query import Prefetch
-from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http.response import HttpResponseNotAllowed, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +16,11 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from taggit.models import TaggedItem
 
+from core.constants import (
+	REQUIRED_DOWNVOTE_POINTS, ASK_QUESTION_POINTS_CHANGE,
+	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE,
+
+)
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -41,8 +47,10 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		request = self.request
 		self.object = form.save(commit=False)
-		question = self.object
-		question.poster = request.user
+		question, poster = self.object, request.user
+		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
+		poster.save(update_fields=['site_points'])
+		question.poster = poster
 		question.save()	
 
 		return HttpResponseRedirect(self.get_success_url())
@@ -55,7 +63,7 @@ class AcademicQuestionDetail(DetailView):
 
 	def post(self, request, *args, **kwargs):
 		"""Handle submission of forms such as comments and answers."""
-		POST = request.POST
+		POST, user = request.POST, request.user
 		question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
 
 		# if question comment form was submitted
@@ -65,7 +73,7 @@ class AcademicQuestionDetail(DetailView):
 			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = request.user
+				comment.poster = user
 				comment.question = question
 				comment.save()
 
@@ -73,7 +81,7 @@ class AcademicQuestionDetail(DetailView):
 			comment_form = AcademicAnswerCommentForm(POST)
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = request.user
+				comment.poster = user
 				comment.answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
 				comment.save()
 
@@ -81,13 +89,16 @@ class AcademicQuestionDetail(DetailView):
 			answer_form = AcademicAnswerForm(POST)
 			if answer_form.is_valid():
 				answer = answer_form.save(commit=False)
-				answer.poster = request.user
-				answer.question = question
-				answer.save()
+				added_result = user.add_answer(question, answer)
+
+				# if answer wasn't added 
+				# (if user has attained number of answers limit)
+				if not added_result[0]:
+					return HttpResponseNotAllowed(added_result[1])
 
 		# redirect to get request. (SEE Post/Redirect/Get)
 		# do not to return get(self,...)
-		return HttpResponseRedirect(question.get_absolute_url())
+		return redirect(question.get_absolute_url())
 
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
@@ -136,6 +147,9 @@ class AcademicQuestionDetail(DetailView):
 		context['num_answers'] = answers.count()
 		context['related_qstns'] = related_qstns
 		context['bookmarkers'] = question.bookmarkers.only('id')
+		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
+		context['no_slug_url'] = question.get_absolute_url(with_slug=False)
+		
 		return context
 
 
@@ -198,9 +212,12 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		request = self.request
 		self.object = form.save(commit=False)
-		school_question = self.object
+		school_question, poster = self.object, request.user
 		school_question.school = form.cleaned_data['school']
-		school_question.poster = request.user
+		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
+		poster.save(update_fields=['site_points'])
+
+		school_question.poster = poster
 		school_question.save()	
 
 		return HttpResponseRedirect(self.get_success_url())
@@ -249,7 +266,7 @@ class SchoolQuestionDetail(DetailView):
 
 	def post(self, request, *args, **kwargs):
 		"""Handle submission of forms such as comments and answers."""
-		POST = request.POST
+		POST, user = request.POST, request.user
 		question = get_object_or_404(SchoolQuestion, id=POST.get('question_id'))
 
 		# if question comment form was submitted
@@ -259,7 +276,7 @@ class SchoolQuestionDetail(DetailView):
 			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = request.user
+				comment.poster = user
 				comment.question = question
 				comment.save()
 
@@ -267,7 +284,7 @@ class SchoolQuestionDetail(DetailView):
 			comment_form = SchoolAnswerCommentForm(POST)
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = request.user
+				comment.poster = user
 				comment.answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
 				comment.save()
 
@@ -275,11 +292,14 @@ class SchoolQuestionDetail(DetailView):
 			answer_form = SchoolAnswerForm(POST)
 			if answer_form.is_valid():
 				answer = answer_form.save(commit=False)
-				answer.poster = request.user
-				answer.question = question
-				answer.save()
+				added_result = user.add_answer(question, answer)
 
-		return HttpResponseRedirect(question.get_absolute_url())
+				# if answer wasn't added 
+				# (if user has attained number of answers limit)
+				if not added_result[0]:
+					return HttpResponseNotAllowed(added_result[1])
+
+		return redirect(question.get_absolute_url())
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -306,6 +326,7 @@ class SchoolQuestionDetail(DetailView):
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
 		context['bookmarkers'] = question.bookmarkers.only('id')
+		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 
 		return context
 

@@ -22,11 +22,11 @@ class AcademicQuestionForm(forms.ModelForm):
 		label=_('Body'),
 		required=False
 	)
-	subject = forms.ModelChoiceField(
-		queryset=Subject.objects.all(), 
-		empty_label=None,
-		widget=forms.Select(attrs={})
-	)
+	# subject = forms.ModelChoiceField(
+	# 	queryset=Subject.objects.all(), 
+	# 	empty_label=None,
+	# 	widget=forms.Select(attrs={})
+	# )
 	tags = forms.ModelMultipleChoiceField(
 		queryset=Tag.objects.all().order_by('name'),
 		widget=forms.CheckboxSelectMultiple(),
@@ -99,7 +99,7 @@ class AcademicAnswerCommentForm(forms.ModelForm):
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
 				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
-				'id': str(uuid.uuid4()).split('-')[0]
+				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
 			}
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
@@ -140,7 +140,9 @@ class SchoolQuestionForm(forms.ModelForm):
 		# 	raise ValidationError(_('Select at least one tag'))
 
 		if tags and tags.count() > MAX_TAGS_PER_QUESTION:
-			self.add_error('tags', ValidationError(_(f"Maximum {MAX_TAGS_PER_QUESTION} tags are allowed.")))
+			self.add_error(
+				'tags', ValidationError(_("Maximum {} tags are allowed.").format(MAX_TAGS_PER_QUESTION))
+			)
 		
 		return cleaned_data
 		
@@ -184,7 +186,7 @@ class SchoolAnswerCommentForm(forms.ModelForm):
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
 				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
-				'id': str(uuid.uuid4()).split('-')[0]
+				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
 			}
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),

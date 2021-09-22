@@ -5,13 +5,10 @@
 # geeksforgeeks.org/built-in-custom-model-managers-in-django	
 
 todo:
-		Sep 13
-			# - implement permissions (moderator) (PermissionsMixin...)
+		Sep 
 			- update user profile/dashboard accordingly
 			- social_profile_detail.html page. upon clicking on the name of a user, go to this page.
 			- insert delete and edit links. ps moderator can delete only if post has x num of flags.
-		
-		- notifications(small practices on django-notifications-hq perhaps via terminal)
 
 		- questions following ( icons...) both academic question / school-based.
 		- username @username ... mentions 
@@ -21,19 +18,21 @@ todo:
 		### update(edit views) ### (do those other sites permit this ?)
 		- questions/answers/comments (remember restrictions on edits and deletions; num_of likes, etc..). hide delete button to ensure restriction. ensure too that update and delete views enforce restrictions.
 
-- remove poster from list view ??
+- change the flag alert div to a toast. (create custom info toast...)
+- add view_count field. update when object is visited. don't increment view count if owner visite post.
+- unflagging doesn't remove flag from object. create a flag app and copy the django-flag-app package..
+- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
 - apply style to current nav link.
+- num of characters limit control, ckeditor, comments, questions, etc..
 - so-so signal sent after a flag, to update some fields etc..
-- add restriction for downvote(num of likes required) in frontend and backend
+- add restriction for downvote(num of likes required) in frontend 
 - don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
 - in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
-- use dropdown-menu-end on soclialize link like user=account.(generally, arrange the header.) it should be responsive
 - for any textarea that can't be resized (horizontally), try removing the width on the font-control class.. eg. ckeditor
 - try to set self.object in mixin; (self.object=self.object()) to prevent calling it again in post.
 - change owner to poster.. marketplace.
 - create a general usage page where each section of the site will be explained. eg. Questions:
 you can't see the user that likes ur posts...
-- change question voting to json response ..
 - implement editing and deleting by poster in various apps..	
 - if user is authed, on header, change profile icon to his profile image. 
 - arrange socialize dropdown...
@@ -64,7 +63,6 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - remove unused css class name from each template. use comments for potential future class names .
 - tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
 - remove tags from school questions ...?
-- in create forms, convert 'raise' to sef.add_error()
 - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; also say that all fields marked or ending with * are required.
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
 - add email to contact details in detail views.

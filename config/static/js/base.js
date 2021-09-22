@@ -419,7 +419,6 @@ function displayLoginRequiredToast() {
 /**
  * Display toast telling user that they have successfully bookmarked or unbookmarked a post
  * Toast should be present in the html page
- * `bookmarkAdded` true if bookmark was added else false
  */
  function displayBookmarkToggleToast(bookmarkAdded) {
 	if (bookmarkAdded) 
@@ -431,6 +430,43 @@ function displayLoginRequiredToast() {
 	bsToast.show(); 
 }
 
+/**
+ * Display custom success message toast
+ * Toast should be present in the html page
+ */
+ function displayCustomSuccessToast(message) {
+	// this toast should be present in the html page !
+	var $myToast = $('.js-custom-success-toast').first();
+
+	var $msgWrp = $('.js-toast-message');
+	// use html() not text() 
+	$msgWrp.html(message);
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
+/**
+ * Display custom error message toast
+ * Toast should be present in the html page
+ */
+ function displayCustomErrorToast(message) {
+	// this toast should be present in the html page !
+	var $myToast = $('.js-custom-error-toast').first();
+
+	// reset styles alert-danger styles since apparently, some toast styles override them. 
+	$myToast.css({
+		'color': '#842029',
+		'border-color': '#f5c2c7'
+	});
+
+	var $msgWrp = $('.js-toast-message');
+	// use html() not text() 
+	$msgWrp.html(message);
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
 
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
 function init() {

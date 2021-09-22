@@ -9,14 +9,14 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from flag.models import Flag
+from flagging.models import Flag
 
 from core.constants import (
 	AD_PHOTOS_UPLOAD_DIR, 
 	LISTING_PHOTOS_UPLOAD_DIR
 )
 from core.model_fields import LowerCaseEmailField, TitleCaseField
-from hitcount.models import HitCountMixin
+# from hitcount.models import HitCountMixin
 
 User = settings.AUTH_USER_MODEL
 
@@ -248,7 +248,7 @@ class Post(models.Model):
 		abstract = True
 
 
-class ItemListing(Post, HitCountMixin):
+class ItemListing(Post):
 	USED = 'U'
 	NEW = 'N'
 	DEFECTIVE = 'D'
@@ -312,13 +312,15 @@ class ItemListing(Post, HitCountMixin):
 	)
 
 
-	def get_absolute_url(self):
+	def get_absolute_url(self, with_slug=True):
 		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		if with_slug:
+			return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id})
 
-	@property
-	def view_count(self):
-		return self.hitcount.num_of_hits
+	# @property
+	# def view_count(self):
+	# 	return self.hitcount.num_of_hits
 
 	class Meta:
 		verbose_name_plural = 'Item Listings'
@@ -328,7 +330,7 @@ class ItemListing(Post, HitCountMixin):
 		]
 
 
-class AdListing(Post, HitCountMixin):
+class AdListing(Post):
 	contact_numbers = models.ManyToManyField(
 		'users.PhoneNumber',
 		related_name='+'
@@ -367,13 +369,14 @@ class AdListing(Post, HitCountMixin):
 		blank=True
 	)
 
-	def get_absolute_url(self):
-		""" Returns the url to access a detail record for this item. """
-		return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
+	def get_absolute_url(self, with_slug=True):
+		if with_slug:
+			return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id})
 
-	@property
-	def view_count(self):
-		return self.hitcount.num_of_hits
+	# @property
+	# def view_count(self):
+	# 	return self.hitcount.num_of_hits
 
 	class Meta:
 		ordering = ['-datetime_added']

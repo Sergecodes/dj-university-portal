@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from flag.models import Flag
+from flagging.models import Flag
 
 from core.constants import (
 	LOST_ITEMS_PHOTOS_UPLOAD_DIR,
@@ -91,8 +91,10 @@ class FoundItem(Post):
 			self.slug = slugify(self.item_found)
 		return super().save(*args, **kwargs)
 
-	def get_absolute_url(self):
-		return reverse('lost_and_found:found-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
+	def get_absolute_url(self, with_slug=True):
+		if with_slug: 
+			return reverse('lost_and_found:found-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('lost_and_found:found-item-detail', kwargs={'pk': self.id})
 
 	class Meta:
 		ordering = ['-posted_datetime']
@@ -132,8 +134,10 @@ class LostItem(Post):
 			self.slug = slugify(self.item_lost)
 		return super().save(*args, **kwargs)
 
-	def get_absolute_url(self):
-		return reverse('lost_and_found:lost-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
+	def get_absolute_url(self, with_slug=True):
+		if with_slug: 
+			return reverse('lost_and_found:lost-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
+		return reverse('lost_and_found:lost-item-detail', kwargs={'pk': self.id})
 
 	class Meta:
 		ordering = ['-posted_datetime']

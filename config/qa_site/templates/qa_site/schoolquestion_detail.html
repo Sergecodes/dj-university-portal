@@ -26,6 +26,14 @@
 
 {% block content %}
 <!-- toasts -->
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# custom message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
@@ -96,7 +104,7 @@
 				</a>
 			</div>
 			{# question info #}
-			<p class="mb-lg-1>
+			<p class="mb-lg-1">
 				<span class="mx-1">
 					{% trans 'Asked' %}
 					<strong title="{{ question.posted_datetime }}">
@@ -107,13 +115,13 @@
 					{% trans 'By' %}
 					{% if question_poster.has_social_profile %}
 						<a 
-							class="text-decoration-none" 
+							class="px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted" 
 							href="{{ question_poster.get_absolute_url }}"
 						>
 							{{ question_poster.username }}
 						</a>
 					{% else %}
-						<span title='{% trans "User doesn't have a social profile" %}'>{{ question_poster.username }}</span>
+						<span class="px-1 bg-info" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ question_poster.username }}</span>
 					{% endif %}
 				</span>
 				<span class="mx-1">
@@ -121,31 +129,6 @@
 					<a href="#" class="text-decoration-none">{{ question.school.name }}</a>
 				</span>
 			</p>
-
-			<!-- Bookmark section -->
-			<div class="text-end me-4">
-				<a 
-					role="button" 
-					data-id="{{ question.id }}"
-					class="text-decoration-none js-bookmark" 
-					title="{% trans 'Add this question to your favourites. (click again to undo)' %}"
-				>
-					{% if user in bookmarkers %}
-						<i class="fas fa-star js-selected" aria-hidden="true"></i>
-						{% trans 'Bookmarked' %}
-					{% else %}
-						<i class="far fa-star" aria-hidden="true"></i>
-						{% trans 'Bookmark' %}
-					{% endif %}
-				</a>
-				<span class="ms-1 text-primary">
-					&nbsp;|&nbsp; 
-					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
-				</span>
-				<!-- flag form -->
-				{% render_flag_form question user request %}
-			</div>
-			<!-- todo report(flag) here -->
 
 			<hr class="mb-3">
 			<section class="mb-5 px-3 question-layout">
@@ -199,6 +182,32 @@
 						</a>
 						<span class="ms-1 text-danger">{{ question.downvote_count }}</span>
 					</div>
+
+					<!-- Bookmark and flag section -->
+					<div class="d-inline ms-2">
+						<a 
+							role="button" 
+							data-id="{{ question.id }}"
+							class="text-decoration-none js-bookmark" 
+							title="{% trans 'Add this question to your favourites. (click again to undo)' %}"
+						>
+							{% if user in bookmarkers %}
+								<i class="fas fa-star js-selected" aria-hidden="true"></i>
+								{% trans 'Bookmarked' %}
+							{% else %}
+								<i class="far fa-star" aria-hidden="true"></i>
+								{% trans 'Bookmark' %}
+							{% endif %}
+						</a>
+						<span class="ms-1 text-primary">
+							&nbsp;|&nbsp; 
+							<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
+						</span>
+						<!-- flag form -->
+						{% render_flag_form question user request k=3 %}
+					</div>
+					<!-- todo report(flag) here -->
+
 				</div>
 				<p>
 					<a href="#" class="btn btn-sm btn-secondary">{% trans 'Click here' %} </a> 
@@ -252,20 +261,17 @@
 								{% if comment_poster.has_social_profile %}
 									<a 
 										href="{{ comment_poster.get_absolute_url }}"
-										class="badge bg-info me-1 text-decoration-none"
+										class="ms-1 me-2 px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted"
 										{% if comment_poster == question_poster %}
 											title="{% trans 'This is the user who asked the question' %}"
 										{% endif %}
 									> 
 										{{ comment_poster.username }}
-										{% if comment_poster == question_poster %}
-											<i class="fas fa-pen" aria-hidden="true"></i>
-										{% endif %}
 									</a>
 								{% else %}
-								<span title='{% trans "User doesn't have a social profile" %}'>{{ comment_poster.username }}</span>
+								<span class="px-1 bg-info opacity-75" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ comment_poster.username }}</span>
 								{% endif %}
-								<span class="small text-muted">{{ comment.posted_datetime }}</span>
+								<span class="ms-2 small text-muted">{{ comment.posted_datetime }}</span>
 							</div>
 						</div>
 					{% endwith %}
@@ -301,7 +307,8 @@
 				</div>
 				<div class="answers-list">
 					{% for answer in answers %}
-						<div class="pt-2 pb-3 answer-layout {% if not forloop.last %} border-bottom {% endif %}">
+						{# answer-layout #}
+						<div class="pt-2 pb-3 px-2 mb-3 border">
 							<div class="mt-3 mb-4 answer-content">
 								{{ answer.content|safe }}
 							</div>
@@ -391,20 +398,17 @@
 												{% if comment_poster.has_social_profile %}
 													<a 
 														href="{{ comment_poster.get_absolute_url }}"
-														class="badge bg-info me-1 text-decoration-none"
+														class="ms-1 me-2 px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted"
 														{% if comment_poster == question_poster %}
 															title="{% trans 'This is the user who asked the question' %}"
 														{% endif %}
 													> 
 														{{ comment_poster.username }}
-														{% if comment_poster == question_poster %}
-															<i class="fas fa-pen" aria-hidden="true"></i>
-														{% endif %}
 													</a>
 												{% else %}
-												<span title='{% trans "User doesn't have a social profile" %}'>{{ comment_poster.username }}</span>
+												<span class="px-1 bg-info opacity-75" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ comment_poster.username }}</span>
 												{% endif %}
-												<span class="small text-muted">{{ comment.posted_datetime }}</span>
+												<span class="ms-2 small text-muted">{{ comment.posted_datetime }}</span>
 											</div>
 										</div>
 									{% endwith %}
@@ -459,17 +463,18 @@
 
 	/* get current user's id.. */
 	// if user isn't logged in, user.id will be `None`
-	var currentUserId = "{{ user.id }}";
-	currentUserId = (currentUserId == "None" ? null : currentUserId);
-	console.log(currentUserId);
+	var userId = "{{ user.id }}", userPoints = {{ user.site_points }};
+	var requiredDownvotePoints = {{ required_downvote_points }};
+	userId = (userId == "None" ? null : userId);
+	console.log(userPoints);
 
 	// enable username to be directly after comment
 	$('.js-comment-wrp').children().css('display', 'inline');
 
-	/* function called when downvote or upvote button is clicked */
+
 	function onVote(event) {
 		// if user isn't logged in
-		if (!currentUserId) {
+		if (!userId) {
 			// prevent other handlers from being called(prevent sending request to backend)
 			event.stopImmediatePropagation();
 			displayLoginRequiredToast();
@@ -486,7 +491,7 @@
 		}
 
 		// if user is voting for their post
-		if (currentUserId === this.dataset.posterId) {
+		if (userId === this.dataset.posterId) {
 			event.stopImmediatePropagation();
 			displaySelfVoteToast();
 			return false;
@@ -501,14 +506,14 @@
 		// console.log(event.target == this);  true !
 
 		// if current user isn't logged in
-		if (!currentUserId) {
+		if (!userId) {
 			event.stopImmediatePropagation();
 			displayLoginRequiredToast();
 			return false;
 		}
 
 		var $this = $(this);
-		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it first for the hide() method to work)
+		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it for the hide() method to work)
 		$this.hide();
 		var $form = $this.next();
 		$form.removeClass('d-none');
@@ -518,7 +523,7 @@
 			$('#addQuestionCommentArea').ckeditor({
 				toolbar: 'Custom',
 				toolbar_Custom: [
-					['Bold', 'Italic', 'Link'],  // code too
+					['Bold', 'Italic', 'Link'],  // todo code too
 				],
 				// width: '50%',
 				width: isMobile ? '100%' : '50%',
@@ -564,13 +569,14 @@
 		
 		// possible thread types are {question, answer, question-comment, answer-comment}
 		var voteType = 'up', threadType = this.dataset.thread;
+		var url = "{% url 'qa_site:school-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
 			var voteAction = 'recall-vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:school-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				dataType: 'json',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
@@ -578,23 +584,36 @@
 					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
 				},
 				success: function(response) {
-					if (isNumeric(response)) {
+					if (response['success']) {
 						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
 						$icon.removeClass('fas js-selected').addClass('far');
 
 						// update number of votes
 						if (threadType == 'question-comment' || threadType == 'answer-comment') {
-						// span comes before vote icon for comments
-							$this.parent().prev().text(response);
+							// update vote count
+							// span comes before vote icon for comments
+							var $voteCounter = $this.parent().prev();
+							var prevCount = parseInt($voteCounter.text(), 10);
+
+							// if no vote was on comment(if the voteCounter is empty)
+							if (Number.isNaN(prevCount)) {
+								$voteCounter.text('1');
+							} else {
+								$voteCounter.text(prevCount - 1);
+							}
+							
 						} else {
-							$this.next().text(response);
+							var $voteCounter = $this.next();
+							var prevCount = parseInt($voteCounter.text(), 10);
+							$voteCounter.text(prevCount - 1);
+							
 							// update text
 							var textNode = $icon[0].nextSibling;
 							textNode.textContent = " {% trans 'Like' %}";
 						}
 					} else {
-						console.error(response);
-						displayErrorOccurredToast();
+						console.log(response);
+						displayCustomErrorToast(response['message']);
 					}
 				}
 			});
@@ -604,30 +623,45 @@
 			var voteAction = 'vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:school-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
 				},
 				success: function(response) {
-					if (isNumeric(response)) {
+					if (response['success']) {
 						// remove far class and set to fas
 						$icon.removeClass('far').addClass('fas js-selected');
 
 						if (threadType == 'question-comment' || threadType == 'answer-comment') {
-							$this.parent().prev().text(response);
+							// update vote count
+							// span comes before vote icon for comments
+							var $voteCounter = $this.parent().prev();
+							var prevCount = parseInt($voteCounter.text(), 10);
+
+							// if no vote was on comment(if the voteCounter is empty)
+							// set vote count to 1
+							if (Number.isNaN(prevCount)) {
+								$voteCounter.text('1');
+							} else {
+								$voteCounter.text(prevCount + 1);
+							}
 						} else {
-							$this.next().text(response);
+							// update count
+							var $voteCounter = $this.next();
+							var prevCount = parseInt($voteCounter.text(), 10);
+							$voteCounter.text(prevCount + 1);
+
+							// update text
 							var textNode = $icon[0].nextSibling;
 							textNode.textContent = " {% trans 'Liked' %}";
 						}
 					} else {
-						console.error(response);
-						displayErrorOccurredToast();
+						console.log(response);
+						displayCustomErrorToast(response['message']);
 					}
 				},
-				// server-side errors. (such as 5XX)
 				error: function() {
 					console.error("Error");
 				}
@@ -640,30 +674,35 @@
 		var $this = $(this);
 		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
 		var voteType = 'down', threadType = this.dataset.thread;
+		var url = "{% url 'qa_site:school-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
 			var voteAction = 'recall-vote';
 
 			$.ajax({
-				url: "{% url 'qa_site:school-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
 				},
 				success: function(response) {
-					if (isNumeric(response)) {
+					if (response['success']) {
 						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
 						$icon.removeClass('fas js-selected').addClass('far');
 
-						// update number of votes
-						$this.next().text(response);
+						// update count
+						var $voteCounter = $this.next();
+						var prevCount = parseInt($voteCounter.text(), 10);
+						$voteCounter.text(prevCount - 1);
+
+						// update text
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Dislike' %}";
 					} else {
-						console.error(response);
-						displayErrorOccurredToast();
+						console.log(response);
+						displayCustomErrorToast(response['message']);
 					}
 				}
 			});
@@ -672,24 +711,36 @@
 			// if user is adding a new vote
 			var voteAction = 'vote';
 
+			// user should have number of points required
+			if (userPoints < requiredDownvotePoints) {
+				var toastMsg = {% blocktrans %} "You need at least <strong>{{ required_downvote_points }} points</strong> to be able to add a dislike." {% endblocktrans %};
+				displayCustomErrorToast(toastMsg);
+				return false;
+			}
+
 			$.ajax({
-				url: "{% url 'qa_site:school-thread-vote' %}",
+				url: url,
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
 				},
 				success: function(response) {
-					if (isNumeric(response)) {
+					if (response['success']) {
 						// remove far class and set to fas
 						$icon.removeClass('far').addClass('fas js-selected');
 
-						$this.next().text(response);
+						// update count
+						var $voteCounter = $this.next();
+						var prevCount = parseInt($voteCounter.text(), 10);
+						$voteCounter.text(prevCount + 1);
+
+						// update text
 						var textNode = $icon[0].nextSibling;
 						textNode.textContent = " {% trans 'Disliked' %}";
 					} else {
-						console.error(response);
-						displayErrorOccurredToast();
+						console.log(response);
+						displayCustomErrorToast(response['message']);
 					}
 				}
 			});
@@ -700,14 +751,14 @@
 	/** Bookmarking  */
 	// get current user's id.. 
 	// if user isn't logged in, user.id will be `None`
-	var currentUserId = "{{ user.id }}";
-	currentUserId = (currentUserId == "None" ? null : currentUserId);
+	var userId = "{{ user.id }}";
+	userId = (userId == "None" ? null : userId);
 	var url = "{% url 'qa_site:school-bookmark-toggle' %}";
 	var bookmarkCount = {{ bookmarkers.count }}, $bookmarkCounter = $('.js-bookmarkCount').first();
 
 	$('.js-bookmark').click(function(event) {
 		// if user isn't logged in
-		if (!currentUserId) {
+		if (!userId) {
 			displayLoginRequiredToast();
 			return false;
 		}
