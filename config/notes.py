@@ -6,43 +6,38 @@
 
 todo:
 		Sep 
-			- update user profile/dashboard accordingly
+			- update user profile/dashboard accordingly (following, bookmarks, etc..)
 			- social_profile_detail.html page. upon clicking on the name of a user, go to this page.
 			- insert delete and edit links. ps moderator can delete only if post has x num of flags.
-
-		- questions following ( icons...) both academic question / school-based.
+			- add share icon near Share link
+			- update requested item model. add category, subcategory, translations, etc.. just like ad-listing.
+			
 		- username @username ... mentions 
+		- edit and delete links
 		- share links on detail pages... 
-		- test item listing list filter
 
 		### update(edit views) ### (do those other sites permit this ?)
 		- questions/answers/comments (remember restrictions on edits and deletions; num_of likes, etc..). hide delete button to ensure restriction. ensure too that update and delete views enforce restrictions.
 
+- account for 'googlemail.com' & gmail.com. replace googlemail in email.. with gmail # NormalizedEmailField
+- convert pagination template to template that can be included.
+- remove flag form from template if user is post owner. also modify view accordingly
+- notify followers when qa_site post is updated..
 - change the flag alert div to a toast. (create custom info toast...)
 - add view_count field. update when object is visited. don't increment view count if owner visite post.
-- unflagging doesn't remove flag from object. create a flag app and copy the django-flag-app package..
 - remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
 - apply style to current nav link.
+- add repost(relist) button near posts older than x days.
 - num of characters limit control, ckeditor, comments, questions, etc..
-- so-so signal sent after a flag, to update some fields etc..
-- add restriction for downvote(num of likes required) in frontend 
 - don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
 - in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
 - for any textarea that can't be resized (horizontally), try removing the width on the font-control class.. eg. ckeditor
-- try to set self.object in mixin; (self.object=self.object()) to prevent calling it again in post.
-- change owner to poster.. marketplace.
 - create a general usage page where each section of the site will be explained. eg. Questions:
-you can't see the user that likes ur posts...
-- implement editing and deleting by poster in various apps..	
 - if user is authed, on header, change profile icon to his profile image. 
-- arrange socialize dropdown...
 - remove all exceptions raised in server-side, apart from in forms. (assert and raise)
-- remove duration from listings for now right... perhaps implement in future. yep.
+# - remove duration from listings for now right... perhaps implement in future. yep.
 - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
 - convert all lists with div to ul > li; 
-- add page to questions/ like my school; same with marketplace/ ; explaining difference between items and adverts...
-- remove zip filter from template and do the zip in view. ?... django performance improvement recommendations
-- remove default_language hidden field from template and assign it in view...
 - add select_related... on filter views. (overriden qs property)
 - clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
 - make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block
@@ -52,20 +47,18 @@ you can't see the user that likes ur posts...
 - add my answers(aca and school-based) and my bookmarked questions.
 - abeg use prefetch_related and select_related in situations of duplicate queries ! !!!
 see example in profile/QA view.. there should be no duplicate queries on any page !!!
-- change pencil icon to may be microphone icon in question detail.
 - remove unneccessary margin and padding classes and use responsive ones such as me-sm-0, my-sm-2, etc...
 - in item/ad listing, make tab items clickable (links.)
 - show best users on both pc and mobile; display vertically on mobile.
 - tell user his age won't be visible to other users.
 - label pages sections for accessibility...
 - reduce size (height) of listing results.
+- wide site search (for search forms in header and footer)
 - initially, remove count of items. perhaps in future, will display count...
-- remove unused css class name from each template. use comments for potential future class names .
 - tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
-- remove tags from school questions ...?
+- remove tags from school questions ...? YEP!
 - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; also say that all fields marked or ending with * are required.
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
-- add email to contact details in detail views.
 - when filtering, consider only 'unexpired' posts. (`is_outdated` field on all 'outdate-able' models.); also add an index on this field.
 - change all datetime_added fields to posted_datetime (for most models where it makes sense;). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
 - backgound-color on filter forms(see ex form marketplace )
@@ -73,32 +66,26 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - photo upload modal stuff too for past_papers site
 - enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
 - number of results when filtering.. ?
-- vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
+# - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
 - remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow). in fact, tags to listings too using django-taggit
 - when listing forms have errors, ensure previously uploaded photos are maintained ! 
 - remove empty p tags from ck editor submitted texts.
 - one page for posts deletion.
 - place common models in core app such as Institution, PhoneNumber, 
-- add original_language field for most models ... Yep !! remove it from frontend. it should be set on backend since user could easily modify its value on the frontend.
-- change external_link_svg to font-awesome icon
 - add asterisk after condition_description when condition changes. (to show the description is required)
-- permissions.
 - footer. check out font awesome's footer on mobile., ilost.co's footer too
 - try to set default for slug field in admin 
 - checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 -show loading icon during ajax request -django
-- enable bookmarking of posts. (questions, listings)
 - add 'FCFA' text after price input box.
 - add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
-- listings should disappear(be deleted or hidden) after duration expires
 - create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
 - include means to refer to another user then commenting in qa_site app. eg. @sergeman you could better explain that. then sergeman should be notified... ?
 - create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
 - limit number of images in past paper upload...
 - all create forms should have shadows. and other forms normal borders
 - socialize detail form should take visitor to socialize section of user's profile
-- limit number of answers per question and comments per post in qa_site app.
 - style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
@@ -107,9 +94,7 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 - use ajax for username select ... 
 - send notification to user when he creates a form
 - translations !
-- correct phone number input in user forms. try adding a prefix on the formset.
 -also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
-- for all posts on site, when user posts, directly store in db and show on site. However, there should be a "flag" button that will permit them to flag the post for moderator attention.
 - for desktop, in question detail page, insert ck editor directly. on mobile, user should click a button before the widget should be displayed... ?
 - append (- CamerEcole) to title of each page. apparently, sites like myschool and SO do this.
 - add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
@@ -124,7 +109,7 @@ see example in profile/QA view.. there should be no duplicate queries on any pag
 		followed by next items.
 	(drop infinite scroll if too difficult or time contrained.)
 # yaiero/tagify for tags.... 	stackoverflow.com/q/10839570/10526469
-- in listing detail page, print price in words on hover over.(tooltip. see num2words library)
+# - in listing detail page, print price in words on hover over.(tooltip. see num2words library)
 - finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
 
 - constraint on file size (maybe max 1MB)

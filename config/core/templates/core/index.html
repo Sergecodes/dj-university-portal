@@ -199,6 +199,55 @@
 			</a>
 		</section>
 
+		{# Requested items section #}
+		<section class="py-3 mb-4">
+			<h2 class="section-title text-success mb-3 pb-lg-3">
+				<span class="section-title__text pb-lg-3">{% trans 'Requested Items' %}</span>
+			</h2>
+			<ul class="row ps-0 mb-3 index-page-list">
+				{% for requested_item, photo in requested_items_and_photos %}
+					<li class="col-lg-4 mb-4 index-page-list__item">
+						<div class="d-flex">
+							<div class="flex-shrink-0">
+								{% if photo %}
+									<a href="{{ requested_item.get_absolute_url }}">
+										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								{% else %}
+									<a href="{{ requested_item.get_absolute_url }}" class="d-inline-block link-secondary">
+										<i class="far fa-image fa-6x px-4 shadow opacity-50"></i>
+									</a>
+								{% endif %}
+							</div>
+							<div class="flex-grow-1 small ms-4">
+								<a 
+									href="{{ requested_item.get_absolute_url }}" 
+									class="h5 text-decoration-none"
+								>
+									{{ requested_item.item_requested|truncatechars:35 }}
+								</a>
+								<br class="mb-3">
+								<a 
+									class="text-decoration-none" 
+									href="#"
+								>
+									{{ requested_item.school }}
+								</a>
+								<br class="mb-1">
+								<span>{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}</span>	
+							</div>
+						</div>
+					</li> 
+				{% endfor %}
+			</ul>
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'requested_items:requested-item-list' %}">
+				{% trans 'View Requested Items' %}
+			</a>
+			<a class="btn btn-success" href="{% url 'requested_items:requested-item-create' %}">
+				{% trans 'Request an item' %}
+			</a>
+		</section>
+
 		{# past papers section #}
 		<section class="py-3 mb-4">
 			<h2 class="section-title text-success mb-3 pb-lg-3">

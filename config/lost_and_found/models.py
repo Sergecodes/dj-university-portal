@@ -10,10 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from flagging.models import Flag
 
-from core.constants import (
-	LOST_ITEMS_PHOTOS_UPLOAD_DIR,
-	LOST_OR_FOUND_ITEM_VALIDITY_PERIOD as VALIDITY_PERIOD
-)
+from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from marketplace.models import Institution
 # from taggit.managers import TaggableManager
@@ -29,9 +26,10 @@ class Post(models.Model):
 	# i don't see the need for tags. todo search via normal field with search vector(Postgres) form more efficiency
 	slug = models.SlugField(max_length=100)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 	# when the post will be considered expired. see save method for implementation
-	expiry_datetime = models.DateTimeField()
-	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, default='en')
+	# expiry_datetime = models.DateTimeField()
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	contact_name = TitleCaseField(
 		_('Full name'),
 		max_length=25,
@@ -49,18 +47,15 @@ class Post(models.Model):
 		validators=[validate_email]
 	)
 
-	def save(self, *args, **kwargs):
-		if not self.id:
-			# since object hasn't yet been saved, its posted_datetime field will be None.
-			# set it to appropriate value
-			self.posted_datetime = timezone.now()
-			self.expiry_datetime = self.posted_datetime + VALIDITY_PERIOD
-		return super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	if not self.id:
+	# 		self.expiry_datetime = self.posted_datetime + VALIDITY_PERIOD
+	# 	super().save(*args, **kwargs)
 
-	@property
-	def is_outdated(self):
-		"""Returns whether a post is outdated(has expired)"""
-		return self.expiry_datetime < timezone.now()
+	# @property
+	# def is_outdated(self):
+	# 	"""Returns whether a post is outdated(has expired)"""
+	# 	return self.expiry_datetime < timezone.now()
 
 	class Meta:
 		abstract = True
@@ -89,7 +84,7 @@ class FoundItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_found)
-		return super().save(*args, **kwargs)
+		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):
 		if with_slug: 
@@ -132,7 +127,7 @@ class LostItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_lost)
-		return super().save(*args, **kwargs)
+		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):
 		if with_slug: 
@@ -191,6 +186,6 @@ class LostItemPhoto(models.Model):
 	# 	return self
 
 	class Meta:
-		verbose_name = 'Lost Items Photo'
+		verbose_name = 'Lost Item Photo'
 		verbose_name_plural = 'Lost Items Photos'
 

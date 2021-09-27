@@ -1,4 +1,3 @@
-import notifications.urls
 from django.contrib.auth import views as auth_views
 from django.urls import path, re_path, include, reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -8,8 +7,19 @@ from . import views
 app_name = 'users'
 
 
-auth_patterns = [
-	path(_('notifications/'), include(notifications.urls, namespace='notifications')),
+profile_patterns = [
+	path('', views.Dashboard.as_view(), name='profile-dashboard'),
+	path(_('dashboard/'), views.Dashboard.as_view(), name='profile-dashboard'),
+	path(_('marketplace/'), views.Marketplace.as_view(), name='profile-marketplace'),
+	path(_('questions-and-answers/'), views.QuestionsAndAnswers.as_view(), name='profile-qa'),
+	path(_('lost-and-found/'), views.LostAndFound.as_view(), name='profile-lostfound'),
+	path(_('past-papers/'), views.PastPaper.as_view(), name='profile-pastpapers'),
+	path(_('requested-items/'), views.RequestedItems.as_view(), name='profile-requested'),
+
+]
+
+
+urlpatterns = [
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
 	path(
 		_('login/'),
@@ -81,22 +91,12 @@ auth_patterns = [
 		),
 		name='password-reset-complete'
 	),
-
-]
-
-profile_patterns = [
-	path(_('profile/'), views.Dashboard.as_view(), name='profile-dashboard'),
-	path(_('profile/dashboard/'), views.Dashboard.as_view(), name='profile-dashboard'),
-	path(_('profile/marketplace/'), views.Marketplace.as_view(), name='profile-marketplace'),
-	path(_('profile/questions-and-answers/'), views.QuestionsAndAnswers.as_view(), name='profile-qa'),
-	path(_('profile/lost-and-found/'), views.LostAndFound.as_view(), name='profile-lostfound'),
-	path(_('profile/past-papers/'), views.PastPaper.as_view(), name='profile-pastpapers'),
-
+	path(_('profile/'), include(profile_patterns)),
 	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
 
 ]
 
-urlpatterns = auth_patterns + profile_patterns
+
 
 # Class-based password reset views
 # - PasswordResetView sends the mail

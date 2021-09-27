@@ -111,7 +111,7 @@ class SocialProfileForm(forms.ModelForm):
 	
 	class Meta:
 		model = SocialProfile
-		exclude = ('user', 'social_media', )
+		exclude = ('user', 'social_media', 'original_language', 'last_modified' )
 		widgets = {
 			'department': forms.TextInput(
 				attrs={'placeholder': _('Ex. Mathematics')}

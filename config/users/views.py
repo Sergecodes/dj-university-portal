@@ -179,6 +179,10 @@ class LostAndFound(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/lost-and-found.html"
 
 
+class RequestedItems(LoginRequiredMixin, TemplateView):
+	template_name = "users/profile/requested-items.html"
+
+
 class PastPaper(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/past-papers.html"
 

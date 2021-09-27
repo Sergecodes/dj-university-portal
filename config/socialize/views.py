@@ -9,7 +9,7 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View 
 from django.views.decorators.http import require_GET
 from django.views.generic import DetailView, ListView
@@ -47,6 +47,7 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 			social_profile = social_profile_form.save(commit=False)
 			social_profile.user = request.user
 			social_profile.social_media = social_media
+			social_profile.original_language = get_language()
 			social_profile.save()
 			
 			return HttpResponseRedirect('/')
@@ -85,8 +86,6 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		if social_profile_form.is_valid() and social_media_form.is_valid():
 			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
-			# no need to update the user since it's the same user instance
-			# social_profile.user = request.user
 			social_profile.social_media = social_media
 			social_profile.save()
 			
@@ -234,7 +233,7 @@ class SocialProfileDetail(HasSocialProfileMixin, DetailView):
 
 	def get_object(self):
 		# directly return social profile since thanks to our mixin, we are sure user has social profile
-		return self.user.social_profile
+		return self.request.user.social_profile
 
 
 @login_required

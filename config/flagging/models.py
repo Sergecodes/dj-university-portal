@@ -33,7 +33,9 @@ class Flag(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
+    # flagged object
     content_object = GenericForeignKey('content_type', 'object_id')
+    # user who has the post
     creator = models.ForeignKey(User, related_name='flags_against', null=True, blank=True, on_delete=models.CASCADE)
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=State.UNFLAGGED.value)
     moderator = models.ForeignKey(User, null=True, blank=True, related_name='flags_moderated', on_delete=models.SET_NULL)
@@ -89,10 +91,10 @@ class Flag(models.Model):
 
     def toggle_flagged_state(self):
         """Modify flag state if count is more than `FLAGS_ALLOWED`"""
-        allowed_flags = FLAGS_ALLOWED
         self.refresh_from_db()
         field = 'state'
-        if self.count > allowed_flags and (
+        
+        if self.count > FLAGS_ALLOWED and (
             getattr(self, field) not in [self.State.RESOLVED.value, self.State.REJECTED.value]
         ):
             setattr(self, field, self.State.FLAGGED.value)

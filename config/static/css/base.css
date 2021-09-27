@@ -23,7 +23,7 @@ img {
 }
 
 /* make bootstrap tooltips flexible, use alongsite data-container="body" */
-.tooltip-inner {
+.share-tooltip .tooltip-inner {
 	max-width: 100%;
 }
 
@@ -51,6 +51,11 @@ img {
 
 .logo {
 	text-align: center;
+}
+
+.notifier-circle {
+	right: 1px;
+	top: -8px;
 }
 
 .register-button {

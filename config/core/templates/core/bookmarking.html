@@ -1,0 +1,92 @@
+{# Template to permit bookmarking and unbookmarking of objects #}
+{# only one instance of this template should exist per page. #}
+{# to enable multiple instances, revise javascript. #}
+{% load i18n %}
+{% load static %}
+
+<!-- Toasts -->
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans 'You must login before adding a post.' %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="{% url 'users:login' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'to login to your account or' %} 
+				<a href="{% url 'users:register' %}" target="_blank">
+					{% trans 'here' %}
+				</a> 
+				{% trans "to sign up if you don't yet have an account." %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'An error occured, refresh the page then try again.' %} <br>
+				{% trans 'If it persists, contact us.' %}
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was added to your' %} 
+				<a href="#">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			<p>
+				{% trans 'The post was removed from your' %} 
+				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
+			</p>
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+
+<a 
+	role="button" 
+	data-id="{{ object_id }}"
+	class="text-decoration-none js-bookmark-button" 
+	title="{{ title_text }}"
+>
+	{% if user in bookmarkers %}
+		<i class="fas fa-star js-selected" aria-hidden="true"></i>
+		{% trans 'Bookmarked' %}
+	{% else %}
+		<i class="far fa-star" aria-hidden="true"></i>
+		{% trans 'Bookmark' %}
+	{% endif %}
+</a>
+<span class="ms-1 text-primary">
+	&nbsp;
+	<span class="js-bookmarkCount">{{ num_bookmarkers }}</span>
+</span>
+
+<script>
+	{# these variables will be used by the bookmark.js file #}
+	{# see stackoverflow.com/q/36689075/how-to-use-django-variable-in-javascript-file #}
+	// get current user's id.. 
+	// if user isn't logged in, user.id will be `None`
+	var userId = "{{ user.id }}";
+	userId = (userId == "None" ? null : userId);
+	var bookmarkCount = {{ num_bookmarkers }}, $bookmarkCounter = $('.js-bookmarkCount').first(); 
+	var bookmarkUrl = "{{ bookmark_url }}";
+	var bookmarkText = "{% trans 'Bookmark' %}", bookmarkedText = "{% trans 'Bookmarked' %}";
+	var csrfToken = "{{ csrf_token }}";
+</script>
+<script src="{% static 'js/bookmark.js' %}"></script>

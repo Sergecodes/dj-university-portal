@@ -1,4 +1,5 @@
 <!-- Display social share tooltip box -->
+{# Receives request and heading #}
 
 {% load i18n %}
 
@@ -21,53 +22,58 @@
 	</div>
 </div>
 
-<div class="d-inline">
-   <!-- tooltip link -->
-   <a 
-		role="button" 
-		data-tip="{{ random_uid }}"
-		class="link-dark text-decoration-none js-tooltip-link"
-	>
-     {% trans 'Share' %}
-   </a>
-
-   <!-- tooltip content -->
-	{# id should be same as data-tip of tooltip link. #}
-	<div id="{{ random_uid }}" class="hide">
-		<h5>{% trans 'Share a link to this' %} {{ use_name }}</h5>
-		<input class="form-control js-link-input" type="text" value="{{ object_url }}" readonly>
-
-		<a class="small js-copy-button" role="button">{% trans 'Copy link' %}</a>
-		<a class="text-decoration-none me-2" href="#">
-			<span class="visually-hidden">{% trans 'Share on Facebook' %}</span>
-			<i class="fab fa-facebook-square" aria-hidden="true"></i>
-		</a>
-		<a class="text-decoration-none" href="#">
-			<span class="visually-hidden">{% trans 'Share on Twitter' %}</span>
-			<i class="fab fa-twitter-square" aria-hidden="true"></i>
-		</a>
-	</div>
-</div>
+{% trans 'Copy link' as copy %}
+{% trans 'Share on Facebook' as facebook_text %}
+{% trans 'Share on Twitter' as twitter_text %}
+{% with link=request.build_absolute_uri %}
+<a 
+	role="button" 
+	class="link-secondary fw-bold text-decoration-none js-share-tooltip"
+	data-bs-toggle="tooltip"
+	data-bs-trigger="click"
+	data-bs-custom-class="share-tooltip"
+	data-bs-placement="bottom"
+	data-bs-html="true"
+	data-bs-container="body"
+	title='
+		<div>
+			<h6 class="text-nowrap mt-2">{{ heading }}</h6>
+			<input class="form-control mb-3 py-1 js-link-input" type="text" value="{{ link }}" title="{{ link }}}" readonly>
+			<div class="text-start">
+				<a class="text-decoration-none js-copy-button" role="button">{{ copy }}</a>
+				<a class="text-decoration-none me-2" href="#">
+					<span class="visually-hidden">{{ facebook_text }}</span>
+					<i class="fab fa-facebook-square fa-lg" aria-hidden="true"></i>
+				</a>
+				<a class="text-decoration-none" href="#">
+					<span class="visually-hidden">{{ twitter_text }}</span>
+					<i class="fab fa-twitter-square fa-lg" aria-hidden="true"></i>
+				</a>
+			</div>
+		</div>
+	'
+>
+	{% trans 'Share' %}
+</a>
+{% endwith %}
 
 <script>
-	// tooltip functionality
-	$('.js-tooltip-link').each(function () {
-		var $this = $(this);
-		var tooltip = new bootstrap.Tooltip($this.next().get(0), {
-			html: true,
-			title: $('#' + $this.data('tip')).html()
-		});
-		tooltip.show();
-		/*
-		$this.tooltip({
-			html: true,
-			title: $('#' + $this.data('tip')).html()
-		});
-		*/
+	// change default tags to sanitize for bootstrap tooltips with html content
+	// see getbootstrap.com/docs/5.0/getting-started/javascript/#sanitizer
+	var defaultAllowList = bootstrap.Tooltip.Default.allowList;
+	// to allow input elements with some attrs
+	defaultAllowList.input = ['class', 'type', 'value', 'title', 'readonly'];
+
+	/* initialise all tooltips on the page */
+	// notably the social media share tooltip
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
 	});
 
-	// copying to clipboard functionality
-	$('.js-copy-button').first().click(function() {
+	// tooltip needs to first be inserted in page, so do this after tooltip is inserted.
+	/* Copying to clipboard functionality */
+	function onCopyLink(event) {
 		// get and select the text field
 		var linkInput = document.querySelector('.js-link-input');
 		linkInput.select();
@@ -81,5 +87,13 @@
 			var errMsg = "{% blocktrans %} An error occured when copying the link. <br> Try to copy it manually by selecting the text and copying. {% endblocktrans %}";
 			displayCustomErrorToast(errMsg);
 		});
+	}
+
+	// bootstrap tooltips are asyncronously initialised,
+	// so wait until tooltip html template is inserted before adding click event.
+	var myToolTipEl = document.querySelector('.js-share-tooltip');
+	myToolTipEl.addEventListener('inserted.bs.tooltip', function() {
+		$('.js-copy-button').first().click(onCopyLink);
 	});
+
 </script>

@@ -59,6 +59,14 @@ def vote_academic_thread(request):
 
 	thread_owner = object.poster
 
+	# user can't vote for his own post
+	# this should normally be prevented in frontend 
+	if user == thread_owner:
+		return JsonResponse({
+			'success': False,
+			'message': _("You can't add a like or dislike to your own post.")
+		}, status=200)
+
 	if thread_type == 'question' or thread_type == 'answer':
 		# verify if user has already upvoted and downvoted question or answer
 		# only id is important 
@@ -75,7 +83,7 @@ def vote_academic_thread(request):
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_UPVOTE_POINTS_CHANGE
-					thread_owner.save(['site_points'])
+					thread_owner.save(update_fields=['site_points'])
 
 					# send notification to post owner
 					notify.send(
@@ -94,7 +102,7 @@ def vote_academic_thread(request):
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
-					thread_owner.save(['site_points'])
+					thread_owner.save(update_fields=['site_points'])
 
 					if not downvote_result[0]:
 						return JsonResponse({
@@ -146,7 +154,7 @@ def vote_academic_thread(request):
 				# update points of post owner
 				# subtract points since vote is being retracted
 				thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
-				thread_owner.save(['site_points'])
+				thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 					'success': True,
@@ -159,7 +167,7 @@ def vote_academic_thread(request):
 				# update points of post owner
 				# subtract points since vote is being retracted
 				thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-				thread_owner.save(['site_points'])
+				thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 					'success': True,
@@ -253,6 +261,14 @@ def vote_school_thread(request):
 
 	thread_owner = object.poster
 
+	# user can't vote for his own post
+	# this should normally be prevented in frontend 
+	if user == thread_owner:
+		return JsonResponse({
+			'success': False,
+			'message': _("You can't add a like or dislike to your own post.")
+		}, status=200)
+
 	if thread_type == 'question' or thread_type == 'answer':
 		# verify if user has already upvoted and downvoted question or answer
 		already_upvoted = user in object.upvoters.only('id')
@@ -267,7 +283,7 @@ def vote_school_thread(request):
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_UPVOTE_POINTS_CHANGE
-					thread_owner.save(['site_points'])
+					thread_owner.save(update_fields=['site_points'])
 
 					# send notification to post owner
 					notify.send(
@@ -286,7 +302,7 @@ def vote_school_thread(request):
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
-					thread_owner.save(['site_points'])
+					thread_owner.save(update_fields=['site_points'])
 
 					if not downvote_result[0]:
 						return JsonResponse({
@@ -336,7 +352,7 @@ def vote_school_thread(request):
 				# update points of post owner
 				# subtract points since vote is being retracted
 				thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
-				thread_owner.save(['site_points'])
+				thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 						'success': True,
@@ -349,7 +365,7 @@ def vote_school_thread(request):
 				# update points of post owner
 				# subtract points since vote is being retracted
 				thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-				thread_owner.save(['site_points'])
+				thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 						'success': True,
@@ -412,6 +428,27 @@ def vote_school_thread(request):
 
 @login_required
 @require_POST
+def academic_question_bookmark_toggle(request):
+	"""This view handles bookmarking for academic questions"""
+	user, POST = request.user, request.POST
+	id, action = int(POST.get('id')), POST.get('action')
+	question = get_object_or_404(AcademicQuestion, pk=id)
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		question.bookmarkers.add(user)
+		return JsonResponse({'bookmarked': True}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		question.bookmarkers.remove(user)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
+
+
+@login_required
+@require_POST
 def school_question_bookmark_toggle(request):
 	"""This view handles bookmarking for school-based questions"""
 	user, POST = request.user, request.POST
@@ -433,21 +470,41 @@ def school_question_bookmark_toggle(request):
 
 @login_required
 @require_POST
-def academic_question_bookmark_toggle(request):
-	"""This view handles bookmarking for academic questions"""
+def academic_question_follow_toggle(request):
+	"""This view handles following for academic questions"""
 	user, POST = request.user, request.POST
 	id, action = int(POST.get('id')), POST.get('action')
 	question = get_object_or_404(AcademicQuestion, pk=id)
 
-	# if vote is new (not removing bookmark)
-	if action == 'bookmark':
-		question.bookmarkers.add(user)
-		return JsonResponse({'bookmarked': True}, status=200)
+	# if user is following
+	if action == 'follow':
+		question.followers.add(user)
+		return JsonResponse({'followed': True}, status=200)
 
-	# if user is retracting bookmark
-	elif action == 'recall-bookmark':
-		question.bookmarkers.remove(user)
-		return JsonResponse({'unbookmarked': True}, status=200)
+	# if user is unfollowing
+	elif action == 'recall-follow':
+		question.followers.remove(user)
+		return JsonResponse({'unfollowed': True}, status=200)
 	else:
 		return JsonResponse({'error': _('Invalid action')}, status=400)
 
+
+@login_required
+@require_POST
+def school_question_follow_toggle(request):
+	"""This view handles following for school-based questions"""
+	user, POST = request.user, request.POST
+	id, action = int(POST.get('id')), POST.get('action')
+	question = get_object_or_404(SchoolQuestion, pk=id)
+
+	# if user is following
+	if action == 'follow':
+		question.followers.add(user)
+		return JsonResponse({'followed': True}, status=200)
+
+	# if user is unfollowing
+	elif action == 'recall-follow':
+		question.followers.remove(user)
+		return JsonResponse({'unfollowed': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)

@@ -1,12 +1,12 @@
 import bleach
-import uuid
 from django import template
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.template.defaultfilters import stringfilter
+from django.template.defaultfilters import stringfilter, title
 from django.utils.translation import gettext_lazy as _
 
-from users.utils import parse_phone_number
+from core.utils import parse_phone_number
+
 
 register = template.Library()
 
@@ -46,28 +46,22 @@ def get_login_url():
 	return login_url
 
 
-@register.inclusion_tag('core/social_share_tooltip.html')
-def render_social_share_tooltip(object, post_type, use_name='post'):
-	"""
-	A template tag used for adding social media share tooltip in templates.
-	This tag is used to generate a unique id for each rendered tooltip
-	"""
-	context = {}
+@register.inclusion_tag('core/bookmarking.html')
+def render_bookmark_template(
+	object, 
+	bookmark_url, 
+	title_text=_('Add this post to your favourites. (click again to undo)')
+):
+	bookmarkers = object.bookmarkers.only('id')
+	
+	return {
+		'object_id': object.id,
+		'bookmarkers': bookmarkers,
+		'num_bookmarkers': bookmarkers.count(),
+		'bookmark_url': bookmark_url,
+		'title_text': title_text
+    }
 
-	# generate random id for each tooltip
-	# in case there are many tooltips on the page...
-	context['random_uid'] = str(uuid.uuid4()).split('-')[0]
-	context['use_name'] = use_name
-
-	objects_with_slug = ('lost-item', 'found-item', 'past-paper', 'academic-question')
-	if post_type in objects_with_slug:
-		# get url without slug
-		context['object_url'] = object.get_absolute_url(with_slug=False)
-	else:
-		# get normal url (which doesn't contain slug. such as school-based-question)
-		context['object_url'] = object.get_absolute_url()
-
-	return context
 
 # @register.filter
 # def parse_tel(value):

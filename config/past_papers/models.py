@@ -60,6 +60,7 @@ class Comment(models.Model):
 		related_query_name='comment'
 	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	class Meta:
 		ordering = ['-posted_datetime']
@@ -136,6 +137,7 @@ class PastPaper(models.Model):
 		blank=True, null=True
 	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 	# those with null=True will be considered as revision papers..
 	written_date = models.DateField(null=True, blank=True)  # when the past paper was written..
 	default_language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)

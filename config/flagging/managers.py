@@ -3,13 +3,14 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.utils.translation import gettext_lazy as _
  
-from .utils import get_content_type, get_user_for_model
+from .utils import get_content_type
 
 
 class FlagManager(models.Manager):
     def get_flag(self, model_obj):
         ctype = get_content_type(model_obj)
-        creator = get_user_for_model(model_obj)
+        # all flaggable models should have a `poster` attribute
+        creator = model_obj.poster
         flag, __ = self.get_or_create(content_type=ctype, object_id=model_obj.id, creator=creator)
         return flag
 

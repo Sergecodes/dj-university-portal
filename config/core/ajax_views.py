@@ -6,7 +6,8 @@ from django.views import View
 from core.constants import (
 	MAX_LOST_ITEM_PHOTOS, PAST_PAPER_SUFFIX,
 	ITEM_LISTING_SUFFIX, LOST_ITEM_SUFFIX,
-	AD_LISTING_SUFFIX
+	AD_LISTING_SUFFIX, REQUESTED_ITEM_SUFFIX,
+	MAX_REQUESTED_ITEM_PHOTOS
 )
 from lost_and_found.forms import LostItemPhotoForm
 from marketplace.forms import (
@@ -14,57 +15,26 @@ from marketplace.forms import (
 	AdListingPhotoForm as AdPhotoForm
 )
 from past_papers.forms import PastPaperPhotoForm
+from requested_items.forms import RequestedItemPhotoForm
+
+
+FORM_AND_SUFFIX = {
+	'item_listing': ITEM_LISTING_SUFFIX,
+	'ad_listing': AD_LISTING_SUFFIX,
+	'lost_item': LOST_ITEM_SUFFIX,
+	'past_paper': PAST_PAPER_SUFFIX,
+	'requested_item': REQUESTED_ITEM_SUFFIX
+}
 
 
 class PhotoUploadView(LoginRequiredMixin, View):
-	http_method_names = ['DELETE', 'POST']
-	
-	def delete(self, request):
-		"""Called when a photo is deleted. Removes photo from list of photos."""
-
-		FORM_AND_SUFFIX = {
-			'item_listing': ITEM_LISTING_SUFFIX,
-			'ad_listing': AD_LISTING_SUFFIX,
-			'lost_item': LOST_ITEM_SUFFIX,
-			'past_paper': PAST_PAPER_SUFFIX
-		}
-		photo_filename = request.GET.get('photo_filename')
-		form_for = request.GET.get('form_for')
-
-		# in normal circumstances, this shouldn't be the case
-		if not (photo_filename and form_for):
-			return JsonResponse(
-				{'deleted': False, 'error': _('Invalid GET params')},
-				status=400  # BadRequest
-			)
-		
-		username, session = request.user.username, request.session
-		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
-
-		# remove photo title from user photos and update session
-		try:
-			photo_index = user_photos_list.index(photo_filename)
-		except ValueError:
-			# in normal circumstances, this shouldn't be the case
-			return JsonResponse(
-				{'deleted': False, 'error': _('Photo not in list, bizarre')},
-				status=400
-			)
-
-		del user_photos_list[photo_index]
-		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
-
-		return JsonResponse({'deleted': True})
+	# this isn't even required, if a method not defined in this class is used (eg. GET)
+	# the request will fail.
+	# also, these methods must be in lowercase apparently.
+	# http_method_names = ['delete', 'post']
 
 	def post(self, request, form_for):
 		"""Called when a photo is uploaded."""
-
-		FORM_AND_SUFFIX = {
-			'item_listing': ITEM_LISTING_SUFFIX,
-			'ad_listing': AD_LISTING_SUFFIX,
-			'lost_item': LOST_ITEM_SUFFIX,
-			'past_paper': PAST_PAPER_SUFFIX
-		}
 
 		if form_for == 'item_listing':
 			form = ItemPhotoForm(request.POST, request.FILES)
@@ -74,10 +44,10 @@ class PhotoUploadView(LoginRequiredMixin, View):
 			form = LostItemPhotoForm(request.POST, request.FILES)
 		elif form_for == 'past_paper':
 			form = PastPaperPhotoForm(request.POST, request.FILES)
+		elif form_for == 'requested_item':
+			form = RequestedItemPhotoForm(request.POST, request.FILES)
 		else:
-			# return HttpResponseBadRequest(_('Invalid value for form_for'))
-			# BadRequest
-			return JsonResponse({'is_valid': False}, status=400)
+			return JsonResponse({'is_valid': False, 'error': _('Unsupported form')}, status=400)
 		
 		username, session = request.user.username, request.session
 		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
@@ -86,7 +56,14 @@ class PhotoUploadView(LoginRequiredMixin, View):
 		if form_for == 'lost_item' and len(user_photos_list) == MAX_LOST_ITEM_PHOTOS:
 			return JsonResponse(
 				{'is_valid': False, 'error': _('Maximum number of photos attained')},
-				status=405  # NotAllowed
+				status=403  # Forbidden
+			)
+
+		# if requested item num_photos already at maximum 
+		if form_for == 'requested_item' and len(user_photos_list) == MAX_REQUESTED_ITEM_PHOTOS:
+			return JsonResponse(
+				{'is_valid': False, 'error': _('Maximum number of photos attained')},
+				status=403  # Forbidden
 			)
 
 		# print(request.FILES)
@@ -117,3 +94,34 @@ class PhotoUploadView(LoginRequiredMixin, View):
 
 		return JsonResponse(data)
 
+
+	def delete(self, request):
+		"""Called when a photo is deleted. Removes photo from list of photos."""
+		photo_filename = request.GET.get('photo_filename')
+		form_for = request.GET.get('form_for')
+
+		# in normal circumstances, this shouldn't be the case
+		if not (photo_filename and form_for):
+			return JsonResponse(
+				{'deleted': False, 'error': _('Invalid GET params')},
+				status=400  # BadRequest
+			)
+		
+		username, session = request.user.username, request.session
+		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
+
+		# remove photo title from user photos and update session
+		try:
+			photo_index = user_photos_list.index(photo_filename)
+		# if value(photo_filename) is not in list(user_photos_list)
+		# in normal circumstances, this shouldn't be the case
+		except ValueError:
+			return JsonResponse(
+				{'deleted': False, 'error': _('Photo not in list, bizarre!')},
+				status=400
+			)
+
+		del user_photos_list[photo_index]
+		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
+
+		return JsonResponse({'deleted': True})

@@ -1,0 +1,56 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}
+	<title>{% trans 'Profile - Requested Items' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-lg mb-5">
+	<div class="d-lg-flex align-items-start border p-3">
+		{% include './tab-section.html' with active_item='requested' %}
+
+		<div class="tab-content flex-grow-1 mt-2 py-2 ms-lg-4 ps-lg-4 pe-lg-3 px-3 px-lg-0 border" id="nav-tabContent">
+			<div class="tab-pane active" id="nav-requested" aria-labelledby="nav-requested-tab">
+				<h2 class="text-success text-center mb-3">{% trans 'Requested Items' %}</h2>
+
+				<!-- user's requested items -->
+				<section class="mb-4">
+					<!-- <h4 class="text-success">
+						{% trans 'Requested Items' %}
+						<span class="text-muted">({{ user.requested_items.count }})</span>
+					</h4> -->
+					{% if not user.requested_items.exists %}
+						<div class="alert alert-info" role="alert">
+							{% trans 'You have not requested any item yet.' %}
+						</div>
+					{% else %}
+						{% for requested_item in user.requested_items.all %}
+							<div class="mb-2">
+								<a href="{{ requested_item.get_absolute_url }}" class="text-decoration-none">
+									{{ requested_item.item_requested }}
+								</a>
+								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}</span>
+							</div>
+						{% endfor %}
+					{% endif %}		
+				</section>	
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+{% endblock %} 

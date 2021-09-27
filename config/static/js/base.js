@@ -421,14 +421,32 @@ function displayLoginRequiredToast() {
  * Toast should be present in the html page
  */
  function displayBookmarkToggleToast(bookmarkAdded) {
+	var $myToast;
 	if (bookmarkAdded) 
-		var $myToast = $('.js-bookmark-added-toast').first();
+		$myToast = $('.js-bookmark-added-toast').first();
 	else 
-		var $myToast = $('.js-bookmark-removed-toast').first();
+		$myToast = $('.js-bookmark-removed-toast').first();
 
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show(); 
 }
+
+
+/**
+ * Display toast telling user that they have successfully followed or unfollowed a post
+ * Toast should be present in the html page
+ */
+ function displayFollowToggleToast(followed) {
+	var $myToast;
+	if (followed) 
+		$myToast = $('.js-followed-toast').first();
+	else 
+		$myToast = $('.js-unfollowed-toast').first();
+
+	var bsToast = new bootstrap.Toast($myToast[0]);
+	bsToast.show(); 
+}
+
 
 /**
  * Display custom success message toast

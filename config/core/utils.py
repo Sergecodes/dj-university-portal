@@ -1,3 +1,5 @@
+"""Utility functions used in various apps"""
+
 import os
 import re
 from django.conf import settings
@@ -5,6 +7,35 @@ from django.core.files import File
 from fpdf import FPDF
 
 BASE_DIR = settings.BASE_DIR
+
+
+def get_usernames_from_comment(comment, post_type):
+	"""Get the usernames of all mentioned users in a comment"""
+	# post_type is in {'question', 'answer'}
+	# user should have at least comment under post. 
+	# eg if user was mentioned under answer, for the user to be notified, 
+	# he should have at least one comment under the answer.
+	pass
+
+
+def parse_phone_number(tel):
+	"""
+	Appropriately print a phone number.
+	For an odd number, separate figures before printing.
+	For an even number, return same number.
+	e.g. 651234566(odd number) should return 6 51 23 45 66
+	"""
+	if len(tel) % 2 == 0:
+		return tel
+	
+	result = tel[0]
+	n = len(tel)
+
+	for i in range(1, n, 2):
+		temp = tel[i] + tel[i+1]
+		result = result + ' ' + temp
+	
+	return result
 
 
 def generate_pdf(instance_list, gen_file_name, dir='media', gen_files_dir='past_papers'):

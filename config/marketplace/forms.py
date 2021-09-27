@@ -25,7 +25,7 @@ class ItemListingPhotoForm(forms.ModelForm):
 class ItemListingForm(forms.ModelForm):
 	"""Form used to create a new item listing."""
 	# slug = forms.CharField(required=False)
-	institution = forms.ModelChoiceField(
+	school = forms.ModelChoiceField(
 		queryset=Institution.objects.all(), 
 		empty_label=None
 	)
@@ -60,7 +60,7 @@ class ItemListingForm(forms.ModelForm):
 
 	class Meta:
 		model = ItemListing
-		exclude = ('owner', 'slug', 'original_language')
+		exclude = ('poster', 'slug', 'original_language')
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
 			'condition': _("Select the condition of the item you're listing."),
@@ -87,7 +87,7 @@ class ItemListingForm(forms.ModelForm):
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Institution & Item Category'),
-				'institution',
+				'school',
 				Row(
 					Column('category', css_class='form-group col-md-6 mb-0'),
 					Column('sub_category', css_class='form-group col-md-6 mb-0'),
@@ -97,7 +97,7 @@ class ItemListingForm(forms.ModelForm):
 			),
 			Fieldset(_('Listing Details'),
 				'title',
-				'duration',
+				# 'duration',
 				Row(
 					Column('condition', css_class='form-group col-md-5 mb-0'),
 					Column('condition_description', css_class='form-group col-md-7 mb-0'),
@@ -174,7 +174,7 @@ class AdListingForm(forms.ModelForm):
 
 	class Meta:
 		model = AdListing
-		exclude = ('owner', 'slug', 'original_language')
+		exclude = ('poster', 'slug', 'original_language')
 		help_texts = {
 			'title': _("A descriptive title helps others easily find your advert. <br> Include words that others will use to search for your advert"),
 		}
@@ -193,13 +193,13 @@ class AdListingForm(forms.ModelForm):
 		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['category'].empty_label = None
-		# self.fields['institution'].empty_label = None
+		# self.fields['school'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Institution & Advert Category'),
 				Row(
-					Column('institution', css_class='form-group col-md-6 mb-0'),
+					Column('school', css_class='form-group col-md-6 mb-0'),
 					Column('category', css_class='form-group col-md-6 mb-0'),
 					css_class='form-row'
 				),
@@ -207,7 +207,7 @@ class AdListingForm(forms.ModelForm):
 			),
 			Fieldset(_('Listing Details'),
 				'title',
-				'duration',
+				# 'duration',
 				# photo upload template here
 				PhotoFormLayout(extra_context={
 					'form_for': 'ad_listing', 

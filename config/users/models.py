@@ -11,18 +11,34 @@ from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from notifications.signals import notify
 
 from core.constants import (
-	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, POST_UPVOTE_POINTS_CHANGE,
-	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE,
+	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
+	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE, IS_BAD_USER_POINTS,
 	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
 )
 from core.model_fields import LowerCaseEmailField, TitleCaseField
+from core.utils import parse_phone_number
 from marketplace.models import ItemListing, AdListing
 # from qa_site.models import AcademicQuestion, SchoolQuestion
 from .managers import UserManager
-from .utils import parse_phone_number
 from .validators import validate_full_name
+
+
+def get_dummy_user():
+	"""
+	Dummy user to use as owner of posts that belong to deleted users.
+	Normally, users accounts should note be deletable, but can be deactivated(set is_active=False)
+	"""
+	return User.objects.get_or_create(
+		username='deleted',
+		email=DELETED_USER_EMAIL,
+		defaults={
+			'password': str(uuid.uuid4()), 
+			'is_active': False
+		}
+	)[0]
 
 
 class PhoneNumber(models.Model):
@@ -61,16 +77,6 @@ class PhoneNumber(models.Model):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	# ACTIVE = 'A'
-	# DELETED = 'D'
-	# SUSPENDED = 'S'
-
-	# STATUSES = (
-	# 	(ACTIVE, _('active')),
-	# 	(DELETED, _('deleted')),
-	# 	(SUSPENDED, _('suspended'))
-	# )
-
 	GENDERS = (
 		('M', _('Male')),
 		('F', _('Female'))
@@ -151,7 +157,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	@property
 	def can_withdraw(self):
-		return False # for now... todo!
+		return False # for now... TODO !
 
 	@property
 	def has_social_profile(self):
@@ -180,25 +186,61 @@ class User(AbstractBaseUser, PermissionsMixin):
 		really_delete = kwargs.pop('really_delete', False)
 
 		if really_delete:
-			super().delete(*args, **kwargs) 
+			return super().delete(*args, **kwargs) 
 		else:
 			self.deactivate()
-			print("User deactivated successfully")
+			print("User's account deactivated successfully")
 	
 	def get_absolute_url(self):
 		if self.has_social_profile:
 			return self.social_profile.get_absolute_url()
 		return ''
 
+	def penalize_flagged_user(self, flagged_post=None):
+		"""
+		Deduct points from flagged user
+		i.e. user whose post flag count attains `SHOULD_FLAG_COUNT` or whose post was deleted by
+		moderator for inappropriateness.
+		"""
+		user_points = self.site_points
+
+		# is user was recently flagged (if he was flagged but didn't contribute to the site)
+		# i.e if his points == IS_BAD_USER_POINTS(1)
+		# deactivate his account. 
+		if user_points == IS_BAD_USER_POINTS:
+			# TODO include this in list of website rules.
+			self.deactivate()
+			return
+		
+		# if new points after deduction will be less than 1, set it to 1.
+		new_points = user_points + PENALIZE_FLAGGED_USER_POINTS_CHANGE
+		if new_points < IS_BAD_USER_POINTS:
+			new_points = IS_BAD_USER_POINTS
+
+		self.site_points = new_points
+		self.save(update_fields=['site_points'])
+		# notify user
+		notify.send(
+			sender=self,  # just use same user as sender
+			recipient=self, 
+			verb=_(
+				"You have been deducted {} points because many users considered one of your posts to be inappropriate. Strive to avoid posting such posts. If you continue, your account will be deactivated without further warning.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
+			),
+			target=flagged_post
+		)
+
 	def get_earnings(self):
 		"""Get user's earnings from his points"""
-		# for now, return the user's points.  # todo
+		# for now, return the user's points.  # TODO
 		return self.site_points
 
 	def add_answer(self, question, answer, question_type):
 		"""Add answer to question."""
 		# question_type can be 'academic' or 'school-based'
 		# note that answer hasn't yet been saved, it's just an Answer() instance.
+		# this must be the case coz the answer doesn't yet have a question.
+
+		question_poster = question.poster
 		
 		answerers_id = []
 		for answer in question.answers:
@@ -216,17 +258,90 @@ class User(AbstractBaseUser, PermissionsMixin):
 		answer.question = question
 		answer.save()
 
-		# update user's number of points
-		if question_type == 'school-based':
-			self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
-		elif question_type == 'academic':
-			self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
-		else:
-			raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'school-based' not '{question_type}'.")
+		# update user's number of points if answerer is not question poster
+		if question_poster != self:
+			if question_type == 'school-based':
+				self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
+			elif question_type == 'academic':
+				self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
+			else:
+				raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'school-based' not '{question_type}'.")
+			self.save(update_fields=['site_points'])
 
-		self.save(update_fields=['site_points'])
+		# notify question owner and users that are following this question
+		notify.send(
+			sender=self, 
+			recipient=question_poster, 
+			verb=_('answered your question'),
+			target=question
+		)
+		for follower in question.followers.all():
+			notify.send(
+				sender=self, 
+				recipient=follower, 
+				verb=_('performed an activity under the question'),
+				target=question
+			)
+
 		return (True, '')
 
+	def add_question_comment(self, question, comment):
+		"""Add comment to question."""
+		# question_type can be 'academic' or 'school-based'
+		# note that comment hasn't yet been saved, it's just an Comment() instance.
+		# this must be the case coz the comment doesn't yet have a question.
+		comment.poster = self
+		comment.question = question
+		comment.save()
+
+		# notify question poster and users that are following this question
+		notify.send(
+			sender=self, 
+			recipient=question.poster, 
+			verb=_('commented on your question'),
+			target=question
+		)
+		for follower in question.followers.all():
+			notify.send(
+				sender=self,
+				recipient=follower, 
+				verb=_('performed an activity under the question'),
+				target=question
+			)
+	
+	def add_answer_comment(self, answer, comment):
+		"""Add comment to answer."""
+		# note that comment hasn't yet been saved, it's just an Comment() instance.
+		# this must be the case coz the comment doesn't yet have a question.
+		comment.poster = self
+		comment.answer = answer
+		comment.save()
+
+		question = answer.question
+
+		# notify question poster, answerer and users that are following this question
+		notify.send(
+			sender=self, 
+			recipient=question.poster, 
+			verb=_('commented on an answer to your question'),
+			target=question
+		)
+		notify.send(
+			sender=self, 
+			recipient=answer.poster, 
+			verb=_('commented on your answer to the question'),
+			target=question
+		)
+		
+		question_followers = question.followers.all()
+		for follower in question_followers:
+			notify.send(
+				sender=self, 
+				recipient=follower, 
+				verb=_('performed an activity under an answer to the question'),
+				target=question
+			)
+	
 	'''Upvoting/downvoting questions and answers'''
 	# def upvote_question(self, question, output=False):
 	# 	question.upvoters.add(self)
@@ -246,6 +361,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	
 	def downvote_question(self, question, output=False, for_html=False):
+		question_owner = question.poster
+
+		# user can't downvote(vote for his own question(post))
+		if self == question_owner:
+			return (
+				False,
+				_("You can't add a dislike to your own question.")
+			)
+
 		# staff can always downvote question
 		if not self.is_staff:
 			# user should have enough points to downvote
@@ -260,7 +384,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 				False, 
 				_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 			)
-		question_owner = question.poster
+
 		question_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
 		question.downvoters.add(self)
 		return (True, question.downvote_count) if output else (True, '')
@@ -270,6 +394,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# 	return question.downvote_count if output else None
 
 	def downvote_answer(self, answer, output=False, for_html=False):
+		answer_owner = answer.poster
+
+		# user can't downvote(vote for his own answer(post))
+		if self == answer_owner:
+			return (
+				False,
+				_("You can't add a dislike to your own answer.")
+			)
+
 		# staff can always downvote answer
 		if not self.is_staff:
 			# user doesn't have enough points to downvote
@@ -309,20 +442,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# 	return listing.bookmark_count if output else None
 
 
-def get_dummy_user():
-	"""
-	Dummy user to use as owner of posts that belong to deleted users.
-	Normally, users accounts should note be deletable, but can be deactivated(set is_active=False)
-	"""
-	return User.objects.get_or_create(
-		username='deleted',
-		email=DELETED_USER_EMAIL,
-		defaults={
-			'password': str(uuid.uuid4()), 
-			'is_active': False
-		}
-	)[0]
-
 
 # this model isn't even required. if user flaunts a law, he will be warned.
 # if he persists, his account will be deleted(deactivated.)
@@ -344,4 +463,32 @@ def get_dummy_user():
 # 	def ending_datetime(self):
 # 		""" When the suspension will end """
 # 		return self.creation_datetime + self.duration
+
+
+
+# import uuid
+
+# from django.contrib.auth import get_user_model
+# # from django.core.cache import caches
+
+# User = get_user_model()
+# # DEFAULT_IMAGE_URL = 'imgur.co'
+# DELETED_USER_EMAIL = 'deleted@gmail.com'
+
+# # TODO this accounts should proly be created before deployment...
+
+# def get_sentinel_user():
+# 	"""
+# 	A dummy profile that will be used for deleted profiles.
+# 	However, deleted profiles are not purged out of the db.
+# 	In case a user is deleted, set his profile to the dummy profile
+# 	and set him to inactive. Don't actually delete the user!
+# 	"""
+# 	# store this user in cache
+# 	password = str(uuid.uuid4())
+# 	return User.objects.get_or_create(
+# 		username='deleted',
+# 		email=DELETED_USER_EMAIL,  # irrelevant dummy email
+# 		defaults={'password': password, 'is_active': False}
+# 	)[0]   # get_or_create() returns (obj, created?). so [0] return just the object.
 

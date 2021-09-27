@@ -1,14 +1,17 @@
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from flagging.models import Flag
 from taggit.managers import TaggableManager
 
+from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
 from core.model_fields import TitleCaseField
 from marketplace.models import Institution
 from users.models import get_dummy_user
@@ -21,6 +24,7 @@ class Comment(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	content = RichTextField()
 	last_modified = models.DateTimeField(auto_now=True)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	# comments have just votes (no upvotes & downvotes)
 	# vote_count = models.PositiveIntegerField(default=0)
 
@@ -35,6 +39,16 @@ class Comment(models.Model):
 	@property
 	def vote_count(self):
 		return self.upvoters.count()
+
+	@property
+	def is_within_edit_timeframe(self):
+		"""
+		Verify if comment is within edition time_frame
+		(posted_datetime is less than COMMENT_CAN_EDIT_TIME_LIMIT(5 minutes) old)
+		"""
+		if (self.posted_datetime - timezone.now()) > COMMENT_CAN_EDIT_TIME_LIMIT:
+			return False
+		return True
 
 
 class SchoolQuestionComment(Comment):
@@ -142,6 +156,7 @@ class Answer(models.Model):
 	content = RichTextUploadingField()
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)
 
@@ -227,6 +242,8 @@ class Question(models.Model):# the django-flag-app package requires that the nam
 	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	# view_count = models.PositiveIntegerField(default=0)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)
 
@@ -260,6 +277,7 @@ class SchoolQuestionTag(models.Model):
 	name = models.CharField(max_length=30, unique=True) 
 	slug = models.SlugField(max_length=100) 
 	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def save(self, *args, **kwargs):
 		if not self.id:

@@ -4,8 +4,9 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
@@ -17,9 +18,11 @@ from functools import reduce
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, AD_PHOTOS_UPLOAD_DIR,
 	ITEM_LISTING_SUFFIX, AD_LISTING_SUFFIX,
-	MIN_LISTING_PHOTOS_LENGTH  # todo enforce this !
+	MIN_ITEM_PHOTOS_LENGTH  # todo enforce this !
 )
+from core.mixins import GetObjectMixin
 from core.utils import get_photos
+from flagging.models import Flag
 from .forms import ItemListingForm, AdListingForm
 from .models import (
 	ItemListing, ItemCategory, 
@@ -32,17 +35,41 @@ User = get_user_model()
 # class ListingsExplain(TemplateView):
 # 	template_name = 'marketplace/listings_explain.html'
 
-
-class IsListingOwnerOrModeratorMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""Custom mixin to ensure user is owner of listing or moderator."""
+class CanEditListingMixin(LoginRequiredMixin, UserPassesTestMixin):
+	"""Custom mixin to ensure user is poster of listing."""
 
 	def test_func(self):
-		# Permit access to only post owners (and moderators)
+		# Permit access to only post owners 
 		user = self.request.user
-		if user.is_mod:
+		self.object = self.get_object()
+		return user == self.object.poster
+
+
+class CanDeleteListingMixin(LoginRequiredMixin, UserPassesTestMixin):
+	"""
+	Custom mixin to ensure user is poster of listing or staff.
+	If user is moderator, he can delete the listing only if it is `flagged`.
+	"""
+	# staff should be permitted to delete coz there may be some flag-worthy posts
+	# that haven't yet been flagged...
+
+	def test_func(self):
+		self.object, user = self.get_object(), self.request.user
+		listing = self.object
+		
+		if user == listing.poster or user.is_staff:
 			return True
 
-		return user == self.get_object().owner
+		# if listing is flagged moderator can delete it.
+		if user.is_mod and Flag.objects.is_flagged(listing):
+			return True
+
+	def get_permission_denied_message(self):
+		# self.object will be set by the `test_func`
+		if self.request.user != self.object.poster:
+			# todo create 403 error template with message inserted..
+			return _("You can delete only listings that were posted by you.")
+		return super().get_permission_denied_message()
 
 
 class ItemListingCreate(LoginRequiredMixin, CreateView):
@@ -89,7 +116,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		session, username = request.session, request.user.username
 		self.object = form.save(commit=False)
 		listing = self.object
-		listing.owner = request.user
+		listing.poster = request.user
 		listing.original_language = get_language()
 		listing.save()
 		
@@ -120,7 +147,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(listing.get_absolute_url())
 
 
-class ItemListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
+class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	form_class = ItemListingForm
 	model = ItemListing
 	template_name = 'marketplace/itemlisting_update.html'
@@ -151,6 +178,7 @@ class ItemListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
 
 	def post(self, request, *args, **kwargs):
 		# NOTE !! set self.object before making a form with self.get_form()
+		# when overriding post method.
 		self.object = self.get_object()
 		form = self.get_form()
 		
@@ -175,7 +203,7 @@ class ItemListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
 		# this is better than calling form.save(commit=False);
 		# with the latter, you have to set some m2m stuff... (see super method for details.)
 		instance = form.instance	
-		instance.owner = user
+		instance.poster = user
 		instance.slug = slugify(instance.title)
 		listing = form.save()
 		
@@ -224,7 +252,7 @@ class ItemListingDetail(DetailView):
 		listing_photos = listing.photos.all()
 		
 		similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-			institution=listing.institution,
+			school=listing.school,
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 			sub_category__name=getattr(listing.sub_category, 'name', '')
 		).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
@@ -233,12 +261,12 @@ class ItemListingDetail(DetailView):
 		sub_category_name = getattr(listing.sub_category, 'name', '')
 		if sub_category_name:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-				institution=listing.institution,
+				school=listing.school,
 				sub_category__name=sub_category_name
 			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
 		else:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-				institution=listing.institution
+				school=listing.school
 			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
 
 
@@ -255,7 +283,7 @@ class ItemListingDetail(DetailView):
 		return context
 
 
-class ItemListingDelete(IsListingOwnerOrModeratorMixin, DeleteView):
+class ItemListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 	model = ItemListing
 	success_url = reverse_lazy('marketplace:item-listing-list')
 
@@ -265,7 +293,7 @@ class ItemListingFilter(filters.FilterSet):
 
 	class Meta:
 		model = ItemListing
-		fields = ['institution', 'title', 'category', ]
+		fields = ['school', 'title', 'category', ]
 
 	def filter_title(self, queryset, name, value):
 		print(value)
@@ -329,7 +357,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		session, username = request.session, request.user.username
 		self.object = form.save(commit=False)
 		listing = self.object
-		listing.owner = request.user
+		listing.poster = request.user
 		listing.original_language = get_language()
 		listing.save()
 		
@@ -355,7 +383,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		return HttpResponseRedirect(listing.get_absolute_url())
 
 
-class AdListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
+class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	form_class = AdListingForm
 	model = AdListing
 	template_name = 'marketplace/adlisting_update.html'
@@ -396,7 +424,7 @@ class AdListingUpdate(IsListingOwnerOrModeratorMixin, UpdateView):
 		# this is better than calling form.save(commit=False);
 		# with the latter, you have to set some m2m stuff... (see super method for details.)
 		instance = form.instance	
-		instance.owner = user
+		instance.poster = user
 		instance.slug = slugify(instance.title)
 		listing = form.save()
 		
@@ -446,7 +474,7 @@ class AdListingDetail(DetailView):
 		listing_photos = listing.photos.all()
 		
 		similar_listings = AdListing.objects.prefetch_related('photos').filter(
-			institution=listing.institution,
+			school=listing.school,
 			category__name=listing.category.name
 		).only('title', 'pricing', 'datetime_added')[0:NUM_LISTINGS]
 		print(similar_listings)
@@ -469,7 +497,7 @@ class AdListingDetail(DetailView):
 		return context
 
 
-class AdListingDelete(IsListingOwnerOrModeratorMixin, DeleteView):
+class AdListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 	model = AdListing
 	success_url = reverse_lazy('marketplace:ad-listing-list')
 
@@ -479,7 +507,7 @@ class AdListingFilter(filters.FilterSet):
 
 	class Meta:
 		model = AdListing
-		fields = ['institution', 'title', 'category', ]
+		fields = ['school', 'title', 'category', ]
 
 	# @property
 	# def qs(self):

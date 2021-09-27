@@ -1,0 +1,59 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+<!-- {% load app_extras %} -->
+
+{% block title %}
+	<title>{% trans 'Request an item' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="{% static 'css/requested_items.css' %}">
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+
+<!-- Modal shown when user clicks edit phone numbers button, telling him he will go to an external page -->
+<div class="modal" id="leavePageModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="leavePageModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+	<div class="modal-content">
+		<div class="modal-header">
+		<h5 class="modal-title" id="leavePageModalLabel">{% trans 'Leave page' %}</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+		</div>
+		<div class="modal-body">
+			{% blocktrans %}
+				You are about to go to another page, you'll lose any info you've already entered.
+			{% endblocktrans %}
+		</div>
+		<div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
+		<a 
+			class="btn btn-danger"
+			href="{% url 'users:edit-profile' username=user.username %}#phoneSection"
+		>
+			{% trans 'Leave page' %}
+		</a>
+		</div>
+	</div>
+	</div>
+</div>
+
+<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<div class="container-lg mb-5 requested-item-form-container">
+	<form class="requested-item-form" method="post">
+		{% csrf_token %}
+		<h2 class="text-center mb-4 text-success">{% trans 'Request an Item' %}</h2>
+		
+		{% crispy form %}
+	</form>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %}

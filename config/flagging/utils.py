@@ -1,6 +1,5 @@
 """General purpose functions that provide utility throughout the application"""
 from django.apps import apps
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -25,14 +24,6 @@ def get_model_object(*, app_name, model_name, model_id):
     model_object = content_type.get_object_for_this_type(id=model_id)
 
     return model_object
-
-
-def get_user_for_model(obj):
-    User = get_user_model()
-
-    for field in obj._meta.fields:
-        if field.related_model == User:
-            return getattr(obj, field.name)
 
 
 def process_flagging_request(*, user, model_obj, data):

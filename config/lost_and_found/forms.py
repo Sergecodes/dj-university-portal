@@ -3,6 +3,7 @@ from crispy_forms.layout import Layout, Fieldset, HTML, Submit
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from .models import LostItem, LostItemPhoto, FoundItem
 
@@ -22,7 +23,7 @@ class FoundItemForm(forms.ModelForm):
 
 	class Meta: 
 		model = FoundItem
-		exclude = ('slug', 'posted_datetime', 'poster', 'original_language', 'is_outdated')
+		exclude = ('slug', 'posted_datetime', 'last_modified', 'poster', 'original_language')
 		widgets = {
 			'item_found': forms.TextInput(attrs={'placeholder': _('Green backpack')}),
 			'area_found': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
@@ -62,9 +63,7 @@ class FoundItemForm(forms.ModelForm):
 					type='button' \
 					data-bs-toggle='modal' \
 					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + 
-				'<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>' + 
-				"</button>"
+				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + "</button>"
 			),
 			Submit('submit', _('Publish item'), css_class='d-block'),
 		)
@@ -79,7 +78,7 @@ class LostItemForm(forms.ModelForm):
 
 	class Meta:
 		model = LostItem
-		exclude = ('slug', 'posted_datetime', 'poster', 'original_language', 'is_outdated')
+		exclude = ('slug', 'posted_datetime', 'last_modified', 'poster', 'original_language')
 		widgets = {
 			'item_lost': forms.TextInput(attrs={'placeholder': _('Itel smartphone')}),
 			'area_lost': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
@@ -114,7 +113,8 @@ class LostItemForm(forms.ModelForm):
 					'photos': initial_photos
 				}),  
 				'area_lost',
-				'how_lost'
+				'how_lost',
+				'bounty'
 			),
 			Fieldset(_("Poster's Information"),
 				'contact_email',
@@ -129,9 +129,7 @@ class LostItemForm(forms.ModelForm):
 					type='button' \
 					data-bs-toggle='modal' \
 					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + 
-				'<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>' + 
-				"</button>"
+				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + "</button>"
 			),
 			Submit('submit', _('Publish item'), css_class='d-block'),
 		)

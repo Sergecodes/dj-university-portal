@@ -107,7 +107,7 @@
 					<tr>
 						<td>{% trans 'School' %}</td>
 						<td>
-							<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
+							<a href="#" class="text-decoration-none">{{ listing.school }}</a>
 						</td>
 					</tr>
 					<tr>
@@ -215,7 +215,7 @@
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
 				{% trans 'Similar listings in' %} 
-				<a href="#" class="text-decoration-none">{{ listing.institution }}</a>
+				<a href="#" class="text-decoration-none">{{ listing.school }}</a>
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}

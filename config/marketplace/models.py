@@ -24,6 +24,7 @@ User = settings.AUTH_USER_MODEL
 class AdCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=35)
 	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.name
@@ -41,17 +42,19 @@ class ItemSubCategory(models.Model):
 		related_query_name='sub_category'
 	)
 	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.name
 
 	class Meta:
-		verbose_name_plural = 'Item Subcategories'
+		verbose_name_plural = 'Item SubCategories'
 
 
 class ItemCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=30)
 	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.name
@@ -163,6 +166,7 @@ class AdListingPhoto(models.Model):
 
 
 class Post(models.Model):
+	'''
 	THREE_DAYS = timedelta(days=3)
 	FIVE_DAYS = timedelta(days=5)
 	ONE_WEEK = timedelta(weeks=1)
@@ -188,6 +192,9 @@ class Post(models.Model):
 		default=ONE_MONTH,
 		help_text=_('For how long should your post be available')
 	)
+	'''
+	# the django-flag-app package requires that the name of this field be `flags`
+	flags = GenericRelation(Flag)
 	# email address to contact for any info concerning this post.
 	# in frontend form, this is by default the email of the user creating the listing
 	contact_email = LowerCaseEmailField(
@@ -202,8 +209,6 @@ class Post(models.Model):
 		help_text=_('Enter real names, buyers will more easily trust you if you enter a real name.'),
 		# validators=[validate_full_name]
 	)
-	# the django-flag-app package requires that the name of this field be `flags`
-	flags = GenericRelation(Flag)
 	# since title isn't unique, slug can't be used to get a particular object.
 	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
 	title = models.CharField(
@@ -218,13 +223,11 @@ class Post(models.Model):
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
-	# language in which post was created 
 	original_language = models.CharField(
-		_('Initial language'),
 		choices=settings.LANGUAGES,
-		default='fr', 
-		max_length=3,
-		help_text=_('Initial language in which post was entered.')
+		max_length=2,
+		help_text=_('Language in which post was created'),
+		editable=False
 	)
 
 	def __str__(self):
@@ -263,13 +266,13 @@ class ItemListing(Post):
 		related_name='+'
 	)
 	# delete listing if user is deleted
-	owner = models.ForeignKey(
+	poster = models.ForeignKey(
 		User, 
 		on_delete=models.CASCADE,
 		related_name='item_listings',
 		related_query_name='item_listing'
 	)
-	institution = models.ForeignKey(
+	school = models.ForeignKey(
 		'Institution',
 		on_delete=models.CASCADE,
 		related_name='item_listings',
@@ -335,7 +338,7 @@ class AdListing(Post):
 		'users.PhoneNumber',
 		related_name='+'
 	)
-	owner = models.ForeignKey(
+	poster = models.ForeignKey(
 		User, 
 		on_delete=models.CASCADE,
 		related_name='ad_listings',
@@ -354,13 +357,13 @@ class AdListing(Post):
 		default='-',
 		max_length=20
 	)
-	institution = models.ForeignKey(
+	school = models.ForeignKey(
 		'Institution',
 		on_delete=models.CASCADE,
 		related_name='ad_listings',
 		related_query_name='ad_listing',
 		null=True, blank=True,
-		help_text=_('Allow this empty if this advert concerns no particular institution.')
+		help_text=_('Allow this empty if this advert concerns no particular school.')
 	)
 	bookmarkers = models.ManyToManyField(
 		User,

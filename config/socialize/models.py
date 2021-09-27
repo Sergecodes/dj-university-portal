@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -127,6 +128,8 @@ class SocialProfile(models.Model):
 		max_length=2
 	)
 	creation_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	# determine if users profile page is visible to other users
 	# is_visible = models.BooleanField(
 	# 	_('Profile visible to other users'),

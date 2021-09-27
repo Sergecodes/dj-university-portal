@@ -27,12 +27,17 @@
             <a id="nav-lostfound-tab" href="{% url 'users:profile-lostfound' %}" class="list-group-item list-group-item-action {% if active_item == 'lostfound' %} active {% endif %}" aria-controls="nav-lostfound" aria-selected="{% if active_item == 'lostfound' %} true {% else %} false {% endif %}">
                 {% trans 'Lost & Found Items' %}
             </a>
+            <a id="nav-requested-tab" href="{% url 'users:profile-requested' %}" class="list-group-item list-group-item-action {% if active_item == 'requested' %} active {% endif %}" aria-controls="nav-requested" aria-selected="{% if active_item == 'requested' %} true {% else %} false {% endif %}">
+                {% trans 'Requested Items' %}
+            </a>
             <a id="nav-pastpapers-tab" href="{% url 'users:profile-pastpapers' %}" class="list-group-item list-group-item-action {% if active_item == 'pastpapers' %} active {% endif %}" aria-controls="nav-pastpapers" aria-selected="{% if active_item == 'pastpapers' %} true {% else %} false {% endif %}">
                 {% trans 'Past Papers' %}
             </a>
-            <a id="nav-socialprofile-tab" href="{% url 'socialize:update-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'socialprofile' %} active {% endif %}" aria-controls="nav-socialprofile" aria-selected="{% if active_item == 'socialprofile' %} true {% else %} false {% endif %}">
-                {% trans 'Update Social Profile' %}
-            </a>
+            {% if user.has_social_profile %}
+                <a id="nav-socialprofile-tab" href="{% url 'socialize:update-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'socialprofile' %} active {% endif %}" aria-controls="nav-socialprofile" aria-selected="{% if active_item == 'socialprofile' %} true {% else %} false {% endif %}">
+                    {% trans 'Update Social Profile' %}
+                </a>
+            {% endif %}
             <a id="nav-userprofile-tab" href="{% url 'users:edit-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'userprofile' %} active {% endif %}" aria-controls="nav-userprofile" aria-selected="{% if active_item == 'userprofile' %} true {% else %} false {% endif %}">
                 {% trans 'Update User Profile' %}
             </a>

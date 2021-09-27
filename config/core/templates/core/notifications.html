@@ -1,0 +1,93 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}
+	<title>{% trans 'Inbox - Notifications' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-lg mb-5">
+	<div class="border p-3">	
+		<h2 class="text-success text-center mb-3">{% trans 'Notifications' %}</h2>
+
+		<!-- generel notifications-->
+		<section class="mb-4">
+			<h4 class="pb-1 border-bottom border-success text-success">
+				{% trans 'Inbox' %}
+			</h4>
+			{% if not general_notifs.exists %}
+				<div class="alert alert-primary py-2" role="alert">
+					{% trans 'You have no messages in your inbox.' %}
+				</div>
+			{% else %}
+				{% for notif in general_notifs %}
+					<div class="mb-2">
+						<a href="{{ lost_item.get_absolute_url }}" class="text-decoration-none">
+							{{ lost_item.item_lost }}
+						</a>
+						<span class="small text-muted mx-2">{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}</span>
+					</div>
+				{% endfor %}
+			{% endif %}		
+		</section>	
+
+		<!-- activities on user's posts -->
+		<section class="mb-4">
+			<h4 class="pb-1 border-bottom border-success text-success">
+				{% trans "Posts Activities" %}
+				{% comment %} <span class="text-muted">({{ user.found_items.count }})</span> {% endcomment %}
+			</h4>
+			{% if not activities_notifs.exists %}
+				<div class="alert alert-primary py-2" role="alert">
+					{% trans 'Notifications on your questions and answers will be displayed here.' %}
+				</div>
+			{% else %}
+				{% for notif in activities_notifs %}
+					<div class="mb-2">
+						<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
+							{{ found_item.item_found }}
+						</a>
+						<span class="small text-muted mx-2">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
+					</div>
+				{% endfor %}
+			{% endif %}		
+		</section>	
+
+		<!-- mentions on user's posts -->
+		<section class="mb-4">
+			<h4 class="pb-1 border-bottom border-success text-success">
+				{% trans "Mentions" %}
+				{% comment %} <span class="text-muted">({{ user.found_items.count }})</span> {% endcomment %}
+			</h4>
+			{% if not mentions_notifs.exists %}
+				<div class="alert alert-primary py-2" role="alert">
+					{% trans 'When users mention you, notifications will be displayed here.' %}
+				</div>
+			{% else %}
+				{% for notif in mentions_notifs %}
+					<div class="mb-2">
+						<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
+							{{ found_item.item_found }}
+						</a>
+						<span class="small text-muted mx-2">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
+					</div>
+				{% endfor %}
+			{% endif %}		
+		</section>	
+	</div>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+{% endblock %} 

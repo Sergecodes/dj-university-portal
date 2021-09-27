@@ -3,23 +3,22 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import F
 from django.db.models.query import Prefetch
-from django.http.response import HttpResponseNotAllowed, HttpResponseRedirect
+from django.http.response import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from taggit.models import TaggedItem
 
 from core.constants import (
 	REQUIRED_DOWNVOTE_POINTS, ASK_QUESTION_POINTS_CHANGE,
-	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE,
-
 )
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
@@ -50,7 +49,9 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 		question, poster = self.object, request.user
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
+		
 		question.poster = poster
+		question.original_language = get_language()
 		question.save()	
 
 		return HttpResponseRedirect(self.get_success_url())
@@ -73,17 +74,14 @@ class AcademicQuestionDetail(DetailView):
 			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = user
-				comment.question = question
-				comment.save()
+				user.add_question_comment(question, comment)
 
 		elif 'add_answer_comment' in POST:
 			comment_form = AcademicAnswerCommentForm(POST)
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = user
-				comment.answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
-				comment.save()
+				answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
+				user.add_answer_comment(answer, comment)
 
 		elif 'add_answer' in POST:
 			answer_form = AcademicAnswerForm(POST)
@@ -94,7 +92,7 @@ class AcademicQuestionDetail(DetailView):
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
 				if not added_result[0]:
-					return HttpResponseNotAllowed(added_result[1])
+					return HttpResponseForbidden(added_result[1])
 
 		# redirect to get request. (SEE Post/Redirect/Get)
 		# do not to return get(self,...)
@@ -146,7 +144,7 @@ class AcademicQuestionDetail(DetailView):
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
 		context['related_qstns'] = related_qstns
-		context['bookmarkers'] = question.bookmarkers.only('id')
+		context['is_following'] = self.request.user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['no_slug_url'] = question.get_absolute_url(with_slug=False)
 		
@@ -218,6 +216,7 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		poster.save(update_fields=['site_points'])
 
 		school_question.poster = poster
+		school_question.original_language = get_language()
 		school_question.save()	
 
 		return HttpResponseRedirect(self.get_success_url())
@@ -276,17 +275,14 @@ class SchoolQuestionDetail(DetailView):
 			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = user
-				comment.question = question
-				comment.save()
+				user.add_question_comment(question, comment)
 
 		elif 'add_answer_comment' in POST:
 			comment_form = SchoolAnswerCommentForm(POST)
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				comment.poster = user
-				comment.answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
-				comment.save()
+				answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
+				user.add_answer_comment(answer, comment)
 
 		elif 'add_answer' in POST:
 			answer_form = SchoolAnswerForm(POST)
@@ -297,7 +293,7 @@ class SchoolQuestionDetail(DetailView):
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
 				if not added_result[0]:
-					return HttpResponseNotAllowed(added_result[1])
+					return HttpResponseForbidden(added_result[1])
 
 		return redirect(question.get_absolute_url())
 
@@ -325,7 +321,7 @@ class SchoolQuestionDetail(DetailView):
 		context['answers'] = answers
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
-		context['bookmarkers'] = question.bookmarkers.only('id')
+		context['is_following'] = self.request.user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 
 		return context
