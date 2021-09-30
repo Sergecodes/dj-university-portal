@@ -44,3 +44,5 @@ def render_flag_form(obj, user, request, display_title=False):
         'request': request,
         'display_title': display_title
     }
+    
+

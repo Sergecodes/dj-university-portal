@@ -1,5 +1,6 @@
 import uuid
 from taggit.models import Tag
+from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 from django.core.exceptions import ValidationError
@@ -68,17 +69,21 @@ class AcademicAnswerForm(forms.ModelForm):
 
 class AcademicQuestionCommentForm(forms.ModelForm):
 	content = forms.CharField(
-		# widget= CKEditorWidget(
-		# 	config_name='add_comment', 
-		# 	attrs={'placeholder': _('Use comments to ask for more information or suggest improvements.')}
-		# ),
-		widget= forms.Textarea(
+		widget= CKEditorWidget(
+			config_name='add_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				'id': 'addQuestionCommentArea',
-				# 'rows': '3',
+				# set unique id for ckeditor widget
+				'id': 'addQuestionCommentArea'		
 			}
 		),
+		# widget= forms.Textarea(
+		# 	attrs={
+		# 		'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+		# 		'id': 'addQuestionCommentArea',
+		# 		# 'rows': '3',
+		# 	}
+		# ),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
 		required=True
@@ -91,17 +96,21 @@ class AcademicQuestionCommentForm(forms.ModelForm):
 
 class AcademicAnswerCommentForm(forms.ModelForm):
 	content = forms.CharField(
-		# widget= CKEditorWidget(
-		# 	config_name='add_comment', 
-		# 	attrs={'placeholder': _('Use comments to ask for more information or suggest improvements.')}
-		# ),
-		widget= forms.Textarea(
+		widget= CKEditorWidget(
+			config_name='add_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
 				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
 				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
 			}
 		),
+		# widget= forms.Textarea(
+		# 	attrs={
+		# 		'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+		# 		# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
+		# 		'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
+		# 	}
+		# ),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
 		required=True
@@ -163,11 +172,11 @@ class SchoolAnswerForm(forms.ModelForm):
 class SchoolQuestionCommentForm(forms.ModelForm):
 	# a ckeditor will be generated from this on the frontent
 	content = forms.CharField(
-		widget= forms.Textarea(
+		widget= CKEditorWidget(
+			config_name='add_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				'id': 'addQuestionCommentArea',
-				# 'rows': '3',
+				'id': 'addQuestionComentArea'
 			}
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
@@ -182,7 +191,8 @@ class SchoolQuestionCommentForm(forms.ModelForm):
 
 class SchoolAnswerCommentForm(forms.ModelForm):
 	content = forms.CharField(
-		widget= forms.Textarea(
+		widget= CKEditorWidget(
+			config_name='add_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
 				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form

@@ -111,6 +111,16 @@ class HomePageView(TemplateView):
 		'''
 
 
+# def delete_post_and_penalize_user(request):
+# 	"""mod only"""
+	# delete post and penalize user
+# 	# call User.objects.penalize_user(...)
+# 	# and 
+
+# def absolve_post...
+	# pass
+
+
 class NotificationsView(LoginRequiredMixin, TemplateView):
 	template_name = "core/notifications.html"
 
@@ -118,13 +128,47 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		context = super().get_context_data(**kwargs)
 		user = self.request.user
 
-		# get user's notifications from all categories
+		# get reported notifs for moderators
+		if user.is_mod:
+			# note that the attribute `target` can't be used for querying;
+			# generic relation specs... xD lol
+			reported_notifs = user.notifications.filter(
+				category=Notification.REPORTED, 
+				absolved=False
+			)
+			context['reported_notifs'] = reported_notifs
+			
 		general_notifs = user.notifications.filter(category=Notification.GENERAL)
-		mentions_notifs = user.notifications.filter(category=Notification.MENTIONS)
-		activities_notifs = user.notifications.filter(category=Notification.ACTIVITIES)
+		flags_notifs = user.notifications.filter(category=Notification.FLAG)
+		activities_notifs = user.notifications.filter(category=Notification.ACTIVITY)
+		mentions_notifs = user.notifications.filter(category=Notification.MENTION)
+		followings_notifs = user.notifications.filter(category=Notification.FOLLOWING)
+
+		## For cases where target posts may be included multiple times
+		## use a set to have single instances.
+		# activies (there may be many activies on a single post; eg likes, dislikes, comments...)
+		activities_notifs_targets = set()
+		for notif in activities_notifs:
+			activities_notifs_targets.add(notif.target)
+
+		# mentions (user can be mentioned many times under the same post)
+		mentions_notifs_targets = set()
+		for notif in mentions_notifs:
+			mentions_notifs_targets.add(notif.target)
+
+		# followings (a single post can have multiple activities, and user will be notified multiple times)
+		followings_notifs_targets = set()
+		for notif in followings_notifs:
+			followings_notifs_targets.add(notif.target)
+
+		# for flags_notifs, the poster of the flagged post may receive multiple notifications
+		# regarding the same post, but these notifications(verbs) are unique.
+
 
 		context['general_notifs'] = general_notifs
-		context['mentions_notifs'] = mentions_notifs
-		context['activities_notifs'] = activities_notifs
-
+		context['flags_notifs'] = flags_notifs
+		context['mentions_notifs_targets'] = mentions_notifs_targets
+		context['activities_notifs_targets'] = activities_notifs_targets
+		context['followings_notifs_targets'] =  followings_notifs_targets
+		
 		return context

@@ -10,8 +10,10 @@ from django.views.decorators.http import require_GET, require_POST
 from notifications.signals import notify
 
 from core.constants import (
-	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE
+	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
+	THRESHOLD_POINTS
 )
+from core.models import Notification
 from .models import (
 	SchoolQuestion, AcademicQuestion, 
 	SchoolAnswer, AcademicAnswer,
@@ -90,7 +92,8 @@ def vote_academic_thread(request):
 						sender=user, 
 						recipient=thread_owner, 
 						verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
-						target=object
+						target=object,
+						category=Notification.ACTIVITY
 					)
 					return JsonResponse({
 						'success': True,
@@ -115,7 +118,8 @@ def vote_academic_thread(request):
 						sender=user, 
 						recipient=thread_owner, 
 						verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
-						target=object
+						target=object,
+						category=Notification.ACTIVITY
 					)
 					return JsonResponse({
 						'success': True,
@@ -165,9 +169,12 @@ def vote_academic_thread(request):
 				object.downvoters.remove(user)
 
 				# update points of post owner
-				# subtract points since vote is being retracted
-				thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-				thread_owner.save(update_fields=['site_points'])
+				# add points since vote is being retracted
+				user_points = thread_owner.site_points
+				# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
+				if user_points != THRESHOLD_POINTS:
+					thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
+					thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 					'success': True,
@@ -290,7 +297,8 @@ def vote_school_thread(request):
 						sender=user,
 						recipient=thread_owner, 
 						verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
-						target=object
+						target=object,
+						category=Notification.ACTIVITY
 					)
 					return JsonResponse({
 							'success': True,
@@ -315,7 +323,8 @@ def vote_school_thread(request):
 						sender=user, 
 						recipient=thread_owner, 
 						verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
-						target=object
+						target=object,
+						category=Notification.ACTIVITY
 					)
 					return JsonResponse({
 						'success': True,
@@ -363,9 +372,12 @@ def vote_school_thread(request):
 				object.downvoters.remove(user)
 
 				# update points of post owner
-				# subtract points since vote is being retracted
-				thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-				thread_owner.save(update_fields=['site_points'])
+				# add points back since vote is being retracted
+				user_points = thread_owner.site_points
+				# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
+				if user_points != THRESHOLD_POINTS:
+					thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
+					thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 						'success': True,

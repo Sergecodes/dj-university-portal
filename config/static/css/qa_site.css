@@ -1,14 +1,22 @@
 /** EXTRA CSS FOR THE QA_SITE */
 
-/* Question creation forms */
-.school-question-form,
-.academic-question-form {
-	width: 80%;
+/* Question creation templates */
+.comment-form-container,
+.answer-form-container,
+.school-question-form-container,
+.academic-question-form-container {
+	width: 75%;
 }
 
-.school-question-form-wrp {
-	padding: 0 3rem;
+.comment-form,
+.answer-form,
+.school-question-form,
+.academic-question-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
 }
+
+/* Answer and comment edit and deletion templates */
+
 
 /* Ck-editor widgets */
 /* question form widget */
@@ -20,6 +28,7 @@
 .cke_editor_addQuestionCommentArea {
 	width: 50%;
 } */
+
 
 /* Questions detail view pages */
 .question-header {
@@ -57,18 +66,20 @@
 /*** MEDIA QUERIES ***/
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
-	.school-question-form,
-	.academic-question-form {
+	.comment-form-container,
+	.answer-form-container,
+	.school-question-form-container,
+	.academic-question-form-container {
 		width: 100%;
 	}
 
-	.school-question-form-wrp {
-		padding: 0;
-	}
-
-	.school-question-form-wrp__heading {
-		text-align: center;
-	}
+	.comment-form,
+	.answer-form,
+	.school-question-form,
+	.academic-question-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
 
 	/* #cke_addQuestionCommentArea,
 	.cke_editor_addQuestionCommentArea {

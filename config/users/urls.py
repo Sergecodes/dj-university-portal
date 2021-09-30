@@ -20,6 +20,7 @@ profile_patterns = [
 
 
 urlpatterns = [
+	path(_('profile/'), include(profile_patterns)),
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
 	path(
 		_('login/'),
@@ -91,7 +92,6 @@ urlpatterns = [
 		),
 		name='password-reset-complete'
 	),
-	path(_('profile/'), include(profile_patterns)),
 	path(_('<str:username>/edit-profile/'), views.UserUpdate.as_view(), name='edit-profile'),
 
 ]

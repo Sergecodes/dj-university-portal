@@ -1,18 +1,20 @@
+import bleach
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.template import defaultfilters as filters
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from flagging.models import Flag
 from taggit.managers import TaggableManager
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
 from core.model_fields import TitleCaseField
+from flagging.models import Flag
 from marketplace.models import Institution
 from users.models import get_dummy_user
 
@@ -22,9 +24,14 @@ User = get_user_model()
 class Comment(models.Model):
 	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
-	content = RichTextField()
+	content = RichTextField(config_name='add_comment')
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	users_mentioned = models.ManyToManyField(
+		User,
+		related_name='+',
+		blank=True
+	)
 	# comments have just votes (no upvotes & downvotes)
 	# vote_count = models.PositiveIntegerField(default=0)
 
@@ -34,11 +41,23 @@ class Comment(models.Model):
 	def __str__(self):
 		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
 		# see answer with textwrap.shorten ..
-		return self.content
-	
+		return filters.truncatewords_html(self.content, 10)
+
+	@property
+	def parent_object(self):
+		"""Get post under which comment belongs, used to get the url of post that contains comment."""
+		# if comment is for answer
+		if hasattr(self, 'answer'):
+			return self.answer.question
+		return self.question
+
+	@property
+	def upvote_count(self):
+		return self.upvoters.count()
+
 	@property
 	def vote_count(self):
-		return self.upvoters.count()
+		return self.upvote_count
 
 	@property
 	def is_within_edit_timeframe(self):
@@ -46,7 +65,7 @@ class Comment(models.Model):
 		Verify if comment is within edition time_frame
 		(posted_datetime is less than COMMENT_CAN_EDIT_TIME_LIMIT(5 minutes) old)
 		"""
-		if (self.posted_datetime - timezone.now()) > COMMENT_CAN_EDIT_TIME_LIMIT:
+		if (timezone.now() - self.posted_datetime) > COMMENT_CAN_EDIT_TIME_LIMIT:
 			return False
 		return True
 
@@ -153,7 +172,7 @@ class AcademicAnswerComment(Comment):
 
 class Answer(models.Model):
 	flags = GenericRelation(Flag)
-	content = RichTextUploadingField()
+	content = RichTextUploadingField(config_name='add_answer')
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
@@ -162,6 +181,13 @@ class Answer(models.Model):
 
 	class Meta:
 		abstract = True
+
+	def __str__(self):
+		return filters.truncatewords_html(self.content, 10)
+
+	@property
+	def parent_object(self):
+		return self.question
 
 	@property 
 	def upvote_count(self):
@@ -238,7 +264,8 @@ class AcademicAnswer(Answer):
 		verbose_name_plural = _('Academic Question Answers')
 
 
-class Question(models.Model):# the django-flag-app package requires that the name of this field be `flags`
+class Question(models.Model):
+	# the django-flag-app package requires that the name of this field be `flags`
 	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -282,7 +309,7 @@ class SchoolQuestionTag(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
-		return super().save(*args, **kwargs)
+		super().save(*args, **kwargs)
 
 	def __str__(self):
 		return self.name.lower()
@@ -295,7 +322,7 @@ class SchoolQuestionTag(models.Model):
 	
 
 class SchoolQuestion(Question):
-	content = RichTextUploadingField()
+	content = RichTextUploadingField(config_name='add_question')
 	tags = models.ManyToManyField(
 		SchoolQuestionTag,
 		related_name='school_questions',
@@ -350,7 +377,7 @@ class SchoolQuestion(Question):
 		]
 
 	def __str__(self):
-		return self.content
+		return filters.truncatewords_html(self.content, 10)
 
 	def get_absolute_url(self):
 		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})
@@ -359,7 +386,7 @@ class SchoolQuestion(Question):
 class AcademicQuestion(Question):
 	title = models.CharField(max_length=150)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
-	content = RichTextUploadingField(blank=True)
+	content = RichTextUploadingField(config_name='add_question', blank=True)
 	slug = models.SlugField(max_length=250)
 	tags = TaggableManager()
 	# to get tags of a given user, do something like. similar reverse relationships are also permitted.
@@ -434,12 +461,13 @@ class Subject(models.Model):
 	name = TitleCaseField(max_length=30, unique=True)
 	slug = models.SlugField(max_length=200)
 	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
 			# self.name = (self.name).title   # use python's title method (str.title)
-		return super().save(*args, **kwargs)
+		super().save(*args, **kwargs)
 
 	def __str__(self):
 		return self.name

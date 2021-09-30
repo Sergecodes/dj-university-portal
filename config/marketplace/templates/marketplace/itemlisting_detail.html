@@ -4,7 +4,7 @@
 {% load i18n %}
 {% load humanize %}
 {% load app_extras %}  {# custom tag #}
-{% load flag_tags %}
+<!-- {% load flag_tags %} -->
 
 {% block title %}
 	<title>{{ listing.title }}</title>
@@ -130,7 +130,7 @@
 					</tr>
 					<tr>
 						<td>{% trans 'Posted' %}</td>
-						<td>{{ listing.datetime_added|naturaltime }}</td>
+						<td>{{ listing.posted_datetime|naturaltime }}</td>
 					</tr>
 				</table>
 			</div>
@@ -163,8 +163,9 @@
 					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
 				</span>
 			</div>
+
 			<!-- flag form -->
-			{% render_flag_form listing user request %}
+			<!-- {% render_flag_form listing user request %} -->
 		</div>
 
 		<div class="alert alert-warning pb-1 mb-5 warning-wrp" role="alert">
@@ -210,6 +211,7 @@
 			</div>
 		</section>
 	</article>
+	
 	{% if similar_listings.exists %}
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">

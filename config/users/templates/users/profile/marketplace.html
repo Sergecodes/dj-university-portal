@@ -43,7 +43,7 @@
 								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
 									{{ listing.title }}
 								</a>
-								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 							</div>
 						{% endfor %}
 					{% endif %}		
@@ -68,7 +68,7 @@
 								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
 									{{ listing.title }}
 								</a>
-								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 							</div>
 						{% endfor %}
 					{% endif %}		

@@ -8,21 +8,20 @@ todo:
 		Sep 
 			- update user profile/dashboard accordingly (following, bookmarks, etc..)
 			- social_profile_detail.html page. upon clicking on the name of a user, go to this page.
-			- insert delete and edit links. ps moderator can delete only if post has x num of flags.
-			- add share icon near Share link
+			
 			- update requested item model. add category, subcategory, translations, etc.. just like ad-listing.
 			
 		- username @username ... mentions 
-		- edit and delete links
-		- share links on detail pages... 
-
-		### update(edit views) ### (do those other sites permit this ?)
-		- questions/answers/comments (remember restrictions on edits and deletions; num_of likes, etc..). hide delete button to ensure restriction. ensure too that update and delete views enforce restrictions.
+		- send notification to new user... with camerschools profile nd site rules.
 
 - account for 'googlemail.com' & gmail.com. replace googlemail in email.. with gmail # NormalizedEmailField
+- enable moderator see number of flags of a post. (notifications template. also on detail page ?)
 - convert pagination template to template that can be included.
 - remove flag form from template if user is post owner. also modify view accordingly
 - notify followers when qa_site post is updated..
+- after 24hrs, votes can't be recalled.
+- share links on detail pages
+- user shouldn't be able to flag his post, implement even in backend
 - change the flag alert div to a toast. (create custom info toast...)
 - add view_count field. update when object is visited. don't increment view count if owner visite post.
 - remove poster from list view ??  maybe in some listings (such as marketplace, etc..)

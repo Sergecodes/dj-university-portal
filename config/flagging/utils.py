@@ -49,8 +49,11 @@ def process_flagging_request(*, user, model_obj, data):
     response = {'status': 1}
 
     try:
-        if FlagInstance.objects.set_flag(user, model_obj, **data):
-            # if new flag(flag instance) was created
+        result = FlagInstance.objects.set_flag(user, model_obj, **data)
+        created, msg = result.get('created'), result.get('msg')
+
+        # if new flag(flag instance) was created
+        if created:
             response['msg'] = _(
                 'The content has been flagged successfully. '
                 'A moderator will review it shortly.'
@@ -58,7 +61,11 @@ def process_flagging_request(*, user, model_obj, data):
             response['flag'] = 1
         else:
             # if flag instance was deleted
-            response['msg'] = _('The content has been unflagged successfully.')
+            if result.get('deleted'):
+                response['msg'] = _('The content has been unflagged successfully.')
+            # if flag instance wasn't created (say if user flagged his own post)
+            else:
+                response['msg'] = msg
 
         response.update({
             'status': 0

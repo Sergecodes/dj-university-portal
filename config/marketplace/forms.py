@@ -5,14 +5,13 @@ from crispy_forms.layout import (
 	Fieldset, HTML, Submit
 )
 from django import forms
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from .models import (
 	ItemListing, AdListing, Institution, ItemSubCategory,
-	ItemCategory, ItemListingPhoto, AdCategory, AdListingPhoto
+	ItemCategory, ItemListingPhoto, AdListingPhoto
 )
 
 
@@ -193,7 +192,6 @@ class AdListingForm(forms.ModelForm):
 		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['category'].empty_label = None
-		# self.fields['school'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(

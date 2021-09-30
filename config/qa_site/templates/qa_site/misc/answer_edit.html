@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	<title>{% trans 'Edit answer' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- 100% wide until lg. (At lg it turns to container.) -->
+<div class="container-lg mb-5 answer-form-container">
+	<form class="shadow mt-5 answer-form" method="post">
+		<h3 class="mb-4 text-success">{% trans 'Edit Answer' %}</h3>
+		{% csrf_token %}
+		{# when using `{% crispy form %}`, the submit button leaves the form #}
+		{{ form.media }}
+		{{ form|crispy }}
+		<input type="submit" class="btn btn-success mt-3 mb-2 px-3" value="{% trans 'Update answer' %}">
+	</form>
+</div>
+{% endblock content %}
+
+
+{% block extra_js %}
+{% endblock %}

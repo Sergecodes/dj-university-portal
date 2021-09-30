@@ -1,30 +1,38 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
 from lost_and_found.models import Post
-from marketplace.models import Institution
+from marketplace.models import Institution, ItemCategory
 
 User = get_user_model()
 
 
 class RequestedItem(Post):
+	category = models.ForeignKey(
+		ItemCategory, 
+		related_name='requested_items', 
+		related_query_name='requested_item',
+		on_delete=models.PROTECT
+	)
 	item_requested = models.CharField(max_length=100, help_text=_('What item do you need?'))
-	item_description = models.TextField(null=True, blank=True, help_text=_('Describe the item you are in need of, stating its important aspects. <br> You may allow this empty.'))
+	item_description = models.TextField(help_text=_('Describe the item you are in need of, stating its important aspects. <br> You may allow this empty.'))
 	price_at_hand = models.CharField(
 		max_length=20,
-		null=True, blank=True, 
+		default='-',
 		help_text=_('How much are you willing to pay for the item? You may allow this empty.')
 	)
 	school = models.ForeignKey(
 		Institution,
 		on_delete=models.CASCADE,
 		related_name='requested_items',
-		related_query_name='requested_item'
+		related_query_name='requested_item',
+		null=True, blank=True,
+		help_text=_("Allow this empty if it doesn't concern a particular school")
 	)
 	poster = models.ForeignKey(
 		User, 
@@ -43,8 +51,8 @@ class RequestedItem(Post):
 
 	def get_absolute_url(self, with_slug=True):
 		if with_slug: 
-			return reverse('requested_items:requested-item-detail', kwargs={'pk': self.id, 'slug': self.slug})
-		return reverse('requested_items:requested-item-detail', kwargs={'pk': self.id})
+			return reverse('requested_items:requested-item-detail', kwargs={'pk': self.pk, 'slug': self.slug})
+		return reverse('requested_items:requested-item-detail', kwargs={'pk': self.pk})
 
 	class Meta:
 		ordering = ['-posted_datetime']

@@ -16,10 +16,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="px-5 mb-5">
-	<h2 class="mb-4 text-success">{% trans 'Ask an Academic Question' %}</h2>
-	<form method="post" class="p-3 shadow rounded academic-question-form">
+<div class="container-lg mb-5 academic-question-form-container">
+	<form method="post" class="shadow mt-5 academic-question-form">
+		<h2 class="mb-4 text-success text-center">
+			{% trans 'Ask an Academic Question' %}
+		</h2>
 		{% csrf_token %}
+		{# when using `{% crispy form %}`, the submit button leaves the form #}
 		{{ form.media }}
 		{{ form|crispy }}
 		<input type="submit" class="btn btn-success mt-3 mb-2 px-3" value="{% trans 'ASK Question' %}">

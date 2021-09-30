@@ -39,9 +39,9 @@
 }
 
 /** Detail */
-.requested-item-art {
+/* .requested-item-art {
     width: 85%;
-}
+} */
 
 .number-box-wrp {
     width: 30%;
@@ -52,21 +52,34 @@
     cursor: pointer;
 }
 
+/* .similar-item__img {
+    width: 10rem;
+    height: 4rem;
+} */
+
+.similar-req-item__img {
+    /* (width, height) = (80px, 80px) is the pair corresponding to fa-5x on font-awesome icon */
+    width: 80px;
+    height: 80px; 
+}
 
 /*** MEDIA QUERIES ***/
 /* Layout for desktop sizes and greater (>= lg) */
 @media (min-width: 992px) {
-    .requested-item-photo-section {
-        padding-right: 3rem; /* pe-5 */
+    .requested-item-info {
+        width: 35%;
     }
+    /* .requested-item-photo-section {
+        padding-right: 3rem; /* pe-5 
+    } */
 }
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
+    /* .requested-item-art { */
     .requested-item-form-container,
     .requested-items-list-container,
-	.requested-items-list-art,
-    .requested-item-art {
+	.requested-items-list-art {
         width: 100%;
     }
 

@@ -78,6 +78,8 @@
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
 		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
+		
+		<!-- photos and info -->
 		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
 			{% if photos.exists %}
 				<div>
@@ -119,18 +121,17 @@
 						<td>{% trans 'Category' %}</td>
 						<td>
 							<a href="#" class="text-decoration-none">{{ listing.category }}</a>
-							{% if listing.sub_category %}
-								<span> > <a href="#" class="text-decoration-none"> {{ listing.sub_category }}</a></span>
-							{% endif %}
 						</td>
 					</tr>
 					<tr>
 						<td>{% trans 'Posted' %}</td>
-						<td>{{ listing.datetime_added|naturaltime }}</td>
+						<td>{{ listing.posted_datetime|naturaltime }}</td>
 					</tr>
 				</table>
 			</div>
 		</div>
+
+		<!-- advert description -->
 		<div class="mb-4">
 			<h3 class="mb-3">{% trans 'Advert Description' %}</h3>
 			<div>{{ listing.description|safe }}</div>
@@ -205,6 +206,7 @@
 			</div>
 		</section>
 	</article>
+
 	{% if similar_listings.exists %}
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">

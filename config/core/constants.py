@@ -21,17 +21,25 @@ AD_LISTING_SUFFIX = '_adlisting_photos'
 PAST_PAPER_SUFFIX = '_pastpaper_photos'
 LOST_ITEM_SUFFIX = '_lostitem_photos'
 REQUESTED_ITEM_SUFFIX = '_requesteditem_photos'
-
+# Previous points key suffix
+# PREVIOUS_POINTS_SUFFIX = 'previous_points'
 
 ## USERS APP ##
+# set this as minimum points for users.
+# when his post is downvoted for instance, if his new points are less than this value,
+# set it to this value.
+THRESHOLD_POINTS = 5
+INITIAL_POINTS = 10
 # dummy email
 DELETED_USER_EMAIL = 'deleted@gmail.com'
 
 
 ## FLAGGING app ##
-# this will be used to identify a bad user.
+# this will be used to identify a bad user(user with some flagged posts)
 # a user with this number of points and any flagged post is a bad user.
 # also, after deduction from flagging, if user's points is equal to this number, deactivate his account.
+# when user's post is disliked, deduct his points and ensure it doesn't reach this number.
+# remember that the field `site_points` is a positive integer field
 IS_BAD_USER_POINTS = 1
 PENALIZE_FLAGGED_USER_POINTS_CHANGE = -10
 # reason displayed when flagging an object
@@ -41,9 +49,11 @@ FLAG_REASONS = [
 ]
 # number of flags before an object is marked as flagged
 # after FLAG_ALLOWED flags, an object will be marked flagged.
-FLAGS_ALLOWED = 2
-# new posts with this count will be FLAGGED
-SHOULD_FLAG_COUNT = FLAGS_ALLOWED + 1
+# and moderators will now be able to delete it.
+FLAGS_ALLOWED = 1
+# new posts with this count are FLAGGED
+IS_FLAGGED_COUNT = FLAGS_ALLOWED + 1
+
 
 ## MARKETPLACE app ##
 # minimum number of photos that an item listing must have
@@ -60,14 +70,33 @@ AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
 	# - answer question: +10 points
 	# - add or like comment: no change.
 # post refers to question or answer
-REQUIRED_DOWNVOTE_POINTS = 15  # number of points that user must have to be able to downvote
-POST_DOWNVOTE_POINTS_CHANGE = -4   # points deducted(added) to poster after their post is downvoted
-POST_UPVOTE_POINTS_CHANGE = +2   # points added to poster after their post is upvoted
+
+# number of points that user must have to be able to downvote
+# remember user is attributed 10 points on signup
+REQUIRED_DOWNVOTE_POINTS = 20  
+# points deducted(added) to poster after their post is downvoted
+POST_DOWNVOTE_POINTS_CHANGE = -4  
+# points added to poster after their post is upvoted
+POST_UPVOTE_POINTS_CHANGE = +2   
 ASK_QUESTION_POINTS_CHANGE = +5
 ANSWER_SCHOOL_QUESTION_POINTS_CHANGE = +8
 ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE = +10
-MAX_ANSWERS_PER_USER_PER_QUESTION = 2  # each user can have max 2 answers per question
+# each user can have max 2 answers per question
+MAX_ANSWERS_PER_USER_PER_QUESTION = 2  
 MAX_TAGS_PER_QUESTION = 5
+
+# let user points = 6. after downvoting, we remove say 4 points user is left with 2.
+# since 2(his real points) is less than the threshold, it will be set to 5 points.
+# thus user didn't have enough points to pay. 
+# now if the user recalls the downvote and we had to add points to the user
+# it would give 5+4 = 9; which is incorrect !
+# in that case, if user_points equals the threshold, we do nothing.
+# NOTE that this will be problematic in cases where the user's points = 9;
+# coz if user was downvoted, 9-4 = 5. if the downvote is recalled
+#  we won't know whether to restore his 9 points.
+#  so here, if user has 9 points 
+# (THRESHOLD_POINTS=5 + abs(POST_DOWNVOTE_POINTS_CHANGE)), increment it.
+RESTRICTED_POINTS = THRESHOLD_POINTS + abs(POST_DOWNVOTE_POINTS_CHANGE)
 
 # Editing
 # questions with num_answers > this value can't be edited
@@ -78,7 +107,7 @@ QUESTION_CAN_EDIT_VOTE_LIMIT = 2
 # answers with vote_count > this value can't be edited
 ANSWER_CAN_EDIT_VOTE_LIMIT = 4
 # after this number of minutes, comment can't be edited
-COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=5)
+COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=10)
 # after this number of votes(upvotes), comment can't be edited
 COMMENT_CAN_EDIT_UPVOTE_LIMIT = 4
 
@@ -124,3 +153,4 @@ MAX_LOST_ITEM_PHOTOS = 3
 REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
 # maximum number of photos to upload for a requested item
 MAX_REQUESTED_ITEM_PHOTOS = 3
+

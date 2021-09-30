@@ -90,7 +90,7 @@
 					You are now following this question. You'll receive notifications when there's activity on this post.
 				{% endblocktrans %} <br>
 				{% trans 'Click' %}
-				{# todo go to section where following tags are. (use hashtag ) #}
+				{# TODO go to section where following tags are. (use hashtag ) #}
 				<a href="#">{% trans 'here' %}</a>
 				{% trans 'to view the posts you are following' %}.
 			</p>
@@ -165,7 +165,9 @@
 					<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
 				{% endfor %}
 			</div>
-			<div class="mt-3 mb-4 question-reaction">
+
+			<!-- question-reaction(like, dislike, bookmark, flag) -->
+			<div class="mt-3 mb-3 question-reaction">
 				<div class="d-inline mx-2 question-reaction-upvote">
 					<a 
 						role="button" 
@@ -218,27 +220,50 @@
 				<!-- flag area -->
 				{# if question belongs to user, don't display follow widget. #}
 				{% if user != question_poster %}
-				<div class="d-inline ms-2">
-					{% if user.is_anonymous %}
-						<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
-							{% trans 'Report content' %}
-							<span>
-								{% include "flag/flag_icon.html" %}
-							</span>
-						</a>
-					{% else %}
-						<span class="link-danger js-flagHelper" role="button">
-							{% if has_flagged %} 
-								{% trans 'Remove flag' %}
-							{% else %} 
-								{% trans 'Report content' %} 
-							{% endif %}
-						</span> 
-						{% render_flag_form question user request %}
-					{% endif %}
-				</div>
+					<div class="d-inline ms-2">
+						{% if user.is_anonymous %}
+							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+								{% trans 'Report content' %}
+								<span>
+									{% include "flag/flag_icon.html" %}
+								</span>
+							</a>
+						{% else %}
+							<span class="link-danger js-flagHelper" role="button">
+								{% if has_flagged %} 
+									{% trans 'Remove flag' %}
+								{% else %} 
+									{% trans 'Report content' %} 
+								{% endif %}
+							</span> 
+							{% render_flag_form question user request %}
+						{% endif %}
+					</div>
 				{% endif %}
 			</div>
+
+			<!-- edit and delete area -->
+			{% if can_edit_question or can_delete_question %}
+				<div class="mb-4">
+					{% if can_edit_question %}
+						<div class="d-inline mx-2">
+							<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-question-update' pk=question.pk %}">
+								<i class="fas fa-edit me-1" aria-hidden="true"></i>
+								{% trans 'Edit question' %}
+							</a>
+						</div>
+					{% endif %}
+					{% if can_delete_question %}
+						<div class="d-inline mx-2">
+							<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-question-delete' pk=question.pk %}">
+								<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+								{% trans 'Delete question' %}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+
 			<!-- follow area -->
 			{# if question belongs to user, don't display follow widget. #}
 			{% if user != question_poster %}
@@ -258,11 +283,9 @@
 					</span>
 				</p>
 			{% endif %}
-
-			<!-- edit and delete area -->
-			
 		</section>
 
+		<!-- question comments -->
 		<section class="px-3 question-comments">
 			{% for comment in comments %}
 				{% with comment_poster=comment.poster %}
@@ -275,8 +298,9 @@
 								&nbsp;&nbsp;
 							{% endif %}
 						</span>
-						{# upvote and flag section #}
+						{# upvote and flag  #}
 						<div class="d-inline-flex flex-column align-items-center">
+							<!-- upvote icon button -->
 							<a 
 								role="button" 
 								class="mx-2 pb-1 js-upvote" 
@@ -293,8 +317,9 @@
 									<span class="visually-hidden">{% trans 'Like' %}</span>
 								{% endif %}
 							</a>
+
 							<!-- flag form -->
-							{% if user != question_poster %}
+							{% if user != comment_poster %}
 								{% if user.is_anonymous %}
 									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report content' %}" title="{% trans 'Report content' %}">
 										<span>
@@ -304,6 +329,26 @@
 								{% else %}
 									{% render_flag_form comment user request display_title=True %}
 								{% endif %}
+							{% endif %}
+
+							{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
+							<!-- edit icon button -->
+							{% if user|can_edit_comment:comment %}
+								{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
+								<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
+								>
+									<i class="far fa-edit" aria-hidden="true"></i>
+									<span class="visually-hidden">{% trans 'Edit' %}</span>
+								</a>
+							{% endif %}
+
+							<!-- delete icon button -->
+							{% if user|can_delete_comment:comment %}
+								<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
+								>
+									<i class="fas fa-trash-alt" aria-hidden="true"></i>
+									<span class="visually-hidden">{% trans 'Delete' %}</span>
+								</a>
 							{% endif %}
 						</div>
 					</div>
@@ -349,6 +394,7 @@
 		</section>
 		<hr class="mb-2">
 
+		<!-- question answers -->
 		<section class="px-3 question-answers">
 			<div class="d-flex answers-header">
 				<span class="answers-header__count">
@@ -425,8 +471,6 @@
 								{% endif %}
 							</span>
 						</div>
-						<!-- todo insert share links here, they should be inline and not take up much space -->
-						<div></div>
 
 						{# answer comments here #}
 						<div class="px-3 answer-comments">
@@ -560,6 +604,9 @@
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'js/flag.js' %}"></script>
 <script>
+	// reduce margin of paragraphs so as to use less space..
+	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
+
 	/* FLAG FORM */
 	// trigger click on flag-report-icon when flag helper is clicked
 	$('.js-flagHelper').click(function() {
@@ -567,7 +614,6 @@
 		console.log($parentWrp);
 		$parentWrp.find('.js-flag-report-icon').first().click();
 		// $('.js-flag-report-icon').first().click();
-
 	});
 
 
@@ -581,9 +627,6 @@
 	var requiredDownvotePoints = {{ required_downvote_points }};
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
-
-	// enable username to be directly after comment
-	$('.js-comment-wrp').children().css('display', 'inline');
 
 
 	/** for general checks to do before proceeding to upvoting or downvoting */
@@ -628,53 +671,57 @@
 		}
 
 		var $this = $(this);
-		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it for the hide() method to work)
+		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it for the hide() method for it to work)
 		$this.hide();
 		var $form = $this.next();
 		$form.removeClass('d-none');
 
-		if ($this.hasClass('js-add-question-comment')) {
-			// if the add question comment button is clicked
-			$('#addQuestionCommentArea').ckeditor({
-				toolbar: 'Custom',
-				toolbar_Custom: [
-					['Bold', 'Italic', 'Link'],  // todo code too
-				],
-				// width: '50%',
-				width: isMobile ? '100%' : '50%',
+		{% comment %}
+			if ($this.hasClass('js-add-question-comment')) {
+				// if the add question comment button is clicked
+				// the generated textarea will have id addQuestionCommentArea. 
+				// see backend.
+				$('#addQuestionCommentArea').ckeditor({
+					toolbar: 'Custom',
+					toolbar_Custom: [
+						['Bold', 'Italic', 'Link'],  // TODO code too
+					],
+					// width: '50%',
+					width: isMobile ? '100%' : '50%',
 
-			});
-			
-		} else if ($this.hasClass('js-add-answer-comment')) {
-			// if an add answer comment button is clicked
-			var $textArea = $form.find('textarea').first();
-			console.log($textArea);
-			// we can't use CKEDITOR.replace since it expects an element with a unique id, but we may have multiple answers hence multiple comment buttons...
-			$textArea.ckeditor({
-				toolbar: 'Custom',
-				toolbar_Custom: [
-					['Bold', 'Italic', 'Link'],  // code too
-				],
-				// width: '50%',
-				width: isMobile ? '100%' : '50%',
-			});
+				});
+				
+			} else if ($this.hasClass('js-add-answer-comment')) {
+				// if an add answer comment button is clicked
+				var $textArea = $form.find('textarea').first();
+				console.log($textArea);
+				// we can't use CKEDITOR.replace since it expects an element with a unique id, but we may have multiple answers hence multiple comment buttons...
+				$textArea.ckeditor({
+					toolbar: 'Custom',
+					toolbar_Custom: [
+						['Bold', 'Italic', 'Link'],  // code too
+					],
+					// width: '50%',
+					width: isMobile ? '100%' : '50%',
+				});
 
-		} else if ($this.hasClass('js-add-answer')) {
-			/*
-			$('#addAnswerArea').ckeditor({
-				toolbar: 'Custom',
-				toolbar_Custom: [
-					['Bold', 'Italic'],
-					['Link', 'Blockquote', 'Image'],
-					['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-					['Undo', 'Redo'],
-					['Maximize', 'Preview']
-				],
-				tabSpaces: 4,
-				width: isMobile ? '100%' : '75%',
-			});
-			*/
-		}
+			} else if ($this.hasClass('js-add-answer')) {
+				/*
+				$('#addAnswerArea').ckeditor({
+					toolbar: 'Custom',
+					toolbar_Custom: [
+						['Bold', 'Italic'],
+						['Link', 'Blockquote', 'Image'],
+						['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+						['Undo', 'Redo'],
+						['Maximize', 'Preview']
+					],
+					tabSpaces: 4,
+					width: isMobile ? '100%' : '75%',
+				});
+				*/
+			}
+		{% endcomment %}
 	});
 
 	/* UPVOTES */
@@ -774,6 +821,8 @@
 						}
 					} else {
 						console.log(response);
+						var msg = response['message'];
+						{% comment %} console.log({{ msg|linebreaksbr }}); {% endcomment %}
 						displayCustomErrorToast(response['message']);
 					}
 				},

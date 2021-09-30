@@ -2,15 +2,27 @@ import bleach
 from django import template
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth import get_user_model
 from django.template.defaultfilters import stringfilter, title
 from django.utils.translation import gettext_lazy as _
 
 from core.utils import parse_phone_number
-
+# i imported the User module directly; this was to ensure that the User methods will work.
+# and identified by the code editor; xD
+# just allow it as-is.
+from users.models import User
 
 register = template.Library()
 
+
 register.filter('parse_tel', parse_phone_number)
+
+# register qa_site editing and deleting methods
+register.filter(User.can_edit_comment)
+register.filter(User.can_delete_comment)
+register.filter(User.can_edit_answer)
+register.filter(User.can_delete_answer)
+
 
 @register.filter(name='zip')
 def zip_lists(list1, list2):
@@ -19,8 +31,21 @@ def zip_lists(list1, list2):
  
 @register.filter
 def remove_tags(text_body):
-	"""Strip html tags from `text_body` using the `clean` library. Django says `striptags` method isn't guaranteed to produce safe output and thus `safe` should never be applied to its output."""
+	"""
+	Strip html tags from `text_body` using the `clean` library. 
+	Django says `striptags` method isn't guaranteed to produce safe output 
+	and thus `safe` should never be applied to its output.
+	"""
 	return bleach.clean(text_body, tags=[], strip=True)
+
+
+# @register.filter
+# def can_edit_comment(user, comment):
+# 	"""
+# 	Template tag equivalence of can_edit_comment in User model.
+# 	Verify if a user is authorized to edit a comment.
+# 	"""
+# 	return user.can_edit_comment(comment)
 
 
 @register.simple_tag

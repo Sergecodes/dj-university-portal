@@ -20,70 +20,175 @@
 	<div class="border p-3">	
 		<h2 class="text-success text-center mb-3">{% trans 'Notifications' %}</h2>
 
-		<!-- generel notifications-->
+		<!-- general notifications-->
 		<section class="mb-4">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans 'Inbox' %}
 			</h4>
-			{% if not general_notifs.exists %}
+			{% for notif in general_notifs %}
+				{% if forloop.first %}
+				<ul style="list-style-type: square;">
+				{% endif %}
+					<li class="mb-2">
+						{% if notif.follow_url %}
+							<a href="{{ notif.follow_url }}" class="text-decoration-none">
+								{{ notif.verb }}
+							</a>
+						{% else %}
+							{{ notif.verb }}
+						{% endif %}
+					</li>
+				{% if forloop.last %}
+				</ul>
+				{% endif %}
+			{% empty %}
 				<div class="alert alert-primary py-2" role="alert">
-					{% trans 'You have no messages in your inbox.' %}
+					{% trans 'You have no notification in your inbox.' %}
 				</div>
-			{% else %}
-				{% for notif in general_notifs %}
-					<div class="mb-2">
-						<a href="{{ lost_item.get_absolute_url }}" class="text-decoration-none">
-							{{ lost_item.item_lost }}
-						</a>
-						<span class="small text-muted mx-2">{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}</span>
-					</div>
-				{% endfor %}
-			{% endif %}		
+			{% endfor %}	
 		</section>	
+
+		<!-- users flagged posts -->
+		{% if flags_notifs %}
+		<section class="mb-4">
+			<h4 class="pb-1 border-bottom border-danger text-danger">
+				{% trans 'Reported Posts Messages' %}
+			</h4>
+			<ul style="list-style-type: square;">
+			{% for notif in flags_notifs %}
+				<li class="mb-2">
+					{{ notif.verb }} 
+					&nbsp;|&nbsp;
+					{% if notif.target.get_absolute_url %} 
+						<a href="{{ notif.target.get_absolute_url }}">{% trans 'view post' %}</a>
+					{% else %}
+						{# if eg post is a comment or answer #}
+						<a href="{{ notif.target.parent_object.get_absolute_url }}">
+							{% trans 'view containing post' %}
+						</a>
+					{% endif %}
+				</li>
+			{% endfor %}
+			</ul>
+		</section>
+		{% endif %}
+
+		<!-- display reported posts (moderator only) -->
+		{% if user.is_mod %}
+			<section class="mb-4">
+				<h4 class="pb-1 border-bottom border-success text-success">
+					{% trans 'Reported posts' %}
+				</h4>
+				{% if reported_notifs %}
+					<ul style="list-style-type: square;">
+					{% for notif in reported_notifs %}
+						{# if post hasn't yet been deleted #}
+						{% if notif.target %}
+							<li class="mb-2">
+								{% if notif.target.get_absolute_url %}
+									<a href="{{ notif.target.get_absolute_url }}" class="text-decoration-none">
+										{{ notif.target }}
+									</a>
+								{% else %}
+									{# if post doesn't have a url (such as comments and answers) #}
+									{# display complete post with delete and absolve buttons #}
+									{# ensure these fields have a content attribute #}
+									{{ notif.target.content }} <br>
+									<a href="" class="link-danger">{% trans 'Delete' %}</a>
+									<a href="" class="d-inline-block">{% trans 'Absolve' %}</a> 
+									<br>
+									<a href="{{ notif.target.parent_object.get_absolute_url }}">
+										{% trans 'Containing post' %}
+									</a>
+								{% endif %}
+							</li>
+						{% endif %}
+					{% endfor %}
+					</ul>
+				{% else %}
+					<div class="alert alert-primary py-2" role="alert">
+						{% trans 'Posts flagged by users will be displayed here.' %} <br>
+						{% trans 'You can delete or absolve these posts.' %}
+					</div>
+				{% endif %}
+			</section>
+		{% endif %}
 
 		<!-- activities on user's posts -->
 		<section class="mb-4">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans "Posts Activities" %}
-				{% comment %} <span class="text-muted">({{ user.found_items.count }})</span> {% endcomment %}
 			</h4>
-			{% if not activities_notifs.exists %}
+			{% if activities_notifs_targets %}
+				<p>{% trans 'There are new activities on the following posts:' %}</p>
+				<ul style="list-style-type: square;">
+				{% for post in activities_notifs_targets %}
+					<li class="mb-2">
+						{% if post.get_absolute_url %}
+						<a href="{{ post.get_absolute_url }}" class="text-decoration-none">
+							{{ post }}
+						</a>
+						{% else %}
+							{# if post is answer #}
+							<span>{{ post }}</span> &nbsp;|&nbsp;
+							(<a href="{{ post.question.get_absolute_url }}">
+								{% trans 'view question' %}
+							</a>)
+						{% endif %}
+					</li>
+				{% endfor %}	
+				</ul>
+			{% else %}
 				<div class="alert alert-primary py-2" role="alert">
 					{% trans 'Notifications on your questions and answers will be displayed here.' %}
 				</div>
-			{% else %}
-				{% for notif in activities_notifs %}
-					<div class="mb-2">
-						<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
-							{{ found_item.item_found }}
-						</a>
-						<span class="small text-muted mx-2">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
-					</div>
-				{% endfor %}
-			{% endif %}		
+			{% endif %}
 		</section>	
 
-		<!-- mentions on user's posts -->
+		<!-- activities on following posts -->
 		<section class="mb-4">
 			<h4 class="pb-1 border-bottom border-success text-success">
-				{% trans "Mentions" %}
-				{% comment %} <span class="text-muted">({{ user.found_items.count }})</span> {% endcomment %}
+				{% trans "Following Posts" %}
 			</h4>
-			{% if not mentions_notifs.exists %}
-				<div class="alert alert-primary py-2" role="alert">
-					{% trans 'When users mention you, notifications will be displayed here.' %}
-				</div>
-			{% else %}
-				{% for notif in mentions_notifs %}
-					<div class="mb-2">
-						<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
-							{{ found_item.item_found }}
+			{% if followings_notifs_targets %}
+				<p>{% trans 'There are new activities on some posts you are following:' %}</p>
+				<ul style="list-style-type: square;">
+				{% for post in followings_notifs_targets %}
+					<li class="mb-2">
+						<a href="{{ post.get_absolute_url }}" class="text-decoration-none">
+							{{ post }}
 						</a>
-						<span class="small text-muted mx-2">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
-					</div>
-				{% endfor %}
-			{% endif %}		
+					</li>
+				{% endfor %}	
+				</ul>
+			{% else %}
+				<div class="alert alert-primary py-2" role="alert">
+					{% trans 'Notifications on questions that you are following will be displayed here.' %}
+				</div>
+			{% endif %}
 		</section>	
+
+
+		<!-- mentions on user's posts -->
+		{% comment %} <section class="mb-4">
+			<h4 class="pb-1 border-bottom border-success text-success">
+				{% trans "Mentions" %}
+			</h4>
+			
+			{% for notif in mentions_notifs %}
+				<li class="mb-2">
+					<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
+						{{ found_item.item_found }}
+					</a>
+				</li>
+			{% empty %}
+				<div class="alert alert-primary py-2" role="alert">
+					
+				</div>
+			{% endfor %}
+		</section>	
+
+		{% trans 'When users mention you in comments, notifications will be displayed here.' %} {% endcomment %}
 	</div>
 </div>
 {% endblock content %}

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.template.defaultfilters import slugify
+from django.template import defaultfilters as filters
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -69,7 +69,11 @@ class Comment(models.Model):
 		]
 
 	def __str__(self):
-		return self.content
+		return filters.truncatewords(self.content, 10)
+
+	@property
+	def parent_object(self):
+		return self.past_paper
 
 
 class PastPaper(models.Model):
@@ -121,7 +125,7 @@ class PastPaper(models.Model):
 		related_name='past_papers',
 		related_query_name='past_paper'
 	) 
-	# should be nullable..
+	# should be nullable; in case school isn't registered on our site.
 	school = models.ForeignKey(
 		Institution,
 		on_delete=models.SET_NULL,
@@ -129,6 +133,7 @@ class PastPaper(models.Model):
 		related_query_name='past_paper',
 		null=True, blank=True
 	)
+	# should be nullable; in case school isn't registered on our site.
 	subject = models.ForeignKey(
 		Subject,
 		on_delete=models.PROTECT,
@@ -147,8 +152,8 @@ class PastPaper(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.id:
-			self.slug = slugify(self.title)
-		return super().save(*args, **kwargs)
+			self.slug = filters.slugify(self.title)
+		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):
 		if with_slug:

@@ -17,7 +17,7 @@
 {% else %}
 	<span class="d-none js-flag-alert-msg">{% trans 'The report request could not be processed. Please refresh the page and try again.' %}</span>
 	<span class="d-none js-remove-flag">{% trans 'Remove flag' %}</span>
-	<span class="d-none js-report-content">{% trans 'Report content' %}</span>
+	<span class="d-none js-report-content">{% trans 'Report post' %}</span>
 	<div class="d-inline report-modal-form-combined">
 		<div class="d-inline link-danger flag-report-icon js-flag-report-icon"
 			data-url="{% url 'flagging:flag' %}"
@@ -28,7 +28,7 @@
 			role="button"
 		>
 			{# span element; don't even dare modify this :) #}
-			<span {% if display_title %}title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report content' %} {% endif %}" {% endif %}>
+			<span {% if display_title %}title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}>
 				{% include "flag/flag_icon.html" %}
 			</span>
 		</div>
@@ -38,7 +38,7 @@
 				<span class="report-modal-close">&times;</span>
 				<div class="report-modal-flag-form">
 					<form class="m-2 p-1 report-modal-form">
-						<div class="flag-modal-title">{% trans "Report this content" %}</div>
+						<div class="flag-modal-title">{% trans "Report this post" %}</div>
 						{% csrf_token %}
 						<div>
 							<div class="report-modal-form-reasons">

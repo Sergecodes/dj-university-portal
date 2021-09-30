@@ -8,33 +8,19 @@ from core.constants import (
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
-from flagging.models import Flag
 
 
 class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can edit a question.
-	- Questions with (3 vote_count or 2 answers) and above can't be edited
-	- Only poster can edit question
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		question = self.object
-		
-		# first verify if question can be edited
-		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if user == question.poster:
-			return True
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_edit_question(self.object)
 		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, question = self.request.user, self.object
+		# self.object will be set in the test_func
+		# and the test_func is always called before this function
+		question = self.object
 
-		if user != question.poster:
+		if self.user != question.poster:
 			return _("You can only edit your own questions.")
 
 		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
@@ -45,29 +31,14 @@ class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class CanEditAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can edit an answer.
-	- Answers with (5 vote_count) and above can't be edited
-	- Only poster can edit answer
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		answer = self.object
-		
-		# first verify if answer can be edited
-		if answer.vote_count > ANSWER_CAN_EDIT_VOTE_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if user == answer.poster:
-			return True
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_edit_answer(self.object)
 		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, answer = self.request.user, self.object
+		answer = self.object
 
-		if user != answer.poster:
+		if self.user != answer.poster:
 			return _("You can only edit your own answers.")
 
 		if answer.vote_count > ANSWER_CAN_EDIT_VOTE_LIMIT:
@@ -78,30 +49,14 @@ class CanEditAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class CanEditCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can edit an comment.
-	- Only poster can edit comment
-	- After 5 minutes, comments can't be edited.
-	- Comments with 5 upvotes and above can't be edited
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		comment = self.object
-		
-		# first verify if comment can be edited
-		if (comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT) or not comment.is_within_edit_timeframe:
-			return False
-
-		# now verify if user is poster
-		if user == comment.poster:
-			return True
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_edit_comment(self.object)
 		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, comment = self.request.user, self.object
+		comment = self.object
 
-		if user != comment.poster:
+		if self.user != comment.poster:
 			return _("You can only edit your own comments.")
 
 		if comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT:
@@ -119,38 +74,12 @@ class CanEditCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class CanDeleteQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can delete a question.
-	- Staff can delete any question(any post)
-	- Moderator can delete only flagged questions(posts)
-	- Poster can delete question only if it has less than 3 votes or less than 2 answers
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		question = self.object
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_delete_question(self.object)
 
-		if user.is_staff:
-			return True
-
-		# if listing is flagged moderator can delete it.
-		# first verify if question is flagged before verifying number of answers...
-		# coz there could be cases where a question has say 2 "bizarre" answers.. and it could be flagged
-		# so if it is flagged, moderator can delete.
-		if user.is_mod and Flag.objects.is_flagged(question):
-			return True
-		
-		# verify if question can be deleted
-		if question.vote_count > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
-			return False
-
-		# now verify if user is owner
-		if user == question.poster:
-			return True
-		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, question = self.request.user, self.object
+		question, user = self.object, self.user
 
 		if user.is_mod:
 			return _("Moderators can only delete flagged questions")
@@ -166,35 +95,12 @@ class CanDeleteQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class CanDeleteAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can delete an answer.
-	- Staff can delete any answer
-	- Moderator can delete only flagged answers
-	- Poster can delete answer only if it has less than 3 votes
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		answer = self.object
-
-		if user.is_staff:
-			return True
-		
-		# if it is flagged, moderator can delete.
-		if user.is_mod and Flag.objects.is_flagged(answer):
-			return True
-
-		# verify if answer can be deleteed
-		if answer.vote_count > ANSWER_CAN_DELETE_VOTE_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if user == answer.poster:
-			return True
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_delete_answer(self.object)
 		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, answer = self.request.user, self.object
+		user, answer = self.user, self.object
 
 		if user.is_mod:
 			return _("Moderators can only delete flagged answers")
@@ -210,36 +116,12 @@ class CanDeleteAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class CanDeleteCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	To test if a user can delete a comment.
-	- Staff can delete any comment
-	- Moderator can delete only flagged comments
-	- Comments with 5 upvotes and above can't be deleted
-	- Poster can delete comment
-	"""
-
 	def test_func(self):
-		user, self.object = self.request.user, self.get_object()
-		comment = self.object
-
-		if user.is_staf:
-			return True
-
-		# if it is flagged, moderator can delete.
-		if user.is_mod and Flag.objects.is_flagged(comment):
-			return True
-
-		# verify if comment can be deleted
-		if comment.upvote_count > COMMENT_CAN_DELETE_UPVOTE_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if user == comment.poster:
-			return True
+		self.user, self.object = self.request.user, self.get_object()
+		return self.user.can_delete_comment(self.object)
 		
 	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		user, comment = self.request.user, self.object
+		user, comment = self.user, self.object
 
 		if user.is_mod:
 			return _("Moderators can delete only flagged comments.")

@@ -5,6 +5,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet, Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from notifications.signals import notify
+
+from core.constants import (
+	IS_FLAGGED_COUNT, IS_BAD_USER_POINTS, 
+	PENALIZE_FLAGGED_USER_POINTS_CHANGE
+)
+from core.models import Notification
 
 
 class UserQuerySet(QuerySet):
@@ -19,10 +26,8 @@ class UserQuerySet(QuerySet):
 	# 	self.update(status='D', deactivation_datetime=timezone.now())
 
 	def deactivate(self):
-		# don't do this:
-		# for user in self:
-		# 	user.deactivate()
-		self.update(is_active=False, status='D', deactivation_datetime=timezone.now())
+		self.update(is_active=False, deactivation_datetime=timezone.now())
+
 
 class UserManager(BaseUserManager, Manager):
 	def create_user(self, email, username, full_name, password, gender, first_language, commit=True, **extra_fields):
@@ -90,12 +95,72 @@ class UserManager(BaseUserManager, Manager):
 	def get_queryset(self):
 		return UserQuerySet(self.model, using=self._db)
 
+	def penalize_user(self, user, flagged_post):
+		"""
+		Deduct points from flagged user
+		i.e. user whose post flag count attains `IS_FLAGGED_COUNT` or whose post was deleted by
+		moderator for inappropriateness.
+		"""
+		user_points = user.site_points
+
+		# if user was recently flagged (if he was flagged but didn't contribute to the site)
+		# in other words, this will happen only if user has already posted a flagged post.
+		# if his points == IS_BAD_USER_POINTS(1)
+		# deactivate his account. 
+		if user_points == IS_BAD_USER_POINTS:
+			# TODO include this in list of website rules.
+			user.deactivate()
+			return
+		
+		# if new points after deduction will be less than 1, 
+		# set it to IS_BAD_USER_POINTS(1).
+		new_points = user_points + PENALIZE_FLAGGED_USER_POINTS_CHANGE
+		if new_points < 1:
+			new_points = IS_BAD_USER_POINTS
+
+		user.site_points = new_points
+		user.save(update_fields=['site_points'])
+
+		# if current points == IS_BAD_USER_POINTS, that signifies user is a bad user,
+		# notify him telling him that if any of his posts if flagged again
+		# his account will be deactivated.  
+		# don't tell him that if he contributes positively to the site and regains more points
+		# he will be free.
+		if user_points == IS_BAD_USER_POINTS:
+			notify.send(
+				sender=user,  # just use same user as sender
+				recipient=user, 
+				verb=_(
+					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If any of your posts is reported again, your account will be deactivated without further notice.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
+				),
+				target=flagged_post,
+				category=Notification.FLAG
+			)
+		else:
+			notify.send(
+				sender=user,  # just use same user as sender
+				recipient=user, 
+				verb=_(
+					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If you continue, your account could be deactivated.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
+				),
+				target=flagged_post,
+				category=Notification.FLAG
+			)
+
 	def active(self):
-		return self.model.objects.filter(status='A')
+		return self.model.objects.filter(is_active=True)
 
-	def deleted(self):
-		return self.model.objects.filter(status='D')
+	def deactivated(self):
+		return self.model.objects.filter(is_active=False, deactivation_datetime__isnull=False)
 
-	def suspended(self):
-		return self.model.objects.filter(status='S')
+
+
+class ModeratorManager(Manager):
+	def get_queryset(self):
+		return super().get_queryset().filter(is_mod=True)
+
+
+class StaffManager(Manager):
+	def get_queryset(self):
+		return super().get_queryset().filter(is_staff=True)
 

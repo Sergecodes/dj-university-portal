@@ -2,16 +2,13 @@ import django_filters as filters
 import os
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch, Q
-from django.http.response import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
 
@@ -24,6 +21,7 @@ from core.mixins import GetObjectMixin
 from core.utils import get_photos
 from flagging.models import Flag
 from .forms import ItemListingForm, AdListingForm
+from .mixins import CanDeleteListingMixin, CanEditListingMixin
 from .models import (
 	ItemListing, ItemCategory, 
 	ItemListingPhoto, AdListing, AdListingPhoto
@@ -34,42 +32,6 @@ User = get_user_model()
 
 # class ListingsExplain(TemplateView):
 # 	template_name = 'marketplace/listings_explain.html'
-
-class CanEditListingMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""Custom mixin to ensure user is poster of listing."""
-
-	def test_func(self):
-		# Permit access to only post owners 
-		user = self.request.user
-		self.object = self.get_object()
-		return user == self.object.poster
-
-
-class CanDeleteListingMixin(LoginRequiredMixin, UserPassesTestMixin):
-	"""
-	Custom mixin to ensure user is poster of listing or staff.
-	If user is moderator, he can delete the listing only if it is `flagged`.
-	"""
-	# staff should be permitted to delete coz there may be some flag-worthy posts
-	# that haven't yet been flagged...
-
-	def test_func(self):
-		self.object, user = self.get_object(), self.request.user
-		listing = self.object
-		
-		if user == listing.poster or user.is_staff:
-			return True
-
-		# if listing is flagged moderator can delete it.
-		if user.is_mod and Flag.objects.is_flagged(listing):
-			return True
-
-	def get_permission_denied_message(self):
-		# self.object will be set by the `test_func`
-		if self.request.user != self.object.poster:
-			# todo create 403 error template with message inserted..
-			return _("You can delete only listings that were posted by you.")
-		return super().get_permission_denied_message()
 
 
 class ItemListingCreate(LoginRequiredMixin, CreateView):
@@ -144,7 +106,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		request.session.pop(request.user.username + ITEM_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(listing.get_absolute_url())
+		return redirect(listing)
 
 
 class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
@@ -237,7 +199,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		request.session.pop(user.username + ITEM_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(listing.get_absolute_url())
+		return redirect(listing)
 
 
 class ItemListingDetail(DetailView):
@@ -255,7 +217,7 @@ class ItemListingDetail(DetailView):
 			school=listing.school,
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 			sub_category__name=getattr(listing.sub_category, 'name', '')
-		).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
+		).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 		
 		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 		sub_category_name = getattr(listing.sub_category, 'name', '')
@@ -263,11 +225,11 @@ class ItemListingDetail(DetailView):
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				school=listing.school,
 				sub_category__name=sub_category_name
-			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
+			).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 		else:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				school=listing.school
-			).only('title', 'price', 'datetime_added')[:NUM_LISTINGS]
+			).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 
 
 		# get first photos of each similar listing
@@ -289,7 +251,7 @@ class ItemListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 
 
 class ItemListingFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Item keyword'), method='filter_title')
+	title = filters.CharFilter(label=_('Item keywords'), method='filter_title')
 
 	class Meta:
 		model = ItemListing
@@ -309,7 +271,7 @@ class ItemListingFilter(filters.FilterSet):
 	# @property
 	# def qs(self):
 	# 	parent = super().qs
-	# 	return parent.order_by('-datetime_added')
+	# 	return parent.order_by('-posted_datetime')
 
 
 class ItemListingList(FilterView):
@@ -380,7 +342,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		request.session.pop(request.user.username + AD_LISTING_SUFFIX, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(listing.get_absolute_url())
+		return redirect(listing)
 
 
 class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
@@ -458,7 +420,7 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		request.session.pop(user.username + AD_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(listing.get_absolute_url())
+		return redirect(listing)
 
 
 class AdListingDetail(DetailView):
@@ -476,7 +438,7 @@ class AdListingDetail(DetailView):
 		similar_listings = AdListing.objects.prefetch_related('photos').filter(
 			school=listing.school,
 			category__name=listing.category.name
-		).only('title', 'pricing', 'datetime_added')[0:NUM_LISTINGS]
+		).only('title', 'pricing', 'posted_datetime')[0:NUM_LISTINGS]
 		print(similar_listings)
 
 		# get first photos of each similar listing
@@ -503,16 +465,19 @@ class AdListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 
 
 class AdListingFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Advert keyword'), lookup_expr='icontains')
+	title = filters.CharFilter(label=_('Advert keywords'), method='filter_title')
 
 	class Meta:
 		model = AdListing
 		fields = ['school', 'title', 'category', ]
 
-	# @property
-	# def qs(self):
-	# 	parent = super().qs
-	# 	return parent.order_by('-datetime_added')
+	def filter_title(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(lambda x, y: x | y, [Q(title__icontains=word) for word in value_list])
+		)
+		
+		return qs
 
 
 class AdListingList(FilterView):

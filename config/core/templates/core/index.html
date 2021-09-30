@@ -130,7 +130,7 @@
 									<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
 									<br class="mb-1">
 									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
-									<span> - {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+									<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 								</div>
 							</div>
 						</li> 
@@ -181,10 +181,10 @@
 								</a>
 								<br class="mb-1">
 								{% if listing.pricing == '-' %}
-									<span>{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+									<span>{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 								{% else %}
 									<span class="fw-bold">{{ listing.pricing }}</span>
-									<span> - {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+									<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 								{% endif %}
 							</div>
 						</div>

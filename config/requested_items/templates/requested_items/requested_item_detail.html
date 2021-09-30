@@ -19,34 +19,69 @@
 {% block content %}
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
-	<article class="d-flex flex-column shadow rounded p-3 mb-5 requested-item-art">
-		<h2 class="text-capitalize">{{ requested_item.item_requested }}</h2>
-		<span class="text-muted mb-3" title="{{ requested_item.posted_datetime }}">
-			{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}
-		</span>
-		
-		{% if photos.exists %}
-			<section class="mb-5 requested-item-photo-section">
-				<div class="row mb-4 photo-slide">
-					{% for photo in photos %}
-					<div class="col-4 col-lg-3 my-2"> 
-						<img 
-							src="{{ photo.file.url }}"
-							class="photo-slide__img js-photo-slide__img"
-							alt="{{ photo.title }}"
-						> 
+	<article class="d-flex flex-column shadow rounded p-3 mb-5">
+		<h2>{{ requested_item.item_requested|title }}</h2>
+
+		<!-- item photos and info -->
+		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
+			{% if photos.exists %}
+				<div>
+					<div class="row mb-4 photo-slide">
+						{% for photo in photos %}
+						<div class="col-4 col-lg-3 my-2"> 
+							<img 
+								src="{{ photo.file.url }}"
+								class="photo-slide__img js-photo-slide__img"
+								alt="{{ photo.title }}"
+							> 
+						</div>
+						{% endfor %}
 					</div>
-					{% endfor %}
+					<div class="expanded-img-wrp">
+						<img class="expanded-img js-expanded-img">
+					</div>
 				</div>
-				<img class="w-100 expanded-img js-expanded-img">
-			</section>
-		{% endif %}
+			{% endif %}
+			
+			<div class="ms-3 mt-4 d-lg-block requested-item-info">
+				<table class="table table-bordered">
+					<tr>
+						<th colspan="2" class="text-center">{% trans 'Item Info' %}</th>
+					</tr>
+					<tr class="fs-5">
+						<td>{% trans 'Proposed price' %}</td>
+						<td>
+							<span class="fw-bold">{{ requested_item.price_at_hand }}</span>
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'School' %}</td>
+						<td>
+							<a href="#" class="text-decoration-none">{{ requested_item.school }}</a>
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Category' %}</td>
+						<td>
+							<a href="#" class="text-decoration-none">{{ requested_item.category }}</a>
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Posted' %}</td>
+						<td>{{ requested_item.posted_datetime|naturaltime }}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 
 		<!-- item description -->
 		<div class="mb-5">
 			<h3 class="mb-3">{% trans 'Description' %}</h3>
 			<p>{{ requested_item.item_description }}</p>
 		</div>
+
+		<!-- post activities -->
+		{# TODO flagging form here #}
 			
 		<!-- contact details -->
 		<section class="contact-details">
@@ -78,6 +113,36 @@
 			</div>
 		</section>
 	</article>
+
+	{% if similar_items.exists %}
+		<hr class="mb-4">
+		<section class="shadow-sm rounded p-3 similar-items-wrp">
+			<h5 class="mb-4">
+				{% trans 'Similar requested items in' %} 
+				<a href="#" class="text-decoration-none">{{ item.school }}</a>
+			</h5>
+			<div class="row">
+				{% for sim_item, photo in similar_items|zip:first_photos %}
+					<div class="col-sm-5 col-lg-3 mb-4 similar-req-item">
+						{% if photo %}
+							<a href="{{ sim_item.get_absolute_url }}" class="text-decoration-none">
+								<img class="mb-2 similar-req-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+								<p>{{ sim_item.item_requested }}</p>
+							</a>
+						{% else %}
+							<a href="{{ sim_item.get_absolute_url }}" class="d-inline-block text-decoration-none">
+								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2"></i>
+								<p>{{ sim_item.item_requested }}</p>
+							</a>
+						{% endif %}
+						{% if sim_item.price_at_hand != '-' %}
+							<span class="text-muted">{{ sim_item.price_at_hand }}</span>
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</section>
+	{% endif %}
 </div>
 {% endblock content %}
 

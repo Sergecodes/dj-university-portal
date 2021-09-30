@@ -1,24 +1,16 @@
 from ckeditor.fields import RichTextField
-from datetime import timedelta
-from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
-from django.core.validators import validate_email
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from flagging.models import Flag
 
-from core.constants import (
-	AD_PHOTOS_UPLOAD_DIR, 
-	LISTING_PHOTOS_UPLOAD_DIR
-)
-from core.model_fields import LowerCaseEmailField, TitleCaseField
-# from hitcount.models import HitCountMixin
+from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
+from core.models import Post
 
-User = settings.AUTH_USER_MODEL
+
+User = get_user_model()
 
 
 class AdCategory(models.Model):
@@ -165,7 +157,7 @@ class AdListingPhoto(models.Model):
 	# 	return self
 
 
-class Post(models.Model):
+class ListingPost(Post):
 	'''
 	THREE_DAYS = timedelta(days=3)
 	FIVE_DAYS = timedelta(days=5)
@@ -193,50 +185,19 @@ class Post(models.Model):
 		help_text=_('For how long should your post be available')
 	)
 	'''
-	# the django-flag-app package requires that the name of this field be `flags`
-	flags = GenericRelation(Flag)
-	# email address to contact for any info concerning this post.
-	# in frontend form, this is by default the email of the user creating the listing
-	contact_email = LowerCaseEmailField(
-		_('Email address'),
-		max_length=50,
-		help_text=_("Email address to contact; enter a valid email"),
-		validators=[validate_email]
-	)
-	contact_name = TitleCaseField(
-		_('Full name'),
-		max_length=25,
-		help_text=_('Enter real names, buyers will more easily trust you if you enter a real name.'),
-		# validators=[validate_full_name]
-	)
-	# since title isn't unique, slug can't be used to get a particular object.
-	# also, querying on slug (char field) is slower than on ints (id) and if we set title to unique, there will be overhead when saving an instance(to check if it is unique.)
+
 	title = models.CharField(
 		_('Title'), 
 		max_length=100, 
 		help_text=_('A descriptive title helps buyers find your item. <br> State exactly what your post is.')
 	)
-	slug = models.SlugField(max_length=255)
 	description = RichTextField(
 		_('Description'), 
 		help_text=_('Describe the your post and provide complete and accurate details. Use a clear and concise format.')
 	)
-	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-	original_language = models.CharField(
-		choices=settings.LANGUAGES,
-		max_length=2,
-		help_text=_('Language in which post was created'),
-		editable=False
-	)
 
 	def __str__(self):
 		return self.title
-
-	@property
-	def is_active(self):
-		""" Post is active if duration is not yet exhausted """
-		return (timezone.now() - self.duration).total_seconds() > 0
 
 	@property
 	def bookmark_count(self):
@@ -251,20 +212,17 @@ class Post(models.Model):
 		abstract = True
 
 
-class ItemListing(Post):
+class ItemListing(ListingPost):
 	USED = 'U'
 	NEW = 'N'
 	DEFECTIVE = 'D'
+
 	CONDITIONS = (
 		(NEW, _('New')),  # maybe not packaged but not yet used or fairly used (still new)
 		(USED, _('Used')),  # already used but still working
 		(DEFECTIVE, _('Defective(some parts are not working)'))  # for parts or not working
 	)
 
-	contact_numbers = models.ManyToManyField(
-		'users.PhoneNumber',
-		related_name='+'
-	)
 	# delete listing if user is deleted
 	poster = models.ForeignKey(
 		User, 
@@ -327,17 +285,13 @@ class ItemListing(Post):
 
 	class Meta:
 		verbose_name_plural = 'Item Listings'
-		ordering = ['-datetime_added']
+		ordering = ['-posted_datetime']
 		indexes = [
-			models.Index(fields=['-datetime_added'])
+			models.Index(fields=['-posted_datetime'])
 		]
 
 
-class AdListing(Post):
-	contact_numbers = models.ManyToManyField(
-		'users.PhoneNumber',
-		related_name='+'
-	)
+class AdListing(ListingPost):
 	poster = models.ForeignKey(
 		User, 
 		on_delete=models.CASCADE,
@@ -353,9 +307,8 @@ class AdListing(Post):
 	pricing = models.CharField(
 		_('Pricing'), 
 		help_text=_("Allow this empty for free products and services or if the pricing is in the advert description."),
-		null=True, blank=True,
 		default='-',
-		max_length=20
+		max_length=40
 	)
 	school = models.ForeignKey(
 		'Institution',
@@ -382,9 +335,9 @@ class AdListing(Post):
 	# 	return self.hitcount.num_of_hits
 
 	class Meta:
-		ordering = ['-datetime_added']
+		ordering = ['-posted_datetime']
 		indexes = [
-			models.Index(fields=['-datetime_added'])
+			models.Index(fields=['-posted_datetime'])
 		]
 
 
@@ -393,10 +346,11 @@ class Institution(models.Model):
 	name = models.CharField(_('Name'), max_length=50, unique=True)
 	location = models.CharField(
 		_('Location'),
-		max_length=40,
+		max_length=60,
 		help_text=_('Street or quarter where institution is located')
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return self.name

@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
 from django.db.models.query import Prefetch
-from django.http.response import HttpResponseForbidden, HttpResponseRedirect
+from django.http.response import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
@@ -20,14 +20,21 @@ from taggit.models import TaggedItem
 from core.constants import (
 	REQUIRED_DOWNVOTE_POINTS, ASK_QUESTION_POINTS_CHANGE,
 )
+from core.mixins import GetObjectMixin
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
 	SchoolQuestionCommentForm, SchoolAnswerCommentForm, SchoolAnswerForm
 )
+from .mixins import (
+	CanEditQuestionMixin, CanDeleteQuestionMixin,
+	CanEditAnswerMixin, CanDeleteAnswerMixin,
+	CanEditCommentMixin, CanDeleteCommentMixin
+)
 from .models import (
-	Subject, AcademicAnswer,
-	AcademicQuestion, SchoolQuestion
+	SchoolAnswer, SchoolQuestionComment, Subject, AcademicAnswer,
+	AcademicQuestion, SchoolQuestion, SchoolAnswerComment,
+	AcademicQuestionComment, AcademicAnswerComment
 )
 
 User = get_user_model()
@@ -54,7 +61,7 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 		question.original_language = get_language()
 		question.save()	
 
-		return HttpResponseRedirect(self.get_success_url())
+		return redirect(self.get_success_url())
 
 
 @method_decorator(login_required, name='post')
@@ -101,7 +108,7 @@ class AcademicQuestionDetail(DetailView):
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
-		question, all_users = self.object, User.objects.all()
+		question, user, all_users = self.object, self.request.user, User.objects.all()
 
 		# initialize comment and answer forms
 		qstn_comment_form = AcademicQuestionCommentForm()
@@ -119,6 +126,7 @@ class AcademicQuestionDetail(DetailView):
 			Prefetch('upvoters', queryset=all_users.only('id'))
 		).all()
 
+		## RELATED QUESTIONS
 		related_items = TaggedItem.objects.none()
 		question_tags = question.tags.all()
 		for tag in question_tags:
@@ -128,7 +136,6 @@ class AcademicQuestionDetail(DetailView):
 
 		# TaggedItem doesn't have a direct link to the object, so grap object ids and use them
 		ids = related_items.values_list('object_id', flat=True)
-
 		related_qstns = AcademicQuestion.objects.filter(
 			id__in=ids
 		).only('title') \
@@ -144,11 +151,45 @@ class AcademicQuestionDetail(DetailView):
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
 		context['related_qstns'] = related_qstns
-		context['is_following'] = self.request.user in question.followers.only('id')
+		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['no_slug_url'] = question.get_absolute_url(with_slug=False)
+		context['can_edit_question'] = user.can_edit_question(question)
+		context['can_delete_question'] = user.can_delete_question(question)
 		
 		return context
+
+
+class AcademicQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
+	model = AcademicQuestion
+	success_url = reverse_lazy('qa_site:academic-question-list')
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['ask_question_points_change'] = ASK_QUESTION_POINTS_CHANGE
+		return context
+
+	def delete(self, request, *args, **kwargs):
+		# recall that when user asks a question, he is given some points.
+		# remove those points now since he is deleting the question
+		# he should be told in frontend
+		
+		question = self.get_object()
+		# don't use request.user 
+		# since moderator or staff could be the ones calling this view.
+		# rather use question.poster
+		poster = question.poster
+		poster.site_points = F('site_points') - ASK_QUESTION_POINTS_CHANGE
+		poster.save(update_fields=['site_points'])
+
+		question.delete()
+		return redirect(self.get_success_url())
+
+
+class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
+	model = AcademicQuestion
+	form_class = AcademicQuestionForm
+	template_name = 'qa_site/academicquestion_update.html'
 
 
 class AcademicQuestionFilter(filters.FilterSet):
@@ -219,7 +260,39 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		school_question.original_language = get_language()
 		school_question.save()	
 
-		return HttpResponseRedirect(self.get_success_url())
+		return redirect(self.get_success_url())
+
+
+class SchoolQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
+	model = SchoolQuestion
+	success_url = reverse_lazy('qa_site:school-question-list')
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['ask_question_points_change'] = ASK_QUESTION_POINTS_CHANGE
+		return context
+
+	def delete(self, request, *args, **kwargs):
+		# recall that when user asks a question, he is given some points.
+		# remove those points now since he is deleting the question
+		# he should be told in frontend
+		
+		question = self.get_object()
+		# don't use request.user 
+		# since moderator or staff could be the ones calling this view.
+		# rather use question.poster
+		poster = question.poster
+		poster.site_points = F('site_points') - ASK_QUESTION_POINTS_CHANGE
+		poster.save(update_fields=['site_points'])
+
+		question.delete()
+		return redirect(self.get_success_url())
+
+
+class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
+	model = SchoolQuestion
+	form_class = SchoolQuestionForm
+	template_name = 'qa_site/schoolquestion_update.html'
 
 
 class SchoolQuestionFilter(filters.FilterSet):
@@ -299,7 +372,7 @@ class SchoolQuestionDetail(DetailView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		question = self.object
+		question, user = self.object, self.request.user
 
 		# initialize comment and answer forms
 		qstn_comment_form = SchoolQuestionCommentForm()
@@ -321,9 +394,91 @@ class SchoolQuestionDetail(DetailView):
 		context['answers'] = answers
 		context['comments'] = comments
 		context['num_answers'] = answers.count()
-		context['is_following'] = self.request.user in question.followers.only('id')
+		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
+		context['can_edit_question'] = user.can_edit_question(question)
+		context['can_delete_question'] = user.can_delete_question(question)
 
 		return context
 
+
+## EDIT AND DELETE ANSWER AND COMMENT ##
+
+## COMMENT UPDATE AND DELETE
+# due to the CanEditCommentMixin, this class needs to be used only with comments
+class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
+	# set fields to update.
+	# if you use the form_class attribute instead, 
+	# you will manually need to save/update some fields
+	fields = ['content']
+	template_name = 'qa_site/misc/comment_edit.html'
+
+	def get_success_url(self):
+		return self.get_object().question.get_absolute_url()
+
+
+class AcademicQuestionCommentUpdate(CommentUpdate):
+	model = AcademicQuestionComment
+
+class AcademicAnswerCommentUpdate(CommentUpdate):
+	model = AcademicAnswerComment
+
+class SchoolQuestionCommentUpdate(CommentUpdate):
+	model = SchoolQuestionComment
+
+class SchoolAnswerCommentUpdate(CommentUpdate):
+	model = SchoolAnswerComment
+
+
+class CommentDelete(GetObjectMixin, CanDeleteCommentMixin, DeleteView):
+	template_name = 'qa_site/misc/comment_confirm_delete.html'
+
+	def get_success_url(self):
+		return self.get_object().question.get_absolute_url()
+
+
+class AcademicQuestionCommentDelete(CommentDelete):
+	model = AcademicQuestionComment
+
+class AcademicAnswerCommentDelete(CommentDelete):
+	model = AcademicAnswerComment
+
+class SchoolQuestionCommentDelete(CommentDelete):
+	model = SchoolQuestionComment
+
+class SchoolAnswerCommentDelete(CommentDelete):
+	model = SchoolAnswerComment
+
+
+## ANSWER UPDATE AND DELETE
+class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
+	# set fields to update.
+	# if you use the form_class attribute instead, 
+	# you will manually need to save/update some fields
+	fields = ['content']
+	template_name = 'qa_site/misc/answer_edit.html'
+
+	def get_success_url(self):
+		return self.get_object().question.get_absolute_url()
+
+
+class AcademicAnswerUpdate(AnswerUpdate):
+	model = AcademicAnswer
+
+class SchoolAnswerUpdate(AnswerUpdate):
+	model = SchoolAnswer
+
+
+class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
+	template_name = 'qa_site/misc/answer_confirm_delete.html'
+
+	def get_success_url(self):
+		return self.get_object().question.get_absolute_url()
+
+
+class AcademicAnswerDelete(AnswerDelete):
+	model = AcademicAnswer
+
+class SchoolAnswerDelete(AnswerDelete):
+	model = SchoolAnswer
 

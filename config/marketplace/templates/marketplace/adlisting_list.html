@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-list-container">
 	<section class="mb-3 listing-search-form-wrp">
 		<form method="get" class="p-3 listing-search-form">
@@ -95,19 +95,24 @@
 										{{ listing.title }}
 									</a>
 									<br class="mb-4">
-									<a 
-										class="text-decoration-none" 
-										href="#"
-									>
-										{{ listing.school }}
-									</a>
-									<br class="mb-1">
+									{% if listing.school %}
+										<a 
+											class="text-decoration-none" 
+											href="#"
+										>
+											{{ listing.school }}
+										</a>
+										<br class="mb-1">
+									{% endif %}
 									{% if listing.pricing == '-' %}
-										<span>{% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+										<span>{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% else %}
 										<span class="fw-bold">{{ listing.pricing }}</span>
-										<span> | {% trans 'Posted' %} {{ listing.datetime_added|naturaltime }}</span>
+										<span> | {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% endif %}
+									{# some users don't have social profile #}
+									<!-- {% trans 'by' %}
+									<a href="{{ listing.poster.get_absolute_url }}" class="text-decoration-none">{{ listing.poster.username }}</a> -->
 								</div>
 							</li> 
 						{% endfor %}

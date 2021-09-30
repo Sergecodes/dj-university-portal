@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+	<title>{% trans 'Delete comment' %}</title>
+{% endblock %}
+
+{% block extra_css %}
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<!-- 100% wide until lg. (At lg it turns to container.) -->
+<div class="container-md p-sm-3 px-4 my-5">
+	<form method="post" class="">
+		{% csrf_token %}
+        <p class="fs-5">
+            {% trans 'Are you sure you want to delete this comment' %} ?
+            <div class="border p-2">
+                {{ object|safe }}
+            </div>
+        </p>
+		<input type="submit" class="btn btn-danger" value="{% trans 'Yes, delete' %}">
+	</form>
+</div>
+{% endblock content %}
+
+{% block footer %}
+{% endblock %}

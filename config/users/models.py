@@ -1,28 +1,30 @@
 import uuid
-from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.validators import UnicodeUsernameValidator
-# from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-# from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db import models
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
 from notifications.signals import notify
 
 from core.constants import (
 	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
 	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE, IS_BAD_USER_POINTS,
-	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
+	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE,
+	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, 
+	MAX_ANSWERS_PER_USER_PER_QUESTION, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT,
+	QUESTION_CAN_EDIT_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT,
+	COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT,
+	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
+	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
+from core.models import Notification
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from core.utils import parse_phone_number
-from marketplace.models import ItemListing, AdListing
-# from qa_site.models import AcademicQuestion, SchoolQuestion
-from .managers import UserManager
+from flagging.models import Flag
+from .managers import UserManager, ModeratorManager, StaffManager
 from .validators import validate_full_name
 
 
@@ -123,8 +125,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		max_length=2,
 	)
 
-	# +5 points for joining the site lol
-	site_points = models.PositiveIntegerField(_('Site points'), default=5, editable=False)  
+	# +10 points for joining the site lol
+	# this is to account for sudden downvotes so that downvoted user's points
+	# don't suddenly reach say 0.
+	site_points = models.PositiveIntegerField(_('Site points'), default=INITIAL_POINTS, editable=False)  
 
 	# determine if users profile page is visible to other users
 	# is_visible = models.BooleanField(
@@ -145,6 +149,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 	REQUIRED_FIELDS = ['username', 'full_name']   
 
 	objects = UserManager()
+	moderators = ModeratorManager()
+	staff = StaffManager()
+
 
 	class Meta:
 		indexes = [
@@ -166,14 +173,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return True
 		return False
 
-	def clean(self, *args, **kwargs):
-		# add custom validation here
-		super().clean(*args, **kwargs)
+	# def clean(self, *args, **kwargs):
+	# 	# add custom validation here
+	# 	super().clean(*args, **kwargs)
 	
-	def save(self, *args, **kwargs):
-		# full_clean() automatically calls clean()
-		self.full_clean()
-		super().save(*args, **kwargs)
+	# def save(self, *args, **kwargs):
+	# 	# full_clean() automatically calls clean()
+	# 	self.full_clean()
+	# 	super().save(*args, **kwargs)
+
+	# def save(self, *args, **kwargs):
+	# 	self.previous_points = self.site_points
+	# 	super().save(*args, **kwargs)
 
 	def deactivate(self):
 		"""Mark user as inactive but allow his record in database."""
@@ -196,38 +207,17 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return self.social_profile.get_absolute_url()
 		return ''
 
-	def penalize_flagged_user(self, flagged_post=None):
-		"""
-		Deduct points from flagged user
-		i.e. user whose post flag count attains `SHOULD_FLAG_COUNT` or whose post was deleted by
-		moderator for inappropriateness.
-		"""
-		user_points = self.site_points
+	def absolve_post(self, post):
+		"""Remove all flags from a post"""
+		if self.is_mod:
+			flag = Flag.objects.get_flag(post)
+			# don't use bulk_delete so that signals are triggered
+			for flag_instance in flag.flags():
+				flag_instance.delete()
 
-		# is user was recently flagged (if he was flagged but didn't contribute to the site)
-		# i.e if his points == IS_BAD_USER_POINTS(1)
-		# deactivate his account. 
-		if user_points == IS_BAD_USER_POINTS:
-			# TODO include this in list of website rules.
-			self.deactivate()
-			return
-		
-		# if new points after deduction will be less than 1, set it to 1.
-		new_points = user_points + PENALIZE_FLAGGED_USER_POINTS_CHANGE
-		if new_points < IS_BAD_USER_POINTS:
-			new_points = IS_BAD_USER_POINTS
-
-		self.site_points = new_points
-		self.save(update_fields=['site_points'])
-		# notify user
-		notify.send(
-			sender=self,  # just use same user as sender
-			recipient=self, 
-			verb=_(
-				"You have been deducted {} points because many users considered one of your posts to be inappropriate. Strive to avoid posting such posts. If you continue, your account will be deactivated without further warning.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
-			),
-			target=flagged_post
-		)
+			return True
+			
+		return False
 
 	def get_earnings(self):
 		"""Get user's earnings from his points"""
@@ -273,14 +263,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 			sender=self, 
 			recipient=question_poster, 
 			verb=_('answered your question'),
-			target=question
+			target=question,
+			category=Notification.ACTIVITY
 		)
 		for follower in question.followers.all():
 			notify.send(
 				sender=self, 
 				recipient=follower, 
 				verb=_('performed an activity under the question'),
-				target=question
+				target=question,
+				category=Notification.FOLLOWING
 			)
 
 		return (True, '')
@@ -299,14 +291,16 @@ class User(AbstractBaseUser, PermissionsMixin):
 			sender=self, 
 			recipient=question.poster, 
 			verb=_('commented on your question'),
-			target=question
+			target=question,
+			category=Notification.ACTIVITY
 		)
 		for follower in question.followers.all():
 			notify.send(
 				sender=self,
 				recipient=follower, 
 				verb=_('performed an activity under the question'),
-				target=question
+				target=question,
+				category=Notification.FOLLOWING
 			)
 	
 	def add_answer_comment(self, answer, comment):
@@ -324,13 +318,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 			sender=self, 
 			recipient=question.poster, 
 			verb=_('commented on an answer to your question'),
-			target=question
+			target=question,
+			category=Notification.ACTIVITY
 		)
 		notify.send(
 			sender=self, 
 			recipient=answer.poster, 
 			verb=_('commented on your answer to the question'),
-			target=question
+			target=question,
+			category=Notification.ACTIVITY
 		)
 		
 		question_followers = question.followers.all()
@@ -339,27 +335,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 				sender=self, 
 				recipient=follower, 
 				verb=_('performed an activity under an answer to the question'),
-				target=question
-			)
-	
-	'''Upvoting/downvoting questions and answers'''
-	# def upvote_question(self, question, output=False):
-	# 	question.upvoters.add(self)
-	# 	return question.upvote_count if output else None
+				target=question,
+				category=Notification.FOLLOWING
+			)	
 
-	# def unupvote_question(self, question, output=False):
-	# 	question.upvoters.remove(self)
-	# 	return question.upvote_count if output else None
-
-	# def upvote_answer(self, answer, output=False):
-	# 	answer.upvoters.add(self)
-	# 	return answer.upvote_count if output else None
-
-	# def unupvote_answer(self, answer, output=False):
-	# 	answer.upvoters.remove(self)
-	# 	return answer.upvote_count if output else None	
-
-	
 	def downvote_question(self, question, output=False, for_html=False):
 		question_owner = question.poster
 
@@ -385,13 +364,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 				_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 			)
 
-		question_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+		# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
+		owner_points = question_owner.site_points
+		if owner_points == RESTRICTED_POINTS:
+			owner_points = RESTRICTED_POINTS + 1
+			# first update database so as to flawlessly leverage F expressions
+			question_owner.save(update_fields=['site_points'])
+
+		# penalise question owner for downvote
+		new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+		if new_points < THRESHOLD_POINTS:
+			new_points = THRESHOLD_POINTS
+
+		question_owner.site_points = new_points
+		question_owner.save(update_fields=['site_points'])
 		question.downvoters.add(self)
 		return (True, question.downvote_count) if output else (True, '')
-
-	# def undownvote_question(self, question, output=False):
-	# 	question.downvoters.remove(self)
-	# 	return question.downvote_count if output else None
 
 	def downvote_answer(self, answer, output=False, for_html=False):
 		answer_owner = answer.poster
@@ -418,8 +406,153 @@ class User(AbstractBaseUser, PermissionsMixin):
 					_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 				)
 
+		# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
+		owner_points = answer_owner.site_points
+		if owner_points == RESTRICTED_POINTS:
+			owner_points = RESTRICTED_POINTS + 1
+			# first update database so as to flawlessly leverage F expressions
+			answer_owner.save(update_fields=['site_points'])
+
+		# penalise question owner for downvote
+		new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+		if new_points < THRESHOLD_POINTS:
+			new_points = THRESHOLD_POINTS
+
+		answer_owner.site_points = new_points
+		answer_owner.save(update_fields=['site_points'])
 		answer.downvoters.add(self)
 		return (True, answer.downvote_count) if output else (True, '')
+
+	## Verify if user can edit or delete posts ##
+	# NOTE that if any argument is added to any of these functions,
+	# some functionalities will break, including the template filters in core/template_tags module.
+	def can_edit_question(self, question):
+		"""
+		Verify if user is permitted to edit question
+		
+		To test if a user can edit a question.
+		- Questions with (3 score or 2 answers) and above can't be edited
+		- Only poster can edit question
+		"""
+		# first verify if answer can be edited
+		if question.score > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
+			return False
+
+		# now verify if user is poster
+		if self.id == question.poster_id:
+			return True
+
+		return False
+
+	def can_delete_question(self, question):
+		"""
+		To test if a user can delete a question.
+		- Staff can delete any question(any post)
+		- Moderator can delete only flagged questions(posts)
+		- Poster can delete question only if it has less than 3 votes or less than 2 answers
+		"""
+		if self.is_staff:
+			return True
+
+		# if listing is flagged moderator can delete it.
+		# first verify if question is flagged before verifying number of answers...
+		# coz there could be cases where a question has say 2 "bizarre" answers.. and it could be flagged
+		# so if it is flagged, moderator can delete.
+		if self.is_mod and Flag.objects.is_flagged(question):
+			return True
+		
+		# verify if question can be deleted
+		if question.score > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
+			return False
+
+		# now verify if user is owner
+		if self.id == question.poster_id:
+			return True
+		
+		return False
+
+	def can_edit_answer(self, answer):
+		"""
+		To test if a user can edit an answer.
+		- Answers with (5 score) and above can't be edited
+		- Only poster can edit answer
+		"""
+		# first verify if answer can be edited
+		if answer.score > ANSWER_CAN_EDIT_VOTE_LIMIT:
+			return False
+
+		# now verify if user is poster
+		if self.id == answer.poster_id:
+			return True
+
+		return False
+
+	def can_delete_answer(self, answer):
+		"""
+		To test if a user can delete an answer.
+		- Staff can delete any answer
+		- Moderator can delete only flagged answers
+		- Poster can delete answer only if it has less than 3 votes
+		"""
+		if self.is_staff:
+			return True
+		
+		# if it is flagged, moderator can delete.
+		if self.is_mod and Flag.objects.is_flagged(answer):
+			return True
+
+		# verify if answer can be deleteed
+		if answer.score > ANSWER_CAN_DELETE_VOTE_LIMIT:
+			return False
+
+		# now verify if user is poster
+		if self.id == answer.poster_id:
+			return True
+
+		return False
+
+	def can_edit_comment(self, comment):
+		"""
+		To test if a user can edit an comment.
+		- Only poster can edit comment
+		- After 5 minutes, comments can't be edited.
+		- Comments with 5 upvotes and above can't be edited
+		"""
+		# first verify if comment can be edited
+		if (comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT) or not comment.is_within_edit_timeframe:
+			return False
+
+		# now verify if user is poster
+		if self.id == comment.poster_id:
+			return True
+
+		return False
+
+	def can_delete_comment(self, comment):
+		"""
+		To test if a user can delete a comment.
+		- Staff can delete any comment
+		- Moderator can delete only flagged comments
+		- Comments with 5 upvotes and above can't be deleted
+		- Poster can delete comment
+		"""
+		if self.is_staff:
+			return True
+
+		# if it is flagged, moderator can delete.
+		if self.is_mod and Flag.objects.is_flagged(comment):
+			return True
+
+		# verify if comment can be deleted
+		if comment.upvote_count > COMMENT_CAN_DELETE_UPVOTE_LIMIT:
+			return False
+
+		# now verify if user is poster
+		if self.id == comment.poster_id:
+			return True
+
+		return False
+
 
 	# def undownvote_answer(self, answer, output=False):
 	# 	answer.downvoters.remove(self)
@@ -440,6 +573,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# def unbookmark_listing(self, listing, output=False):
 	# 	listing.bookmarkers.remove(self)
 	# 	return listing.bookmark_count if output else None
+
+	# def undownvote_question(self, question, output=False):
+	# 	question.downvoters.remove(self)
+	# 	return question.downvote_count if output else None
 
 
 

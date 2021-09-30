@@ -65,9 +65,17 @@ class FlagInstanceManager(models.Manager):
 
     def create_flag(self, user, flag, reason, info):
         """Create a FlagInstance"""
+        # user shouldn't be able to flag his post
+        # get poster_id not poster.id so as to minimize query
+        if flag.content_object.poster_id == user.id:
+            print("You can't flag your post")
+            return {'created': False, 'msg': _("You can't flag your own post.")}
+
         cleaned_reason, cleaned_info = self._clean(reason, info)
         try:
             self.create(flag=flag, user=user, reason=cleaned_reason, info=cleaned_info)
+            return {'created': True}
+
         except IntegrityError:
             raise ValidationError(
                     _('This content has already been flagged by the user (%(user)s)'),
@@ -79,6 +87,8 @@ class FlagInstanceManager(models.Manager):
         """Delete flag(the flag instance - FlagInstance)"""
         try:
             self.get(user=user, flag=flag).delete()
+            return {'deleted': True}
+
         except self.model.DoesNotExist:
             raise ValidationError(
                 _('This content has not been flagged by the user (%(user)s)'),
@@ -95,10 +105,7 @@ class FlagInstanceManager(models.Manager):
         reason = kwargs.get('reason', None)
 
         if reason:
-            self.create_flag(user, flag_obj, reason, info)
-            created = True
+            result = self.create_flag(user, flag_obj, reason, info)
         else:
-            self.delete_flag(user, flag_obj)
-            created = False
-
-        return created
+            result = self.delete_flag(user, flag_obj)
+        return result
