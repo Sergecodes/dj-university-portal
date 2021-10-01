@@ -22,6 +22,7 @@ img {
 	border-bottom: dotted;
 }
 
+
 /* make bootstrap tooltips flexible, use alongsite data-container="body" */
 .share-tooltip .tooltip-inner {
 	max-width: 100%;
@@ -127,6 +128,13 @@ img {
 /* .notifs-and-profile {
 
 } */
+
+
+/* Notifications */
+.notif-item-link {
+	/* no need to set color, it will be inherited */
+	border-bottom: 1px dotted;
+}
 
 .register-and-login {
 	justify-content: right;

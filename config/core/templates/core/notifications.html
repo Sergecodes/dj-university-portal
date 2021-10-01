@@ -3,6 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
+{% load app_extras %}
 
 {% block title %}
 	<title>{% trans 'Inbox - Notifications' %}</title>
@@ -27,17 +28,37 @@
 			</h4>
 			{% for notif in general_notifs %}
 				{% if forloop.first %}
+				<p class="mb-4">
+					<a href="{% url 'notifications:mark_category_as_read' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
+						{% trans 'Mark all as read' %}
+					</a>
+					<a href="{% url 'notifications:delete_category_notifs' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+						{% trans 'Delete all' %}
+					</a>
+				</p>
 				<ul style="list-style-type: square;">
 				{% endif %}
-					<li class="mb-2">
+					<li class="mb-2 p-1 {% if notif.unread %} bg-secondary opacity-50 {% endif %}">
 						{% if notif.follow_url %}
-							<a href="{{ notif.follow_url }}" class="text-decoration-none">
-								{{ notif.verb }}
-							</a>
+							{% if notif.unread %}
+								<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.follow_url }}" class="text-decoration-none border-light link-light notif-item-link">
+									{{ notif.verb }}
+								</a>
+							{% else %}
+								<a href="{{ notif.follow_url }}" class="text-decoration-none notif-item-link">
+									{{ notif.verb }}
+								</a>
+							{% endif %}
 						{% else %}
 							{{ notif.verb }}
-						{% endif %}
+						{% endif %} 
 					</li>
+					{# mark as read and delete buttons here #}
+					{% if notif.unread %}
+						<a role="button" href="{% url 'notifications:mark_as_read' notif.id %}?next={{ request.path }}" class="text-decoration-none link-secondary">{% trans 'Mark as read' %}</a>
+					{% endif %}
+					<a role="button" href="{% url 'notifications:delete' notif.id %}?next={{ request.path }}" class="text-decoration-none link-danger ms-3">{% trans 'Delete' %}</a>
+					<br><br>
 				{% if forloop.last %}
 				</ul>
 				{% endif %}
@@ -52,29 +73,36 @@
 		{% if flags_notifs %}
 		<section class="mb-4">
 			<h4 class="pb-1 border-bottom border-danger text-danger">
-				{% trans 'Reported Posts Messages' %}
+				{% trans 'Reported Posts' %}
 			</h4>
+			{# intenionally; do not display mark all as read and delete-all buttons for flagged posts.. #}
+			{# make e suffer e one xD #}
+			<p class="mt-3">{% trans 'The following posts have been reported:' %}</p>
 			<ul style="list-style-type: square;">
 			{% for notif in flags_notifs %}
-				<li class="mb-2">
+				<li class="mb-2 p-1 {% if notif.unread %} bg-secondary opacity-50 {% endif %}">
 					{{ notif.verb }} 
-					&nbsp;|&nbsp;
-					{% if notif.target.get_absolute_url %} 
-						<a href="{{ notif.target.get_absolute_url }}">{% trans 'view post' %}</a>
-					{% else %}
-						{# if eg post is a comment or answer #}
-						<a href="{{ notif.target.parent_object.get_absolute_url }}">
-							{% trans 'view containing post' %}
-						</a>
-					{% endif %}
 				</li>
+				{% if notif.target.get_absolute_url %} 
+					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.get_absolute_url }}" class="text-decoration-none notif-item-link">{% trans 'view post' %}</a>
+				{% else %}
+					{# if eg post is a comment or answer #}
+					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.parent_object.get_absolute_url }}" class="text-decoration-none notif-item-link">
+						{% trans 'view containing post' %}
+					</a>
+				{% endif %}
+				{% if notif.unread %}
+					<a role="button" href="{% url 'notifications:mark_as_read' notif.id %}?next={{ request.path }}" class="text-decoration-none ms-3 link-secondary">{% trans 'Mark as read' %}</a>
+				{% endif %}
+				<a role="button" href="{% url 'notifications:delete' notif.id %}?next={{ request.path }}" class="text-decoration-none link-danger ms-3">{% trans 'Delete' %}</a>
+				<br><br>
 			{% endfor %}
 			</ul>
 		</section>
 		{% endif %}
 
-		<!-- display reported posts (moderator only) -->
-		{% if user.is_mod %}
+		<!-- display reported posts (moderators only) -->
+		{% comment %} {% if user.is_mod %}
 			<section class="mb-4">
 				<h4 class="pb-1 border-bottom border-success text-success">
 					{% trans 'Reported posts' %}
@@ -84,7 +112,7 @@
 					{% for notif in reported_notifs %}
 						{# if post hasn't yet been deleted #}
 						{% if notif.target %}
-							<li class="mb-2">
+							<li class="mb-2 p-1 {% if notif.unread %} bg-secondary opacity-50 {% endif %}">
 								{% if notif.target.get_absolute_url %}
 									<a href="{{ notif.target.get_absolute_url }}" class="text-decoration-none">
 										{{ notif.target }}
@@ -112,7 +140,7 @@
 					</div>
 				{% endif %}
 			</section>
-		{% endif %}
+		{% endif %} {% endcomment %}
 
 		<!-- activities on user's posts -->
 		<section class="mb-4">
@@ -120,22 +148,52 @@
 				{% trans "Posts Activities" %}
 			</h4>
 			{% if activities_notifs_targets %}
-				<p>{% trans 'There are new activities on the following posts:' %}</p>
+				<p class="mb-4">
+					<a href="{% url 'notifications:mark_all_posts_as_read' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
+						{% trans 'Mark all as read' %}
+					</a>
+					<a href="{% url 'notifications:delete_all_post_notifs' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+						{% trans 'Delete all' %}
+					</a>
+				</p>
+				<p class="mt-3">{% trans 'There are new activities on the following posts:' %}</p>
 				<ul style="list-style-type: square;">
 				{% for post in activities_notifs_targets %}
-					<li class="mb-2">
+					{% with post_unread=activities_notifs|post_is_unread:post %}
+					<li class="mb-2 p-1 {% if post_unread %} bg-secondary opacity-50 {% endif %}">
 						{% if post.get_absolute_url %}
-						<a href="{{ post.get_absolute_url }}" class="text-decoration-none">
-							{{ post }}
-						</a>
+							{# if post is unread, upon clicking on list item, firt mark post as read before redirecting to post url. if post is read, go directly to post url #}
+							<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% endif %} notif-item-link">
+								{# remember that school questions are sanitized before been printed. #}
+								{# safe is used to remove the leftover html entities like &nbsp; that aren't stripped #}
+								{% if post|get_model_name == 'SchoolQuestion' %}
+									{{ post|safe }}
+								{% else %}
+									{{ post }}
+								{% endif %}
+							</a>
 						{% else %}
 							{# if post is answer #}
-							<span>{{ post }}</span> &nbsp;|&nbsp;
-							(<a href="{{ post.question.get_absolute_url }}">
-								{% trans 'view question' %}
-							</a>)
+							{# remember activities can only be on questions and answers #}
+							{# safe is used to remove the unsanitized html entities. #}
+							<span>{{ post|safe }}</span>
 						{% endif %}
 					</li>
+					{% if not post.get_absolute_url %}
+						<a href="{{ post.question.get_absolute_url }}" class="text-decoration-none">
+							{% trans 'view question' %}
+						</a>
+					{% endif %}
+					{% if post_unread %}
+					<a role="button" href="{% url 'notifications:mark_post_as_read' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ request.path }}" class="text-decoration-none link-secondary">
+						{% trans 'Mark as read' %}
+					</a>
+					{% endif %}
+					<a role="button" href="{% url 'notifications:delete_post_notifs' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ request.path }}" class="ms-3 text-decoration-none link-danger">
+						{% trans 'Delete' %}
+					</a>
+					<br><br>
+					{% endwith %}
 				{% endfor %}	
 				</ul>
 			{% else %}
@@ -151,19 +209,42 @@
 				{% trans "Following Posts" %}
 			</h4>
 			{% if followings_notifs_targets %}
-				<p>{% trans 'There are new activities on some posts you are following:' %}</p>
+				<p class="mb-4">
+					<a href="{% url 'notifications:mark_all_posts_as_read' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
+						{% trans 'Mark all as read' %}
+					</a>
+					<a href="{% url 'notifications:delete_all_post_notifs' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+						{% trans 'Delete all' %}
+					</a>
+				</p>
+				<p class="mt-3">{% trans 'There are new activities on some posts you are following:' %}</p>
 				<ul style="list-style-type: square;">
 				{% for post in followings_notifs_targets %}
-					<li class="mb-2">
-						<a href="{{ post.get_absolute_url }}" class="text-decoration-none">
-							{{ post }}
+					{% with post_unread=followings_notifs|post_is_unread:post %}
+					<li class="mb-2 p-1 {% if post_unread %} bg-secondary opacity-50 {% endif %}">
+						<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% endif %} notif-item-link">
+							{% if post|get_model_name == 'SchoolQuestion' %}
+								{{ post|safe }}
+							{% else %}
+								{{ post }}
+							{% endif %}
 						</a>
 					</li>
+					{% if post_unread %}
+					<a role="button" href="{% url 'notifications:mark_post_as_read' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ request.path }}" class="text-decoration-none link-secondary">
+						{% trans 'Mark as read' %}
+					</a>
+					{% endif %}
+					<a role="button" href="{% url 'notifications:delete_post_notifs' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ request.path }}" class="ms-3 text-decoration-none link-danger">
+						{% trans 'Delete' %}
+					</a>
+					<br><br>
+					{% endwith %}
 				{% endfor %}	
 				</ul>
 			{% else %}
 				<div class="alert alert-primary py-2" role="alert">
-					{% trans 'Notifications on questions that you are following will be displayed here.' %}
+					{% trans 'Notifications on your questions and answers will be displayed here.' %}
 				</div>
 			{% endif %}
 		</section>	

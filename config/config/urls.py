@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-import notifications.urls
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
@@ -38,11 +37,10 @@ urlpatterns += i18n_patterns(
     path(_('core/'), include('core.urls', namespace='core')),
     path(_('flag/'), include('flagging.urls', namespace='flagging')),  
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
-    # django-notifications-hq
-    path(_('inbox/notifications/'), include(notifications.urls, namespace='notifications')),
     path(_('lost-and-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
-    path(_('my-notifications/'), NotificationsView.as_view(), name='notifications'),
+    path(_('my-notifications/'), NotificationsView.as_view(), name='my-notifs'),
+    path(_('notifications/'), include('notifications.urls', namespace='notifications')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
     path(_('requested-items/'), include('requested_items.urls', namespace='requested_items')),

@@ -1,17 +1,15 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet, Manager
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from notifications.signals import notify
 
 from core.constants import (
-	IS_FLAGGED_COUNT, IS_BAD_USER_POINTS, 
+	IS_BAD_USER_POINTS, 
 	PENALIZE_FLAGGED_USER_POINTS_CHANGE
 )
-from core.models import Notification
+from notifications.models import Notification
+from notifications.signals import notify
 
 
 class UserQuerySet(QuerySet):

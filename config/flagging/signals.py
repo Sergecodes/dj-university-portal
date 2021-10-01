@@ -4,10 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from notifications.signals import notify
 
-from core.constants import FLAGS_ALLOWED, IS_FLAGGED_COUNT
-from core.models import Notification
+from core.constants import IS_FLAGGED_COUNT
+from notifications.models import Notification
+from notifications.signals import notify
 from .models import Flag, FlagInstance
 
 User = get_user_model()

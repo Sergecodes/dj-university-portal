@@ -102,7 +102,7 @@ class AcademicQuestionDetail(DetailView):
 					return HttpResponseForbidden(added_result[1])
 
 		# redirect to get request. (SEE Post/Redirect/Get)
-		# do not to return get(self,...)
+		# instead of simply returning to get (return get(self,...))
 		return redirect(question.get_absolute_url())
 
 	def get_context_data(self, **kwargs):

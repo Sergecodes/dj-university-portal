@@ -1,9 +1,9 @@
 import bleach
 from django import template
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth import get_user_model
-from django.template.defaultfilters import stringfilter, title
+from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
 from core.utils import parse_phone_number
@@ -17,17 +17,43 @@ register = template.Library()
 
 register.filter('parse_tel', parse_phone_number)
 
-# register qa_site editing and deleting methods
+## register qa_site editing and deleting methods
 register.filter(User.can_edit_comment)
 register.filter(User.can_delete_comment)
 register.filter(User.can_edit_answer)
 register.filter(User.can_delete_answer)
 
 
+@register.filter
+def get_model_name(obj):
+	return type(obj).__name__
+
+@register.filter
+def get_app_name(obj):
+	return obj._meta.app_label
+
+@register.filter
+def post_is_unread(user_notifs_group, post):
+	"""Return whether post has any unread notifications or not."""
+	# first get unread user notifications from the category
+	unread_group_notifs = user_notifs_group.unread()
+
+	# now get(lazily) notifications(unread) that concern the post
+	post_unread_notifs = unread_group_notifs.filter(
+		target_object_id=post.id,
+		target_content_type=ContentType.objects.get_for_model(post)
+	)
+
+	# if any notification concerning the post is found, return True
+	if post_unread_notifs.exists():
+		return True
+	return False
+
+
 @register.filter(name='zip')
 def zip_lists(list1, list2):
 	return zip(list1, list2)
- 
+
  
 @register.filter
 def remove_tags(text_body):
@@ -37,15 +63,6 @@ def remove_tags(text_body):
 	and thus `safe` should never be applied to its output.
 	"""
 	return bleach.clean(text_body, tags=[], strip=True)
-
-
-# @register.filter
-# def can_edit_comment(user, comment):
-# 	"""
-# 	Template tag equivalence of can_edit_comment in User model.
-# 	Verify if a user is authorized to edit a comment.
-# 	"""
-# 	return user.can_edit_comment(comment)
 
 
 @register.simple_tag
@@ -87,17 +104,3 @@ def render_bookmark_template(
 		'title_text': title_text
     }
 
-
-# @register.filter
-# def parse_tel(value):
-#     """
-#     Appropriately print a phone number.
-#     e.g. 651234566 should return 6 51 23 45 66
-#     """
-#     result = value[0]
-#     n = len(value)
-#     for i in range(1, n, 2):
-#         temp = value[i] + value[i+1]
-#         result = result + ' ' + temp
-
-#     return result

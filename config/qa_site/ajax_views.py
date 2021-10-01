@@ -1,19 +1,18 @@
 """Basically for views that return a JsonResponse"""
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_GET, require_POST
-from notifications.signals import notify
+from django.views.decorators.http import require_POST
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
 	THRESHOLD_POINTS
 )
-from core.models import Notification
+from notifications.models import Notification
+from notifications.signals import notify
 from .models import (
 	SchoolQuestion, AcademicQuestion, 
 	SchoolAnswer, AcademicAnswer,

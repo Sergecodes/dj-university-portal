@@ -151,12 +151,13 @@ class PhoneNumberForm(forms.ModelForm):
 class BasePhoneNumberFormset(BaseInlineFormSet):
 	def clean(self):
 		"""Checks that no two numbers are the same and that there should be at least one number that supports Whatsapp."""
+		
 		if any(self.errors):
 			# don't bother validating the formset if there are already errors in any of its forms
 			return
 
-		# at least one form should be present
-		assert (n := len(self.forms)) >= 1, "At least one form must be present, got {}".format(n)
+		# at least one form should be present (since if formset has errors, we won't arrive here)
+		assert len(self.forms) >= 1, "At least one form must be present, got none"
 
 		numbers_list = []
 		can_whatsapp_list = []

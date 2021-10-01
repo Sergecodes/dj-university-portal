@@ -1,4 +1,3 @@
-import bleach
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.conf import settings
@@ -14,6 +13,7 @@ from taggit.managers import TaggableManager
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
 from core.model_fields import TitleCaseField
+from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
 from marketplace.models import Institution
 from users.models import get_dummy_user
@@ -41,7 +41,7 @@ class Comment(models.Model):
 	def __str__(self):
 		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
 		# see answer with textwrap.shorten ..
-		return filters.truncatewords_html(self.content, 10)
+		return filters.truncatewords(remove_tags(self.content), 10)
 
 	@property
 	def parent_object(self):
@@ -183,7 +183,7 @@ class Answer(models.Model):
 		abstract = True
 
 	def __str__(self):
-		return filters.truncatewords_html(self.content, 10)
+		return filters.truncatewords(remove_tags(self.content), 10)
 
 	@property
 	def parent_object(self):
@@ -377,7 +377,7 @@ class SchoolQuestion(Question):
 		]
 
 	def __str__(self):
-		return filters.truncatewords_html(self.content, 10)
+		return filters.truncatewords(remove_tags(self.content), 10)
 
 	def get_absolute_url(self):
 		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})

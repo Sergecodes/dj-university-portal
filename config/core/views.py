@@ -2,9 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
 from django.views.generic.base import TemplateView
 
-from core.models import Notification
 from lost_and_found.models import LostItem, FoundItem
 from marketplace.models import ItemListing, AdListing
+from notifications.models import Notification
 from past_papers.models import PastPaper
 from qa_site.models import (
 	AcademicQuestion, SchoolQuestion,
@@ -129,32 +129,35 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		user = self.request.user
 
 		# get reported notifs for moderators
-		if user.is_mod:
-			# note that the attribute `target` can't be used for querying;
-			# generic relation specs... xD lol
-			reported_notifs = user.notifications.filter(
-				category=Notification.REPORTED, 
-				absolved=False
-			)
-			context['reported_notifs'] = reported_notifs
+		# if user.is_mod:
+		# 	# note that the attribute `target` can't be used for querying;
+		# 	# generic relation specs... xD lol
+		# 	reported_notifs = user.notifications.filter(
+		# 		category=Notification.REPORTED, 
+		# 		absolved=False
+		# 	)
+		# 	context['reported_notifs'] = reported_notifs
 			
 		general_notifs = user.notifications.filter(category=Notification.GENERAL)
 		flags_notifs = user.notifications.filter(category=Notification.FLAG)
 		activities_notifs = user.notifications.filter(category=Notification.ACTIVITY)
-		mentions_notifs = user.notifications.filter(category=Notification.MENTION)
+		# mentions_notifs = user.notifications.filter(category=Notification.MENTION)
 		followings_notifs = user.notifications.filter(category=Notification.FOLLOWING)
+
+		context['activities_notifs'] = activities_notifs
+		context['followings_notifs'] = followings_notifs
 
 		## For cases where target posts may be included multiple times
 		## use a set to have single instances.
-		# activies (there may be many activies on a single post; eg likes, dislikes, comments...)
+		# activies (there may be many activities on a single post; eg likes, dislikes, comments...)
 		activities_notifs_targets = set()
 		for notif in activities_notifs:
 			activities_notifs_targets.add(notif.target)
 
 		# mentions (user can be mentioned many times under the same post)
-		mentions_notifs_targets = set()
-		for notif in mentions_notifs:
-			mentions_notifs_targets.add(notif.target)
+		# mentions_notifs_targets = set()
+		# for notif in mentions_notifs:
+		# 	mentions_notifs_targets.add(notif.target)
 
 		# followings (a single post can have multiple activities, and user will be notified multiple times)
 		followings_notifs_targets = set()
@@ -167,8 +170,19 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 
 		context['general_notifs'] = general_notifs
 		context['flags_notifs'] = flags_notifs
-		context['mentions_notifs_targets'] = mentions_notifs_targets
+		# context['mentions_notifs_targets'] = mentions_notifs_targets
 		context['activities_notifs_targets'] = activities_notifs_targets
 		context['followings_notifs_targets'] =  followings_notifs_targets
 		
 		return context
+
+	# def get(self, request, *args, **kwargs):
+	# 	return render(request, self.template_name, self.get_context_data())
+	
+	# def post(self, request, *args, **kwargs):
+	# 	POST, user = request.POST, request.user
+
+	# 	if 'mark_as_read' in POST:
+	# 		notif_id = POST.get('notif_id')
+	# 		notif = get_object_or_404(user.notifications.unread(), id=notif_id)
+

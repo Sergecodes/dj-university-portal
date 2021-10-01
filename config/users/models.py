@@ -7,7 +7,6 @@ from django.db import models
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from notifications.signals import notify
 
 from core.constants import (
 	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
@@ -20,10 +19,11 @@ from core.constants import (
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
-from core.models import Notification
 from core.model_fields import LowerCaseEmailField, TitleCaseField
 from core.utils import parse_phone_number
 from flagging.models import Flag
+from notifications.models import Notification
+from notifications.signals import notify
 from .managers import UserManager, ModeratorManager, StaffManager
 from .validators import validate_full_name
 

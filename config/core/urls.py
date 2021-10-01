@@ -1,8 +1,7 @@
-from django.conf import settings
-from django.urls import path, include
+from django.urls import path
 
 from .ajax_views import PhotoUploadView
-from .views import HomePageView
+
 
 app_name = 'core'
 

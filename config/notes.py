@@ -1,143 +1,117 @@
 # I either give an order or my point of view. I don't give advices. - Draco
 # Don't get that twisted
-# camerschools ?? - yep
 
-# geeksforgeeks.org/built-in-custom-model-managers-in-django	
+Oct 1:
+	- insert logo
+	-also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
+	- social_profile_detail.html page. 
+	- send notification to new user... with camerschools profile nd link to site rules.
+	- account for 'googlemail.com' & gmail.com. replace googlemail in email.. with gmail # NormalizedEmailField
+	- enforce email verification on account signup 
+	- tell user his age/birth date and phone number won't be visible to other users.
+	tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
+	- update user profile/dashboard accordingly (following, bookmarks, etc..;  add my answers(aca and school-based) and my bookmarked questions.)
+	- in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
+	* users app:
+		- remaining front end validations (full name, )
+		- backend validations
 
-todo:
-		Sep 
-			- update user profile/dashboard accordingly (following, bookmarks, etc..)
-			- social_profile_detail.html page. upon clicking on the name of a user, go to this page.
-			
-			- update requested item model. add category, subcategory, translations, etc.. just like ad-listing.
-			
-		- username @username ... mentions 
-		- send notification to new user... with camerschools profile nd site rules.
+Oct 2:
+	- add 'FCFA' text after price input box.
+	- in item/ad listing, make tab items clickable (links.)
+	- create a general usage page where each section of the site will be explained. eg. Questions:
+	- add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
+	- remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow).
+	- add view_count field. update when object is visited. don't increment view count if owner visite post.
+	- add asterisk after condition_description when condition changes. (to show the description is required)
+	- apply style to current nav link.
+	- convert all lists with div to ul > li; 
+	- say that all fields marked or ending with * are required.
 
-- account for 'googlemail.com' & gmail.com. replace googlemail in email.. with gmail # NormalizedEmailField
+Oct 3:
+	- notify followers when qa_site post is updated..
+	- wide site search feature.
+	- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
+	- backgound-color on filter forms(see ex form marketplace )
+	- enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
+	- remove confirm password field, implement show password checkbox
+	- create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
+	- finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
+	- append (- CamerSchools) to title of each page. apparently, sites like myschool and SO do this.
+	- add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
+
+Oct 4:
+
+
+# - username @username ... mentions 
+# - don't do sharing for now, since site is not fully operational..
 - enable moderator see number of flags of a post. (notifications template. also on detail page ?)
 - convert pagination template to template that can be included.
-- remove flag form from template if user is post owner. also modify view accordingly
-- notify followers when qa_site post is updated..
-- after 24hrs, votes can't be recalled.
-- share links on detail pages
-- user shouldn't be able to flag his post, implement even in backend
-- change the flag alert div to a toast. (create custom info toast...)
-- add view_count field. update when object is visited. don't increment view count if owner visite post.
-- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
-- apply style to current nav link.
-- add repost(relist) button near posts older than x days.
-- num of characters limit control, ckeditor, comments, questions, etc..
-- don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
-- in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
-- for any textarea that can't be resized (horizontally), try removing the width on the font-control class.. eg. ckeditor
-- create a general usage page where each section of the site will be explained. eg. Questions:
-- if user is authed, on header, change profile icon to his profile image. 
-- remove all exceptions raised in server-side, apart from in forms. (assert and raise)
-# - remove duration from listings for now right... perhaps implement in future. yep.
-- you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
-- convert all lists with div to ul > li; 
-- add select_related... on filter views. (overriden qs property)
-- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
-- make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block
-- convert index page each section to the other myschool format... (see screenshot in phone)
-# profile/qa site
-- insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
-- add my answers(aca and school-based) and my bookmarked questions.
-- abeg use prefetch_related and select_related in situations of duplicate queries ! !!!
-see example in profile/QA view.. there should be no duplicate queries on any page !!!
-- remove unneccessary margin and padding classes and use responsive ones such as me-sm-0, my-sm-2, etc...
-- in item/ad listing, make tab items clickable (links.)
-- show best users on both pc and mobile; display vertically on mobile.
-- tell user his age won't be visible to other users.
-- label pages sections for accessibility...
-- reduce size (height) of listing results.
-- wide site search (for search forms in header and footer)
-- initially, remove count of items. perhaps in future, will display count...
-- tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
-- remove tags from school questions ...? YEP!
-- before(above) each create view, create a sort of bootstrap alert that explains users the use ...; also say that all fields marked or ending with * are required.
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
-- when filtering, consider only 'unexpired' posts. (`is_outdated` field on all 'outdate-able' models.); also add an index on this field.
-- change all datetime_added fields to posted_datetime (for most models where it makes sense;). all models hould have this field. (datetime_added for moderator only models and posted_datetime for users.)
-- backgound-color on filter forms(see ex form marketplace )
-- optimize queries, especially on list view. selec_related on poster...
-- photo upload modal stuff too for past_papers site
-- enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
-- number of results when filtering.. ?
-# - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
-- remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow). in fact, tags to listings too using django-taggit
-- when listing forms have errors, ensure previously uploaded photos are maintained ! 
-- remove empty p tags from ck editor submitted texts.
-- one page for posts deletion.
-- place common models in core app such as Institution, PhoneNumber, 
-- add asterisk after condition_description when condition changes. (to show the description is required)
-- footer. check out font awesome's footer on mobile., ilost.co's footer too
-- try to set default for slug field in admin 
-- checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
+- make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block .. (if form.invalid .. in js)
+- place common models in core app such as Institution
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
--show loading icon during ajax request -django
-- add 'FCFA' text after price input box.
-- add this text before submit button (Your advert will be first reviewed by an admin before being published. Please ensure you abide by our terms, policies and the laws of the country. Myschool.com.ng reserves the right to NOT publish any item.)
-- create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
-- include means to refer to another user then commenting in qa_site app. eg. @sergeman you could better explain that. then sergeman should be notified... ?
-- create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
-- limit number of images in past paper upload...
-- all create forms should have shadows. and other forms normal borders
-- socialize detail form should take visitor to socialize section of user's profile
-- style ckeditor widgets, height, add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
-- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
+# - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
-- add datetime and poster user name after each post of question detail page; check out <a class="badge bg-info">{{}}</a>
-- use ajax for username select ... 
-- send notification to user when he creates a form
-- translations !
--also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
-- for desktop, in question detail page, insert ck editor directly. on mobile, user should click a button before the widget should be displayed... ?
-- append (- CamerEcole) to title of each page. apparently, sites like myschool and SO do this.
-- add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
-- show help videos; e.g. how to add an image in ckedifor widget
-- add 'draft your question advice' like stackoverflow in question creation form... ?
-- add 'send_notification' field to form/model (questions creation)(exactly like myschool)..
-- messages framework django..
-- add sorting by price and date  in item listing page like jumia and myschool
-- infinite scroll on mobile only in item listing page like jumia. use https://stackoverflow.com/a/45717542/10526469 pagination on mobile ?... .. bootstrap position fixed bar..
-	. if i.is_lastnumber_in_list and i < total_num_pages;
-		generate new pagination menu with i placed first and set i as active.
-		followed by next items.
-	(drop infinite scroll if too difficult or time contrained.)
+- constraint on file size (maybe max 1MB)
+- google translations !
+- aws file serving
+# - cached property (with ttl) package is a must ! especially for complex computations.(in future)
+# - use ajax for username select ... 
+# - after 24hrs, votes can't be recalled.
+- share links on detail pages
+# - change the flag alert div to a toast. (create custom info toast...)
+- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
+# - add repost(relist) button near posts older than x days.
+# - num of characters limit control, ckeditor, comments, questions, etc..
+# - don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
+# - if user is authed, on header, change profile icon to his profile image. 
+# - remove duration from listings for now right... perhaps implement in future. yep.
+# - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
+# - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
+# - show best users on both pc and mobile; display vertically on mobile.
+# - wide site search (for search forms in header and footer)  - add placeholder ("I'm not yet working")..
+# - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; 
+
+# - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
+# - remove empty p tags from ck editor submitted texts.
+# - footer. check out font awesome's footer on mobile., ilost.co's footer too
+# - try to set default for slug field in admin 
+# - checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
+# -show loading icon during ajax request -django
+# - make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
+# - create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
+# - all create forms should have shadows. and other forms normal borders
+# - show help videos; e.g. how to add an image in ckedifor widget
+# - add 'draft your question advice' like stackoverflow in question creation form... ?
+# - add sorting by price and date  in item listing page like jumia and myschool
+
+
+# - infinite scroll on mobile only in item listing page like jumia. use https://stackoverflow.com/a/45717542/10526469 pagination on mobile ?... .. bootstrap position fixed bar..
+# 	. if i.is_lastnumber_in_list and i < total_num_pages;
+# 		generate new pagination menu with i placed first and set i as active.
+# 		followed by next items.
+# 	(drop infinite scroll if too difficult or time contrained.)
 # yaiero/tagify for tags.... 	stackoverflow.com/q/10839570/10526469
 # - in listing detail page, print price in words on hover over.(tooltip. see num2words library)
-- finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
 
-- constraint on file size (maybe max 1MB)
-- minimum length constraints
-- remove confirm password field, implement show password checkbox
 
-- test with codecov(codecoverage)
+# - test with codecov(codecoverage)
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
 easy_thumbnails, pillow
 jquery validation plugin..
 
-- eventually students projects. support for ranking too
-
-TODO: users app:
-- remaining front end validations (full name, )
-- backend validations
-- purge users db; enforce email verification on account signup (hence no captcha needed)  
-(in fact, i don't think site will need captcha.) nb: use only User.objects.create_user() to create new users
-
-- make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
+# - eventually students projects. support for ranking too
 
 
 ### redirect to next url.. ; use in class based views.  ###
-def get_success_url(self):
-	try:
-		next = self.request.GET['next']
-	except KeyError:
-		next = self.success_url
-	return next
+# def get_success_url(self):
+# 	try:
+# 		next = self.request.GET['next']
+# 	except KeyError:
+# 		next = self.success_url
+# 	return next
 
 ### to get users tags from question creation form,  ###
 user enters 'tag1, tag2,   tag3'
@@ -153,14 +127,6 @@ tags_list = tags.replace(' ', '').split(',')
 # returns tags_list = ['tag1', 'tag2', 'tag3']
 
 # django-anymail, django-mailer,
-
-
-# to enable getting the items that a user has bookmarked(user.bookmarked_items) and also probably the number of people that have bookmarked a user's item ?
-# TODO owners won't be able to see those who bookmarked their posts, (but may see number of bookmarks?)
-# means if User is deleted, set  it/bookmarker(User) to NULL
-
-
-- cached property (with ttl) package is a must ! especially for complex computations.(in future)
 
 
 

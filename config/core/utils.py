@@ -23,11 +23,14 @@ def parse_phone_number(tel):
 	Appropriately print a phone number.
 	For an odd number, separate figures before printing.
 	For an even number, return same number.
+	Number should normally be odd.(like 6 51 20 98 98)
 	e.g. 651234566(odd number) should return 6 51 23 45 66
 	"""
+	# if number is even, return it
 	if len(tel) % 2 == 0:
 		return tel
 	
+	# if number is odd, stylize it.
 	result = tel[0]
 	n = len(tel)
 

@@ -36,13 +36,13 @@
 			<form method="get" class="p-3 m-3 border requested-items-search-form">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group col-sm-6">
 						{{ form.school|as_crispy_field }}
 					</div>
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group col-sm-6">
 						{{ form.category|as_crispy_field }}
 					</div>
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group">
 						{{ form.item_requested|as_crispy_field }}
 					</div>
 				{% endwith %}
