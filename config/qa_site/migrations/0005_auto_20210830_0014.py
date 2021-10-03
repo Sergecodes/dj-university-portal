@@ -14,16 +14,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='subject',
             name='name',
-            field=core.model_fields.TitleCaseField(max_length=30, unique=True),
+            field=core.model_fields.FullNameField(max_length=30, unique=True),
         ),
         migrations.AlterField(
             model_name='subject',
             name='name_en',
-            field=core.model_fields.TitleCaseField(max_length=30, null=True, unique=True),
+            field=core.model_fields.FullNameField(max_length=30, null=True, unique=True),
         ),
         migrations.AlterField(
             model_name='subject',
             name='name_fr',
-            field=core.model_fields.TitleCaseField(max_length=30, null=True, unique=True),
+            field=core.model_fields.FullNameField(max_length=30, null=True, unique=True),
         ),
     ]

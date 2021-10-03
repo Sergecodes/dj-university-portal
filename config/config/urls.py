@@ -21,7 +21,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
-from core.views import HomePageView, NotificationsView
+from core import views
 
 
 urlpatterns = [
@@ -31,15 +31,13 @@ urlpatterns = [
 # i18n_patterns can only be used in a root urlconf file, 
 # will throw ImproperlyConfigured error if used in an included URLconf
 urlpatterns += i18n_patterns(
-    path('', HomePageView.as_view(), name='home'),
+    path('', include('core.urls', namespace='core')),
     path(_('admin/'), admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
-    path(_('core/'), include('core.urls', namespace='core')),
     path(_('flag/'), include('flagging.urls', namespace='flagging')),  
     path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
     path(_('lost-and-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
-    path(_('my-notifications/'), NotificationsView.as_view(), name='my-notifs'),
     path(_('notifications/'), include('notifications.urls', namespace='notifications')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
     path(_('questions/'), include('qa_site.urls', namespace='qa_site')),

@@ -1,23 +1,33 @@
+from django.conf import settings
 from django.contrib.auth import (
-	authenticate, 
-	login, 
-	logout,
+	authenticate, login, logout,
 	get_user_model
 )
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.tokens import PasswordResetTokenGenerator 
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.views import logout_then_login
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db.models.query import Prefetch
-from django.http.response import HttpResponseRedirect
-from django.shortcuts import  redirect
+from django.http.response import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
+from core.constants import PHONE_NUMBERS_KEY
 from qa_site.models import SchoolAnswer, AcademicAnswer
+from users.models import PhoneNumber
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
 	UserCreationForm, UserUpdateForm
 )
 
+account_activation_token = PasswordResetTokenGenerator()
 User = get_user_model()
 
 
@@ -41,10 +51,11 @@ class UserCreate(CreateView):
 	def get(self, request, *args, **kwargs):
 		"""
 		Prevent currently logged in users from calling the register method without logging out.
-		i.e. only unauthed users can access this view..
+		i.e Redirect them to index page.
+		Only unauthed users can access this method..
 		"""
-		# just for testing, don't forget to remove this.  todo
-		if request.user.is_authenticated and request.user.username == 'sergeman':
+		# just for testing, don't forget to remove this super user stuff.  TODO
+		if request.user.is_authenticated and request.user.is_superuser:
 			return super().get(request, *args, **kwargs)
 
 		if request.user.is_authenticated:
@@ -54,22 +65,42 @@ class UserCreate(CreateView):
 
 	def form_valid(self, form, phone_number_formset):
 		# this method is called when the form has been successfully validated
-		request = self.request
-
-		# with transaction.atomic():
-		self.object = form.save()
-		new_user = self.object
+		# also accounts for sending confirmation email to user.
+		request, new_user = self.request, form.save()
 		
+		# compose and send email verification mail
+		mail_subject = _('Activate your account.')
+		message = render_to_string('users/auth/email_confirm.html', {
+			'user': new_user,
+			'domain': get_current_site(request).domain,
+			'uid': urlsafe_base64_encode(force_bytes(new_user.pk)),
+			'token': account_activation_token.make_token(new_user)
+		})
+		to_email = new_user.email
+		send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [to_email])
+		
+		# store phone numbers in session
+		phone_numbers_list = []
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
-			phone_number.owner = new_user
-			phone_number.save()
-		
-		# log new user in
-		login(request, new_user)
+			phone_number_dict = {
+				'operator': phone_number.operator,
+				'number': phone_number.number,
+				'can_whatsapp': phone_number.can_whatsapp
+			}
+			phone_numbers_list.append(phone_number_dict)
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(self.get_success_url())
+		request.session[PHONE_NUMBERS_KEY] = phone_numbers_list
+		print(request.session.items())
+
+		# for number_form in phone_number_formset:
+		# 	phone_number = number_form.save(commit=False)
+		# 	phone_number.owner = new_user
+		# 	phone_number.save()
+
+		return HttpResponse(
+			_('Please confirm your email address to complete the registration')
+		)
 
 	def get_context_data(self, **kwargs):
 		data = super().get_context_data(**kwargs)
@@ -77,6 +108,38 @@ class UserCreate(CreateView):
 		# add the phone_number formset to this view's context
 		data['formset'] = PhoneNumberFormset(self.request.POST or None)
 		return data
+
+
+def activate_account(request, uidb64, token):
+	"""Activate user account from email confirmation link"""
+	try:
+		uid = force_text(urlsafe_base64_decode(uidb64))
+		user = User.objects.get(pk=uid)
+	except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+		user = None
+	
+	if user is not None and account_activation_token.check_token(user, token):
+		user.is_active = True
+		user.save()
+
+		# retrieve phone numbers from session and assign to user
+		phone_numbers = request.session.get(PHONE_NUMBERS_KEY, [])
+		print(phone_numbers)
+		if not phone_numbers:
+			return HttpResponseBadRequest(_('No phone numbers registered.'))
+
+		for number_dict in phone_numbers:
+			number = PhoneNumber(**number_dict)
+			number.owner = user
+			number.save()
+
+		return HttpResponse(
+			_('You have successfully confirmed your email. Now you can log into your account')
+		)
+	else:
+		return HttpResponse(
+			_('Activation link is invalid. Sign up again so as to get a new link.')
+		)
 
 
 class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -100,12 +163,31 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		form = self.get_form()
 		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
 
+		# ensure email wasn't sent(email should not be in the form)
+		# email is included in list of form fields (UserUpdateForm),
+		# but it's marked disabled so it shouldn't be sent.
+		# it will be gotten from the object instance
+		# frontend prevention is done and this is for backend
+		print(form.fields)
+		print(request.POST)
+		if request.POST.get('email'):
+			print("Email was sent")
+			form.add_error(
+				'email', 
+				ValidationError(_("You can't change your email address"))
+			)
+		else:
+			print("All good, no email sent.")
+
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
 		else:
 			print(form.errors)
 			print(formset.errors)
-			return self.form_invalid(form)
+			if not form.is_valid():
+				return self.form_invalid(form)
+			elif not formset.is_valid():
+				return self.form_invalid(formset)
 
 	def form_valid(self, form, phone_number_formset):
 		# with transaction.atomic():
@@ -123,9 +205,9 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
-		return HttpResponseRedirect(user.get_absolute_url())
-		# return HttpResponseRedirect(reverse('users:view-profile', kwargs={'username': user.username}))
-		# return HttpResponseRedirect(self.get_success_url())
+		return redirect(user.get_absolute_url())
+		# return redirect(reverse('users:view-profile', kwargs={'username': user.username}))
+		# return redirect(self.get_success_url())
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -145,7 +227,6 @@ def logout_and_login(request):
 
 class Dashboard(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/dashboard.html"
-	# todo add notifications to context... to this page.
 
 
 class Marketplace(LoginRequiredMixin, TemplateView):

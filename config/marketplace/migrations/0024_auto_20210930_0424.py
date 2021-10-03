@@ -62,12 +62,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='adlisting',
             name='contact_email',
-            field=core.model_fields.LowerCaseEmailField(help_text='Email address to contact; enter a valid email.', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
+            field=core.model_fields.NormalizedEmailField(help_text='Email address to contact; enter a valid email.', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
         ),
         migrations.AlterField(
             model_name='adlisting',
             name='contact_name',
-            field=core.model_fields.TitleCaseField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=core.model_fields.FullNameField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
         ),
         migrations.AlterField(
             model_name='adlisting',
@@ -77,12 +77,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='itemlisting',
             name='contact_email',
-            field=core.model_fields.LowerCaseEmailField(help_text='Email address to contact; enter a valid email.', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
+            field=core.model_fields.NormalizedEmailField(help_text='Email address to contact; enter a valid email.', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
         ),
         migrations.AlterField(
             model_name='itemlisting',
             name='contact_name',
-            field=core.model_fields.TitleCaseField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=core.model_fields.FullNameField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
         ),
         migrations.AddIndex(
             model_name='adlisting',

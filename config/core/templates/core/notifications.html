@@ -22,7 +22,7 @@
 		<h2 class="text-success text-center mb-3">{% trans 'Notifications' %}</h2>
 
 		<!-- general notifications-->
-		<section class="mb-4">
+		<section class="mb-5">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans 'Inbox' %}
 			</h4>
@@ -71,7 +71,7 @@
 
 		<!-- users flagged posts -->
 		{% if flags_notifs %}
-		<section class="mb-4">
+		<section class="mb-5">
 			<h4 class="pb-1 border-bottom border-danger text-danger">
 				{% trans 'Reported Posts' %}
 			</h4>
@@ -103,7 +103,7 @@
 
 		<!-- display reported posts (moderators only) -->
 		{% comment %} {% if user.is_mod %}
-			<section class="mb-4">
+			<section class="mb-5">
 				<h4 class="pb-1 border-bottom border-success text-success">
 					{% trans 'Reported posts' %}
 				</h4>
@@ -143,7 +143,7 @@
 		{% endif %} {% endcomment %}
 
 		<!-- activities on user's posts -->
-		<section class="mb-4">
+		<section class="mb-5">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans "Posts Activities" %}
 			</h4>
@@ -204,7 +204,7 @@
 		</section>	
 
 		<!-- activities on following posts -->
-		<section class="mb-4">
+		<section class="mb-3">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans "Following Posts" %}
 			</h4>
@@ -251,7 +251,8 @@
 
 
 		<!-- mentions on user's posts -->
-		{% comment %} <section class="mb-4">
+		{% comment %} 
+		<section class="mb-3">
 			<h4 class="pb-1 border-bottom border-success text-success">
 				{% trans "Mentions" %}
 			</h4>
@@ -269,7 +270,8 @@
 			{% endfor %}
 		</section>	
 
-		{% trans 'When users mention you in comments, notifications will be displayed here.' %} {% endcomment %}
+		{% trans 'When users mention you in comments, notifications will be displayed here.' %} 
+		{% endcomment %}
 	</div>
 </div>
 {% endblock content %}

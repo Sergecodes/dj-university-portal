@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
-from core.models import Post
+from core.models import Post, Institution
 
 
 User = get_user_model()
@@ -231,7 +231,7 @@ class ItemListing(ListingPost):
 		related_query_name='item_listing'
 	)
 	school = models.ForeignKey(
-		'Institution',
+		Institution,
 		on_delete=models.CASCADE,
 		related_name='item_listings',
 		related_query_name='item_listing'
@@ -311,7 +311,7 @@ class AdListing(ListingPost):
 		max_length=40
 	)
 	school = models.ForeignKey(
-		'Institution',
+		Institution,
 		on_delete=models.CASCADE,
 		related_name='ad_listings',
 		related_query_name='ad_listing',
@@ -340,18 +340,4 @@ class AdListing(ListingPost):
 			models.Index(fields=['-posted_datetime'])
 		]
 
-
-class Institution(models.Model):
-	# only staff can add school.
-	name = models.CharField(_('Name'), max_length=50, unique=True)
-	location = models.CharField(
-		_('Location'),
-		max_length=60,
-		help_text=_('Street or quarter where institution is located')
-	)
-	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-
-	def __str__(self):
-		return self.name
 

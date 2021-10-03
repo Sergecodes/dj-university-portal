@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, REQUESTED_ITEM_SUFFIX
-from core.mixins import GetObjectMixin
+from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos
 from .forms import RequestedItemForm
 from .mixins import CanDeleteRequestedItemMixin, CanEditRequestedItemMixin
@@ -113,7 +113,7 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 		# with the latter, you have to set some m2m stuff... (see super method for details.)
 		instance = form.instance	
 		instance.poster = user
-		instance.slug = slugify(instance.title)
+		instance.slug = slugify(instance.item_requested)
 		requested_item = form.save()
 		
 		## add phone numbers to requested_item(phone_numbers is a queryset)
@@ -155,16 +155,19 @@ class RequestedItemDelete(GetObjectMixin, CanDeleteRequestedItemMixin, DeleteVie
 
 
 class RequestedItemFilter(filters.FilterSet):
-	item_requested = filters.CharFilter(label=_('Keywords'), method='filter_title')
+	item_requested = filters.CharFilter(label=_('Keywords'), method='filter_item')
 
 	class Meta:
 		model = RequestedItem
 		fields = ['school', 'item_requested', 'category', ]
 
-	def filter_title(self, queryset, name, value):
+	def filter_item(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(
-			reduce(lambda x, y: x | y, [Q(item_requested__icontains=word) for word in value_list])
+			reduce(
+				lambda x, y: x | y, 
+				[Q(item_requested__icontains=word) for word in value_list]
+			)
 		)
 		
 		return qs
@@ -194,11 +197,15 @@ class RequestedItemList(FilterView):
 		return context
 
 
-class RequestedItemDetail(DetailView):
+class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = RequestedItem
 	template_name = 'requested_items/requested_item_detail.html'
 	context_object_name = 'requested_item'
 
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
+		
 	def get_context_data(self, **kwargs):
 		NUM_ITEMS = 4
 		context = super().get_context_data(**kwargs)

@@ -2,33 +2,26 @@
 # Don't get that twisted
 
 Oct 1:
-	- insert logo
-	-also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
-	- social_profile_detail.html page. 
-	- send notification to new user... with camerschools profile nd link to site rules.
-	- account for 'googlemail.com' & gmail.com. replace googlemail in email.. with gmail # NormalizedEmailField
-	- enforce email verification on account signup 
-	- tell user his age/birth date and phone number won't be visible to other users.
-	tell users during account creation that their phone numbers and other private stuff... won't be visible to other users . ; perhaps via help_text under the phone_numbers field.
 	- update user profile/dashboard accordingly (following, bookmarks, etc..;  add my answers(aca and school-based) and my bookmarked questions.)
-	- in the search forms, does searching for 'mercedes benz' give results containing only mercedes or benz respectively ? this should definitely be the case ! ensure this.
-	* users app:
-		- remaining front end validations (full name, )
-		- backend validations
+	- remaining front end validations (full name, username)
+	# -also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
+	- social_profile_detail.html page. 
+	# - send notification to new user... with camerschools profile nd link to site rules.
+	# - enforce email verification on account signup 
+	
 
 Oct 2:
-	- add 'FCFA' text after price input box.
-	- in item/ad listing, make tab items clickable (links.)
+	# - in item/ad listing, make tab items clickable (links.)
 	- create a general usage page where each section of the site will be explained. eg. Questions:
-	- add possibility to enter code, maths, where required !; add placeholder in ckeditor comment forms... i don't think placeholders will be possible. if not possible, add help text below 'Add a comment' button with desired content of placeholder; (see stackoverflow comment placeholder) 
-	- remove tags (SchoolQuestionTag) from SchoolQuestion model (i dont think its necessary). perhaps in future we'll need to add tags to questions (like stack overflow).
-	- add view_count field. update when object is visited. don't increment view count if owner visite post.
+	- say that all fields marked or ending with * are required.  (just include this in the site rules.
+	# - add possibility to enter code, maths, where required !;
+	# - update view_count when object is visited. don't increment view count if owner visits post.
 	- add asterisk after condition_description when condition changes. (to show the description is required)
-	- apply style to current nav link.
 	- convert all lists with div to ul > li; 
-	- say that all fields marked or ending with * are required.
+
 
 Oct 3:
+	- in social profile list(after filter), use (5 random users) insted of top ... users
 	- notify followers when qa_site post is updated..
 	- wide site search feature.
 	- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
@@ -40,6 +33,7 @@ Oct 3:
 	- append (- CamerSchools) to title of each page. apparently, sites like myschool and SO do this.
 	- add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
 
+
 Oct 4:
 
 
@@ -47,9 +41,26 @@ Oct 4:
 # - don't do sharing for now, since site is not fully operational..
 - enable moderator see number of flags of a post. (notifications template. also on detail page ?)
 - convert pagination template to template that can be included.
+- update views
+- bookmarking, sharing etc..
+- convert question tags to comma separated values.
+{
+	### to get users tags from question creation form,  ###
+	user enters 'tag1, tag2,   tag3'
+	tags = self.cleaned_data.get('tags')
+	correct_tags = ''
+	# validate: remove all other characters apart from comma.
+	# in frontend, tell user that tags will be correctly parsed. 
+	for char in tags:
+		if char is alphanumeric or char is comma or char is space:
+			correct_tags += char
+
+	tags_list = tags.replace(' ', '').split(',')
+	# returns tags_list = ['tag1', 'tag2', 'tag3']
+}
+
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
 - make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block .. (if form.invalid .. in js)
-- place common models in core app such as Institution
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
@@ -113,18 +124,6 @@ jquery validation plugin..
 # 		next = self.success_url
 # 	return next
 
-### to get users tags from question creation form,  ###
-user enters 'tag1, tag2,   tag3'
-tags = self.cleaned_data.get('tags')
-correct_tags = ''
-# validate: remove all other characters apart from comma.
-# in frontend, tell user that tags will be correctly parsed. 
-for char in tags:
-	if char is alphanumeric or char is comma or char is space:
-		correct_tags += char
-
-tags_list = tags.replace(' ', '').split(',')
-# returns tags_list = ['tag1', 'tag2', 'tag3']
 
 # django-anymail, django-mailer,
 

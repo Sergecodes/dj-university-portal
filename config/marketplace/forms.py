@@ -1,4 +1,5 @@
 from ckeditor.widgets import CKEditorWidget
+from crispy_forms.bootstrap import AppendedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
 	Layout, Row, Column,
@@ -9,8 +10,9 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
+from core.models import Institution
 from .models import (
-	ItemListing, AdListing, Institution, ItemSubCategory,
+	ItemListing, AdListing, ItemSubCategory,
 	ItemCategory, ItemListingPhoto, AdListingPhoto
 )
 
@@ -85,7 +87,7 @@ class ItemListingForm(forms.ModelForm):
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('Institution & Item Category'),
+			Fieldset(_('School & Item Category'),
 				'school',
 				Row(
 					Column('category', css_class='form-group col-md-6 mb-0'),
@@ -109,7 +111,7 @@ class ItemListingForm(forms.ModelForm):
 					'initial_photos': initial_photos
 				}),  
 				'description',
-				'price',
+				AppendedText('price', 'FCFA'),
 				css_class='mb-2'
 			),
 			Fieldset(_("Seller's Information"),
@@ -195,7 +197,7 @@ class AdListingForm(forms.ModelForm):
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('Institution & Advert Category'),
+			Fieldset(_('School & Advert Category'),
 				Row(
 					Column('school', css_class='form-group col-md-6 mb-0'),
 					Column('category', css_class='form-group col-md-6 mb-0'),

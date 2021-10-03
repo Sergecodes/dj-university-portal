@@ -1,6 +1,7 @@
 'use strict';
 
 var NAV_LINK_ACTIVE_COLOR = '#0e1e0a';
+var CURRENT_NAV_LINK_CLASS = 'nav-menu__link--current';
 var MIN_PASSWORD_LENGTH = 8;
 var MIN_LISTING_PHOTOS = 3;
 
@@ -16,21 +17,30 @@ function headerDropdownHover() {
 	var dropdownMenu = $(this).children(".dropdown-menu");
 	dropdownMenu.show();
 
-	var navLink = $(this).children("a:first-child");
-	navLink.css('color', NAV_LINK_ACTIVE_COLOR);
-	navLink.attr('aria-expanded', 'true');
+	var $navLink = $(this).children("a:first-child");
+	
+	// if nav link isn't for current page, set color...
+	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
+		$navLink.css('color', NAV_LINK_ACTIVE_COLOR);
+	}
+	$navLink.attr('aria-expanded', 'true');
 
 	if(dropdownMenu.is(":visible")) {
 		dropdownMenu.parent().toggleClass("show");
 	}
 }
 
+
 function headerDropdownClick() {
 	var dropdownMenu = $(this).children(".dropdown-menu");
 	dropdownMenu.show();
-	var navLink = $(this).children("a:first-child");
-	navLink.css('color', NAV_LINK_ACTIVE_COLOR);
-	navLink.attr('aria-expanded', 'true');
+	var $navLink = $(this).children("a:first-child");
+
+	// if nav link isn't for current page, set color...
+	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
+		$navLink.css('color', NAV_LINK_ACTIVE_COLOR);
+	}
+	$navLink.attr('aria-expanded', 'true');
 
 	// remove boostrap styles on visible dropdowns,
 	// these styles are applied to the style attribute
@@ -42,14 +52,20 @@ function headerDropdownClick() {
 	});
 }
 
+
 function headerDropdownMouseLeave(event) {
 	var dropdownMenu = $(this).children(".dropdown-menu");
 	dropdownMenu.hide();
 
-	var navLink = $(this).children("a:first-child");
-	navLink.css('color', 'white');
-	navLink.attr('aria-expanded', 'false');
+	var $navLink = $(this).children("a:first-child");
+
+	// if nav link isn't for current page, set color to white(default)
+	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
+		$navLink.css('color', 'white');
+	}
+	$navLink.attr('aria-expanded', 'false');
 }
+
 
 function headerAccountInfoHoverOrClick(event) {
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
@@ -67,6 +83,7 @@ function headerAccountInfoHoverOrClick(event) {
 	link.css('filter', 'drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px)');
 }
 
+
 function headerAccountInfoMouseLeave() {
 	// var dropdownMenu = $(this).children('.dropdown-menu-end');
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
@@ -77,6 +94,7 @@ function headerAccountInfoMouseLeave() {
 	link.attr('aria-expanded', 'false');
 	link.css('filter', '');
 }
+
 
 function loginDropdownHoverOrClick() {
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
@@ -91,15 +109,16 @@ function loginDropdownHoverOrClick() {
 	
 }
 
+
 function loginDropdownMouseLeave() {
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
 	dropdownMenu.removeClass("show");
 	dropdownMenu.hide();
 }
 
+
 /** 
  * Verify if val contains only numeric characters(digits). 
- * 
  * `val` string or number
  */
 function isNumeric(val) {
@@ -115,6 +134,29 @@ function hasOnlySpacesAndDigits(val) {
 	return /^(?=.*\d)[\d ]+$/.test(val);
 }
 
+/**
+ * Verify if username is valid.
+ * Username rules:
+	- Username should be between 4 to 15 characters and the first 4 characters must be letters.
+	- Username should not contain any symbols, dashes or spaces.
+	- All other characters are allowed(letters, numbers, hyphens and underscores).
+ */
+function validateUsername(username) {
+	return /^[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{,11}$/.test(username);
+}
+
+
+/**
+ * Verify if full name is valid.
+ * Full name rules:
+	- Full name can contain only letters and hyphens.
+	- It consists of two names separated by space(s).
+ */
+function validateFullName(fullName) {
+	return /^[A-ZÀ-Ÿa-z-]+[\s]+[A-ZÀ-Ÿa-z-]+$/.test(fullName);
+}
+
+
 /** 
  * Called when the signup or login forms are submitted. 
  * This is to ensure that at least one phone number supports WhatsApp
@@ -126,15 +168,27 @@ function signupAndEditSubmit(e) {
 	$container.text("");
 
 	var form = e.target, data = e.data;
-	var phoneNumOkay = false, passwordOkay = false, fullNameOkay = true;  // full name is true for now..
+	var usernameOkay = false, fullNameOkay = false;
+	var phoneNumOkay = false, passwordOkay = false;
 
 	// edit profile form has no password fields so just assume its password is okay.
 	if (form.name == 'edit-profile-form') {
 		passwordOkay = true;
 	}
 
-	/* Full name validation here */
+	/* Username validation here */
+	// var username = ...
+	// if (validateUsername(username)) {
+	// 		$container.append("<p>" + data.usernameError + "</p>");
+	// 	usernameOkay = true;
+	// }
 
+	/* Full name validation here */
+	// var fullName = ...
+	// if (validateFullName(fullName)) {
+		// $container.append("<p>" + data.fullNameError + "</p>");
+	// 	fullNameOkay = true;
+	// }
 
 	/* Password validation here  */
 	// prevent validation in edit form since it doesn't contain any password field
@@ -173,17 +227,18 @@ function signupAndEditSubmit(e) {
 		numbers.push(number);
 	})
 
+	// test if phone numbers are valid
 	phoneNumOkay = true;
 	for (var i = 0; i < numbers.length; i++) {
-		// if there is one invalid number
-		if(!hasOnlySpacesAndDigits(numbers[i])) {   // changed !isNumeric to !hasOnlySpacesAndDigits
+		if(!hasOnlySpacesAndDigits(numbers[i])) {  
 			phoneNumOkay = false;
 			$container.append("<p>" + data.phoneNumError + "</p>");
+			// if there is any invalid number, break loop
 			break;
 		}
 	}
 
-	// validate if numbers support WhatsApp
+	// validate if at least one number supports WhatsApp
 	var $checkboxes = $("tbody .checkboxinput");
 	var can_whatsapp_list = [];
 	$checkboxes.each(function() {
@@ -206,7 +261,7 @@ function signupAndEditSubmit(e) {
 	}
 	
 	// add alert styles if there were any errors
-	if (!phoneNumOkay || !passwordOkay || !fullNameOkay) {
+	if (!phoneNumOkay || !passwordOkay || !fullNameOkay || !usernameOkay) {
 		e.preventDefault();
 		$container.addClass('alert alert-danger');
 		alert(data.alertContent);
@@ -215,12 +270,13 @@ function signupAndEditSubmit(e) {
 		var topLink = document.querySelector("a[name='top']");
 		topLink.click();
 
-		// this appends the hash character ('#') to the url, so remove this character
+		// the previous click appends the hash character ('#') to the url, so remove this character
 		// see https://stackoverflow.com/a/28155967
 		window.history.replaceState({}, document.title, '.');
 	}
 
 }
+
 
 /**
  * Called when the item listing form is submitted.
@@ -269,6 +325,7 @@ function itemListingFormSubmit(e) {
 	}
 
 }
+
 
 /** 
  * Called when user selects another category in the listing category select menu
@@ -362,6 +419,7 @@ function expandImage(e) {
 	$expandedImg.attr({'src': img.src, 'alt': img.alt});
 }
 
+
 /**
  * Display toast telling user that he needs to be logged in.
  * Toast should be present in the html page
@@ -379,6 +437,7 @@ function displayLoginRequiredToast() {
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show(); 
 }
+
 
 /**
  * Display toast telling user that he can't vote for his post
@@ -398,6 +457,7 @@ function displayLoginRequiredToast() {
 	bsToast.show(); 
 }
 
+
 /**
  * Display toast telling user that an error occurred(generally an unexpected error)
  * Toast should be present in the html page
@@ -415,6 +475,7 @@ function displayLoginRequiredToast() {
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show(); 
 }
+
 
 /**
  * Display toast telling user that they have successfully bookmarked or unbookmarked a post
@@ -464,6 +525,7 @@ function displayLoginRequiredToast() {
 	bsToast.show(); 
 }
 
+
 /**
  * Display custom error message toast
  * Toast should be present in the html page
@@ -485,6 +547,7 @@ function displayLoginRequiredToast() {
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show(); 
 }
+
 
 /** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
 function init() {
@@ -513,6 +576,7 @@ function init() {
 	}
 }
 
+
 $window.on('resize', function() {
 	var $this = $(this);
 	var newWidth = $this.width();
@@ -532,6 +596,5 @@ $(document).ready(function() {
 	$languageSelect.on('change', function() {
 		$(this).closest('form').submit();
 	});
-
 
 });

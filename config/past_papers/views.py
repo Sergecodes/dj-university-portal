@@ -6,24 +6,24 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.paginator import Paginator
-from django.db.models import Prefetch
-from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Prefetch, Q
+from django.shortcuts import get_object_or_404, redirect
 from django.template.defaultfilters import slugify
-from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from functools import reduce
 
 from core.constants import (
 	PAST_PAPERS_UPLOAD_DIR, 
 	PAST_PAPERS_PHOTOS_UPLOAD_DIR,
 	PAST_PAPER_SUFFIX,
 )
+from core.mixins import GetObjectMixin, IncrementViewCountMixin 
 from core.utils import generate_pdf, get_photos
 from qa_site.models import Subject
-from .forms import PastPaperForm, PastPaperPhotoForm, CommentForm
+from .forms import PastPaperForm, CommentForm
 from .models import PastPaper, PastPaperPhoto, Subject
 
 
@@ -47,7 +47,8 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		form = self.get_form()
 		photos_list = request.session.get(user.username + PAST_PAPER_SUFFIX, [])
 
-		# this validation isn't done in the form's clean coz we won't have access to the request object to get the session
+		# these validations isn't done in the form's clean 
+		# coz we won't have access to the request object to get the session
 		file = request.FILES.get('file')
 
 		if file and photos_list:
@@ -75,7 +76,6 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 
 		# create photo instances pointing to the pre-created photos 
 		# recall that these photos are already in the file system
-		# can use bulk_create() since this model doesn't have any custom save method, etc..
 		for photo_name in photos_list:
 			photo_path = os.path.join(PAST_PAPERS_PHOTOS_UPLOAD_DIR, photo_name)
 			f = open(photo_path, 'rb')
@@ -92,8 +92,8 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 
 		# remove photos list from session 
 		request.session.pop(user.username + PAST_PAPER_SUFFIX, [])
-
-		return HttpResponseRedirect(past_paper.get_absolute_url())
+		
+		return redirect(past_paper)
 
 		'''
 		for photo_name in photos_list:
@@ -122,9 +122,8 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		'''
 
 
-
 @method_decorator(login_required, name='post')
-class PastPaperDetail(DetailView):
+class PastPaperDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = PastPaper
 	context_object_name = 'past_paper'
 
@@ -139,7 +138,11 @@ class PastPaperDetail(DetailView):
 			comment.poster = request.user
 			comment.save()
 
-		return HttpResponseRedirect(past_paper.get_absolute_url())
+		return redirect(past_paper.get_absolute_url())
+
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_SIMILAR_PAPERS = 5
@@ -173,17 +176,22 @@ class PastPaperDetail(DetailView):
 
 
 class PastPaperFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
 
 	class Meta:
 		model = PastPaper
 		fields = ['school', 'subject', 'level', 'title', ]
-
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-posted_datetime')
-
+	
+	def filter_title(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(title__icontains=word) for word in value_list]
+			)
+		)
+		
+		return qs
 
 class PastPaperList(FilterView):
 	model = PastPaper

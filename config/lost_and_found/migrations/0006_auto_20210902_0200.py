@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='founditem',
             name='contact_name',
-            field=core.model_fields.TitleCaseField(default='saf', help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=core.model_fields.FullNameField(default='saf', help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='lostitem',
             name='contact_name',
-            field=core.model_fields.TitleCaseField(default='dasf', help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=core.model_fields.FullNameField(default='dasf', help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
             preserve_default=False,
         ),
         migrations.AddField(

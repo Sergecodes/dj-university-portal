@@ -671,7 +671,9 @@
 		}
 
 		var $this = $(this);
-		$this.removeClass('d-inline-block');  // remove bootstrap class from element(class is used with the !important keyword so we need to remove it for the hide() method for it to work)
+		// remove bootstrap class from element(class is used with the !important keyword 
+		// so we need to remove it for the hide() method for it to work)
+		$this.removeClass('d-inline-block');  
 		$this.hide();
 		var $form = $this.next();
 		$form.removeClass('d-none');
@@ -684,25 +686,27 @@
 				$('#addQuestionCommentArea').ckeditor({
 					toolbar: 'Custom',
 					toolbar_Custom: [
-						['Bold', 'Italic', 'Link'],  // TODO code too
+						['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'], 
 					],
 					// width: '50%',
 					width: isMobile ? '100%' : '50%',
-
+					extraPlugins: 'codesnippet,eqneditor'
 				});
 				
 			} else if ($this.hasClass('js-add-answer-comment')) {
 				// if an add answer comment button is clicked
 				var $textArea = $form.find('textarea').first();
 				console.log($textArea);
-				// we can't use CKEDITOR.replace since it expects an element with a unique id, but we may have multiple answers hence multiple comment buttons...
+				// we can't use CKEDITOR.replace since it expects an element with a unique id, 
+				// but we may have multiple answers hence multiple comment buttons...
 				$textArea.ckeditor({
 					toolbar: 'Custom',
 					toolbar_Custom: [
-						['Bold', 'Italic', 'Link'],  // code too
+						['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'],
 					],
 					// width: '50%',
 					width: isMobile ? '100%' : '50%',
+					extraPlugins: 'codesnippet,eqneditor'
 				});
 
 			} else if ($this.hasClass('js-add-answer')) {

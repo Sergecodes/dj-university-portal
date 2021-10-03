@@ -15,11 +15,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='adlisting',
             name='contact_email',
-            field=core.model_fields.LowerCaseEmailField(help_text='Email address to contact; enter a valid email', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
+            field=core.model_fields.NormalizedEmailField(help_text='Email address to contact; enter a valid email', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
         ),
         migrations.AlterField(
             model_name='itemlisting',
             name='contact_email',
-            field=core.model_fields.LowerCaseEmailField(help_text='Email address to contact; enter a valid email', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
+            field=core.model_fields.NormalizedEmailField(help_text='Email address to contact; enter a valid email', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address'),
         ),
     ]

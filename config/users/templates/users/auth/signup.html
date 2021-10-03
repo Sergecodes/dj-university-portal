@@ -26,7 +26,9 @@
 			<!-- link used to send user to top of form if there are errors -->
 			<a href="#" name="top" class="d-none"></a>
 
-			<h2 class="text-center mb-4 user-form__heading">{% trans 'Create a CamerEcole Account' %}</h2>
+			<h2 class="text-center mb-4 user-form__heading">
+				{% trans 'Create your CamerSchools Account' %}
+			</h2>
 			<!-- javascript form errors -->
 			<div class="js-errors" role="alert"></div>
 
@@ -37,7 +39,8 @@
 				<span class="asteriskField">*</span>
 			</label>
 			<small id="hint_id_phoneNumbers" class="d-block form-text text-muted">
-				{% trans 'Enter at least one phone number. Phone numbers may contain only digits and spaces.' %}
+				{% trans 'Enter at least one phone number. Phone numbers may contain only digits and spaces.' %} <br>
+				{% trans "Your phone number(s) won't be shown to other users without your permission." %}
 			</small>
 			
 			<!-- Formset for entering phone number -->
@@ -96,6 +99,7 @@
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
 	<script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
 	<script type="text/javascript">
@@ -152,7 +156,8 @@
 			whatsAppError: "{% trans 'Enter at least one number that supports WhatsApp.' %}",
 			passwordError: "{% trans 'Password should contain at least 8 characters and should not be entirely numeric.' %}",
 			passwordMatchError: "{% trans 'Passwords do not match.' %}", 
-			fullNameError: "{% trans 'Full name should contain only letters and hyphen and there should be two names.' %}",
+			usernameError: "{% trans 'Enter a valid username. This value should be between 4 to 15 characters and the first 4 characters must be letters. <br> It should not contain any symbols, dashes or spaces. All other characters are allowed(letters, numbers, hyphens and underscores)' %}",
+			fullNameError: "{% trans 'Enter a valid full name. It should be two names separated by a space and each name may contain only letters or hyphens' %}",
 			alertContent: "{% trans 'Form contains some errors, correct them to continue.' %}",
 		}, signupAndEditSubmit);
 

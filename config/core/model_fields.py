@@ -1,4 +1,7 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+from core.utils import parse_email
 
 
 class ModifyingFieldDescriptor:
@@ -15,14 +18,12 @@ class ModifyingFieldDescriptor:
 		instance.__dict__[self.field.name] = self.field.to_python(value)
 
 
-class TitleCaseField(models.CharField):
+class FullNameField(models.CharField):
 	""" Convert string to title case. eg 'I am GOOD-yy => I Am Good-Yy """
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 	def to_python(self, value):
-		if not value:
-			return None
 		return value.title()
 
 	def contribute_to_class(self, cls, name, private_only=False):
@@ -30,13 +31,15 @@ class TitleCaseField(models.CharField):
 		setattr(cls, self.name, ModifyingFieldDescriptor(self))
 
 
-class LowerCaseEmailField(models.EmailField):
+class NormalizedEmailField(models.EmailField):
 	""" Override EmailField to convert emails to lowercase before saving """
+	description = _("Convert email to lowercase and convert 'googlemail' to 'gmail'.")
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 	def to_python(self, value):
-		return value.lower()
+		return parse_email(value)
 
 	def contribute_to_class(self, cls, name, private_only=False):
 		super().contribute_to_class(cls, name)

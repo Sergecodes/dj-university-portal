@@ -4,7 +4,7 @@ from modeltranslation.translator import (
 
 from .models import (
     AdCategory, ItemSubCategory, ItemCategory,
-    ItemListing, AdListing, Institution
+    ItemListing, AdListing
 )
 
 
@@ -38,11 +38,4 @@ class AdListingTransOptions(TransOptions):
 class ItemListingTransOptions(TransOptions):
     fields = ('title', 'slug', 'description', 'condition_description')
     # required_languages = ('en', 'fr')
-
-
-@register(Institution)
-class InstitutionTransOptions(TransOptions):
-    fields = ('name', )
-    # required_languages = ('en', 'fr')  name shouldn't be required in other languages because come school names
-    # might not have a translation. ex: SkyHigh ...
 

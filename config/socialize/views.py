@@ -1,24 +1,24 @@
-from datetime import timedelta, timezone
+import copy
 import django_filters as filters
+from datetime import timedelta, timezone
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django import forms
-from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View 
 from django.views.decorators.http import require_GET
-from django.views.generic import DetailView, ListView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic import DetailView
 
-from marketplace.models import Institution
+from core.mixins import IncrementViewCountMixin
+from core.models import Institution
 from past_papers.models import PastPaper
 from .forms import SocialProfileForm, SocialMediaFollowForm
-from .models import SocialProfile, SocialMediaFollow
+from .models import SocialProfile
 
 User = get_user_model()
 
@@ -26,7 +26,8 @@ User = get_user_model()
 class HasSocialProfileMixin(LoginRequiredMixin, UserPassesTestMixin):
 	def test_func(self):
 		if self.request.user.has_social_profile:
-			return True
+			return True	
+		return False
 
 
 class SocialProfileCreate(LoginRequiredMixin, View):
@@ -50,7 +51,7 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 			social_profile.original_language = get_language()
 			social_profile.save()
 			
-			return HttpResponseRedirect('/')
+			return redirect('/')
 
 		return render(request, self.template_name, {
 			'profile_form': social_profile_form,
@@ -63,11 +64,13 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 
 	def test_func(self):
 		"""
-		Restrict access to only users whose username is the current username and user should have a social profile.
+		Restrict access to only users whose username is the current username 
+		and user should have a social profile.
 		"""
 		user, passed_username = self.request.user, self.kwargs.get('username')
 		if user.username == passed_username and user.has_social_profile:
 			return True
+		return False
 
 	def get(self, request, *args, **kwargs):
 		# this will always be non-null coz there's a test to ensure only users with social profiles can access these methods
@@ -89,7 +92,7 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 			social_profile.social_media = social_media
 			social_profile.save()
 			
-			return HttpResponseRedirect('/')
+			return redirect('/')
 
 		return render(request, self.template_name, {
 			'profile_form': SocialProfileForm(POST, instance=object),
@@ -119,28 +122,34 @@ class SocialProfileFilter(filters.FilterSet):
 		('fr', _('French speaking'))
 	)
 
+	# get interested relations (do not include `not interested`.)
+	interested_relations = copy.deepcopy(SocialProfile.INTERESTED_RELATIONSHIPS)
+	interested_relations.pop(0)
+
 	name = filters.CharFilter(
 		field_name='user__full_name', 
 		label=_('Search by name:'), 
 		lookup_expr='icontains'
 	)
-	gender = filters.MultipleChoiceFilter(
-		widget=forms.CheckboxSelectMultiple(),
+	gender = filters.ChoiceFilter(
+		widget=forms.RadioSelect(),
 		choices=GENDERS,
 		label=_("I'm searching for:"),
-		method='filter_gender'
+		method='filter_gender',
+		empty_label=_('Any')
 	)
-	main_language = filters.MultipleChoiceFilter(
+	main_language = filters.ChoiceFilter(
 		label=_('Principal language'),
-		widget=forms.CheckboxSelectMultiple(),
+		widget=forms.RadioSelect(),
 		choices=LANGUAGE_CHOICES,
 		method='filter_language',
+		empty_label=_('Any')
 	)
 	age = filters.ChoiceFilter(
 		label=_('Between the age of:'), 
 		method='filter_age',
 		empty_label=None,
-		choices=AGE_CHOICES
+		choices=AGE_CHOICES,
 	)
 	school = filters.ModelChoiceFilter(
 		empty_label=_('All schools'),
@@ -153,14 +162,15 @@ class SocialProfileFilter(filters.FilterSet):
 	)
 	interest = filters.ChoiceFilter(
 		label=_('With special interest in:'),
-		choices=SocialProfile.INTERESTED_RELATIONSHIPS,
-		empty_label=_('Anything')
+		choices=interested_relations,
+		empty_label=_('Anything'),
+		method='filter_interest'
 	)
 	has_profile_image = filters.BooleanFilter(
 		widget=forms.CheckboxInput(),
 		label=_('Must have profile image'),
 		method='filter_dp',
-		help_text=_('<br>Note that most users do not have profile images')
+		help_text=_('<br>Most users do not have profile images')
 	)
 
 	class Meta:
@@ -173,8 +183,10 @@ class SocialProfileFilter(filters.FilterSet):
 
 	def filter_language(self, queryset, name, value):
 		# value will be a list containing the selected values
-		# also note that if a value for a given field isn't entered (for this MultipleChoiceFilter), it's filter method isn't run. cool.
-		return queryset.filter(user__first_language__in=value)		
+		# also note that if a value for a given field isn't entered (for this MultipleChoiceFilter),
+		# it's filter method isn't run. cool.
+		
+		return queryset.filter(user__first_language=value)		
 	
 	def filter_age(self, queryset, name, value):
 		now = timezone.now()
@@ -214,16 +226,24 @@ class SocialProfileFilter(filters.FilterSet):
 		return queryset
 
 	def filter_gender(self, queryset, name, value):
-		return queryset.filter(gender__in=value)
+		return queryset.filter(gender=value)
+
+	def filter_interest(self, queryset, name, value):
+		# if no value was passed (if user is filtering by 'Anything')
+		# exclude users that set this field to 'Not interested'. (val = 'none')
+		if not value or value == 'none':
+			return queryset.exclude(interested_relationship='none')
+		else:
+			return queryset.filter(interested_relationship=value)
 
 	@property
 	def qs(self):
 		parent = super().qs
-		# order results also to ensure consistent results for pagination as warned by django
+		# order results by user points
 		return parent.order_by('-user__site_points')
 
 
-class SocialProfileDetail(HasSocialProfileMixin, DetailView):
+class SocialProfileDetail(HasSocialProfileMixin, IncrementViewCountMixin, DetailView):
 	"""This view permits a user who has a social profile to view another user's social profile."""
 	# User's username will be used, hence use the User model
 	model = SocialProfile
@@ -232,8 +252,13 @@ class SocialProfileDetail(HasSocialProfileMixin, DetailView):
 	template_name = 'socialize/socialprofile_detail.html'
 
 	def get_object(self):
-		# directly return social profile since thanks to our mixin, we are sure user has social profile
+		# directly return social profile since thanks to our mixin, 
+		# we are sure user has social profile
 		return self.request.user.social_profile
+
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 
 @login_required

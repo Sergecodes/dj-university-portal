@@ -17,7 +17,7 @@ from core.constants import (
 	ITEM_LISTING_SUFFIX, AD_LISTING_SUFFIX,
 	MIN_ITEM_PHOTOS_LENGTH  # todo enforce this !
 )
-from core.mixins import GetObjectMixin
+from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos
 from flagging.models import Flag
 from .forms import ItemListingForm, AdListingForm
@@ -202,9 +202,13 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		return redirect(listing)
 
 
-class ItemListingDetail(DetailView):
+class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = ItemListing
 	context_object_name = 'listing'
+
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
@@ -267,11 +271,6 @@ class ItemListingFilter(filters.FilterSet):
 		)
 		print(qs) 
 		return qs
-
-	# @property
-	# def qs(self):
-	# 	parent = super().qs
-	# 	return parent.order_by('-posted_datetime')
 
 
 class ItemListingList(FilterView):
@@ -423,14 +422,18 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		return redirect(listing)
 
 
-class AdListingDetail(DetailView):
+class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = AdListing
 	template_name = 'marketplace/adlisting_detail.html'
 	context_object_name = 'listing'
 
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
+
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
-
+		
 		context = super().get_context_data(**kwargs)
 		listing = self.object
 		listing_photos = listing.photos.all()
@@ -465,7 +468,7 @@ class AdListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 
 
 class AdListingFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Advert keywords'), method='filter_title')
+	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
 
 	class Meta:
 		model = AdListing
@@ -474,7 +477,10 @@ class AdListingFilter(filters.FilterSet):
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(
-			reduce(lambda x, y: x | y, [Q(title__icontains=word) for word in value_list])
+			reduce(
+				lambda x, y: x | y, 
+				[Q(title__icontains=word) for word in value_list]
+			)
 		)
 		
 		return qs

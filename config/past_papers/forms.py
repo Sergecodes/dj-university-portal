@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.forms import PhotoFormLayout
-from marketplace.models import Institution
+from core.models import Institution
 from qa_site.models import Subject
 from .models import PastPaper, PastPaperPhoto, Comment
 

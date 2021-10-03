@@ -14,7 +14,19 @@ EXTERNAL_LINK_SVG = ' \
 	</svg>'
 EXTERNAL_LINK_ICON = '<i class="fas fa-external-link-alt ms-2" aria-hidden="true"></i>'
 
+GENDERS = (
+	('M', _('Male')), 
+	('F', _('Female'))   
+)
 
+
+CAMERSCHOOLS_USERNAME = 'CamerSchools'
+CAMERSCHOOLS_EMAIL = 'camerschools@gmail.com'  # professional email of course..
+CAMERSCHOOLS_PASSWORD = 'password'
+
+## SESSION KEYS
+# used in the UserCreateView to save a user's phone numbers in the session
+PHONE_NUMBERS_KEY = 'phone_numbers_list'
 # Photo upload key suffixes (for session)
 ITEM_LISTING_SUFFIX = '_itemlisting_photos'
 AD_LISTING_SUFFIX = '_adlisting_photos'

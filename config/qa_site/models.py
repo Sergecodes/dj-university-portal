@@ -12,10 +12,10 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
-from core.model_fields import TitleCaseField
+from core.models import Institution
+from core.model_fields import FullNameField
 from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
-from marketplace.models import Institution
 from users.models import get_dummy_user
 
 User = get_user_model()
@@ -270,7 +270,7 @@ class Question(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
-	# view_count = models.PositiveIntegerField(default=0)
+	view_count = models.PositiveIntegerField(default=0)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)
 
@@ -298,36 +298,13 @@ class Question(models.Model):
 		return self.upvote_count - self.downvote_count
 
 
-class SchoolQuestionTag(models.Model):
-	"""Used to define the tags for a school question."""
-	# Tags include words like  registration, fees, etc...
-	name = models.CharField(max_length=30, unique=True) 
-	slug = models.SlugField(max_length=100) 
-	datetime_added = models.DateTimeField(auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-
-	def save(self, *args, **kwargs):
-		if not self.id:
-			self.slug = slugify(self.name)
-		super().save(*args, **kwargs)
-
-	def __str__(self):
-		return self.name.lower()
-
-	class Meta:
-		ordering = ['name']
-		indexes = [
-			models.Index(fields=['name'])
-		]
-	
-
 class SchoolQuestion(Question):
+	# no title for school question...
+	# school questions are generally short and straight forward,
+	# so instead of creating a title field, 
+	# in which case some users will optionally and rarely fill the content field,
+	# just use a one-size-fits-all content field.
 	content = RichTextUploadingField(config_name='add_question')
-	tags = models.ManyToManyField(
-		SchoolQuestionTag,
-		related_name='school_questions',
-		related_query_name='school_question'
-	)
 	school = models.ForeignKey(
 		Institution,
 		on_delete=models.CASCADE,
@@ -367,6 +344,11 @@ class SchoolQuestion(Question):
 		related_query_name='bookmarked_school_question',
 		blank=True
 	)
+	# tags = models.ManyToManyField(
+	# 	SchoolQuestionTag,
+	# 	related_name='school_questions',
+	# 	related_query_name='school_question'
+	# )
 
 	class Meta:
 		verbose_name = _('School Question')
@@ -458,7 +440,7 @@ class AcademicQuestion(Question):
 class Subject(models.Model):
 	"""Subject for academic question"""
 	# name = models.CharField(max_length=40, unique=True) 
-	name = TitleCaseField(max_length=30, unique=True)
+	name = FullNameField(max_length=30, unique=True)
 	slug = models.SlugField(max_length=200)
 	datetime_added = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -473,17 +455,27 @@ class Subject(models.Model):
 		return self.name
 
 
-# class Topic(models.Model):
-# 	"""Acts as a sub category for the Subject"""
-# 	name = models.CharField(max_length=50, unique=True) 
-# 	subject = models.ForeignKey(
-# 		Subject,
-# 		on_delete=models.PROTECT,
-# 		related_name='topics',
-# 		related_query_name='topic'
-# 	)
+
+
+# class SchoolQuestionTag(models.Model):
+# 	"""Used to define the tags for a school question."""
+# 	# Tags include words like  registration, fees, etc...
+# 	name = models.CharField(max_length=30, unique=True) 
+# 	slug = models.SlugField(max_length=100) 
+# 	datetime_added = models.DateTimeField(auto_now_add=True)
+# 	last_modified = models.DateTimeField(auto_now=True)
+
+# 	def save(self, *args, **kwargs):
+# 		if not self.id:
+# 			self.slug = slugify(self.name)
+# 		super().save(*args, **kwargs)
 
 # 	def __str__(self):
-# 		return self.name
+# 		return self.name.lower()
 
-
+# 	class Meta:
+# 		ordering = ['name']
+# 		indexes = [
+# 			models.Index(fields=['name'])
+# 		]
+	

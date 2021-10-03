@@ -50,8 +50,8 @@ img {
 	align-items: center;
 }
 
-.logo {
-	text-align: center;
+.logo__img {
+	width: 260px;
 }
 
 .notifier-circle {
@@ -96,6 +96,12 @@ img {
 .nav-menu__link:hover {
 	color: #0e1e0a;  /* dark */
 	/* color: #f0cb46; */
+}
+
+.nav-menu__link--current,
+.nav-menu__link--current:focus,
+.nav-menu__link--current:hover {
+	color: black;
 }
 
 

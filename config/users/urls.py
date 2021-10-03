@@ -1,5 +1,5 @@
 from django.contrib.auth import views as auth_views
-from django.urls import path, re_path, include, reverse_lazy
+from django.urls import path, include, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from . import views
@@ -22,6 +22,7 @@ profile_patterns = [
 urlpatterns = [
 	path(_('profile/'), include(profile_patterns)),
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
+	path(_('confirm-email/<uidb64>/<token>/'), views.activate_account, name='account-activate'),
 	path(
 		_('login/'),
 		auth_views.LoginView.as_view(

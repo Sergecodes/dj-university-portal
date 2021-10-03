@@ -28,9 +28,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('email', core.model_fields.LowerCaseEmailField(error_messages={'unique': 'A user with that email already exists.'}, help_text='We will send a verification code to this email', max_length=50, unique=True, validators=[django.core.validators.EmailValidator()], verbose_name='Email address')),
+                ('email', core.model_fields.NormalizedEmailField(error_messages={'unique': 'A user with that email already exists.'}, help_text='We will send a verification code to this email', max_length=50, unique=True, validators=[django.core.validators.EmailValidator()], verbose_name='Email address')),
                 ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='This name will be used in the questions/answers site, you can always change it later.', max_length=15, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='Username')),
-                ('full_name', core.model_fields.TitleCaseField(help_text='Two of your names will be okay. Please enter your real names.', max_length=25, validators=[users.validators.validate_full_name], verbose_name='Full name')),
+                ('full_name', core.model_fields.FullNameField(help_text='Two of your names will be okay. Please enter your real names.', max_length=25, validators=[], verbose_name='Full name')),
                 ('first_language', models.CharField(choices=[('en', 'English'), ('fr', 'French')], default='fr', help_text="Your preferred language. Don't worry, you can always view the site in another language.", max_length=3, verbose_name='First language')),
                 ('gender', models.CharField(choices=[('M', 'Male'), ('F', 'Female')], default='M', max_length=2, verbose_name='Gender')),
                 ('site_points', models.PositiveIntegerField(default=5, verbose_name='Site points')),

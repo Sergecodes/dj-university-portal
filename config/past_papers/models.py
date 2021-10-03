@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from flagging.models import Flag
 
 from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
-from marketplace.models import Institution
+from core.models import Institution
 from qa_site.models import Subject
 from users.models import get_dummy_user
 
@@ -35,7 +35,7 @@ class PastPaperPhoto(models.Model):
 		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
 		"""
 		import os
-
+		
 		return os.path.basename(self.file.name)
 
 	@cached_property
@@ -146,6 +146,7 @@ class PastPaper(models.Model):
 	# those with null=True will be considered as revision papers..
 	written_date = models.DateField(null=True, blank=True)  # when the past paper was written..
 	default_language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
+	view_count = models.PositiveIntegerField(default=0)
 
 	def __str__(self):
 		return self.title

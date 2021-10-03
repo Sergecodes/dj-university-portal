@@ -1,7 +1,6 @@
 import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import validate_email
 from django.db import models
 from django.db.models import F
@@ -9,23 +8,22 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
-	DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
-	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE, IS_BAD_USER_POINTS,
+	GENDERS, DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS,
+	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE,
 	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE,
-	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, 
+	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, COMMENT_CAN_EDIT_UPVOTE_LIMIT,
 	MAX_ANSWERS_PER_USER_PER_QUESTION, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT,
 	QUESTION_CAN_EDIT_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT,
-	COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT,
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
-from core.model_fields import LowerCaseEmailField, TitleCaseField
+from core.model_fields import NormalizedEmailField, FullNameField
 from core.utils import parse_phone_number
 from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
 from .managers import UserManager, ModeratorManager, StaffManager
-from .validators import validate_full_name
+from .validators import FullNameValidator, UsernameValidator
 
 
 def get_dummy_user():
@@ -33,12 +31,15 @@ def get_dummy_user():
 	Dummy user to use as owner of posts that belong to deleted users.
 	Normally, users accounts should note be deletable, but can be deactivated(set is_active=False)
 	"""
+	password = 'deleted-user-password'
+
 	return User.objects.get_or_create(
 		username='deleted',
 		email=DELETED_USER_EMAIL,
 		defaults={
-			'password': str(uuid.uuid4()), 
-			'is_active': False
+			'password': password, 
+			'is_active': False,
+			'full_name': 'Deleted User'
 		}
 	)[0]
 
@@ -73,18 +74,12 @@ class PhoneNumber(models.Model):
 		return f"{parse_phone_number(self.number)}, {self.operator}, {_('No WhatsApp')}"
 
 	class Meta:
-		# unique_together = ("content_type", "object_id")
 		verbose_name = _("Phone Number")
 		verbose_name_plural = _("Phone Numbers")
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-	GENDERS = (
-		('M', _('Male')),
-		('F', _('Female'))
-	)
-
-	email = LowerCaseEmailField(
+	email = NormalizedEmailField(
 		_('Email address'),
 		max_length=50,
 		unique=True,
@@ -99,17 +94,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 		_('Username'),
 		max_length=15,
 		unique=True,
-		help_text=_('This could be your nickname. You can always change it later.'),
+		help_text=_(
+			'Your username should be between 4 to 15 characters and the first 4 characters must be letters. <br> It should not contain any symbols, dashes or spaces. All other characters are allowed(letters, numbers, hyphens and underscores).'
+		),
 		error_messages={
 			'unique': _('A user with that username already exists.'),
 		},
-		validators=[UnicodeUsernameValidator()]
+		validators=[UsernameValidator()]
 	)
-	full_name = TitleCaseField(
+	full_name = FullNameField(
 		_('Full name'),
 		max_length=25,
 		help_text=_('Two of your names will be okay. Please enter your real names.'),
-		validators=[validate_full_name]
+		validators=[FullNameValidator()]
 	)
 	first_language = models.CharField(
 		_('First language'),
@@ -128,21 +125,24 @@ class User(AbstractBaseUser, PermissionsMixin):
 	# +10 points for joining the site lol
 	# this is to account for sudden downvotes so that downvoted user's points
 	# don't suddenly reach say 0.
-	site_points = models.PositiveIntegerField(_('Site points'), default=INITIAL_POINTS, editable=False)  
+	site_points = models.PositiveIntegerField(
+		_('Site points'), 
+		default=INITIAL_POINTS, 
+		editable=False
+	)  
 
-	# determine if users profile page is visible to other users
-	# is_visible = models.BooleanField(
-	# 	_('Profile visible to other users'),
-	# 	default=False, 
-	# 	help_text=_("Enable other users to be able to view your profile. <br>This means they will be able to see information such as your phone numbers.")
-	# )
-	deactivation_datetime = models.DateTimeField(_('Deactivation date/time'), null=True, blank=True, editable=False)
+	deactivation_datetime = models.DateTimeField(
+		_('Deactivation date/time'), 
+		null=True, blank=True, 
+		editable=False
+	)
 	datetime_joined = models.DateTimeField(_('Date/time joined'), auto_now_add=True)
-	last_login = models.DateTimeField(_('Last login'), auto_now=True)
 	is_superuser = models.BooleanField(default=False)
 	is_staff = models.BooleanField(default=False)   # worker in company(staff)
 	is_mod = models.BooleanField(default=False)   # site moderator
-	is_active = models.BooleanField(default=True)   # can login ?
+	# can login ? set to False by default since user has to confirm email address...
+	is_active = models.BooleanField(default=False)  
+
 
 	USERNAME_FIELD = 'email'
 	# USERNAME_FIELD and password are required by default
@@ -152,13 +152,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 	moderators = ModeratorManager()
 	staff = StaffManager()
 
-
 	class Meta:
 		indexes = [
 			models.Index(fields=['-site_points'])
 		]
 	
-
 	def __str__(self):
 		return f'{self.username}, {self.full_name}'
 

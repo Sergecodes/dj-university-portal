@@ -25,13 +25,13 @@
 			<h4>{% trans 'Filter' %}</h4>
 			{% with filter.form as form %}
 				<div class="row">
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group col-sm-6">
 						{{ form.school|as_crispy_field }}
 					</div>
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group col-sm-6">
 						{{ form.category|as_crispy_field }}
 					</div>
-					<div class="form-group col-sm-4 col-md-4">
+					<div class="form-group">
 						{{ form.title|as_crispy_field }}
 					</div>
 				</div>
@@ -51,6 +51,7 @@
 				id="nav-items-tab"  
 				aria-controls="nav-items" 
 				aria-selected="true"
+				href="{% url 'marketplace:item-listing-list' %}"
 			>
 				{% trans 'Items' %}
 			</a>

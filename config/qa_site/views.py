@@ -3,24 +3,23 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
-from django.db.models import F
+from django.db.models import F, Q
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
-from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from functools import reduce
 from taggit.models import TaggedItem
 
 from core.constants import (
 	REQUIRED_DOWNVOTE_POINTS, ASK_QUESTION_POINTS_CHANGE,
 )
-from core.mixins import GetObjectMixin
+from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -65,7 +64,7 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 
 
 @method_decorator(login_required, name='post')
-class AcademicQuestionDetail(DetailView):
+class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = AcademicQuestion
 	context_object_name = 'question'
 
@@ -104,6 +103,10 @@ class AcademicQuestionDetail(DetailView):
 		# redirect to get request. (SEE Post/Redirect/Get)
 		# instead of simply returning to get (return get(self,...))
 		return redirect(question.get_absolute_url())
+	
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
@@ -193,16 +196,22 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 
 class AcademicQuestionFilter(filters.FilterSet):
-	title = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
 
 	class Meta:
 		model = AcademicQuestion
 		fields = ['subject', 'title', ]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-posted_datetime')
+	def filter_title(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(title__icontains=word) for word in value_list]
+			)
+		)
+		
+		return qs
 
 
 class AcademicQuestionList(FilterView):
@@ -296,16 +305,25 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 
 class SchoolQuestionFilter(filters.FilterSet):
-	content = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+	# this query will take long in cases where the school question is too long
+	# which will occur occasionally 
+	# TODO use postgres text search 
+	content = filters.CharFilter(label=_('Keywords'), method='filter_content')
 
 	class Meta:
 		model = SchoolQuestion
-		fields = ['school', 'content', 'tags']
+		fields = ['school', 'content',]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-posted_datetime')
+	def filter_content(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(content__icontains=word) for word in value_list]
+			)
+		)
+		
+		return qs
 
 
 class SchoolQuestionList(FilterView):
@@ -325,14 +343,14 @@ class SchoolQuestionList(FilterView):
 
 		page_num = self.request.GET.get('page', 1)
 		page_content = paginator.page(page_num).object_list
-		page_content.prefetch_related('tags', 'upvoters', 'downvoters')
+		page_content.prefetch_related('upvoters', 'downvoters')
 		context['page_content'] = page_content
 		
 		return context
 
 
 @method_decorator(login_required, name='post')
-class SchoolQuestionDetail(DetailView):
+class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = SchoolQuestion
 	context_object_name = 'question'
 
@@ -370,6 +388,10 @@ class SchoolQuestionDetail(DetailView):
 
 		return redirect(question.get_absolute_url())
 
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
+		
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		question, user = self.object, self.request.user
@@ -390,7 +412,6 @@ class SchoolQuestionDetail(DetailView):
 			Prefetch('upvoters', queryset=User.objects.all().only('id'))
 		).all()
 
-		context['question_tags'] = question.tags.all()
 		context['answers'] = answers
 		context['comments'] = comments
 		context['num_answers'] = answers.count()

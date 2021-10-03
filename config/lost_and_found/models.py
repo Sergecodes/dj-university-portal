@@ -6,8 +6,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR
-from core.models import Post
-from marketplace.models import Institution
+from core.models import Post, Institution
 
 User = get_user_model()
 

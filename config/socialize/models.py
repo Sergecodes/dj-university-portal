@@ -5,9 +5,38 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import PROFILE_IMAGE_UPLOAD_DIR
-from marketplace.models import Institution
+from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
+from core.models import Institution
 from past_papers.models import PastPaper
+
+User = get_user_model()
+
+
+class SocialProfileManager(models.Manager):
+	def get_site_profile(self):
+		"""Get CamerSchools social profile"""
+		user_account = User.objects.get_site_account()
+
+		try:
+			social_profile = SocialProfile.objects.get(user=user_account)
+		except SocialProfile.DoesNotExist:
+			# if social profile isn't present, create it
+			social_media = SocialMediaFollow.objects.create(
+				twitter_follow='https:twitter.com/...',
+				website_follow='https://www.camerschools.com',
+			)
+
+			social_profile = SocialProfile.objects.create(
+				user=user_account,
+				social_media=social_media,
+				about_me='Nothing about me for now...',
+				hobbies='No hobbies for now',
+				birth_date=timezone.now(),
+				department='Computer Science',
+				original_language='en',
+			)
+
+		return social_profile
 
 
 class SocialMediaFollow(models.Model):
@@ -46,11 +75,6 @@ class SocialMediaFollow(models.Model):
 
 
 class SocialProfile(models.Model):
-	GENDERS = (
-		('M', _('Male')), 
-		('F', _('Female'))   
-	)
-
 	CURRENT_RELATIONSHIPS = (
 		('single', _('Single')),
 		('dating', _('Dating')),
@@ -59,7 +83,11 @@ class SocialProfile(models.Model):
 		('undecided', _('Undecided'))
 	)
 
-	INTERESTED_RELATIONSHIPS = (
+	# use list instead of tuple to enable modification in social profile filter.
+	# see socialize/views/SocialProfileFilter...
+	# any modifications done to this list should be ammended in the filter.
+	INTERESTED_RELATIONSHIPS = [
+		('none', _('Not interested')),
 		('chatting', _('Being chat pals')), 
 		('studies', _('Being study pals')),
 		('clubbing', _('Clubbing this weekend')),
@@ -69,32 +97,37 @@ class SocialProfile(models.Model):
 		('hanging_out', _('Hanging out this weekend')),
 		('marriage', _('Marriage')),
 		('undecided', _('Undecided'))
-	)
+	]
 
 	LEVELS = (
 		('N/A', '--------'),  # this comma is required to create a tuple !
 	) + PastPaper.LEVELS
 
 	level = models.CharField(_('Level'), choices=LEVELS, max_length=5, default='N/A')
-	about_me = models.TextField(_('A little about me'))
-	hobbies = models.TextField(_('My hobbies and interests'))
+	about_me = models.TextField(_('A little about me'), blank=True)
+	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
 	profile_image = models.ImageField(
 		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
 		null=True, blank=True
 	)
 	birth_date = models.DateField(
 		_('Birthday'), 
-		help_text=_("Please at least enter the correct birth year.")
+		help_text=_( 
+			"Please at least enter the correct birth year. <br>" 
+			"Your birth date and age won't be visible to other users."
+		)
 	)
 	department = models.CharField(
 		_('Department'),
-		max_length=30
+		max_length=30,
+		help_text=_("Enter your study speciality")
 	)
 	user = models.OneToOneField(
-		get_user_model(),
+		User,
 		on_delete=models.CASCADE,
+		# related_query_name='social_profile'  
+		# related_query_name = related_name if related_name is specified
 		related_name='social_profile',
-		# related_query_name='social_profile'  # related_query_name = related_name if rel_name is specified
 		primary_key=True
 	)
 	social_media = models.OneToOneField(
@@ -105,7 +138,8 @@ class SocialProfile(models.Model):
 	)
 	school = models.ForeignKey(
 		Institution,
-		on_delete=models.PROTECT,
+		on_delete=models.SET_NULL,
+		null=True, blank=True,
 		related_name='social_profiles',
 		related_query_name='social_profile'
 	)
@@ -113,13 +147,13 @@ class SocialProfile(models.Model):
 		_('Current relationship'),
 		choices=CURRENT_RELATIONSHIPS, 
 		max_length=15,
-		default=None
+		default='single'
 	)
 	interested_relationship = models.CharField(
 		_('Interested relationship'),
 		choices=INTERESTED_RELATIONSHIPS, 
 		max_length=15,
-		default=None
+		default='none'
 	)
 	gender = models.CharField(
 		_('Gender'),
@@ -130,12 +164,15 @@ class SocialProfile(models.Model):
 	creation_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	view_count = models.PositiveIntegerField(default=0)
 	# determine if users profile page is visible to other users
 	# is_visible = models.BooleanField(
 	# 	_('Profile visible to other users'),
 	# 	default=False, 
 	# 	help_text=_("<br>Enable <em>Socialize</em> and allow other users to be able to view my social profile.")
 	# )
+
+	objects = SocialProfileManager()
 
 	class Meta:
 		ordering = ['-creation_datetime']

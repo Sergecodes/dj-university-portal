@@ -4,7 +4,7 @@ from modeltranslation.translator import register, TranslationOptions as TransOpt
 from .models import (
 	Subject, AcademicAnswer, SchoolAnswer,
 	AcademicAnswerComment, SchoolAnswerComment,
-	AcademicQuestion, SchoolQuestion, SchoolQuestionTag,
+	AcademicQuestion, SchoolQuestion,
 	AcademicQuestionComment, SchoolQuestionComment
 )
 
@@ -12,12 +12,6 @@ from .models import (
 @register(Tag)
 class TaggitTransOptions(TransOptions):
 	fields = ('name', )
-	required_languages = ('en', 'fr')
-
-
-@register(SchoolQuestionTag)
-class SchoolQuestionTagTransOptions(TransOptions):
-	fields = ('name', 'slug')
 	required_languages = ('en', 'fr')
 
 

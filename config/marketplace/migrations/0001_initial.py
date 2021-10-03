@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('duration', models.DurationField(choices=[(datetime.timedelta(days=3), '3 days'), (datetime.timedelta(days=5), '5 days'), (datetime.timedelta(days=7), '1 week'), (datetime.timedelta(days=10), '10 days'), (datetime.timedelta(days=28), '1 month')], default=datetime.timedelta(days=5), help_text='For how long should your post be available')),
-                ('contact_email', core.model_fields.LowerCaseEmailField(help_text='Email address to use for notifications', max_length=50, verbose_name='Email address')),
-                ('contact_name', core.model_fields.TitleCaseField(help_text='Enter real names, buyers will more easily trust you if you enter a real name.', max_length=25, verbose_name='Full name')),
+                ('contact_email', core.model_fields.NormalizedEmailField(help_text='Email address to use for notifications', max_length=50, verbose_name='Email address')),
+                ('contact_name', core.model_fields.FullNameField(help_text='Enter real names, buyers will more easily trust you if you enter a real name.', max_length=25, verbose_name='Full name')),
                 ('title', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, verbose_name='Title')),
                 ('title_en', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, null=True, verbose_name='Title')),
                 ('title_fr', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, null=True, verbose_name='Title')),
@@ -88,8 +88,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('duration', models.DurationField(choices=[(datetime.timedelta(days=3), '3 days'), (datetime.timedelta(days=5), '5 days'), (datetime.timedelta(days=7), '1 week'), (datetime.timedelta(days=10), '10 days'), (datetime.timedelta(days=28), '1 month')], default=datetime.timedelta(days=5), help_text='For how long should your post be available')),
-                ('contact_email', core.model_fields.LowerCaseEmailField(help_text='Email address to use for notifications', max_length=50, verbose_name='Email address')),
-                ('contact_name', core.model_fields.TitleCaseField(help_text='Enter real names, buyers will more easily trust you if you enter a real name.', max_length=25, verbose_name='Full name')),
+                ('contact_email', core.model_fields.NormalizedEmailField(help_text='Email address to use for notifications', max_length=50, verbose_name='Email address')),
+                ('contact_name', core.model_fields.FullNameField(help_text='Enter real names, buyers will more easily trust you if you enter a real name.', max_length=25, verbose_name='Full name')),
                 ('title', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, verbose_name='Title')),
                 ('title_en', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, null=True, verbose_name='Title')),
                 ('title_fr', models.CharField(help_text='A descriptive title helps buyers find your item. <br> State exactly what your post is.', max_length=80, null=True, verbose_name='Title')),

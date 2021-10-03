@@ -1,17 +1,17 @@
 import django_filters as filters
 import os
 from django_filters.views import FilterView
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
+from django.db.models import Q
+from django.shortcuts import redirect
 from django.utils.translation import get_language, gettext_lazy as _
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from functools import reduce
 
 from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR, LOST_ITEM_SUFFIX
+from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos
 from .forms import FoundItemForm, LostItemForm
 from .models import FoundItem, LostItem, LostItemPhoto
@@ -52,7 +52,7 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 			found_item.contact_numbers.add(phone_number)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(found_item.get_absolute_url())
+		return redirect(found_item)
 
 
 class LostItemCreate(LoginRequiredMixin, CreateView):
@@ -119,20 +119,26 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 		request.session.pop(user.username + LOST_ITEM_SUFFIX, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
-		return HttpResponseRedirect(lost_item.get_absolute_url())
+		return redirect(lost_item)
 
 
 class FoundItemFilter(filters.FilterSet):
-	item_found = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+	item_found = filters.CharFilter(label=_('Keywords'), method='filter_item')
 
 	class Meta:
 		model = FoundItem
 		fields = ['school', 'item_found', ]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-posted_datetime')
+	def filter_item(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(item_found__icontains=word) for word in value_list]
+			)
+		)
+		
+		return qs
 
 
 class FoundItemList(FilterView):
@@ -151,16 +157,22 @@ class FoundItemList(FilterView):
 
 
 class LostItemFilter(filters.FilterSet):
-	item_lost = filters.CharFilter(label=_('Keyword'), lookup_expr='icontains')
+	item_lost = filters.CharFilter(label=_('Keywords'), method='filter_item')
 
 	class Meta:
 		model = LostItem
 		fields = ['school', 'item_lost', ]
 
-	@property
-	def qs(self):
-		parent = super().qs
-		return parent.order_by('-posted_datetime')
+	def filter_item(self, queryset, name, value):
+		value_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(item_lost__icontains=word) for word in value_list]
+			)
+		)
+		
+		return qs
 
 
 class LostItemList(FilterView):
@@ -187,9 +199,13 @@ class LostItemList(FilterView):
 		return context
 
 
-class FoundItemDetail(DetailView):
+class FoundItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = FoundItem
 	context_object_name = 'found_item'
+
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -198,9 +214,13 @@ class FoundItemDetail(DetailView):
 		return context
 
 
-class LostItemDetail(DetailView):
+class LostItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = LostItem
 	context_object_name = 'lost_item'
+
+	def get(self, request, *args, **kwargs):
+		self.set_view_count()
+		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

@@ -111,6 +111,10 @@ class HomePageView(TemplateView):
 		'''
 
 
+class SiteUsageInfoView(TemplateView):
+	template_name = "core/site_usage_info.html"
+
+
 # def delete_post_and_penalize_user(request):
 # 	"""mod only"""
 	# delete post and penalize user

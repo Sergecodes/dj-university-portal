@@ -3,8 +3,9 @@
 import os
 import re
 from django.conf import settings
-from django.core.files import File
+from django.contrib.auth import get_user_model
 from fpdf import FPDF
+
 
 BASE_DIR = settings.BASE_DIR
 
@@ -16,6 +17,16 @@ def get_usernames_from_comment(comment, post_type):
 	# eg if user was mentioned under answer, for the user to be notified, 
 	# he should have at least one comment under the answer.
 	pass
+
+
+def parse_email(email:str):
+	"""
+	Convert email to lowercase and replace `googlemail` to `gmail`
+	Remember username@googlemail.com and username@gmail.com point to the same gmail account.
+	see mailigen.com/blog/does-capitalization-matter-in-email-addresses/
+	"""
+	email = email.replace('googlemail', 'gmail')
+	return email.lower()
 
 
 def parse_phone_number(tel):

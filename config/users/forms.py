@@ -5,11 +5,6 @@ from django.contrib.auth.forms import (
 	# ReadOnlyPasswordHashField
 )
 from django.contrib.auth.password_validation import validate_password
-
-# from django.contrib.contenttypes.forms import (
-# 	BaseGenericInlineFormSet,
-# 	generic_inlineformset_factory
-# )
 from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import ugettext_lazy as _
@@ -34,10 +29,6 @@ class AdminUserChangeForm(BaseUserChangeForm):
 class UserCreationForm(forms.ModelForm):
 	"""Form used to register a new user to the site. Includes all the required
     fields, plus a repeated password."""
-	password = forms.CharField(
-		widget=forms.PasswordInput(),
-		required=True
-	)
 	confirm_password = forms.CharField(
 		label=_('Password confirmation'),
 		widget=forms.PasswordInput(),
@@ -45,21 +36,20 @@ class UserCreationForm(forms.ModelForm):
 		required=True
 	)
 
-	def clean_password(self):
-		password = self.cleaned_data['password']
-		return password
-
 	def clean_confirm_password(self):
 		password1 = self.cleaned_data.get('password')
 		password2 = self.cleaned_data.get('confirm_password')
 
+		# both passwords could be None; so use test if password1 and password2
 		if password1 and password2 and password1 != password2:
 			# add error instead of raising error so as to continuer to validation of other fields
 			self.add_error('confirm_password', _('The passwords did not match.'))
-		else:
-			# if both passwords match, validate the password
-			validate_password(password2)
-			return password2
+
+		# else:
+		# 	# if both passwords match, validate the password
+		# 	validate_password(password2)
+		# 	return password2
+		return password2
 	
 	def save(self, commit=True):
 		# save this object's m2m method..
@@ -67,9 +57,10 @@ class UserCreationForm(forms.ModelForm):
 			# If not committing, add a method to the form to allow deferred saving of m2m data.
 		super().save(commit=False)
 
-		# *copy* self.cleaned_data into a new dict and remove 'confirm_password' since it's not a field of the User model
+		# *copy* self.cleaned_data into a new dict and 
+		# remove 'confirm_password' since it's not a field of the User model
 		data = dict(**self.cleaned_data)
-		data.pop('confirm_password', None)
+		data.pop('confirm_password')
 		
 		user = User.objects.create_user(commit=commit, **data)
 		return user
@@ -77,7 +68,10 @@ class UserCreationForm(forms.ModelForm):
 	
 	class Meta:
 		model = User
-		fields = ['full_name', 'username', 'email', 'password', 'confirm_password', 'first_language', 'gender', ]
+		fields = [
+			'full_name', 'username', 'email', 'password', 
+			'confirm_password', 'first_language', 'gender', 
+		]
 		# localized_fields = ('birth_date', )
 		widgets = {
 			'first_language': forms.RadioSelect,
@@ -100,9 +94,14 @@ class UserUpdateForm(forms.ModelForm):
 	# set email field as disabled & readonly so user won't be able to interact with it
 	# this also sets some desired styles from Bootstrap
 
-	# setting readonly on a widget only makes the input in the browser read-only.  do this "https://stackoverflow.com/a/331550" to ensure its value doesn't change on form level.  P.S. I can also do this by passing the user object to the form and setting the initial attribute of the field to the user's email.
+	# setting readonly on a widget only makes the input in the browser read-only.  
+	# do this "https://stackoverflow.com/a/331550"  (add the disabled attribute to it)
+	# to ensure its value doesn't change on form level.  
+	# P.S. I can also do this by passing the user object to the form 
+	# and setting the initial attribute of the field to the user's email.
 	email = forms.EmailField(
 		label=_('Email address'),
+		# disabled means browser should not send any form data for this field
 		widget=forms.EmailInput(attrs={'readonly': '', 'disabled': '',}),
 		help_text=_("Email can't be changed"),
 		# since disabled is set, browser won't send any form data back for this field
@@ -128,7 +127,7 @@ class UserUpdateForm(forms.ModelForm):
 		if instance and instance.pk:
 			return instance.email
 		else:
-			return self.cleaned_data['email']
+			raise ValueError(_("For some weird reason, the user has no email."))
 
 	# def clean_password(self):
 	# 	# Regardless of what the user provides, return the initial value.
@@ -150,7 +149,10 @@ class PhoneNumberForm(forms.ModelForm):
 # class BasePhoneNumberFormset(BaseGenericInlineFormSet):
 class BasePhoneNumberFormset(BaseInlineFormSet):
 	def clean(self):
-		"""Checks that no two numbers are the same and that there should be at least one number that supports Whatsapp."""
+		"""
+		Checks that no two numbers are the same and that there should be 
+		at least one number that supports Whatsapp.
+		"""
 		
 		if any(self.errors):
 			# don't bother validating the formset if there are already errors in any of its forms
@@ -176,13 +178,6 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 		if not any(can_whatsapp_list):
 			raise ValidationError(_("Enter at least one number that supports WhatsApp."))
 
-
-# PhoneNumberFormset = generic_inlineformset_factory(
-# 	PhoneNumber, 
-# 	form=PhoneNumberForm, 
-# 	formset=BasePhoneNumberFormset, 
-# 	extra=1
-# )
 
 PhoneNumberFormset = inlineformset_factory(
 	User,

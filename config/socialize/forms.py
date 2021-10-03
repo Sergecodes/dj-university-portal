@@ -99,7 +99,10 @@ class SocialMediaFollowForm(forms.ModelForm):
 		
 		# ensure at least one social media link is present
 		if not any(boolean_list):
-			self.add_error(None, ValidationError(_('At least one social media account must be added.')))
+			self.add_error(
+				None, 
+				ValidationError(_('At least one social media account must be added.'))
+			)
 		
 		return data
 
@@ -125,7 +128,6 @@ class SocialProfileForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.fields['school'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.disable_csrf = True

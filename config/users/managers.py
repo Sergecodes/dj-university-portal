@@ -1,13 +1,16 @@
-from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.password_validation import validate_password
+from django.core.validators import validate_email
 from django.db.models import QuerySet, Manager
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
-	IS_BAD_USER_POINTS, 
-	PENALIZE_FLAGGED_USER_POINTS_CHANGE
+	IS_BAD_USER_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
+	CAMERSCHOOLS_EMAIL, CAMERSCHOOLS_USERNAME, CAMERSCHOOLS_PASSWORD
 )
+from core.utils import parse_email
 from notifications.models import Notification
 from notifications.signals import notify
 
@@ -23,13 +26,32 @@ class UserQuerySet(QuerySet):
 	# 	get_user_model().objects.filter(id__in=self).update(is_active=False)
 	# 	self.update(status='D', deactivation_datetime=timezone.now())
 
+	def delete(self, really_delete=False):
+		if really_delete:
+			return super().delete()
+		else:
+			self.deactivate()
+
 	def deactivate(self):
 		self.update(is_active=False, deactivation_datetime=timezone.now())
 
 
 class UserManager(BaseUserManager, Manager):
-	def create_user(self, email, username, full_name, password, gender, first_language, commit=True, **extra_fields):
-		""" Create and save a user with the given email, username, password, etc... . Call this method with appropriate fields because no validation will be performed here, data will be instantly saved to the database. """
+	def create_user(
+			self, 
+			email, 
+			username, 
+			full_name, 
+			password, 
+			gender, 
+			first_language, 
+			commit=True, 
+			**extra_fields
+		):
+		""" 
+		Create and save a user with the given email, username, password, etc... . 
+		"""
+
 		if not email:
 			raise ValueError(_('The email must be set'))
 		if not username:
@@ -43,10 +65,12 @@ class UserManager(BaseUserManager, Manager):
 		if not first_language:
 			raise ValueError(_('The first language must be set'))	
 		
-		email = self.normalize_email(email)
-		# validate_email(email)
+		email = parse_email(email)
+		validate_email(email)
 
-		# validate_username = UnicodeUsernameValidator()
+		# no need for this, it will be called when the object is been saved.
+		# since it is included in the validators property of the username field.
+		# validate_username = UsernameValidator()
 		# validate_username(username)
 		
 		user = self.model(
@@ -62,12 +86,24 @@ class UserManager(BaseUserManager, Manager):
 		user.set_password(password)
 
 		if commit:
-			user.save()   # user.save(using=self._db)
+			user.save() 
 
 		return user
 
-	def create_superuser(self, email, username, full_name, password, gender, first_language, **extra_fields):
-		""" Create and save a SuperUser with the given email, name, full name, password etc... """
+	def create_superuser(
+			self, 
+			email, 
+			username, 
+			full_name, 
+			password, 
+			gender, 
+			first_language, 
+			**extra_fields
+		):
+		""" 
+		Create and save a SuperUser with the given email, name, full name, password etc... 
+		"""
+
 		extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_mod', True)
 		extra_fields.setdefault('is_superuser', True)
@@ -145,12 +181,57 @@ class UserManager(BaseUserManager, Manager):
 				category=Notification.FLAG
 			)
 
+	def get_site_account(self):
+		"""Get CamerSchools user account"""
+		User = self.model
+
+		account = User.objects.get_or_create(
+			username=CAMERSCHOOLS_USERNAME,
+			defaults={
+				'email': CAMERSCHOOLS_EMAIL,
+				'password': CAMERSCHOOLS_PASSWORD,
+				'full_name': 'Camer Schools',
+				'first_language': 'en',
+				'site_points': 1000
+			}
+		)[0]
+
+		return account
+
+	def notify_new_user(self, user):
+		"""
+		Send notification to newly signed up user.
+		This notification contains a link to the official social profile
+		of the CamerSchools account and a page to the website info(how to use..).
+		"""
+
+		# notification with link to website info..
+		notify.send(
+			sender=user,  # just use same user as sender
+			recipient=user, 
+			verb=_("Click here to view information on how to use this website."),
+			follow_url=reverse('core:usage-info'),
+			category=Notification.GENERAL
+		)
+
+		# notification with link to CamerSchools profile
+		camerschools_account = get_camerschools_user_account()
+		notify.send(
+			sender=user,  # just use same user as sender
+			recipient=user, 
+			verb=_("Welcome to CamerSchools. Click here to view our social profile"),
+			follow_url=reverse(
+				'socialize:view-profile', 
+				kwargs={'username': camerschools_account.username}
+			),
+			category=Notification.GENERAL
+		)
+
 	def active(self):
 		return self.model.objects.filter(is_active=True)
 
 	def deactivated(self):
 		return self.model.objects.filter(is_active=False, deactivation_datetime__isnull=False)
-
 
 
 class ModeratorManager(Manager):

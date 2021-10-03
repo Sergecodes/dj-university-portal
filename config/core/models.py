@@ -4,14 +4,30 @@ from django.core.validators import validate_email
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.model_fields import LowerCaseEmailField, TitleCaseField
+from core.model_fields import NormalizedEmailField, FullNameField
 from flagging.models import Flag
+
+
+class Institution(models.Model):
+	# only staff can add school.
+	name = models.CharField(_('Name'), max_length=50, unique=True)
+	location = models.CharField(
+		_('Location'),
+		max_length=60,
+		help_text=_('Street or quarter where institution is located')
+	)
+	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.name
 
 
 class Post(models.Model):
 	"""Abstract model to describe an item post."""
 
 	flags = GenericRelation(Flag)
+	view_count = models.PositiveIntegerField(default=0)
 	# tags will be obtained from the name of the item. ex. red pen => 'red', 'pen'
 	# tags = TaggableManager()
 	# i don't see the need for tags. todo search via normal field with search vector(Postgres) form more efficiency
@@ -26,7 +42,7 @@ class Post(models.Model):
 		help_text=_('Language in which post was created'),
 		editable=False
 	)
-	contact_name = TitleCaseField(
+	contact_name = FullNameField(
 		_('Full name'),
 		max_length=25,
 		help_text=_('Please use your real names.'),
@@ -36,7 +52,7 @@ class Post(models.Model):
 		'users.PhoneNumber',
 		related_name='+'
 	)
-	contact_email = LowerCaseEmailField(
+	contact_email = NormalizedEmailField(
 		_('Email address'),
 		max_length=50,
 		help_text=_("Email address to contact; enter a valid email."),

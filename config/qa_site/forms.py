@@ -7,9 +7,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import MAX_TAGS_PER_QUESTION
-from marketplace.models import Institution
+from core.models import Institution
 from .models import (
-	SchoolQuestionTag, Subject, AcademicAnswer, SchoolAnswer,
+	Subject, AcademicAnswer, SchoolAnswer,
 	AcademicAnswerComment, SchoolAnswerComment,
 	AcademicQuestion, SchoolQuestion,
 	AcademicQuestionComment, SchoolQuestionComment
@@ -132,28 +132,29 @@ class SchoolQuestionForm(forms.ModelForm):
 		label=_('Body'),
 		required=True
 	)
-	tags = forms.ModelMultipleChoiceField(
-		queryset=SchoolQuestionTag.objects.all().order_by('name'),
-		widget=forms.CheckboxSelectMultiple(),
-		help_text=_("Add up to 5 tags to describe what your question is about")
-	)
+	# tags = forms.ModelMultipleChoiceField(
+	# 	queryset=SchoolQuestionTag.objects.all().order_by('name'),
+	# 	widget=forms.CheckboxSelectMultiple(),
+	# 	help_text=_("Add up to 5 tags to describe what your question is about")
+	# )
 
 	class Meta:
 		model = SchoolQuestion
-		fields = ['school', 'content', 'tags']
+		fields = ['school', 'content', ]
 
-	def clean(self):
-		cleaned_data = self.cleaned_data
-		tags = cleaned_data.get('tags')
-		# if not tags:
-		# 	raise ValidationError(_('Select at least one tag'))
+	# def clean(self):
+	# 	cleaned_data = self.cleaned_data
+	# 	tags = cleaned_data.get('tags')
+	# 	# if not tags:
+	# 	# 	raise ValidationError(_('Select at least one tag'))
 
-		if tags and tags.count() > MAX_TAGS_PER_QUESTION:
-			self.add_error(
-				'tags', ValidationError(_("Maximum {} tags are allowed.").format(MAX_TAGS_PER_QUESTION))
-			)
+	# 	if tags and tags.count() > MAX_TAGS_PER_QUESTION:
+	# 		self.add_error(
+	# 			'tags', 
+	# 			ValidationError(_("Maximum {} tags are allowed.").format(MAX_TAGS_PER_QUESTION))
+	# 		)
 		
-		return cleaned_data
+	# 	return cleaned_data
 		
 
 class SchoolAnswerForm(forms.ModelForm):
