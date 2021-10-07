@@ -4,10 +4,9 @@ from django.contrib.auth.forms import (
 	UserCreationForm as BaseUserCreationForm,
 	# ReadOnlyPasswordHashField
 )
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .models import PhoneNumber, User
 
@@ -26,62 +25,49 @@ class AdminUserChangeForm(BaseUserChangeForm):
 
 
 ### Following forms will be used in the main site.  ###
-class UserCreationForm(forms.ModelForm):
-	"""Form used to register a new user to the site. Includes all the required
-    fields, plus a repeated password."""
-	confirm_password = forms.CharField(
-		label=_('Password confirmation'),
-		widget=forms.PasswordInput(),
-		help_text=_('Enter the same password, for confirmation.'),
-		required=True
-	)
-
-	def clean_confirm_password(self):
-		password1 = self.cleaned_data.get('password')
-		password2 = self.cleaned_data.get('confirm_password')
-
-		# both passwords could be None; so use test if password1 and password2
-		if password1 and password2 and password1 != password2:
-			# add error instead of raising error so as to continuer to validation of other fields
-			self.add_error('confirm_password', _('The passwords did not match.'))
-
-		# else:
-		# 	# if both passwords match, validate the password
-		# 	validate_password(password2)
-		# 	return password2
-		return password2
-	
-	def save(self, commit=True):
-		# save this object's m2m method..
-		# a comment in this method (super().save()) says 
-			# If not committing, add a method to the form to allow deferred saving of m2m data.
-		super().save(commit=False)
-
-		# *copy* self.cleaned_data into a new dict and 
-		# remove 'confirm_password' since it's not a field of the User model
-		data = dict(**self.cleaned_data)
-		data.pop('confirm_password')
-		
-		user = User.objects.create_user(commit=commit, **data)
-		return user
-
+class UserCreationForm(BaseUserCreationForm):
 	
 	class Meta:
 		model = User
 		fields = [
-			'full_name', 'username', 'email', 'password', 
-			'confirm_password', 'first_language', 'gender', 
+			'full_name', 'username', 'email', 'password1', 
+			'password2', 'first_language', 'gender', 
 		]
 		# localized_fields = ('birth_date', )
 		widgets = {
+			'full_name': forms.TextInput(attrs={'placeholder': 'Ex. Paul Biya'}),
 			'first_language': forms.RadioSelect,
 			'gender': forms.RadioSelect,
-			# 'birth_date': forms.DateInput(attrs={'type':'date'})
+			# remove default autofocus set by super class
+			'email': forms.EmailInput(attrs={'autofocus': 'false'})
 		}
 		labels = {
 			'email': _('Email address')
 		}
+		help_texts = {
+			'email': _("You won't be able to change your email.")
+		}
 		
+	def save(self, commit=True):
+		# save this object's m2m method..
+		# a comment in this method (super().save()) says 
+			# If not committing, add a method to the form to allow deferred saving of m2m data.
+		if commit == False:
+			super().save(commit)
+
+		# *copy* self.cleaned_data into a new dict and 
+		# remove 'password2' (confirm password) since it's not a field of the User model
+		data = dict(**self.cleaned_data)
+		data.pop('password2')
+		print(data)
+		
+		user = User.objects.create_user(
+			password=data.pop('password1'), 
+			commit=commit, 
+			**data
+		)
+		return user
+	
 	
 class UserUpdateForm(forms.ModelForm):
 	"""A form for updating users. Includes all the fields on
@@ -126,14 +112,6 @@ class UserUpdateForm(forms.ModelForm):
 		instance = self.instance
 		if instance and instance.pk:
 			return instance.email
-		else:
-			raise ValueError(_("For some weird reason, the user has no email."))
-
-	# def clean_password(self):
-	# 	# Regardless of what the user provides, return the initial value.
-	# 	# This is done here, rather than on the field, because the
-	# 	# field does not have access to the initial value
-	# 	return self.initial["password"]
 
 
 class PhoneNumberForm(forms.ModelForm):
@@ -151,8 +129,11 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 	def clean(self):
 		"""
 		Checks that no two numbers are the same and that there should be 
-		at least one number that supports Whatsapp.
+		at least one number that supports Whatsapp. 
+		Each number should be valid(convertible to int)
 		"""
+		# first call super method 
+		super().clean()
 		
 		if any(self.errors):
 			# don't bother validating the formset if there are already errors in any of its forms
@@ -161,17 +142,26 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 		# at least one form should be present (since if formset has errors, we won't arrive here)
 		assert len(self.forms) >= 1, "At least one form must be present, got none"
 
-		numbers_list = []
-		can_whatsapp_list = []
+		numbers_list, can_whatsapp_list = [], []
 		for form in self.forms:
 			if self.can_delete and self._should_delete_form(form):
 				continue
 
-			number = form.cleaned_data.get('number')
+			number = form.cleaned_data['number']
 			if number in numbers_list:
 				raise ValidationError(_("Phone numbers should be unique."))
+			
+			# remove any space in number and add number to list
+			number = number.replace(' ', '')
 			numbers_list.append(number)
-			can_whatsapp_list.append(form.cleaned_data.get('can_whatsapp'))
+			can_whatsapp_list.append(form.cleaned_data['can_whatsapp'])
+
+		# if number is invalid(if number is not int)
+		for number in numbers_list:
+			try:
+				int(number)
+			except ValueError:
+				raise ValidationError(_("There is an invalid number in the list."))
 
 		# if there isn't any number that supports whatsapp, raise error 
 		# also perform this check in frontend

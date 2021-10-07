@@ -59,7 +59,10 @@ class PastPaperForm(forms.ModelForm):
 	
 	class Meta:
 		model = PastPaper
-		fields = ['school', 'type', 'level', 'subject', 'written_date', 'title', 'file']
+		fields = [
+			'school', 'type', 'level', 'subject', 
+			'written_date', 'title', 'file', 'view_count', 
+		]
 		widgets = {
 			'title': forms.TextInput(
 				attrs={'placeholder': _('Ex. 3rd sequence exam Maths Form 5 MCQ')}
@@ -73,7 +76,7 @@ class PastPaperForm(forms.ModelForm):
 			'written_date': _('Optional. When this question paper was written. <br> Just the month and year will suffice, you can enter any day.'),
 			'level': _('The level for which the paper was set.'),
 			'school': _('Select the school. Allow empty if your school is not in the list.'),
-			'subject': _('Select the subject. Leave it empty if the subject is not in the list.'),
+			'subject': _('Select the subject. Allow empty if the subject is not in the list.'),
 		}
 
 	def __init__(self, *args, **kwargs):

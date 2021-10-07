@@ -1,4 +1,3 @@
-import uuid
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import validate_email
@@ -17,13 +16,18 @@ from core.constants import (
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
-from core.model_fields import NormalizedEmailField, FullNameField
+from core.model_fields import NormalizedEmailField
 from core.utils import parse_phone_number
+from core.validators import FullNameValidator, UsernameValidator
 from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
-from .managers import UserManager, ModeratorManager, StaffManager
-from .validators import FullNameValidator, UsernameValidator
+from .managers import (
+	UserManager, ModeratorManager, 
+	StaffManager, ActiveUserManager
+)
+
+User = settings.AUTH_USER_MODEL
 
 
 def get_dummy_user():
@@ -45,7 +49,8 @@ def get_dummy_user():
 
 
 class PhoneNumber(models.Model):
-	# don't add any `datetime_added` field coz when user edits profile, all his phone numbers are removed and his phone numbers are recreated.
+	# don't add any `datetime_added` field coz when user edits profile, 
+	# all his phone numbers are removed and his phone numbers are recreated.
 	ISPs = (
 		('MTN', 'MTN'),
 		('Nexttel', 'Nexttel'),
@@ -62,7 +67,7 @@ class PhoneNumber(models.Model):
 	)
 	can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
 	owner = models.ForeignKey(
-		'User', 
+		User, 
 		on_delete=models.CASCADE,
 		related_name='phone_numbers',
 		related_query_name='phone_number'
@@ -95,25 +100,34 @@ class User(AbstractBaseUser, PermissionsMixin):
 		max_length=15,
 		unique=True,
 		help_text=_(
-			'Your username should be between 4 to 15 characters and the first 4 characters must be letters. <br> It should not contain any symbols, dashes or spaces. All other characters are allowed(letters, numbers, hyphens and underscores).'
+			'Your username should be between 4 to 15 characters '
+			'and the first 4 characters must be letters. <br> '
+			'It should not contain any symbols, dashes or spaces. <br>'
+			'All other characters are allowed(letters, numbers, hyphens and underscores).'
 		),
 		error_messages={
 			'unique': _('A user with that username already exists.'),
 		},
 		validators=[UsernameValidator()]
 	)
-	full_name = FullNameField(
+	full_name = models.CharField(
 		_('Full name'),
 		max_length=25,
-		help_text=_('Two of your names will be okay. Please enter your real names.'),
+		help_text=_(
+			'Enter a valid full name. It should be two or three of your names separated by a space ' 
+			'and each name may contain only letters or hyphens. <br>'
+			'No name should start or end with a hyphen, and no name should contain only hyphens.'
+		),
 		validators=[FullNameValidator()]
 	)
 	first_language = models.CharField(
 		_('First language'),
 		choices=settings.LANGUAGES,
-		default='fr',
+		default='en',
 		max_length=3,
-		help_text=_("Your preferred language. Don't worry, you can always view the site in another language.")
+		help_text=_(
+			"Your preferred language. Don't worry, you can always view the site in another language."
+		)
 	)
 	gender = models.CharField(
 		_('Gender'),
@@ -123,7 +137,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	)
 
 	# +10 points for joining the site lol
-	# this is to account for sudden downvotes so that downvoted user's points
+	# this amount is also to account for sudden downvotes so that downvoted user's points
 	# don't suddenly reach say 0.
 	site_points = models.PositiveIntegerField(
 		_('Site points'), 
@@ -149,6 +163,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	REQUIRED_FIELDS = ['username', 'full_name']   
 
 	objects = UserManager()
+	active = ActiveUserManager()
 	moderators = ModeratorManager()
 	staff = StaffManager()
 
@@ -170,19 +185,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 		if hasattr(self, 'social_profile'):
 			return True
 		return False
-
-	# def clean(self, *args, **kwargs):
-	# 	# add custom validation here
-	# 	super().clean(*args, **kwargs)
-	
-	# def save(self, *args, **kwargs):
-	# 	# full_clean() automatically calls clean()
-	# 	self.full_clean()
-	# 	super().save(*args, **kwargs)
-
-	# def save(self, *args, **kwargs):
-	# 	self.previous_points = self.site_points
-	# 	super().save(*args, **kwargs)
 
 	def deactivate(self):
 		"""Mark user as inactive but allow his record in database."""
@@ -239,7 +241,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 		if answerers_id.count(self.id) == MAX_ANSWERS_PER_USER_PER_QUESTION:
 			return (
 				False, 
-				_("You can have at most {} answers per question.").format(MAX_ANSWERS_PER_USER_PER_QUESTION)
+				_("You can have at most {} answers per question.").format(
+					MAX_ANSWERS_PER_USER_PER_QUESTION
+				)
 			)
 
 		answer.poster = self

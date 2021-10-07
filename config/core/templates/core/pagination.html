@@ -1,0 +1,87 @@
+{# Template used for pagination. It takes argument `page_obj` which is the page object. #}
+
+{% load i18n %}
+{% load app_extras %}
+
+<ul class="pagination mt-4">
+    {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a 
+                aria-label="{% trans 'Previous' %}"
+                class="page-link" 
+                href="?{% query_transform request page=page_obj.previous_page_number %}"
+            >
+                <span aria-hidden="true">
+                    <i class="fas fa-chevron-left"></i>
+                </span>
+            </a>
+        </li>
+    {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">
+                <i class="fas fa-chevron-left"></i>
+            </span>
+        </li>
+    {% endif %}
+
+    {% if page_obj.number|add:'-4' > 1 %}
+        <li class="page-item">
+            <a 
+                class="page-link"
+                href="?{% query_transform request page=page_obj.number|add:'-5' %}"
+            >
+                &hellip;
+            </a>
+        </li>
+    {% endif %}
+
+    {% for i in page_obj.paginator.page_range %}
+        {% if page_obj.number == i %}
+            <li class="page-item active">
+                <span class="page-link">
+                    {{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
+                </span>
+            </li>
+        {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+            <li class="page-item">
+                <a 
+                    class="page-link"
+                    href="?{% query_transform request page=i %}"
+                >
+                    {{ i }}
+                </a>
+            </li>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+        <li class="page-item">
+            <a 
+                class="page-link"
+                href="?{% query_transform request page=page_obj.number|add:'5' %}"
+            >
+                &hellip;
+            </a>
+        </li>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        <li class="page-item">
+            <a 
+                aria-label="{% trans 'Next' %}"
+                class="page-link" 
+                href="?{% query_transform request page=page_obj.next_page_number %}"
+            >
+                <span aria-hidden="true">
+                    <i class="fas fa-chevron-right"></i>
+                </span>
+            </a>
+        </li>
+    {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </span>
+        </li>
+    {% endif %}
+</ul>

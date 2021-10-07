@@ -15,7 +15,7 @@
 	<div class="d-flex justify-content-center">
 		<form class="w-50 p-3 user-form user-form--login" action="{% url 'users:login' %}" method="post">
 			{% csrf_token %}
-			<h2 class="text-center mb-4 user-form__heading user-form--login__heading">{% trans 'Login' %}</h2>
+			<h2 class="text-center mb-4 text-success">{% trans 'Login' %}</h2>
 			{{ form|crispy }}
 
 			<button type="submit" class="w-100 mt-1 mb-4 py-2 btn btn-success login-form__button">

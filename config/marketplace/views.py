@@ -3,7 +3,7 @@ import os
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Prefetch, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
@@ -15,11 +15,10 @@ from functools import reduce
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, AD_PHOTOS_UPLOAD_DIR,
 	ITEM_LISTING_SUFFIX, AD_LISTING_SUFFIX,
-	MIN_ITEM_PHOTOS_LENGTH  # todo enforce this !
+	MIN_ITEM_PHOTOS_LENGTH 
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.utils import get_photos
-from flagging.models import Flag
+from core.utils import get_photos, is_mobile
 from .forms import ItemListingForm, AdListingForm
 from .mixins import CanDeleteListingMixin, CanEditListingMixin
 from .models import (
@@ -55,13 +54,27 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form = self.get_form()
+		session, username = request.session, request.user.username
 
 		# print(request.POST, request.FILES)
 		# print(form.data)
 		# print(form.data['sub_category'])
 		# print(dir(form.fields['sub_category']))
 
-		# update queryset of sub category field to ensure that sub category received is indeed a sub category of the passed category
+		# validate minimum number of photos (backend)
+		# this check is also done on the frontend; but in an almost naive way..
+		# - counting the number of html photo containers.
+		# no need to validate max number since the photo upload ajax view already does that
+		num_photos = len(session.get(username + ITEM_LISTING_SUFFIX, []))
+		if num_photos < MIN_ITEM_PHOTOS_LENGTH:
+			form.add_error(
+				None, 
+				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
+			)
+
+		# update queryset of sub category field to ensure that sub category received 
+		# is indeed a sub category of the passed category
+		# we can't do it in the form class coz we need the request object.
 		category_pk = request.POST.get('category', None)  
 		category = get_object_or_404(ItemCategory, pk=category_pk)
 		sub_category_field = form.fields['sub_category']
@@ -139,12 +152,23 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
-		# NOTE !! set self.object before making a form with self.get_form()
+		# NOTE !! ALWAYS set self.object before making a form with self.get_form()
 		# when overriding post method.
 		self.object = self.get_object()
 		form = self.get_form()
+		session, username = request.session. request.user.username
+
+		# validate minimum number of photos 
+		# no need to validate max number since the photo upload ajax view already does that
+		num_photos = len(session.get(username + ITEM_LISTING_SUFFIX, []))
+		if num_photos < MIN_ITEM_PHOTOS_LENGTH:
+			form.add_error(
+				None, 
+				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
+			)
 		
-		# update queryset of sub category field to ensure that sub category received is indeed a sub category of the passed category
+		# update queryset of sub category field to ensure that sub category received 
+		# is indeed a sub category of the passed category
 		category_pk = request.POST.get('category', None)  
 		category = get_object_or_404(ItemCategory, pk=category_pk)
 		sub_category_field = form.fields['sub_category']
@@ -198,7 +222,8 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		# remove photos list from session 
 		request.session.pop(user.username + ITEM_LISTING_SUFFIX)
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice. 
+		# Instead handle the redirect yourself.
 		return redirect(listing)
 
 
@@ -262,14 +287,15 @@ class ItemListingFilter(filters.FilterSet):
 		fields = ['school', 'title', 'category', ]
 
 	def filter_title(self, queryset, name, value):
-		print(value)
 		value_list = value.split()
-		print(value_list)
 
 		qs = queryset.filter(
-			reduce(lambda x, y: x | y, [Q(title__icontains=word) for word in value_list])
+			reduce(
+				lambda x, y: x | y, 
+				[Q(title__icontains=word) for word in value_list]
+			)
 		)
-		print(qs) 
+		
 		return qs
 
 

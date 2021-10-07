@@ -4,10 +4,8 @@
 Oct 1:
 	- update user profile/dashboard accordingly (following, bookmarks, etc..;  add my answers(aca and school-based) and my bookmarked questions.)
 	- remaining front end validations (full name, username)
-	# -also, apparently, password similarity check isn't properly working. test this too. also test on shell.  add full name similarity check.
 	- social_profile_detail.html page. 
 	# - send notification to new user... with camerschools profile nd link to site rules.
-	# - enforce email verification on account signup 
 	
 
 Oct 2:
@@ -21,13 +19,12 @@ Oct 2:
 
 
 Oct 3:
-	- in social profile list(after filter), use (5 random users) insted of top ... users
+	# - in social profile list(after filter), use (5 random users) insted of top ... users
 	- notify followers when qa_site post is updated..
+	- exclude view_count from forms.
 	- wide site search feature.
 	- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
-	- backgound-color on filter forms(see ex form marketplace )
 	- enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
-	- remove confirm password field, implement show password checkbox
 	- create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
 	- finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
 	- append (- CamerSchools) to title of each page. apparently, sites like myschool and SO do this.
@@ -39,6 +36,7 @@ Oct 4:
 
 # - username @username ... mentions 
 # - don't do sharing for now, since site is not fully operational..
+	- set login url for various mixins
 - enable moderator see number of flags of a post. (notifications template. also on detail page ?)
 - convert pagination template to template that can be included.
 - update views
@@ -63,17 +61,18 @@ Oct 4:
 - make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block .. (if form.invalid .. in js)
 - insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
 - set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
-# - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 - !! validate uploaded file types and sizes in views that permit file uploads !!!!!
 - constraint on file size (maybe max 1MB)
 - google translations !
 - aws file serving
+- share links on detail pages
+- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
+# - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 # - cached property (with ttl) package is a must ! especially for complex computations.(in future)
 # - use ajax for username select ... 
 # - after 24hrs, votes can't be recalled.
-- share links on detail pages
+# - remove confirm password field, implement show password checkbox
 # - change the flag alert div to a toast. (create custom info toast...)
-- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
 # - add repost(relist) button near posts older than x days.
 # - num of characters limit control, ckeditor, comments, questions, etc..
 # - don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
@@ -84,7 +83,7 @@ Oct 4:
 # - show best users on both pc and mobile; display vertically on mobile.
 # - wide site search (for search forms in header and footer)  - add placeholder ("I'm not yet working")..
 # - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; 
-
+# - add reset photos button incase .........
 # - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
 # - remove empty p tags from ck editor submitted texts.
 # - footer. check out font awesome's footer on mobile., ilost.co's footer too
@@ -152,7 +151,7 @@ jquery validation plugin..
 
 
 # how do you do this in db: "you have 10 votes left for today? "
-# TODO nb: Entities: user, Date; Relation: Activity..(num_of_votes, ...)
+#  nb: Entities: user, Date; Relation: Activity..(num_of_votes, ...)
 '''
 class User:
 	activity_dates = models.ManyToManyField(

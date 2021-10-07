@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('posted_datetime', models.DateTimeField(auto_now_add=True)),
                 ('last_modified', models.DateTimeField(auto_now=True)),
                 ('original_language', models.CharField(choices=[('en', 'English'), ('fr', 'French')], editable=False, max_length=2)),
-                ('contact_name', core.model_fields.FullNameField(help_text='Please use your real names.', max_length=25, verbose_name='Full name')),
+                ('contact_name', models.CharField(help_text='Please use your real names.', max_length=25, verbose_name='Full name')),
                 ('contact_email', core.model_fields.NormalizedEmailField(help_text='Email address to contact; enter a valid email.', max_length=50, validators=[django.core.validators.EmailValidator()], verbose_name='Email address')),
                 ('item_requested', models.CharField(help_text='What item do you need?', max_length=100)),
                 ('item_description', models.TextField(blank=True, help_text='Describe the item you are in need of, stating its important aspects. <br> You may allow this empty.', null=True)),

@@ -4,6 +4,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
+
 {% block title %}
 	<title>{% trans 'Create your item listing' %}</title>
 {% endblock %}
@@ -16,6 +17,9 @@
 {% endblock %}
 
 {% block content %}
+
+<span class="d-none js-descrLabelText">{% trans 'Condition description' %}</span>
+
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-form-container">
 	<form name="item-listing-form" class="shadow listing-form" method="post">
@@ -25,37 +29,20 @@
 		{% crispy form %}
 	</form>
 </div>
-
-<!-- Modal shown when user clicks edit phone numbers button, telling him he will go to an external page -->
-<div class="modal" id="leavePageModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="leavePageModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-	<div class="modal-content">
-		<div class="modal-header">
-		<h5 class="modal-title" id="leavePageModalLabel">{% trans 'Leave page' %}</h5>
-		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
-		</div>
-		<div class="modal-body">
-			{% blocktrans %}
-				You are about to go to another page, you'll lose any info you've already entered.
-			{% endblocktrans %}
-		</div>
-		<div class="modal-footer">
-		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
-		<a 
-			class="btn btn-danger"
-			href="{% url 'users:edit-profile' username=user.username %}#phoneSection"
-		>
-			{% trans 'Leave page' %}
-		</a>
-		</div>
-	</div>
-	</div>
-</div>
 {% endblock content %}
 
 
 {% block extra_js %}
+<script src="{% static 'js/jquery.dirty.js' %}"></script>
 <script>
+	var $form = $("[name='item-listing-form']");
+	$form.dirty({
+		preventLeaving: true,
+		// message to display when user is about to leave page..
+		// note that some(most) browsers will display their own message.
+		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
+	});
+
 	// var NEW = 'N', USED = 'U', DEFECTIVE = 'D';
 	var CONDITIONS_AND_HELP_TEXTS = {
 		'N': "{% trans 'A brand-new, unused, unopened, undamaged item in its original packaging (where packaging is applicable). The item may have a custom package but it should be new. ' %}",
@@ -67,13 +54,14 @@
 
 	var $condition = $('.js-condition');
 	$condition.on('change', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
-	$condition.on('change', {}, setDescriptionRequired);
+	$condition.on('change', {}, onConditionChange);
 
 	// todo fill sub category options with initial value of category
+	var getSubCategoriesUrl = "{% url 'marketplace:get-item-subcategories' %}";
 	$(window).on(
 		'load', 
 		// pass url to js instead of hardcoding
-		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		{url: getSubCategoriesUrl}, 
 		insertItemSubCategories
 	);
 
@@ -81,7 +69,7 @@
 	var $category = $('.js-category');
 	$category.on(
 		'change', 
-		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		{url: getSubCategoriesUrl}, 
 		insertItemSubCategories
 	);
 

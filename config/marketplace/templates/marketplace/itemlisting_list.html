@@ -20,6 +20,7 @@
 {% block content %}
 <!-- 100% wide undil lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-list-container">
+	<h2 class="text-success mb-3">{% trans 'Items for Sale' %}</h2>
 	<section class="mb-3 listing-search-form-wrp">
 		<form method="get" class="p-3 listing-search-form">
 			<h4>{% trans 'Filter' %}</h4>
@@ -39,15 +40,17 @@
 			<button type="submit" class="btn btn-primary">
 				<i class="fas fa-search"></i>
 				{% trans 'Search' %}
-			</button>
-			
+			</button>		
 		</form>
 	</section>
 
 	<nav class="">
 		<div class="nav nav-tabs" id="nav-tab">
+			<!-- use text-primary to style link. 
+				link-primary doesn't work due to the .nav-link.active class
+			-->
 			<a 
-				class="nav-link active" 
+				class="nav-link active text-primary" 
 				id="nav-items-tab"  
 				aria-controls="nav-items" 
 				aria-selected="true"
@@ -74,7 +77,6 @@
 		>	
 			<section class="listing-list-wrp">
 				<ul class="listing-list js-listing-list">
-					{% comment %} <div class="js-listing-list-content"> {% endcomment %}
 						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
 							{% with cond=listing.condition %}
@@ -94,166 +96,32 @@
 										<br class="mb-4">
 										<a 
 											class="text-decoration-none" 
-											href="#"
+											href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}"
 										>
 											{{ listing.school }}
 										</a>
 										&nbsp;- &nbsp;
 										<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
+
+										{% with view_count=listing.view_count %}
+										<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+											<i class="far fa-eye me-1" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Number of views' %}</span>
+											{{ view_count }}
+										</span>
+										{% endwith %}
 										<br class="mb-1">
 										<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
 										<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+										{% trans 'by' %}
+										<a href="{{ listing.poster.get_absolute_url }}" class="text-decoration-none">{{ listing.poster.username }}</a>
 									</div>
 								</li> 
 							{% endwith %}
 						{% endfor %}
-					{% comment %} </div> {% endcomment %}
-					
-					{% comment %}
-						{% if page_obj.has_next %}
-							<a 
-								class="infinite-more-link" 
-								href="?{% query_transform request page=page_obj.next_page_number %}"
-							>
-								{% trans 'More' %}
-							</a>
-						{% endif %}
-						<div class="js-loading" style="display: none;">
-							{% trans 'Loading...' %}
-						</div>
-					{% endcomment %}
 
 					{% if is_paginated %}
-						<ul class="pagination mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.previous_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-left"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</li>
-							{% endif %}
-
-							{% if page_obj.number|add:'-4' > 1 %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% for i in page_obj.paginator.page_range %}
-								{% if page_obj.number == i %}
-									<li class="page-item active">
-										<span class="page-link">
-											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-										</span>
-									</li>
-								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-									<li class="page-item">
-										<a 
-											class="page-link"
-											href="?{% query_transform request page=i %}"
-										>
-											{{ i }}
-										</a>
-									</li>
-								{% endif %}
-							{% endfor %}
-
-							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.next_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-right"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-right" aria-hidden="true"></i>
-									</span>
-								</li>
-							{% endif %}
-						</ul>
-
-						{% comment %} <ul class="pagination mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.previous_page_number %}"
-									>
-										<span aria-hidden="true">&laquo;</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">&laquo;</span>
-								</li>
-							{% endif %}
-							{% for i in paginator.page_range %}
-								{% if page_obj.number == i %}
-								<li class="page-item active">
-									<span class="page-link">
-										{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-									</span>
-								</li>
-								{% else %}
-								<li class="page-item">
-									<a class="page-link" href="?{% query_transform request page=i %}">
-										{{ i }}
-									</a>
-								</li>
-								{% endif %}
-							{% endfor %}
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.next_page_number %}"
-									>
-										<span aria-hidden="true">&raquo;</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">&raquo;</span>
-								</li>
-							{% endif %}
-						</ul> {% endcomment %}
+						{% include 'core/pagination.html' with page_obj=page_obj %}
 					{% endif %}
 				</ul>
 				

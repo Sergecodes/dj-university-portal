@@ -12,7 +12,7 @@ from django.template.defaultfilters import slugify
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView
 from functools import reduce
 
 from core.constants import (
@@ -68,7 +68,7 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		session, user = request.session, request.user
 		past_paper = self.object
 		past_paper.poster = user
-		past_paper.default_language = get_language()
+		past_paper.language = get_language()
 	
 		# get list of photo names, remember photos are not compulsory, so use empty list as default
 		photos_list = session.get(user.username + PAST_PAPER_SUFFIX, [])

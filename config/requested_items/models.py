@@ -15,24 +15,37 @@ User = get_user_model()
 class RequestedItem(Post):
 	category = models.ForeignKey(
 		ItemCategory, 
+		verbose_name=_('Category'),
 		related_name='requested_items', 
 		related_query_name='requested_item',
 		on_delete=models.PROTECT
 	)
-	item_requested = models.CharField(max_length=100, help_text=_('What item do you need?'))
-	item_description = models.TextField(help_text=_('Describe the item you are in need of, stating its important aspects. <br> You may allow this empty.'))
+	item_requested = models.CharField(
+		_('Item requested'), 
+		max_length=100, 
+		help_text=_('What item do you need?')
+	)
+	item_description = models.TextField(
+		_('Item description'), 
+		help_text=_(
+			'Describe the item you are in need of, stating its important aspects. <br>'
+			'You may allow this field empty.'
+		)
+	)
 	price_at_hand = models.CharField(
+		_('Price at hand'),
 		max_length=20,
 		default='-',
-		help_text=_('How much are you willing to pay for the item? You may allow this empty.')
+		help_text=_('How much are you willing to pay for the item? You may allow this field empty.')
 	)
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.CASCADE,
 		related_name='requested_items',
 		related_query_name='requested_item',
 		null=True, blank=True,
-		help_text=_("Allow this empty if it doesn't concern a particular school")
+		help_text=_("Allow this field empty if it doesn't concern a particular school")
 	)
 	poster = models.ForeignKey(
 		User, 

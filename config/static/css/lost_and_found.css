@@ -13,23 +13,20 @@
 }
 
 /* Listings */
-.lostitems-list-container {
-    width: 70%;
-}
 
 /* .lostitems-search-form-wrp {
     background-color: #f6f6f6;
     /* border: 1px solid #ccc; 
 } */
 
+.founditems-search-form,
 .lostitems-search-form {
     background-color: #f6f6f6;
-    /* width: 85%; */
 }
 
-.founditems-list-art,
-.lostitems-list-art {
-	width: 85%;
+.founditems-list-container,
+.lostitems-list-container {
+	width: 75%;
 }
 
 .lostitem-item {
@@ -87,9 +84,8 @@
 @media (max-width: 991.98px) {
     .founditem-form-container,
     .lostitem-form-container,
-    .lostitems-list-container,
-    .founditems-list-art,
-	.lostitems-list-art,
+    .founditems-list-container,
+	.lostitems-list-container,
     .lostitem-art,
     .appreciation-msg-wrp,
     .claim-msg-wrp,

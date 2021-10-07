@@ -1,6 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.password_validation import validate_password
-from django.core.validators import validate_email
 from django.db.models import QuerySet, Manager
 from django.urls import reverse
 from django.utils import timezone
@@ -10,7 +9,7 @@ from core.constants import (
 	IS_BAD_USER_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
 	CAMERSCHOOLS_EMAIL, CAMERSCHOOLS_USERNAME, CAMERSCHOOLS_PASSWORD
 )
-from core.utils import parse_email
+from core.utils import parse_email, parse_full_name
 from notifications.models import Notification
 from notifications.signals import notify
 
@@ -64,9 +63,6 @@ class UserManager(BaseUserManager, Manager):
 			raise ValueError(_('The gender must be set'))
 		if not first_language:
 			raise ValueError(_('The first language must be set'))	
-		
-		email = parse_email(email)
-		validate_email(email)
 
 		# no need for this, it will be called when the object is been saved.
 		# since it is included in the validators property of the username field.
@@ -74,9 +70,9 @@ class UserManager(BaseUserManager, Manager):
 		# validate_username(username)
 		
 		user = self.model(
-			email=email, 
+			email=parse_email(email), 
 			username=username, 
-			full_name=full_name, 
+			full_name=parse_full_name(full_name), 
 			gender=gender,
 			first_language=first_language,
 			**extra_fields
@@ -98,6 +94,7 @@ class UserManager(BaseUserManager, Manager):
 			password, 
 			gender, 
 			first_language, 
+			commit=True,
 			**extra_fields
 		):
 		""" 
@@ -215,7 +212,7 @@ class UserManager(BaseUserManager, Manager):
 		)
 
 		# notification with link to CamerSchools profile
-		camerschools_account = get_camerschools_user_account()
+		camerschools_account = self.get_site_account()
 		notify.send(
 			sender=user,  # just use same user as sender
 			recipient=user, 
@@ -232,6 +229,11 @@ class UserManager(BaseUserManager, Manager):
 
 	def deactivated(self):
 		return self.model.objects.filter(is_active=False, deactivation_datetime__isnull=False)
+
+
+class ActiveUserManager(Manager):
+	def get_queryset(self):
+		return super().get_queryset().filter(is_active=True)
 
 
 class ModeratorManager(Manager):

@@ -37,17 +37,6 @@ class UserCreate(CreateView):
 	template_name = 'users/auth/signup.html'
 	success_url = '/'
 
-	def post(self, request, *args, **kwargs):
-		self.object = None
-		form = self.get_form()
-		formset = PhoneNumberFormset(request.POST)
-		
-		# Now validate both the form and formset
-		if form.is_valid() and formset.is_valid():
-			return self.form_valid(form, formset)
-		else:
-			return self.form_invalid(form)
-
 	def get(self, request, *args, **kwargs):
 		"""
 		Prevent currently logged in users from calling the register method without logging out.
@@ -62,14 +51,26 @@ class UserCreate(CreateView):
 			return redirect('/')
 
 		return super().get(request, *args, **kwargs)
+		
+	def post(self, request, *args, **kwargs):
+		self.object = None
+		form = self.get_form()
+		formset = PhoneNumberFormset(request.POST)
+		
+		# Now validate both the form and formset
+		if form.is_valid() and formset.is_valid():
+			return self.form_valid(form, formset)
+		else:
+			return self.form_invalid(form)
 
 	def form_valid(self, form, phone_number_formset):
 		# this method is called when the form has been successfully validated
 		# also accounts for sending confirmation email to user.
+		
 		request, new_user = self.request, form.save()
 		
 		# compose and send email verification mail
-		mail_subject = _('Activate your account.')
+		mail_subject = _('Activate your account')
 		message = render_to_string('users/auth/email_confirm.html', {
 			'user': new_user,
 			'domain': get_current_site(request).domain,
@@ -91,12 +92,6 @@ class UserCreate(CreateView):
 			phone_numbers_list.append(phone_number_dict)
 
 		request.session[PHONE_NUMBERS_KEY] = phone_numbers_list
-		print(request.session.items())
-
-		# for number_form in phone_number_formset:
-		# 	phone_number = number_form.save(commit=False)
-		# 	phone_number.owner = new_user
-		# 	phone_number.save()
 
 		return HttpResponse(
 			_('Please confirm your email address to complete the registration')
@@ -123,8 +118,7 @@ def activate_account(request, uidb64, token):
 		user.save()
 
 		# retrieve phone numbers from session and assign to user
-		phone_numbers = request.session.get(PHONE_NUMBERS_KEY, [])
-		print(phone_numbers)
+		phone_numbers = request.session.pop(PHONE_NUMBERS_KEY, [])
 		if not phone_numbers:
 			return HttpResponseBadRequest(_('No phone numbers registered.'))
 
@@ -132,6 +126,9 @@ def activate_account(request, uidb64, token):
 			number = PhoneNumber(**number_dict)
 			number.owner = user
 			number.save()
+
+		# send notifications(welcome-ish notifs) to new user
+		User.objects.notify_new_user(user)
 
 		return HttpResponse(
 			_('You have successfully confirmed your email. Now you can log into your account')
@@ -186,7 +183,7 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 			print(formset.errors)
 			if not form.is_valid():
 				return self.form_invalid(form)
-			elif not formset.is_valid():
+			if not formset.is_valid():
 				return self.form_invalid(formset)
 
 	def form_valid(self, form, phone_number_formset):
@@ -195,7 +192,8 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		user = self.object
 		
 		# remove all previous numbers
-		user.phone_numbers.clear()
+		# no clear() method available coz null is not = True.
+		user.phone_numbers.all().delete()
 		
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
@@ -206,8 +204,6 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
 		return redirect(user.get_absolute_url())
-		# return redirect(reverse('users:view-profile', kwargs={'username': user.username}))
-		# return redirect(self.get_success_url())
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

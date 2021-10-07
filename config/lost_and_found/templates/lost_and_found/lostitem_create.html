@@ -16,44 +16,29 @@
 {% block institution_searchbox %}
 {% endblock %}
 
+
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 lostitem-form-container">
-	<form class="lostitem-form" method="post">
+	<form name='lost-item-form' class="lostitem-form" method="post">
 		{% csrf_token %}
 		<h2 class="text-center mb-4 text-success">{% trans 'Report a lost item'|title %}</h2>
 		
 		{% crispy form %}
 	</form>
-	<!-- Modal shown when user clicks edit phone numbers button, telling him he will go to an external page -->
-	<div class="modal" id="leavePageModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="leavePageModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-			<h5 class="modal-title" id="leavePageModalLabel">{% trans 'Leave page' %}</h5>
-			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
-			</div>
-			<div class="modal-body">
-				{% blocktrans %}
-					You are about to go to another page, you'll lose any info you've already entered.
-				{% endblocktrans %}
-			</div>
-			<div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans 'Close' %}</button>
-			<a 
-				class="btn btn-danger"
-				href="{% url 'users:edit-profile' username=user.username %}#phoneSection"
-			>
-				{% trans 'Leave page' %}
-			</a>
-			</div>
-		</div>
-		</div>
-	</div>
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
+<script src="{% static 'js/jquery.dirty.js' %}"></script>
 <script>
+	var $form = $("[name='lost-item-form']");
+	$form.dirty({
+		preventLeaving: true,
+		// message to display when user is about to leave page..
+		// note that some(most) browsers will display their own message.
+		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
+	});
 </script>
 {% endblock %}

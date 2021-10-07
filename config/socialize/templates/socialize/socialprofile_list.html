@@ -58,7 +58,9 @@
 									</div>
 									<div>
 										<strong>{% trans 'School' %}:</strong>
-										{{ profile.school }}
+										<a href="{% url 'socialize:find-friend' %}?school={{ profile.school_id }}" class="text-decoration-none">
+											{{ profile.school }}
+										</a>
 									</div>
 									<div>
 										<strong>{% trans 'Level' %}:</strong>
@@ -78,88 +80,7 @@
 					{% endfor %}
 
 					{% if is_paginated %}
-						<ul class="pagination mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.previous_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-left"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</li>
-							{% endif %}
-
-							{% if page_obj.number|add:'-4' > 1 %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% for i in page_obj.paginator.page_range %}
-								{% if page_obj.number == i %}
-									<li class="page-item active">
-										<span class="page-link">
-											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-										</span>
-									</li>
-								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-									<li class="page-item">
-										<a 
-											class="page-link"
-											href="?{% query_transform request page=i %}"
-										>
-											{{ i }}
-										</a>
-									</li>
-								{% endif %}
-							{% endfor %}
-
-							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.next_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-right"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-right" aria-hidden="true"></i>
-									</span>
-								</li>
-							{% endif %}
-						</ul>
+						{% include 'core/pagination.html' with page_obj=page_obj %}
 					{% endif %}
 				</ul>
 			</section>
@@ -168,16 +89,19 @@
 		{# this section is visible only on lg devices and greater #}
 		<aside class="d-none d-lg-block w-25">
 			<div class="card border-success">
-				<h5 class="card-header bg-success text-light">{% trans 'Top users' %}</h5>
+				<h5 class="card-header bg-success text-light">
+					{% trans 'Some Users' %}
+				</h5>
 				<ul class="list-group list-group-flush">
-					{% for profile in best_users %}
+					{% for profile in random_profiles %}
 						{% with user=profile.user %}
 							<li class="list-group-item">
 								<a href="{{ profile.get_absolute_url }}" class="text-decoration-none">
 									{{ user.username }}
 								</a> 
 								<span class="small">
-									({{ profile.gender }}) &nbsp; - &nbsp; {{ user.site_points }} {% trans 'point' %}{{ user.site_points|pluralize}}
+									({{ profile.gender }}) &nbsp; - &nbsp; 
+									{{ user.site_points }} {% trans 'point' %}{{ user.site_points|pluralize}}
 								</span>
 							</li>
 						{% endwith %}

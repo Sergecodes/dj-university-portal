@@ -46,7 +46,7 @@ class PastPaperPhoto(models.Model):
 
 class Comment(models.Model):
 	flags = GenericRelation(Flag)
-	content = models.TextField()
+	content = models.TextField(_('Content'))
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.CASCADE,
@@ -89,7 +89,10 @@ class PastPaper(models.Model):
 	MASTERS = 'MS' 
 	DOCTORATE = 'PhD'
 
-	LEVELS = (
+	# use lists(mutable) instead of tuples.
+	# so as to enable copying it withoud needing to cast it.
+	# eg. see SocialProfileForm init method
+	LEVELS = [
 		(ORDINARY_LEVEL, 'Ordinary Level'),
 		(ADVANCED_LEVEL, 'Advanced Level'),
 		(BEPC, 'BEPC'), 
@@ -100,7 +103,7 @@ class PastPaper(models.Model):
 		(LICENCE, 'Licence'),
 		(MASTERS, _("Master's")),
 		(DOCTORATE, _('Doctorate'))
-	)
+	]
 
 	COMMERCIAL = 'COMM'
 	GENERAL = 'GEN'
@@ -112,9 +115,9 @@ class PastPaper(models.Model):
 		(TECHNICAL, _('Technical'))
 	)
 	
-	level = models.CharField(max_length=5, choices=LEVELS)
-	type = models.CharField(max_length=5, choices=TYPES, default='GEN')
-	title = models.CharField(max_length=100)
+	level = models.CharField(_('Level'), max_length=5, choices=LEVELS)
+	type = models.CharField(_('Speciality'), max_length=5, choices=TYPES, default='GEN')
+	title = models.CharField(_('Title'), max_length=100)
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
@@ -128,6 +131,7 @@ class PastPaper(models.Model):
 	# should be nullable; in case school isn't registered on our site.
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.SET_NULL,
 		related_name='past_papers',
 		related_query_name='past_paper',
@@ -136,6 +140,7 @@ class PastPaper(models.Model):
 	# should be nullable; in case school isn't registered on our site.
 	subject = models.ForeignKey(
 		Subject,
+		verbose_name=_('Subject'),
 		on_delete=models.PROTECT,
 		related_name='past_papers',
 		related_query_name='past_paper',
@@ -143,9 +148,10 @@ class PastPaper(models.Model):
 	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
+	# when the past paper was written..
 	# those with null=True will be considered as revision papers..
-	written_date = models.DateField(null=True, blank=True)  # when the past paper was written..
-	default_language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
+	written_date = models.DateField(_('Written date'), null=True, blank=True)  
+	language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
 	view_count = models.PositiveIntegerField(default=0)
 
 	def __str__(self):

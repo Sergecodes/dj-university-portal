@@ -21,9 +21,22 @@
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 lostitem-art">
 		<h2 class="text-capitalize">{{ lost_item.item_lost }}</h2>
-		<span class="text-muted mb-3" title="{{ lost_item.posted_datetime }}">
-			{% trans 'Reported' %} {{ lost_item.posted_datetime|naturaltime }}
+		<span class="d-inline-block">
+			{% trans 'School' %}:
+			<a href="{% url 'lost_and_found:lost-item-list' %}?school={{ lost_item.school_id }}" class="text-decoration-none"> {{ lost_item.school }}</a>
 		</span>
+		<div class="mb-3">
+			<span class="text-secondary" title="{{ lost_item.posted_datetime }}">
+				{% trans 'Reported' %} {{ lost_item.posted_datetime|naturaltime }}
+			</span>
+			{% with view_count=lost_item.view_count %}
+			<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+				<i class="far fa-eye me-1" aria-hidden="true"></i>
+				<span class="visually-hidden">{% trans 'Number of views' %}</span>
+				{{ view_count }}
+			</span>
+			{% endwith %}
+		</div>
 		
 		{% if photos.exists %}
 			<section class="mb-4 lostitem-photo-section">
@@ -62,10 +75,10 @@
 		<!-- contact details -->
 		<section class="contact-details">
 			<h4 class="text-success">{% trans 'Contact' %} {{ lost_item.contact_name }}</h4>
-			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
+			<ul class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
-					<div class="py-2 d-flex justify-content-between number-box">
+					<li class="py-2 d-flex justify-content-between number-box">
 						<a 
 							href="tel: {{ number }}" 
 							class="text-dark text-decoration-none number-box__tel"
@@ -83,10 +96,10 @@
 								<i class="fab fa-whatsapp"></i>
 							</a>
 						{% endif %}
-					</div>
+					</li>
 					{% endwith %}
 				{% endfor %}
-			</div>
+				</ul>
 		</section>
 	</article>
 </div>

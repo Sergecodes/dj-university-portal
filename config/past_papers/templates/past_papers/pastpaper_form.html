@@ -18,14 +18,29 @@
 {% block content %}
 <div class="container-lg mb-5 pastpaper-form-container">
 	<form 
+		name="past-paper-form"
 		class="px-3 border pastpaper-form"
 		method="post"
 		enctype="multipart/form-data"
 	>
 		{% csrf_token %}
-		<h2 class="text-center mb-4 text-success">{% trans 'Upload a question paper'|title %}</h2>
+		<h2 class="text-center mb-4 text-success">{% trans 'Upload a Question Paper' %}</h2>
 		{% crispy form %}
 		
 	</form>
 </div>
 {% endblock content %}
+
+
+{% block extra_js %}
+<script src="{% static 'js/jquery.dirty.js' %}"></script>
+<script>
+	// show message when user is about to leave "dirty" form
+	var $form = $("[name='past-paper-form']");
+	$form.dirty({
+		preventLeaving: true,
+		// message to display when user is about to leave page..
+		// note that some(most) browsers will display their own message.
+		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
+	});
+{% endblock extra_js %}

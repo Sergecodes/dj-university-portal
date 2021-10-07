@@ -1,10 +1,12 @@
 """
-File contains constants that will be used through out application
+File contains constants that will be used through out site.
 """
 from datetime import timedelta
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
+## CORE ##
 EXTERNAL_LINK_SVG = ' \
 	<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
 		<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
@@ -22,7 +24,7 @@ GENDERS = (
 
 CAMERSCHOOLS_USERNAME = 'CamerSchools'
 CAMERSCHOOLS_EMAIL = 'camerschools@gmail.com'  # professional email of course..
-CAMERSCHOOLS_PASSWORD = 'password'
+CAMERSCHOOLS_PASSWORD = 'password'  # TODO this should be complicated as fuck.
 
 ## SESSION KEYS
 # used in the UserCreateView to save a user's phone numbers in the session
@@ -33,17 +35,6 @@ AD_LISTING_SUFFIX = '_adlisting_photos'
 PAST_PAPER_SUFFIX = '_pastpaper_photos'
 LOST_ITEM_SUFFIX = '_lostitem_photos'
 REQUESTED_ITEM_SUFFIX = '_requesteditem_photos'
-# Previous points key suffix
-# PREVIOUS_POINTS_SUFFIX = 'previous_points'
-
-## USERS APP ##
-# set this as minimum points for users.
-# when his post is downvoted for instance, if his new points are less than this value,
-# set it to this value.
-THRESHOLD_POINTS = 5
-INITIAL_POINTS = 10
-# dummy email
-DELETED_USER_EMAIL = 'deleted@gmail.com'
 
 
 ## FLAGGING app ##
@@ -67,11 +58,33 @@ FLAGS_ALLOWED = 1
 IS_FLAGGED_COUNT = FLAGS_ALLOWED + 1
 
 
+### LOST_AND_FOUND APP ###
+# Changes in points:
+	# post found item: +5 points (you should understand why it doesn't have to be more; user can upload his items...)
+PUBLISH_FOUND_ITEM_POINTS_CHANGE = +5
+# period for which a post is valid(active)
+# determines for how long a post will be displayed on the site.
+# LOST_OR_FOUND_ITEM_VALIDITY_PERIOD = timedelta(weeks=1)
+LOST_ITEMS_PHOTOS_UPLOAD_DIR = 'lost_items_photos/'
+# maximum number of photos to upload for a lost item
+MAX_LOST_ITEM_PHOTOS = 3
+
+
 ## MARKETPLACE app ##
 # minimum number of photos that an item listing must have
 MIN_ITEM_PHOTOS_LENGTH = 3
+# maximum number of photos that an item listing can have
+MAX_ITEM_PHOTOS_LENGTH = 8
 LISTING_PHOTOS_UPLOAD_DIR = 'item_photos/'
 AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
+
+
+## PAST_PAPERS APP ##
+# Changes in points:
+	# upload past paper: +5 points (ensure file paper is unique upon posting...)
+UPLOAD_PAPER_POINTS_CHANGE = +5
+PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
+PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
 
 
 ## QA_SITE APP ##
@@ -95,7 +108,12 @@ ANSWER_SCHOOL_QUESTION_POINTS_CHANGE = +8
 ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE = +10
 # each user can have max 2 answers per question
 MAX_ANSWERS_PER_USER_PER_QUESTION = 2  
-MAX_TAGS_PER_QUESTION = 5
+MAX_TAGS_PER_QUESTION = 3
+
+# set this as minimum points for users.
+# when his post is downvoted for instance, if his new points are less than this value,
+# set it to this value.
+THRESHOLD_POINTS = 5
 
 # let user points = 6. after downvoting, we remove say 4 points user is left with 2.
 # since 2(his real points) is less than the threshold, it will be set to 5 points.
@@ -110,7 +128,7 @@ MAX_TAGS_PER_QUESTION = 5
 # (THRESHOLD_POINTS=5 + abs(POST_DOWNVOTE_POINTS_CHANGE)), increment it.
 RESTRICTED_POINTS = THRESHOLD_POINTS + abs(POST_DOWNVOTE_POINTS_CHANGE)
 
-# Editing
+## Editing
 # questions with num_answers > this value can't be edited
 QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT = 1
 # questions with vote_count > this value can't be edited
@@ -123,7 +141,7 @@ COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=10)
 # after this number of votes(upvotes), comment can't be edited
 COMMENT_CAN_EDIT_UPVOTE_LIMIT = 4
 
-# Deleting
+## Deleting
 # questions with num_answers > this value can't be deleted
 QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT = 1
 # questions with vote_count > this value can't be deleted
@@ -134,12 +152,10 @@ ANSWER_CAN_DELETE_VOTE_LIMIT = 2
 COMMENT_CAN_DELETE_UPVOTE_LIMIT = 4
 
 
-## PAST_PAPERS APP ##
-# Changes in points:
-	# upload past paper: +5 points (ensure file paper is unique upon posting...)
-UPLOAD_PAPER_POINTS_CHANGE = +5
-PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
-PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
+### REQUESTED ITEMS APP ###
+REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
+# maximum number of photos to upload for a requested item
+MAX_REQUESTED_ITEM_PHOTOS = 3
 
 
 ## SOCIALIZE APP ##
@@ -149,20 +165,7 @@ CREATE_SOCIAL_PROFILE_POINTS_CHANGE = +5
 PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
 
 
-### LOST_AND_FOUND APP ###
-# Changes in points:
-	# post found item: +5 points (you should understand why it doesn't have to be more; user can upload his items...)
-PUBLISH_FOUND_ITEM_POINTS_CHANGE = +5
-# period for which a post is valid(active)
-# determines for how long a post will be displayed on the site.
-# LOST_OR_FOUND_ITEM_VALIDITY_PERIOD = timedelta(weeks=1)
-LOST_ITEMS_PHOTOS_UPLOAD_DIR = 'lost_items_photos/'
-# maximum number of photos to upload for a lost item
-MAX_LOST_ITEM_PHOTOS = 3
-
-
-### REQUESTED ITEMS APP ###
-REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
-# maximum number of photos to upload for a requested item
-MAX_REQUESTED_ITEM_PHOTOS = 3
-
+## USERS APP ##
+INITIAL_POINTS = 10
+# dummy email
+DELETED_USER_EMAIL = 'deleted@gmail.com'

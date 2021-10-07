@@ -7,7 +7,7 @@ from core.constants import (
 	MAX_LOST_ITEM_PHOTOS, PAST_PAPER_SUFFIX,
 	ITEM_LISTING_SUFFIX, LOST_ITEM_SUFFIX,
 	AD_LISTING_SUFFIX, REQUESTED_ITEM_SUFFIX,
-	MAX_REQUESTED_ITEM_PHOTOS
+	MAX_REQUESTED_ITEM_PHOTOS, MAX_ITEM_PHOTOS_LENGTH
 )
 from lost_and_found.forms import LostItemPhotoForm
 from marketplace.forms import (
@@ -34,7 +34,10 @@ class PhotoUploadView(LoginRequiredMixin, View):
 	# http_method_names = ['delete', 'post']
 
 	def post(self, request, form_for):
-		"""Called when a photo is uploaded."""
+		"""
+		Called when a photo is uploaded. Checks for maximum number of photos are done where necessary.
+		However, for minimum number of photos, checks will be done in the respective form's post method.
+		"""
 
 		if form_for == 'item_listing':
 			form = ItemPhotoForm(request.POST, request.FILES)
@@ -52,6 +55,14 @@ class PhotoUploadView(LoginRequiredMixin, View):
 		username, session = request.user.username, request.session
 		user_photos_list = session.get(username + FORM_AND_SUFFIX[form_for], [])
 
+		# if item listing num_photos already at maximum
+		if form_for == 'item_listing' and len(user_photos_list) == MAX_ITEM_PHOTOS_LENGTH:
+			return JsonResponse(
+				{'is_valid': False, 'error': _('Maximum number of photos attained')},
+				status=403  # Forbidden
+			)
+
+
 		# if lost item num_photos already at maximum 
 		if form_for == 'lost_item' and len(user_photos_list) == MAX_LOST_ITEM_PHOTOS:
 			return JsonResponse(
@@ -59,12 +70,14 @@ class PhotoUploadView(LoginRequiredMixin, View):
 				status=403  # Forbidden
 			)
 
+
 		# if requested item num_photos already at maximum 
 		if form_for == 'requested_item' and len(user_photos_list) == MAX_REQUESTED_ITEM_PHOTOS:
 			return JsonResponse(
 				{'is_valid': False, 'error': _('Maximum number of photos attained')},
 				status=403  # Forbidden
 			)
+
 
 		# print(request.FILES)
 		# if upload was successful, add photo name to user session variable
@@ -84,8 +97,9 @@ class PhotoUploadView(LoginRequiredMixin, View):
 			}
 			
 			# delete model instance but keep file(django doesn't delete the actual file) 
-			# (# todo ensure this holds even after external packages are installed...)
-			# this is so that when posting the overall form, the instances are recreated from the photos and there should be no duplicate instances
+			# (# todo ensure this holds even after external packages are used...)
+			# this is so that when submitting the overall form, 
+			# the instances are recreated from the photos and there should be no duplicate instances
 			photo.delete()
 
 		# eg. when user submits wrong file type..

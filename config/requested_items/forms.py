@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
+from core.utils import get_edit_numbers_url
 from .models import RequestedItem, RequestedItemPhoto
 
 
@@ -26,7 +27,10 @@ class RequestedItemForm(forms.ModelForm):
 
 	class Meta:
 		model = RequestedItem
-		exclude = ('slug', 'posted_datetime', 'last_modified', 'poster', 'original_language',)
+		exclude = (
+			'slug', 'posted_datetime', 'last_modified', 
+			'poster', 'original_language', 'view_count', 
+		)
 		widgets = {
 			'item_requested': forms.TextInput(attrs={'value': _('Looking for ...')}),
 			'item_description': forms.Textarea(attrs={'rows': '3'})
@@ -69,15 +73,12 @@ class RequestedItemForm(forms.ModelForm):
 				'contact_name',
 				'contact_numbers'
 			),
-			# modal button to trigger button used in the template.
-			# this button isn't inserted directly in the template so as to maintain the position/layout of elements
 			HTML(" \
-				<button \
-					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
-					type='button' \
-					data-bs-toggle='modal' \
-					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + "</button>"
+				<a \
+					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
+					href=" + get_edit_numbers_url(user) + '>'
+					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
+				"</a>"
 			),
 		)
 

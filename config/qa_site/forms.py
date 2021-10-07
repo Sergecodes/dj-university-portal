@@ -1,5 +1,5 @@
 import uuid
-from taggit.models import Tag
+# from taggit.models import Tag
 from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
@@ -8,8 +8,9 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import MAX_TAGS_PER_QUESTION
 from core.models import Institution
+from core.validators import validate_academic_question_tags as validate_tags
 from .models import (
-	Subject, AcademicAnswer, SchoolAnswer,
+	AcademicAnswer, SchoolAnswer,
 	AcademicAnswerComment, SchoolAnswerComment,
 	AcademicQuestion, SchoolQuestion,
 	AcademicQuestionComment, SchoolQuestionComment
@@ -23,40 +24,36 @@ class AcademicQuestionForm(forms.ModelForm):
 		label=_('Body'),
 		required=False
 	)
-	# subject = forms.ModelChoiceField(
-	# 	queryset=Subject.objects.all(), 
-	# 	empty_label=None,
-	# 	widget=forms.Select(attrs={})
-	# )
-	tags = forms.ModelMultipleChoiceField(
-		queryset=Tag.objects.all().order_by('name'),
-		widget=forms.CheckboxSelectMultiple(),
-		help_text=_("Add up to 5 tags to describe what your question is about")
-	)
 
 	class Meta:
 		model = AcademicQuestion
-		fields = ['subject', 'title', 'content', 'tags']
+		fields = ['subject', 'title', 'content', 'tags', 'view_count', ]
 		help_texts = {
-			'title': _("Be specific and imagine you're asking a question to another person")
+			'title': _("Be specific and imagine you're asking a question to another person"),
+			'tags': _(
+				'Enter a space-separated list of at most {} tags. <br>'
+				"Do not enter comma(\',\') or quote(\'\'/\"\")."
+			).format(MAX_TAGS_PER_QUESTION)
 		}
 		widgets = {
 			'title': forms.TextInput(attrs={
 				'placeholder': _('Ex. How to transform a 3D vector to a 2D vector')
+			}),
+			'tags': forms.TextInput(attrs={
+				'placeholder': _('Ex: tag1 tag2 tag3')
 			})
 		}
 
-	def clean(self):
-		tags = self.cleaned_data.get('tags')
-		if tags and tags.count() > MAX_TAGS_PER_QUESTION:
-			raise ValidationError(_(f"Maximum {MAX_TAGS_PER_QUESTION} tags are allowed."))
-		
-		return self.cleaned_data
+	def clean_tags(self):
+		tags = self.cleaned_data['tags']
+		validate_tags(tags)
+		return tags
 
 
 class AcademicAnswerForm(forms.ModelForm):
 	content = forms.CharField(
-		# use ckeditor widget due to server upload image functionality. it doesn't work with dynamically created instances via js.
+		# use ckeditor widget due to server upload image functionality. 
+		# server upload doesn't work with dynamically created instances via js.
 		widget=CKEditorUploadingWidget(config_name='add_answer'),
 		label=_('Your Answer'),
 		required=True
@@ -77,13 +74,6 @@ class AcademicQuestionCommentForm(forms.ModelForm):
 				'id': 'addQuestionCommentArea'		
 			}
 		),
-		# widget= forms.Textarea(
-		# 	attrs={
-		# 		'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-		# 		'id': 'addQuestionCommentArea',
-		# 		# 'rows': '3',
-		# 	}
-		# ),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
 		required=True
@@ -100,17 +90,11 @@ class AcademicAnswerCommentForm(forms.ModelForm):
 			config_name='add_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
+				# there may be many answers on a page, hence many answer forms. 
+				# so generate unique id for ckeditor widget of each form
 				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
 			}
 		),
-		# widget= forms.Textarea(
-		# 	attrs={
-		# 		'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-		# 		# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
-		# 		'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
-		# 	}
-		# ),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
 		required=True
@@ -132,34 +116,16 @@ class SchoolQuestionForm(forms.ModelForm):
 		label=_('Body'),
 		required=True
 	)
-	# tags = forms.ModelMultipleChoiceField(
-	# 	queryset=SchoolQuestionTag.objects.all().order_by('name'),
-	# 	widget=forms.CheckboxSelectMultiple(),
-	# 	help_text=_("Add up to 5 tags to describe what your question is about")
-	# )
 
 	class Meta:
 		model = SchoolQuestion
-		fields = ['school', 'content', ]
+		fields = ['school', 'content', 'view_count', ]
 
-	# def clean(self):
-	# 	cleaned_data = self.cleaned_data
-	# 	tags = cleaned_data.get('tags')
-	# 	# if not tags:
-	# 	# 	raise ValidationError(_('Select at least one tag'))
-
-	# 	if tags and tags.count() > MAX_TAGS_PER_QUESTION:
-	# 		self.add_error(
-	# 			'tags', 
-	# 			ValidationError(_("Maximum {} tags are allowed.").format(MAX_TAGS_PER_QUESTION))
-	# 		)
-		
-	# 	return cleaned_data
-		
 
 class SchoolAnswerForm(forms.ModelForm):
 	content = forms.CharField(
-		# use ckeditor widget due to server upload image functionality. it doesn't work with dynamically created instances via js.
+		# use ckeditor widget due to server upload image functionality. 
+		# server upload doesn't work with dynamically created instances via js.
 		widget=CKEditorUploadingWidget(config_name='add_answer'),
 		label=_('Your Answer'),
 		required=True

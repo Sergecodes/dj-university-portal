@@ -284,32 +284,24 @@ img {
 	display: none;
 } */
 
-.user-form {
-	border: 1px solid #8cc69b;
-}
+/* .user-form {
+	
+} */
 
 .user-form--edit,
 .user-form--signup {
-	width: 60%;
+	width: 75%;
 }
 
 .user-form--login {
 	width: 50%;
 }
 
-.user-form__heading {
-	color: #198754;
-	font-weight: 500;
-	border-bottom: 1px dashed #198754;
+.filter-form,
+.filter-form-wrp {
+	background-color: #f6f6f6;
+	/* border: 1px solid #ccc; */
 }
-
-.user-form--login__heading,
-.user-form--password-change__heading,
-.user-form--password-reset__heading {
-	border: none;
-	text-decoration: underline;
-}
-
 
 /** PHOTO UPLOAD TEMPLATE */
 .gallery-container {

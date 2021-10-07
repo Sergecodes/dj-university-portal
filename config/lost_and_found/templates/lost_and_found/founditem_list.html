@@ -18,9 +18,9 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-lg mb-5">
+<div class="container-lg mb-5 founditems-list-container">
 	<h2 class="text-success">{% trans 'Items Found' %}</h2>
-	<article class="border founditems-list-art">
+	<article class="border mx-lg-auto">
 		<section class="px-3 pt-4">
 			<p>
 				{% blocktrans %}
@@ -33,14 +33,14 @@
 			</a>
 		</section>
 		<section class="mb-3">
-			<form method="get" class="p-3 m-3 border">
+			<form method="get" class="p-3 m-3 border founditems-search-form">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
 					<div class="row">
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-5">
 							{{ form.school|as_crispy_field }}
 						</div>
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-7">
 							{{ form.item_found|as_crispy_field }}
 						</div>
 					</div>
@@ -55,7 +55,7 @@
 		<section>
 			<ul class="list-group list-group-flush ms-5 pe-4">
 				{% for found_item in page_obj %}
-					{% with poster_username=found_item.poster.username %}
+					{% with poster=found_item.poster %}
 						<li class="list-group-item pb-3 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">
 							<a 
 								href="{{ found_item.get_absolute_url }}" 
@@ -67,19 +67,26 @@
 							<div class="mt-2">
 								<a 
 									class="small text-decoration-none" 
-									href="#"
+									href="{% url 'lost_and_found:found-item-list' %}?school={{ found_item.school_id }}"
 								>
 									({{ found_item.school }})
 								</a>
 								<div class="d-inline ms-3">
 									<span class="text-muted">{% trans 'Published by' %}</span>
 									<a 
-										href="{% url 'users:view-profile' username=poster_username %}"
+										href="{{ poster.get_absolute_url }}"
 										class="text-decoration-none"
 									>
-										{{ poster_username }}
+										{{ poster.username }}
 									</a>
 									<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>
+									{% with view_count=found_item.view_count %}
+									<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+										<i class="far fa-eye me-1" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Number of views' %}</span>
+										{{ view_count }}
+									</span>
+									{% endwith %}
 								</div>
 							</div>
 						</li> 
@@ -87,88 +94,7 @@
 				{% endfor %}
 					
 				{% if is_paginated %}
-					<ul class="pagination ms-3 mb-3 mt-4">
-						{% if page_obj.has_previous %}
-							<li class="page-item">
-								<a 
-									aria-label="{% trans 'Previous' %}"
-									class="page-link" 
-									href="?{% query_transform request page=page_obj.previous_page_number %}"
-								>
-									<span aria-hidden="true">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<span class="page-link">
-									<i class="fas fa-chevron-left"></i>
-								</span>
-							</li>
-						{% endif %}
-
-						{% if page_obj.number|add:'-4' > 1 %}
-							<li class="page-item">
-								<a 
-									class="page-link"
-									href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-								>
-									&hellip;
-								</a>
-							</li>
-						{% endif %}
-
-						{% for i in page_obj.paginator.page_range %}
-							{% if page_obj.number == i %}
-								<li class="page-item active">
-									<span class="page-link">
-										{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-									</span>
-								</li>
-							{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=i %}"
-									>
-										{{ i }}
-									</a>
-								</li>
-							{% endif %}
-						{% endfor %}
-
-						{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-							<li class="page-item">
-								<a 
-									class="page-link"
-									href="?{% query_transform request page=page_obj.number|add:'5' %}"
-								>
-									&hellip;
-								</a>
-							</li>
-						{% endif %}
-
-						{% if page_obj.has_next %}
-							<li class="page-item">
-								<a 
-									aria-label="{% trans 'Next' %}"
-									class="page-link" 
-									href="?{% query_transform request page=page_obj.next_page_number %}"
-								>
-									<span aria-hidden="true">
-										<i class="fas fa-chevron-right"></i>
-									</span>
-								</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<span class="page-link">
-									<i class="fas fa-chevron-right" aria-hidden="true"></i>
-								</span>
-							</li>
-						{% endif %}
-					</ul>
+					{% include 'core/pagination.html' with page_obj=page_obj %}
 				{% endif %}
 			</ul>
 		</section>

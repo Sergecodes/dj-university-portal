@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from core.models import Institution
+from core.utils import get_edit_numbers_url
 from .models import (
 	ItemListing, AdListing, ItemSubCategory,
 	ItemCategory, ItemListingPhoto, AdListingPhoto
@@ -40,10 +41,10 @@ class ItemListingForm(forms.ModelForm):
 		# this class will be used in js script
 		widget=forms.Select(attrs={'class': 'js-category'})  
 	)
-	# initially, it should contain the sub categories of the current(initial) selected parent category. also some user's listings might not have sub categories
+	# initially, it should contain the sub categories of the current(initial) selected parent category
+	# also some user's listings might not have sub categories
 	sub_category = forms.ModelChoiceField(
 		required=False,
-		# queryset=ItemSubCategory.objects.all(),
 		queryset=ItemSubCategory.objects.none(),
 		widget=forms.Select(attrs={'class': 'js-subcategory'})
 	)
@@ -61,7 +62,7 @@ class ItemListingForm(forms.ModelForm):
 
 	class Meta:
 		model = ItemListing
-		exclude = ('poster', 'slug', 'original_language')
+		exclude = ('poster', 'slug', 'original_language', 'view_count', )
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
 			'condition': _("Select the condition of the item you're listing."),
@@ -107,7 +108,7 @@ class ItemListingForm(forms.ModelForm):
 				# photo upload template here
 				PhotoFormLayout(extra_context={
 					'form_for': 'item_listing', 
-					'upload_help_text': _('Upload at least 3 photos.'),
+					'upload_help_text': _('Upload at least 3 photos and at most 8 photos.'),
 					'initial_photos': initial_photos
 				}),  
 				'description',
@@ -120,15 +121,16 @@ class ItemListingForm(forms.ModelForm):
 				'contact_numbers'
 			),
 			# modal button to trigger button used in the template.
-			# this button isn't inserted directly in the template so as to maintain the position/layout of elements
+			# this button isn't inserted directly in the template 
+			# so as to maintain the position/layout of elements
+
+			# remove modal since unload listener is used...
 			HTML(" \
-				<button \
-					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
-					type='button' \
-					data-bs-toggle='modal' \
-					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
-				"</button>"
+				<a \
+					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
+					href=" + get_edit_numbers_url(user) + '>'
+					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
+				"</a>"
 			),
 			# no submit button inserted so as to use same form (different values for the submit button)
 			# for create and update forms (eg List Item vs Update Item)
@@ -142,14 +144,18 @@ class ItemListingForm(forms.ModelForm):
 
 	def clean_price(self):
 		"""Price should contain only spaces and digits. """
-		price = self.cleaned_data.get('price', '0')  # 0 is in string since the following split() method works on strings
+		# 0 is in string since the following split() method works on strings
+		price = self.cleaned_data.get('price', '0')  
 
 		# remove all whitespace from price
 		price = ''.join(price.split())
 
 		# price should now contain only digits
 		if not price.isdigit():
-			self.add_error('price', _('The price you entered is invalid. Prices may contain only spaces and digits.'))
+			self.add_error(
+				'price', 
+				_('The price you entered is invalid. Prices may contain only spaces and digits.')
+			)
 		else:
 			return int(price)
 
@@ -175,7 +181,7 @@ class AdListingForm(forms.ModelForm):
 
 	class Meta:
 		model = AdListing
-		exclude = ('poster', 'slug', 'original_language')
+		exclude = ('poster', 'slug', 'original_language', 'view_count', )
 		help_texts = {
 			'title': _("A descriptive title helps others easily find your advert. <br> Include words that others will use to search for your advert"),
 		}
@@ -229,9 +235,7 @@ class AdListingForm(forms.ModelForm):
 				<button \
 					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
 					type='button' \
-					data-bs-toggle='modal' \
-					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON +
+				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</button>"
 			),
 		)

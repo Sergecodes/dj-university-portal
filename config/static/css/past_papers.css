@@ -13,8 +13,8 @@
 }
 
 /** Past papers list */
-.pastpapers-list-art {
-	width: 85%;
+.pastpapers-list-container {
+	width: 75%;
 }
 
 /** Past papers detail page */
@@ -39,7 +39,7 @@
         padding-right: 1rem; 
     }
 
-	.pastpapers-list-art {
+	.pastpapers-list-container {
 		width: 100%;
 	} 
 

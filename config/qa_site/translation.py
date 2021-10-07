@@ -1,18 +1,17 @@
-from taggit.models import Tag
 from modeltranslation.translator import register, TranslationOptions as TransOptions
 
 from .models import (
 	Subject, AcademicAnswer, SchoolAnswer,
 	AcademicAnswerComment, SchoolAnswerComment,
-	AcademicQuestion, SchoolQuestion,
+	AcademicQuestion, SchoolQuestion, AcademicQuestionTag,
 	AcademicQuestionComment, SchoolQuestionComment
 )
 
-# register Tag (django-taggit) 
-@register(Tag)
-class TaggitTransOptions(TransOptions):
-	fields = ('name', )
-	required_languages = ('en', 'fr')
+
+@register(AcademicQuestionTag)
+class AcademicQuestionTagTransOptions(TransOptions):
+	fields = ('name', 'slug')
+	# required_languages = ('en', 'fr')
 
 
 @register(AcademicQuestion)

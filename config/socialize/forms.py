@@ -37,45 +37,52 @@ class SocialMediaFollowForm(forms.ModelForm):
 				Row(
 					Column(
 						PrependedText(
+							'email', 
+							'<i class="far fa-envelope fs-5 link-danger"></i>', 
+						),
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
+					),
+					Column(
+						PrependedText(
 							'facebook_follow', 
 							'<i class="fab fa-facebook-f link-primary"></i>', 
 						),
-						css_class='form-group col-md-6 col-lg-4 mb-0'
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'twitter_follow', 
 							'<i class="fab fa-twitter link-primary"></i>',
 						),
-						css_class='form-group col-md-6 col-lg-4 mb-0'
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'instagram_follow', 
 							'<i class="fab fa-instagram fa-lg link-danger"></i>', 
 						),
-						css_class='form-group col-md-6 col-lg-4 mb-0'
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'tiktok_follow', 
 							'<i class="fab fa-tiktok"></i>', 
 						),
-						css_class='form-group col-md-6 col-lg-4 mb-0'
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'github_follow', 
 							'<i class="fab fa-github fa-lg"></i>', 
 						),
-						css_class='form-group col-md-6 col-lg-4 mb-0'
+						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'website_follow', 
 							'<i class="fas fa-link"></i>', 
 						),
-						css_class='form-group col-md-8 mb-0'
+						css_class='form-group col-sm-10 mb-0'
 					),
 					css_class='form-row'
 				),
@@ -91,7 +98,11 @@ class SocialMediaFollowForm(forms.ModelForm):
 		boolean_list = []
 
 		for platform, value in data.items():
-			# first remove all white space in string (eg in case user enters and submits white space only)
+			# first remove all white space in string 
+			# (eg in case user enters and submits white space only)
+			# remember though that django form charfields have a strip property which is by default True
+			# it enables removal of whitespace before and after the field's value
+			# nonetheless, we need this check..
 			# value will be None if nothing is entered, convert it to an empty string in that case
 			value = '' if value == None else value
 			value = value.replace(' ', '')
@@ -101,7 +112,7 @@ class SocialMediaFollowForm(forms.ModelForm):
 		if not any(boolean_list):
 			self.add_error(
 				None, 
-				ValidationError(_('At least one social media account must be added.'))
+				_('At least one social media account must be added.')
 			)
 		
 		return data
@@ -114,7 +125,7 @@ class SocialProfileForm(forms.ModelForm):
 	
 	class Meta:
 		model = SocialProfile
-		exclude = ('user', 'social_media', 'original_language', 'last_modified' )
+		exclude = ('user', 'social_media', 'original_language', 'last_modified', 'view_count', )
 		widgets = {
 			'department': forms.TextInput(
 				attrs={'placeholder': _('Ex. Mathematics')}
@@ -127,7 +138,7 @@ class SocialProfileForm(forms.ModelForm):
 		}
 
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+		super().__init__(*args, **kwargs)	
 
 		self.helper = FormHelper()
 		self.helper.disable_csrf = True

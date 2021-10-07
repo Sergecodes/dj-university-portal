@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.model_fields import NormalizedEmailField, FullNameField
+from core.model_fields import NormalizedEmailField
 from flagging.models import Flag
 
 
@@ -28,9 +28,6 @@ class Post(models.Model):
 
 	flags = GenericRelation(Flag)
 	view_count = models.PositiveIntegerField(default=0)
-	# tags will be obtained from the name of the item. ex. red pen => 'red', 'pen'
-	# tags = TaggableManager()
-	# i don't see the need for tags. todo search via normal field with search vector(Postgres) form more efficiency
 	slug = models.SlugField(max_length=255)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -42,7 +39,7 @@ class Post(models.Model):
 		help_text=_('Language in which post was created'),
 		editable=False
 	)
-	contact_name = FullNameField(
+	contact_name = models.CharField(
 		_('Full name'),
 		max_length=25,
 		help_text=_('Please use your real names.'),
@@ -50,7 +47,8 @@ class Post(models.Model):
 	)
 	contact_numbers = models.ManyToManyField(
 		'users.PhoneNumber',
-		related_name='+'
+		related_name='+',
+		verbose_name=_('Contact numbers')
 	)
 	contact_email = NormalizedEmailField(
 		_('Email address'),
@@ -58,6 +56,9 @@ class Post(models.Model):
 		help_text=_("Email address to contact; enter a valid email."),
 		validators=[validate_email]
 	)
+
+	class Meta:
+		abstract = True
 
 	# def save(self, *args, **kwargs):
 	# 	if not self.id:
@@ -68,7 +69,4 @@ class Post(models.Model):
 	# def is_outdated(self):
 	# 	"""Returns whether a post is outdated(has expired)"""
 	# 	return self.expiry_datetime < timezone.now()
-
-	class Meta:
-		abstract = True
 

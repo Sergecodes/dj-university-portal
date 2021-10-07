@@ -7,7 +7,7 @@
 {% load flag_tags %}
 
 {% block title %}
-	<title>{% trans 'School-Based Question' %} - {{ question.id }}</title>
+	<title>{{ question|safe }}</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -126,7 +126,7 @@
 				</span>
 				<span class="mx-1">
 					{% trans 'Concerning' %}
-					<a href="#" class="text-decoration-none">{{ question.school.name }}</a>
+					<a href="{% url 'qa_site:school-question-list' %}?school={{ question.school_id }}" class="text-decoration-none">{{ question.school }}</a>
 				</span>
 			</p>
 

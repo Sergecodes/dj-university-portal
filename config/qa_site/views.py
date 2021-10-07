@@ -7,7 +7,7 @@ from django.db.models import F, Q
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
@@ -25,6 +25,8 @@ from .forms import (
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
 	SchoolQuestionCommentForm, SchoolAnswerCommentForm, SchoolAnswerForm
 )
+from notifications.models import Notification
+from notifications.signals import notify
 from .mixins import (
 	CanEditQuestionMixin, CanDeleteQuestionMixin,
 	CanEditAnswerMixin, CanDeleteAnswerMixin,
@@ -46,7 +48,6 @@ class QuestionsExplain(TemplateView):
 class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = AcademicQuestionForm
 	model = AcademicQuestion
-	# success_url = '/'
 	success_url = reverse_lazy('qa_site:academic-question-detail')
 
 	def form_valid(self, form):
@@ -194,6 +195,20 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	form_class = AcademicQuestionForm
 	template_name = 'qa_site/academicquestion_update.html'
 
+	def form_valid(self, form):
+		question = form.save()
+		followers = question.followers.all()
+
+		# notify users that are following this question
+		for follower in followers:
+			notify.send(
+				sender=follower,  # just use follower as sender,
+				recipient=follower, 
+				verb=_('There was an activity on the question'),
+				target=question,
+				category=Notification.FOLLOWING
+			)
+
 
 class AcademicQuestionFilter(filters.FilterSet):
 	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
@@ -225,14 +240,14 @@ class AcademicQuestionList(FilterView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
-		subjects = Subject.objects.all().prefetch_related(
-			Prefetch('academic_questions', queryset=AcademicQuestion.objects.all().only('id'))
+		subjects = Subject.objects.prefetch_related(
+			Prefetch('academic_questions', queryset=AcademicQuestion.objects.only('id'))
 		)
 		num_questions = 0
 		for subject in subjects:
 			num_questions += subject.academic_questions.count()
 
-		context['subjects'] = Subject.objects.all()
+		context['subjects'] = subjects
 		context['total_num_qstns'] = num_questions
 
 		# optimise queries by using prefetch related on objects for the current page
@@ -242,12 +257,13 @@ class AcademicQuestionList(FilterView):
 		page_num = self.request.GET.get('page', 1)
 		page_content = paginator.page(page_num).object_list
 		# prefetch upvoters & downvoters so as to fasten calculation of score.
-		# django will get only the ids of upvoters & downvoters since in frontent(template), we just need the number of upvoters & downvoters to get the score of a question
+		# django will get only the ids of upvoters & downvoters since in frontent(template), 
+		# we just need the number of upvoters & downvoters to get the score of a question
 		page_content.prefetch_related('tags', 'upvoters', 'downvoters')
 
 		context['page_content'] = page_content
 
-		# note: don't modify page_obj since the context variable `is_paginaged` depends on its content.
+		# NOTE: don't modify page_obj since the context variable `is_paginated` depends on its content.
 		return context
 
 
@@ -302,6 +318,20 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	model = SchoolQuestion
 	form_class = SchoolQuestionForm
 	template_name = 'qa_site/schoolquestion_update.html'
+
+	def form_valid(self, form):
+		question = form.save()
+		followers = question.followers.all()
+
+		# notify users that are following this question
+		for follower in followers:
+			notify.send(
+				sender=follower,  # just use follower as sender,
+				recipient=follower, 
+				verb=_('There was an activity on the question'),
+				target=question,
+				category=Notification.FOLLOWING
+			)
 
 
 class SchoolQuestionFilter(filters.FilterSet):
@@ -482,6 +512,20 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 	def get_success_url(self):
 		return self.get_object().question.get_absolute_url()
 
+	def form_valid(self, form):
+		answer = form.save()
+		question = answer.question
+
+		# notify users that are following this answer's question
+		for follower in question.followers.all():
+			notify.send(
+				sender=follower,  # just use follower as sender,
+				recipient=follower, 
+				verb=_('There was an activity on the question'),
+				target=question,
+				category=Notification.FOLLOWING
+			)
+
 
 class AcademicAnswerUpdate(AnswerUpdate):
 	model = AcademicAnswer
@@ -492,9 +536,26 @@ class SchoolAnswerUpdate(AnswerUpdate):
 
 class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
 	template_name = 'qa_site/misc/answer_confirm_delete.html'
-
+	
 	def get_success_url(self):
-		return self.get_object().question.get_absolute_url()
+		# self.question is set in the delete method below
+		return self.question.get_absolute_url()
+
+	def delete(self, request, *args, **kwargs):
+		self.question = self.get_object().question
+		question = self.question
+
+		# notify users that are following this answer's question
+		for follower in question.followers.all():
+			notify.send(
+				sender=follower,  # just use follower as sender,
+				recipient=follower, 
+				verb=_('There was an activity on the question'),
+				target=question,
+				category=Notification.FOLLOWING
+			)
+
+		return super().delete(request, *args, **kwargs)
 
 
 class AcademicAnswerDelete(AnswerDelete):

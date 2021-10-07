@@ -18,17 +18,17 @@ class ModifyingFieldDescriptor:
 		instance.__dict__[self.field.name] = self.field.to_python(value)
 
 
-class FullNameField(models.CharField):
-	""" Convert string to title case. eg 'I am GOOD-yy => I Am Good-Yy """
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+# class FullNameField(models.CharField):
+# 	""" Convert string to title case. eg 'I am GOOD-yy => I Am Good-Yy """
+# 	def __init__(self, *args, **kwargs):
+# 		super().__init__(*args, **kwargs)
 
-	def to_python(self, value):
-		return value.title()
+# 	def to_python(self, value):
+# 		return value.title()
 
-	def contribute_to_class(self, cls, name, private_only=False):
-		super().contribute_to_class(cls, name)
-		setattr(cls, self.name, ModifyingFieldDescriptor(self))
+# 	def contribute_to_class(self, cls, name, private_only=False):
+# 		super().contribute_to_class(cls, name)
+# 		setattr(cls, self.name, ModifyingFieldDescriptor(self))
 
 
 class NormalizedEmailField(models.EmailField):
@@ -39,6 +39,8 @@ class NormalizedEmailField(models.EmailField):
 		super().__init__(*args, **kwargs)
 
 	def to_python(self, value):
+		if not value:
+			return ''
 		return parse_email(value)
 
 	def contribute_to_class(self, cls, name, private_only=False):

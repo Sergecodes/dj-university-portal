@@ -3,19 +3,21 @@ import django_filters as filters
 from datetime import timedelta, timezone
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django import forms
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View 
 from django.views.decorators.http import require_GET
 from django.views.generic import DetailView
+from random import choice
 
 from core.mixins import IncrementViewCountMixin
 from core.models import Institution
+from core.utils import get_random_profiles
 from past_papers.models import PastPaper
 from .forms import SocialProfileForm, SocialMediaFollowForm
 from .models import SocialProfile
@@ -23,11 +25,16 @@ from .models import SocialProfile
 User = get_user_model()
 
 
-class HasSocialProfileMixin(LoginRequiredMixin, UserPassesTestMixin):
+def has_social_profile(user):
+	"""Verify if user has social profile"""
+	return user.has_social_profile
+
+
+class HasSocialProfileMixin(UserPassesTestMixin):
+	login_url = reverse_lazy('socialize:create-profile')
+
 	def test_func(self):
-		if self.request.user.has_social_profile:
-			return True	
-		return False
+		return has_social_profile(self.request.user)
 
 
 class SocialProfileCreate(LoginRequiredMixin, View):
@@ -52,7 +59,7 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 			social_profile.save()
 			
 			return redirect('/')
-
+			
 		return render(request, self.template_name, {
 			'profile_form': social_profile_form,
 			'media_form': social_media_form
@@ -70,7 +77,8 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		user, passed_username = self.request.user, self.kwargs.get('username')
 		if user.username == passed_username and user.has_social_profile:
 			return True
-		return False
+		else:
+			return False
 
 	def get(self, request, *args, **kwargs):
 		# this will always be non-null coz there's a test to ensure only users with social profiles can access these methods
@@ -243,8 +251,14 @@ class SocialProfileFilter(filters.FilterSet):
 		return parent.order_by('-user__site_points')
 
 
-class SocialProfileDetail(HasSocialProfileMixin, IncrementViewCountMixin, DetailView):
+class SocialProfileDetail(
+		LoginRequiredMixin, 
+		HasSocialProfileMixin, 
+		IncrementViewCountMixin, 
+		DetailView
+	):
 	"""This view permits a user who has a social profile to view another user's social profile."""
+
 	# User's username will be used, hence use the User model
 	model = SocialProfile
 	slug_url_kwarg = "username"
@@ -261,30 +275,26 @@ class SocialProfileDetail(HasSocialProfileMixin, IncrementViewCountMixin, Detail
 		return super().get(request, *args, **kwargs)
 
 
+@user_passes_test(
+	has_social_profile, 
+	# link to go to if user does not pass test.
+	login_url=reverse_lazy('socialize:create-profile')
+)
 @login_required
 @require_GET
 def friend_finder(request):
-	NUM_USERS = 7
-
-	if not request.user.social_profile:
-		return redirect(reverse('socialize:create-profile'))	
-
 	# use empty queryset since we won't be displaying any results on this template.
 	filter = SocialProfileFilter(request.GET, queryset=SocialProfile.objects.none())
 
-	# todo get users with most points seven days ago.  
-	# create function in user model and cache this for a given period...
-	best_users = SocialProfile.objects.order_by('-user__site_points')[:NUM_USERS]
-
 	context = {
 		'filter': filter,
-		'best_users': best_users
+		'random_profiles': get_random_profiles()
 	}
 
 	return render(request, 'socialize/socialprofile_filter.html', context)
 
 
-class SocialProfileList(LoginRequiredMixin, FilterView):
+class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 	## List of filtered social profile results
 	model = SocialProfile
 	# context_object_name = 'social_profiles'
@@ -294,11 +304,7 @@ class SocialProfileList(LoginRequiredMixin, FilterView):
 	paginate_by = 2
 
 	def get_context_data(self, **kwargs):
-		NUM_USERS = 7
 		context = super().get_context_data(**kwargs)
-
-		# todo; get best users for given week
-		# for now, just get all users...
-		context['best_users'] = SocialProfile.objects.order_by('-user__site_points')[:NUM_USERS]
+		context['random_users'] = get_random_profiles()
 
 		return context

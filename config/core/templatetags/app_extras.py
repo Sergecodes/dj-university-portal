@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
-from core.utils import parse_phone_number
+from core.utils import parse_phone_number, is_mobile
 # i imported the User module directly; this was to ensure that the User methods will work.
 # and identified by the code editor; xD
 # just allow it as-is.
@@ -15,6 +15,7 @@ from users.models import User
 register = template.Library()
 
 
+register.filter('is_mobile', is_mobile)
 register.filter('parse_tel', parse_phone_number)
 
 ## register qa_site editing and deleting methods

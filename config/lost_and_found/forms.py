@@ -1,10 +1,12 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, HTML, Submit
 from django import forms
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
+from core.utils import get_edit_numbers_url
 from .models import LostItem, LostItemPhoto, FoundItem
 
 
@@ -23,7 +25,10 @@ class FoundItemForm(forms.ModelForm):
 
 	class Meta: 
 		model = FoundItem
-		exclude = ('slug', 'posted_datetime', 'last_modified', 'poster', 'original_language')
+		exclude = (
+			'slug', 'posted_datetime', 'last_modified', 
+			'poster', 'original_language', 'view_count'
+		)
 		widgets = {
 			'item_found': forms.TextInput(attrs={'placeholder': _('Green backpack')}),
 			'area_found': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
@@ -58,12 +63,11 @@ class FoundItemForm(forms.ModelForm):
 				'contact_numbers'
 			),
 			HTML(" \
-				<button \
-					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
-					type='button' \
-					data-bs-toggle='modal' \
-					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + "</button>"
+				<a \
+					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
+					href=" + get_edit_numbers_url(user) + '>'
+					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
+				"</a>"
 			),
 			Submit('submit', _('Publish item'), css_class='d-block'),
 		)
@@ -78,7 +82,10 @@ class LostItemForm(forms.ModelForm):
 
 	class Meta:
 		model = LostItem
-		exclude = ('slug', 'posted_datetime', 'last_modified', 'poster', 'original_language')
+		exclude = (
+			'slug', 'posted_datetime', 'last_modified', 
+			'poster', 'original_language', 'view_count'
+		)
 		widgets = {
 			'item_lost': forms.TextInput(attrs={'placeholder': _('Itel smartphone')}),
 			'area_lost': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
@@ -124,12 +131,11 @@ class LostItemForm(forms.ModelForm):
 			# modal button to trigger button used in the template.
 			# this button isn't inserted directly in the template so as to maintain the position/layout of elements
 			HTML(" \
-				<button \
-					class='btn btn-outline text-primary d-inline-block mb-4 pt-0' \
-					type='button' \
-					data-bs-toggle='modal' \
-					data-bs-target='#leavePageModal' \
-				>" +  str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + "</button>"
+				<a \
+					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
+					href=" + get_edit_numbers_url(user) + '>'
+					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
+				"</a>"
 			),
 			Submit('submit', _('Publish item'), css_class='d-block'),
 		)

@@ -1,10 +1,16 @@
 {% extends "core/base.html" %}
 
-<!-- {% load static %} -->
-{% load i18n %}
+{# this comment isn't at the top because the extends tag have to be the first tag in the template #}
+{% comment %}
+Due to the Layout object from django-crispy forms, apparently, 
+we need to inherit from the base template... 
+{% endcomment %}
 
-{% block title %}
-	<title>{% trans 'Photo upload demo' %}</title>
+{% load static %} 
+{% load i18n %} 
+{% load app_extras %}
+
+{% block head %}
 {% endblock %}
 
 {% block header %}
@@ -20,7 +26,9 @@
 			<i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 
 			{% trans 'Upload photos' %}
 		</button>
-		<span class="form-text text-muted">{{ upload_help_text }}</span>
+		<span class="form-text text-muted d-inline-block mb-2 js-helpTextSpan">
+			{{ upload_help_text }}
+		</span>
 
 		{# input type="file" to be used by the file upload plugin, dispay set to none so as to hide it but it will be triggered via another button. #}
 		{# note that the name attribute should be the same name used in the backend form #}
@@ -99,6 +107,13 @@
 <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
 
 <script>
+	// if device is desktop, tell user he can drop photos.
+	{% if not request|is_mobile %}
+		var $photoHelpTextSpan = $('.js-helpTextSpan').first();
+		var appendText = "{% trans 'You can also drag photos and drop them here.' %}";
+		$photoHelpTextSpan.append('<br>' + appendText);
+	{% endif %}
+
 	/* 1. OPEN THE FILE EXPLORER WINDOW */
 	$(".js-upload-photos").click(function () {
 		$('.js-file-upload').click();

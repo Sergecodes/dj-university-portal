@@ -12,11 +12,20 @@ User = get_user_model()
 
 
 class FoundItem(Post):
-	item_found = models.CharField(max_length=100, help_text=_('What have you found?'))
-	area_found = models.CharField(max_length=250, help_text=_('Where did you find the item?'))
-	how_found = models.TextField(help_text=_('Explain how you found the item'))
+	item_found = models.CharField(
+		_('Item found'), 
+		max_length=100, 
+		help_text=_('What have you found?')
+	)
+	area_found = models.CharField(
+		_('Area found'), 
+		max_length=250, 
+		help_text=_('Where did you find the item?')
+	)
+	how_found = models.TextField(_('How found'), help_text=_('Explain how you found the item'))
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.CASCADE,
 		related_name='found_items',
 		related_query_name='found_item'
@@ -49,14 +58,33 @@ class FoundItem(Post):
 
 
 class LostItem(Post):
-	item_lost = models.CharField(max_length=100, help_text=_('What have you lost?'))
-	item_description = models.TextField(help_text=_('Describe the lost item stating its important aspects.'))
-	area_lost = models.CharField(max_length=250, help_text=_('Where do you think you lost the item?'))
-	how_lost = models.TextField(help_text=_('Explain how you think you lost the item, stating areas you passed across or visited'), default=_('Good day, ... '))
+	item_lost = models.CharField(_('Item lost'), max_length=100, help_text=_('What have you lost?'))
+	item_description = models.TextField(
+		_('Item description'), 
+		help_text=_('Describe the lost item stating its important aspects.')
+	)
+	area_lost = models.CharField(
+		_('Area lost'), 
+		max_length=250, 
+		help_text=_('Where do you think you lost the item?')
+	)
+	how_lost = models.TextField(
+		_('How lost'), 
+		help_text=_(
+			'Explain how you think you lost the item, ' 
+			'stating areas you passed across or visited'
+		), 
+		default=_('Good day, ... ')
+	)
 	bounty = models.CharField(
+		_('Bounty'),
 		max_length=100,
 		null=True, blank=True, 
-		help_text=_('Award/bounty given to the person who will return the item. Make sure that you are in possession of the award. <br> This is optional but can be used as motivation.')
+		help_text=_(
+			'Award/bounty given to the person who will return the item. '
+			'Make sure that you are in possession of the award. <br> '
+			'This is optional but can be used as motivation.'
+		)
 	)
 	school = models.ForeignKey(
 		Institution,
@@ -123,17 +151,6 @@ class LostItemPhoto(models.Model):
 	@cached_property
 	def title(self):
 		return self.actual_filename.split('.')[0]
-
-	# def save(self, *args, **kwargs):
-	# 	# first save and store file in storage
-	# 	super().save(*args, **kwargs)
-
-	# 	# set title of file if it hasn't yet been saved
-	# 	if not self.title:
-	# 		self.title = self.actual_filename.split('.')[0]
-	# 		self.save(update_fields=['title'])
-			
-	# 	return self
 
 	class Meta:
 		verbose_name = 'Lost Item Photo'

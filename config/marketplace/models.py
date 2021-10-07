@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
 from core.models import Post, Institution
 
-
 User = get_user_model()
 
 
@@ -145,17 +144,6 @@ class AdListingPhoto(models.Model):
 	def title(self):
 		return self.actual_filename.split('.')[0]
 
-	# def save(self, *args, **kwargs):
-	# 	# first save and store file in storage
-	# 	super().save(*args, **kwargs)
-
-	# 	# set title of file if it hasn't yet been saved
-	# 	if not self.title:
-	# 		self.title = self.actual_filename.split('.')[0]
-	# 		self.save(update_fields=['title'])
-
-	# 	return self
-
 
 class ListingPost(Post):
 	'''
@@ -232,24 +220,28 @@ class ItemListing(ListingPost):
 	)
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.CASCADE,
 		related_name='item_listings',
 		related_query_name='item_listing'
 	)
 	category = models.ForeignKey(
 		'ItemCategory', 
+		verbose_name=_('Category'),
 		related_name='item_listings', 
 		related_query_name='item_listing',
 		on_delete=models.PROTECT
 	)
 	sub_category = models.ForeignKey(
 		'ItemSubCategory', 
+		verbose_name=_('Sub category'),
 		related_name='item_listings', 
 		related_query_name='item_listing',
 		on_delete=models.PROTECT,
 		null=True, blank=True,
 	)
 	condition = models.CharField(
+		_('Condition'),
 		max_length=3,
 		choices=CONDITIONS,
 		default=NEW,
@@ -279,10 +271,6 @@ class ItemListing(ListingPost):
 			return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
 		return reverse('marketplace:item-listing-detail', kwargs={'pk': self.id})
 
-	# @property
-	# def view_count(self):
-	# 	return self.hitcount.num_of_hits
-
 	class Meta:
 		verbose_name_plural = 'Item Listings'
 		ordering = ['-posted_datetime']
@@ -300,23 +288,25 @@ class AdListing(ListingPost):
 	)
 	category = models.ForeignKey(
 		'AdCategory', 
+		verbose_name=_('Category'),
 		related_name='ad_listings', 
 		related_query_name='ad_listing',
 		on_delete=models.PROTECT
 	)
 	pricing = models.CharField(
 		_('Pricing'), 
-		help_text=_("Allow this empty for free products and services or if the pricing is in the advert description."),
+		help_text=_("Allow this field empty for free products and services or if the pricing is in the advert description."),
 		default='-',
 		max_length=40
 	)
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.CASCADE,
 		related_name='ad_listings',
 		related_query_name='ad_listing',
 		null=True, blank=True,
-		help_text=_('Allow this empty if this advert concerns no particular school.')
+		help_text=_('Allow this field empty if this advert does not concern a particular school.')
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
@@ -329,10 +319,6 @@ class AdListing(ListingPost):
 		if with_slug:
 			return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id, 'slug': self.slug})
 		return reverse('marketplace:ad-listing-detail', kwargs={'pk': self.id})
-
-	# @property
-	# def view_count(self):
-	# 	return self.hitcount.num_of_hits
 
 	class Meta:
 		ordering = ['-posted_datetime']

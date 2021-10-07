@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
+from core.model_fields import NormalizedEmailField
 from core.models import Institution
 from past_papers.models import PastPaper
 
@@ -41,6 +42,11 @@ class SocialProfileManager(models.Manager):
 
 class SocialMediaFollow(models.Model):
 	"""Links to user's social media profiles"""
+	email = NormalizedEmailField(
+		_('Email address'),
+		max_length=50,
+		blank=True, null=True
+	)
 	twitter_follow = models.CharField(
 		_('Twitter link or username'),
 		max_length=50,
@@ -68,7 +74,10 @@ class SocialMediaFollow(models.Model):
 	)
 	website_follow = models.CharField(
 		_('Other website links'),
-		help_text=_('An example could be a link to a YouTube channel or Likee profile, etc.. <br> Separate multiple links with a semicolon.'),
+		help_text=_(
+			'An example could be a link to a YouTube channel or Likee profile, etc.. <br> '
+			'Separate multiple links with a semicolon.'
+		),
 		max_length=250,
 		blank=True, null=True
 	)
@@ -99,14 +108,20 @@ class SocialProfile(models.Model):
 		('undecided', _('Undecided'))
 	]
 
-	LEVELS = (
-		('N/A', '--------'),  # this comma is required to create a tuple !
-	) + PastPaper.LEVELS
+	# LEVELS = (
+	# 	('N/A', '--------'),  # this comma is required to create a tuple !
+	# ) + PastPaper.LEVELS
 
-	level = models.CharField(_('Level'), choices=LEVELS, max_length=5, default='N/A')
+	level = models.CharField(
+		_('Level'), 
+		choices=PastPaper.LEVELS, 
+		max_length=5, 
+		default='O'  # ordinary level
+	)
 	about_me = models.TextField(_('A little about me'), blank=True)
 	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
 	profile_image = models.ImageField(
+		_('Profile image'),
 		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
 		null=True, blank=True
 	)
@@ -138,6 +153,7 @@ class SocialProfile(models.Model):
 	)
 	school = models.ForeignKey(
 		Institution,
+		verbose_name=_('School'),
 		on_delete=models.SET_NULL,
 		null=True, blank=True,
 		related_name='social_profiles',

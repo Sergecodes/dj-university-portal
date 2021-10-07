@@ -10,10 +10,10 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
+from taggit.models import TagBase, TaggedItemBase
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
 from core.models import Institution
-from core.model_fields import FullNameField
 from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
 from users.models import get_dummy_user
@@ -24,7 +24,7 @@ User = get_user_model()
 class Comment(models.Model):
 	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
-	content = RichTextField(config_name='add_comment')
+	content = RichTextField(_('Content'), config_name='add_comment')
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	users_mentioned = models.ManyToManyField(
@@ -344,11 +344,6 @@ class SchoolQuestion(Question):
 		related_query_name='bookmarked_school_question',
 		blank=True
 	)
-	# tags = models.ManyToManyField(
-	# 	SchoolQuestionTag,
-	# 	related_name='school_questions',
-	# 	related_query_name='school_question'
-	# )
 
 	class Meta:
 		verbose_name = _('School Question')
@@ -365,23 +360,40 @@ class SchoolQuestion(Question):
 		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})
 
 
+## see django-taggit docs on how to use a Custom tag
+class AcademicQuestionTag(TagBase):
+	# overrode name and slug coz name's maxlength is 100 and slug is 100.
+	# this is bad coz if name is say 100(though almost impossible), slug will be >100 chars.
+	name = models.CharField(_('Name'), unique=True, max_length=20)
+	slug = models.SlugField(unique=True, max_length=100)
+
+	class Meta:
+		verbose_name = _('Academic Question Tag')
+		verbose_name_plural = _('Academic Question Tags')
+
+
+class TaggedAcademicQuestion(TaggedItemBase):
+	tag = models.ForeignKey(
+		AcademicQuestionTag,
+		on_delete=models.CASCADE,
+		related_name='academic_questions'
+	)
+
+
 class AcademicQuestion(Question):
-	title = models.CharField(max_length=150)  
+	title = models.CharField(_('Title'), max_length=150)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
-	content = RichTextUploadingField(config_name='add_question', blank=True)
+	content = RichTextUploadingField(_('Content'), config_name='add_question', blank=True)
 	slug = models.SlugField(max_length=250)
-	tags = TaggableManager()
-	# to get tags of a given user, do something like. similar reverse relationships are also permitted.
-	#	Tag.objects.filter(academicquestion__poster=user)
-	#	Tag.objects.filter(academicquestion__id=a.id)  # get tags of a given question from Tag model
-	# as a matter of fact, Tag has fields ('id', 'academicquestion', 'name_en', 'name_fr', 'slug', 'taggit_taggeditem_items')
+	tags = TaggableManager(verbose_name=_('Tags'), through=TaggedAcademicQuestion)
 	subject = models.ForeignKey(
 		'Subject',
+		verbose_name=_('Subject'),
 		on_delete=models.PROTECT,
 		related_name='academic_questions',
 		related_query_name='academic_question',
 		null=True, blank=True,
-		help_text=_('Allow empty if your subject is not present.')
+		help_text=_('Allow this field empty if your subject is not present.')
 	)
 	poster = models.ForeignKey(
 		User,
@@ -439,8 +451,7 @@ class AcademicQuestion(Question):
 
 class Subject(models.Model):
 	"""Subject for academic question"""
-	# name = models.CharField(max_length=40, unique=True) 
-	name = FullNameField(max_length=30, unique=True)
+	name = models.CharField(_('Name'), max_length=30, unique=True)
 	slug = models.SlugField(max_length=200)
 	datetime_added = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -448,7 +459,8 @@ class Subject(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.name)
-			# self.name = (self.name).title   # use python's title method (str.title)
+
+		self.name = (self.name).title  
 		super().save(*args, **kwargs)
 
 	def __str__(self):

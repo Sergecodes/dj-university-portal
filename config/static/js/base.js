@@ -150,10 +150,11 @@ function validateUsername(username) {
  * Verify if full name is valid.
  * Full name rules:
 	- Full name can contain only letters and hyphens.
-	- It consists of two names separated by space(s).
+	- It consists of two or three names separated by space(s).
+	- Shouldn't start or end with hyphens and no name should contain only hyphens
  */
 function validateFullName(fullName) {
-	return /^[A-ZÀ-Ÿa-z-]+[\s]+[A-ZÀ-Ÿa-z-]+$/.test(fullName);
+	return /^(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]+(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]*(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)*$/.test(fullName);
 }
 
 
@@ -177,24 +178,27 @@ function signupAndEditSubmit(e) {
 	}
 
 	/* Username validation here */
-	// var username = ...
-	// if (validateUsername(username)) {
-	// 		$container.append("<p>" + data.usernameError + "</p>");
-	// 	usernameOkay = true;
-	// }
+	var username = form.username.value;
+	if (!validateUsername(username)) {
+		$container.append("<p>" + data.usernameError + "</p>");
+	} else {
+		usernameOkay = true;
+	}
 
 	/* Full name validation here */
-	// var fullName = ...
-	// if (validateFullName(fullName)) {
-		// $container.append("<p>" + data.fullNameError + "</p>");
-	// 	fullNameOkay = true;
-	// }
+	var fullName = form.full_name.value;
+	if (!validateFullName(fullName)) {
+		$container.append("<p>" + data.fullNameError + "</p>");
+	} else {
+		fullNameOkay = true;
+	}
+	
 
 	/* Password validation here  */
 	// prevent validation in edit form since it doesn't contain any password field
 	if (form.name != 'edit-profile-form') {
-		var password = form.password.value;
-		var passwordConfirm = form.confirm_password.value;
+		var password = form.password1.value;
+		var passwordConfirm = form.password2.value;
 	
 		// verify password length and whether password is not entirely numeric
 		if (password.length < MIN_PASSWORD_LENGTH || isNumeric(password)) {
@@ -386,17 +390,25 @@ function insertConditionHelpText(e) {
 
 /**
  * Called when user selects another item condition
- * If the item condition is new, the condition description field isn't required. otherwise, it is required.
+ * If the item condition is new, the condition description field isn't required. 
+ otherwise, it is required.
+ * Thus make the input field required and append an asterisk to the label.
  */
- function setDescriptionRequired(e) {
-	var $conditionDescr = $('.js-condition-description');
+ function onConditionChange(e) {
 	var condition = e.target.value;
-	console.log(condition);
+	var labelText = $('.js-descrLabelText').first().text();
+	var labelTextAsterisk = labelText + '*';
+	var $conditionDescrInput = $('.js-condition-description').first();
+	var $descrLabel = $conditionDescrInput.prev();
 
+	// no condition description required for new item
 	if (condition === 'N') {
-		$conditionDescr.removeAttr('required'); 
+		$descrLabel.text(labelText);
+		$conditionDescrInput.removeAttr('required'); 
 	} else {
-		$conditionDescr.attr('required', '');
+		// description required for other items
+		$descrLabel.text(labelTextAsterisk);
+		$conditionDescrInput.attr('required', '');
 	}
 }
 

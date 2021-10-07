@@ -4,7 +4,7 @@ from modeltranslation.admin import TranslationAdmin
 from .models import (
     Subject, AcademicAnswer, SchoolAnswer,
     AcademicAnswerComment, SchoolAnswerComment,
-    AcademicQuestion, SchoolQuestion,
+    AcademicQuestion, SchoolQuestion, AcademicQuestionTag,
     AcademicQuestionComment, SchoolQuestionComment
 )
 
@@ -41,6 +41,10 @@ class SchoolQuestionAdmin(TranslationAdmin):
     pass
 
 
+class AcademicQuestionTagAdmin(TranslationAdmin):
+    pass
+
+
 class AcademicQuestionAdmin(TranslationAdmin):
     list_display = ['tag_list']
 
@@ -48,7 +52,7 @@ class AcademicQuestionAdmin(TranslationAdmin):
         return super().get_queryset(request).prefetch_related('tags')
 
     def tag_list(self, obj):
-        return ', '.join(o.name for o in obj.tags.all())
+        return ', '.join([o.name for o in obj.tags.all()])
 
 
 class SubjectAdmin(TranslationAdmin):
@@ -57,6 +61,7 @@ class SubjectAdmin(TranslationAdmin):
 
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(SchoolQuestion, SchoolQuestionAdmin)
+admin.site.register(AcademicQuestionTag, AcademicQuestionTagAdmin)
 admin.site.register(AcademicQuestion, AcademicQuestionAdmin)
 admin.site.register(AcademicAnswer, AcademicAnswerAdmin)
 admin.site.register(SchoolAnswer, SchoolAnswerAdmin)

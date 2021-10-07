@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='adlisting',
             name='contact_name',
-            field=core.model_fields.FullNameField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=models.CharField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
         ),
         migrations.AlterField(
             model_name='adlisting',
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='itemlisting',
             name='contact_name',
-            field=core.model_fields.FullNameField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
+            field=models.CharField(help_text='Please use your real names.', max_length=25, verbose_name='Full name'),
         ),
         migrations.AddIndex(
             model_name='adlisting',

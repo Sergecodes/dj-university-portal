@@ -36,14 +36,14 @@
 			<!-- search form -->
 			<section class="mb-3">
 				<!-- question-search-form -->
-				<form method="get" class="p-3 m-3 border">
+				<form method="get" class="p-3 m-3 border filter-form">
 					<h4>{% trans 'Filter' %}</h4>
 					{% with filter.form as form %}
 						<div class="row">
-							<div class="form-group col-12 col-md-5">
+							<div class="form-group col-md-5">
 								{{ form.subject|as_crispy_field }}
 							</div>
-							<div class="form-group col-12 col-md-6">
+							<div class="form-group col-md-7">
 								{{ form.title|as_crispy_field }}
 							</div>
 						</div>
@@ -58,7 +58,7 @@
 			<section class="questions-list-wrp">
 				<ul class="pe-4 questions-list">
 					{% for question in page_content %}
-						{% with poster_username=question.poster.username score=question.score num_answers=question.num_answers %}
+						{% with poster=question.poster score=question.score num_answers=question.num_answers %}
 							<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
 								<div class="text-secondary text-center small flex-shrink-0">
 									<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
@@ -96,10 +96,10 @@
 										<div class="d-inline-block mt-2 ms-lg-5">
 											<span class="text-muted">{% trans 'asked by' %}</span>
 											<a 
-												href="{% url 'users:view-profile' username=poster_username %}"
+												href="{{ poster.get_absolute_url }}"
 												class="text-decoration-none"
 											>
-												{{ poster_username }}
+												{{ poster.username }}
 											</a>
 											<span class="small text-muted">&nbsp; - &nbsp;{{ question.posted_datetime|naturaltime }}</span>
 										</div>
@@ -110,88 +110,7 @@
 					{% endfor %}
 						
 					{% if is_paginated %}
-						<ul class="pagination ms-3 mb-3 mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.previous_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-left"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</li>
-							{% endif %}
-
-							{% if page_obj.number|add:'-4' > 1 %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% for i in page_obj.paginator.page_range %}
-								{% if page_obj.number == i %}
-									<li class="page-item active">
-										<span class="page-link">
-											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-										</span>
-									</li>
-								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-									<li class="page-item">
-										<a 
-											class="page-link"
-											href="?{% query_transform request page=i %}"
-										>
-											{{ i }}
-										</a>
-									</li>
-								{% endif %}
-							{% endfor %}
-
-							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.next_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-right"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-right" aria-hidden="true"></i>
-									</span>
-								</li>
-							{% endif %}
-						</ul>
+						{% include 'core/pagination.html' with page_obj=page_obj %}
 					{% endif %}
 				</ul>
 			</section>

@@ -36,14 +36,16 @@
 			<form method="get" class="p-3 m-3 border requested-items-search-form">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
-					<div class="form-group col-sm-6">
-						{{ form.school|as_crispy_field }}
-					</div>
-					<div class="form-group col-sm-6">
-						{{ form.category|as_crispy_field }}
-					</div>
-					<div class="form-group">
-						{{ form.item_requested|as_crispy_field }}
+					<div class="row">
+						<div class="form-group col-sm-6">
+							{{ form.school|as_crispy_field }}
+						</div>
+						<div class="form-group col-sm-6">
+							{{ form.category|as_crispy_field }}
+						</div>
+						<div class="form-group">
+							{{ form.item_requested|as_crispy_field }}
+						</div>
 					</div>
 				{% endwith %}
 				<button type="submit" class="btn btn-primary">
@@ -81,7 +83,7 @@
 								{% if requested_item.school %}
 									<a 
 										class="text-decoration-none" 
-										href="#"
+										href="{% url 'requested_items:requested-item-list' %}?school={{ requested_item.school_id }}"
 									>
 										{{ requested_item.school }}
 									</a>
@@ -98,88 +100,7 @@
 				{% endfor %}
 
 				{% if is_paginated %}
-					<ul class="pagination mt-4">
-						{% if page_obj.has_previous %}
-							<li class="page-item">
-								<a 
-									aria-label="{% trans 'Previous' %}"
-									class="page-link" 
-									href="?{% query_transform request page=page_obj.previous_page_number %}"
-								>
-									<span aria-hidden="true">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<span class="page-link">
-									<i class="fas fa-chevron-left"></i>
-								</span>
-							</li>
-						{% endif %}
-
-						{% if page_obj.number|add:'-4' > 1 %}
-							<li class="page-item">
-								<a 
-									class="page-link"
-									href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-								>
-									&hellip;
-								</a>
-							</li>
-						{% endif %}
-
-						{% for i in page_obj.paginator.page_range %}
-							{% if page_obj.number == i %}
-								<li class="page-item active">
-									<span class="page-link">
-										{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-									</span>
-								</li>
-							{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=i %}"
-									>
-										{{ i }}
-									</a>
-								</li>
-							{% endif %}
-						{% endfor %}
-
-						{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-							<li class="page-item">
-								<a 
-									class="page-link"
-									href="?{% query_transform request page=page_obj.number|add:'5' %}"
-								>
-									&hellip;
-								</a>
-							</li>
-						{% endif %}
-
-						{% if page_obj.has_next %}
-							<li class="page-item">
-								<a 
-									aria-label="{% trans 'Next' %}"
-									class="page-link" 
-									href="?{% query_transform request page=page_obj.next_page_number %}"
-								>
-									<span aria-hidden="true">
-										<i class="fas fa-chevron-right"></i>
-									</span>
-								</a>
-							</li>
-						{% else %}
-							<li class="page-item disabled">
-								<span class="page-link">
-									<i class="fas fa-chevron-right" aria-hidden="true"></i>
-								</span>
-							</li>
-						{% endif %}
-					</ul>
+					{% include 'core/pagination.html' with page_obj=page_obj %}
 				{% endif %}
 			</ul>
 		</section>

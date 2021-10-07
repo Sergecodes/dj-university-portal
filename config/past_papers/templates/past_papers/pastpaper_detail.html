@@ -34,6 +34,8 @@
 			<a href="{% url 'users:view-profile' username=user.username %}" class="text-decoration-none">
 				{{ user.username }}
 			</a>
+			{% trans 'in' %}
+			<a href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}" class="text-decoration-none">{{ past_paper.school }}</a>
 		</section>
 
 		{# file viewer #}

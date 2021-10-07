@@ -20,6 +20,7 @@
 {% block content %}
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-list-container">
+	<h2 class="text-success mb-3">{% trans 'Adverts' %}</h2>
 	<section class="mb-3 listing-search-form-wrp">
 		<form method="get" class="p-3 listing-search-form">
 			<h4>{% trans 'Filter' %}</h4>
@@ -55,8 +56,10 @@
 			>
 				{% trans 'Items' %}
 			</a>
+			<!-- use text-primary to style link. link-primary doesn't work due to the 
+				.nav-link.active class-->
 			<a 
-				class="nav-link active" 
+				class="nav-link active text-primary" 
 				id="nav-adverts-tab" 
 				aria-controls="nav-adverts" 
 				aria-selected="true"
@@ -99,7 +102,7 @@
 									{% if listing.school %}
 										<a 
 											class="text-decoration-none" 
-											href="#"
+											href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}"
 										>
 											{{ listing.school }}
 										</a>
@@ -122,94 +125,12 @@
 					</div>
 
 					{% if is_paginated %}
-						<ul class="pagination mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.previous_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-left"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</li>
-							{% endif %}
-
-							{% if page_obj.number|add:'-4' > 1 %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'-5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% for i in page_obj.paginator.page_range %}
-								{% if page_obj.number == i %}
-									<li class="page-item active">
-										<span class="page-link">
-											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-										</span>
-									</li>
-								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-									<li class="page-item">
-										<a 
-											class="page-link"
-											href="?{% query_transform request page=i %}"
-										>
-											{{ i }}
-										</a>
-									</li>
-								{% endif %}
-							{% endfor %}
-
-							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?{% query_transform request page=page_obj.number|add:'5' %}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?{% query_transform request page=page_obj.next_page_number %}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-right"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-right" aria-hidden="true"></i>
-									</span>
-								</li>
-							{% endif %}
-						</ul>
+						{% include 'core/pagination.html' with page_obj=page_obj %}
 					{% endif %}
 				</ul>
 				
 			</section>
 		</div>
-		{% comment %} <div class="tab-pane fade" id="nav-adverts" aria-labelledby="nav-adverts-tab">...</div> {% endcomment %}
 	</div>
 
 </div>
