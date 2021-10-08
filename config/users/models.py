@@ -103,7 +103,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			'Your username should be between 4 to 15 characters '
 			'and the first 4 characters must be letters. <br> '
 			'It should not contain any symbols, dashes or spaces. <br>'
-			'All other characters are allowed(letters, numbers, hyphens and underscores).'
+			'All other characters are allowed (letters, numbers, hyphens and underscores).'
 		),
 		error_messages={
 			'unique': _('A user with that username already exists.'),

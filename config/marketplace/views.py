@@ -286,6 +286,13 @@ class ItemListingFilter(filters.FilterSet):
 		model = ItemListing
 		fields = ['school', 'title', 'category', ]
 
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is so as to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
+		self.filters['category'].label = _('Category')
+
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
 
@@ -499,6 +506,13 @@ class AdListingFilter(filters.FilterSet):
 	class Meta:
 		model = AdListing
 		fields = ['school', 'title', 'category', ]
+	
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
+		self.filters['category'].label = _('Category')
 
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()

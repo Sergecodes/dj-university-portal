@@ -7,7 +7,7 @@
 <!-- {% load app_extras %} -->
 
 {% block title %}
-	<title>{% trans 'Requested Items' %}</title>
+	<title>{% trans 'Requested Items' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -20,7 +20,7 @@
 {% block content %}
 <div class="container-lg mb-5 requested-items-list-container">
 	<h2 class="text-success">{% trans 'Items Requested' %}</h2>
-	<article class="border requested-items-list-art">
+	<article class="border mx-lg-auto">
 		<section class="px-3 pt-4">
 			<p>
 				{% blocktrans %}
@@ -57,18 +57,19 @@
 
 		<!-- requested items list -->
 		<section>
-			<ul>
+			<ul class="ms-2 pe-lg-4 pe-1">
 				{% for requested_item, photo in page_obj|zip:first_photos %}
 					{% with poster=requested_item.poster %}
-						<li class="d-flex p-3 pb-4 mb-2 requested-item-item">
+						<li class="d-flex p-3 pb-3 mb-2 requested-item-item">
 							<div class="flex-shrink-0">
 								{% if photo %}
 									<a href="{{ requested_item.get_absolute_url }}">
-										<img class="py-2 requested-item-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										<img class="py-1 requested-item-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								{% else %}
 									<a href="{{ requested_item.get_absolute_url }}" class="d-inline-block link-secondary">
-										<i class="far fa-image fa-7x px-4 opacity-50"></i>
+										<i class="far fa-image fa-7x px-4 opacity-50" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Item' %}</span>
 									</a>
 								{% endif %}
 							</div>
@@ -92,8 +93,30 @@
 								<span>
 									{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}
 									{% trans 'by' %}
-									<a href="{{ poster.get_absolute_url }}" class="text-decoration-none">{{ poster.username }}</a>
+									{% with poster=requested_item.poster %}
+									{% if poster.has_social_profile %}
+										<a 
+											class="text-decoration-none" 
+											href="{{ poster.get_absolute_url }}"
+										>
+											{{ poster.full_name }}
+										</a>
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
+										</span>
+									{% endif %}
+									{% endwith %}
 								</span>
+								{% with view_count=requested_item.view_count %}
+								<p class="mt-1">
+									{% trans 'Views' %}:
+									<span class="ms-2">
+										{{ view_count }}
+										<i class="far fa-eye ms-1" aria-hidden="true"></i>
+									</span>
+								</p>
+								{% endwith %}
 							</div>
 						</li> 
 					{% endwith %}

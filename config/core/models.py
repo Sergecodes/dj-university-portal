@@ -39,12 +39,6 @@ class Post(models.Model):
 		help_text=_('Language in which post was created'),
 		editable=False
 	)
-	contact_name = models.CharField(
-		_('Full name'),
-		max_length=25,
-		help_text=_('Please use your real names.'),
-		# validators=[validate_full_name]
-	)
 	contact_numbers = models.ManyToManyField(
 		'users.PhoneNumber',
 		related_name='+',
@@ -59,6 +53,7 @@ class Post(models.Model):
 
 	class Meta:
 		abstract = True
+
 
 	# def save(self, *args, **kwargs):
 	# 	if not self.id:

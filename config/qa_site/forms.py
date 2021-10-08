@@ -1,5 +1,5 @@
 import uuid
-# from taggit.models import Tag
+from taggit.forms import TagField
 from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
@@ -17,6 +17,15 @@ from .models import (
 )
 
 
+class CustomTagField(TagField):
+	def validate(self, value):
+		# this method is created becoz apparently, when using clean_tags, 
+		# the tags would have already been casted to a list and parsed by django-taggit.
+		# do this here to run our own validation prior to parsing.
+		super().validate(value)
+		validate_tags(value)
+
+
 class AcademicQuestionForm(forms.ModelForm):
 	content = forms.CharField(
 		widget=CKEditorUploadingWidget(config_name='add_question'),
@@ -24,15 +33,16 @@ class AcademicQuestionForm(forms.ModelForm):
 		label=_('Body'),
 		required=False
 	)
+	tags = CustomTagField()
 
 	class Meta:
 		model = AcademicQuestion
-		fields = ['subject', 'title', 'content', 'tags', 'view_count', ]
+		fields = ['subject', 'title', 'content', 'tags', ]
 		help_texts = {
 			'title': _("Be specific and imagine you're asking a question to another person"),
 			'tags': _(
 				'Enter a space-separated list of at most {} tags. <br>'
-				"Do not enter comma(\',\') or quote(\'\'/\"\")."
+				"Do not enter comma(\',\') or quotes(\', \")."
 			).format(MAX_TAGS_PER_QUESTION)
 		}
 		widgets = {
@@ -43,11 +53,6 @@ class AcademicQuestionForm(forms.ModelForm):
 				'placeholder': _('Ex: tag1 tag2 tag3')
 			})
 		}
-
-	def clean_tags(self):
-		tags = self.cleaned_data['tags']
-		validate_tags(tags)
-		return tags
 
 
 class AcademicAnswerForm(forms.ModelForm):

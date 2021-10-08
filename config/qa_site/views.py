@@ -14,12 +14,12 @@ from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
-from taggit.models import TaggedItem
 
 from core.constants import (
 	REQUIRED_DOWNVOTE_POINTS, ASK_QUESTION_POINTS_CHANGE,
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
+from core.models import Institution
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -35,7 +35,8 @@ from .mixins import (
 from .models import (
 	SchoolAnswer, SchoolQuestionComment, Subject, AcademicAnswer,
 	AcademicQuestion, SchoolQuestion, SchoolAnswerComment,
-	AcademicQuestionComment, AcademicAnswerComment
+	AcademicQuestionComment, AcademicAnswerComment,
+	TaggedAcademicQuestion
 )
 
 User = get_user_model()
@@ -48,7 +49,6 @@ class QuestionsExplain(TemplateView):
 class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = AcademicQuestionForm
 	model = AcademicQuestion
-	success_url = reverse_lazy('qa_site:academic-question-detail')
 
 	def form_valid(self, form):
 		request = self.request
@@ -60,8 +60,10 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 		question.poster = poster
 		question.original_language = get_language()
 		question.save()	
+		# save m2m fields since we used commit=False
+		form.save_m2m()
 
-		return redirect(self.get_success_url())
+		return redirect(question)
 
 
 @method_decorator(login_required, name='post')
@@ -130,21 +132,24 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 			Prefetch('upvoters', queryset=all_users.only('id'))
 		).all()
 
+
 		## RELATED QUESTIONS
-		related_items = TaggedItem.objects.none()
+		related_items = TaggedAcademicQuestion.objects.none()
 		question_tags = question.tags.all()
 		for tag in question_tags:
 			# build queryset of all TaggedItems. 
-			# a TaggedItem contains each tag and the object it's linked to, so get union(|) of these querysets
-			related_items |= tag.taggit_taggeditem_items.exclude(object_id = question.id)
+			# since out AcademicQuestionTag serves as the through model, 
+			# it contains each tag and the object it's linked to
+			# so get union(|) of these querysets
+			related_items |= tag.academic_questions.exclude(content_object=question)
 
-		# TaggedItem doesn't have a direct link to the object, so grap object ids and use them
-		ids = related_items.values_list('object_id', flat=True)
+		# grab each question's id for filtering
+		related_items_ids = related_items.values_list('content_object_id', flat=True)
 		related_qstns = AcademicQuestion.objects.filter(
-			id__in=ids
+			id__in=related_items_ids
 		).only('title') \
 		.prefetch_related(
-			Prefetch('answers', queryset=AcademicAnswer.objects.all().defer('content')),
+			Prefetch('answers', queryset=AcademicAnswer.objects.defer('content')),
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id'))
 		) \
@@ -209,15 +214,28 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				category=Notification.FOLLOWING
 			)
 
+		return redirect(question)
+
 
 class AcademicQuestionFilter(filters.FilterSet):
 	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
+	tags = filters.CharFilter(label=_('Tags'), method='filter_tags')
 
 	class Meta:
 		model = AcademicQuestion
-		fields = ['subject', 'title', ]
+		fields = ['subject', 'title', 'tags', ]
+	
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['subject'].label = _('Subject')
 
 	def filter_title(self, queryset, name, value):
+		# prins False; that means leading and trailing whitespace is stripped.
+		# cool
+		# print(value.endswith(' '))
+
 		value_list = value.split()
 		qs = queryset.filter(
 			reduce(
@@ -225,7 +243,17 @@ class AcademicQuestionFilter(filters.FilterSet):
 				[Q(title__icontains=word) for word in value_list]
 			)
 		)
-		
+		return qs
+
+	def filter_tags(self, queryset, name, value):
+		tag_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(tags__name__icontains=word) for word in tag_list]
+			)
+		)
+
 		return qs
 
 
@@ -243,12 +271,8 @@ class AcademicQuestionList(FilterView):
 		subjects = Subject.objects.prefetch_related(
 			Prefetch('academic_questions', queryset=AcademicQuestion.objects.only('id'))
 		)
-		num_questions = 0
-		for subject in subjects:
-			num_questions += subject.academic_questions.count()
-
 		context['subjects'] = subjects
-		context['total_num_qstns'] = num_questions
+		context['total_num_qstns'] = AcademicQuestion.objects.count()
 
 		# optimise queries by using prefetch related on objects for the current page
 		page_obj = context.get('page_obj')
@@ -263,7 +287,8 @@ class AcademicQuestionList(FilterView):
 
 		context['page_content'] = page_content
 
-		# NOTE: don't modify page_obj since the context variable `is_paginated` depends on its content.
+		# NOTE: don't modify page_obj since 
+		# the context variable `is_paginated` depends on its content.
 		return context
 
 
@@ -271,11 +296,11 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 	form_class = SchoolQuestionForm
 	model = SchoolQuestionForm
 	template_name = 'qa_site/schoolquestion_form.html'
-	success_url = reverse_lazy('qa_site:school-question-detail')
 
 	def form_valid(self, form):
 		request = self.request
 		self.object = form.save(commit=False)
+		form.save_m2m()
 		school_question, poster = self.object, request.user
 		school_question.school = form.cleaned_data['school']
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
@@ -284,8 +309,9 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		school_question.poster = poster
 		school_question.original_language = get_language()
 		school_question.save()	
+		form.save_m2m()
 
-		return redirect(self.get_success_url())
+		return redirect(school_question)
 
 
 class SchoolQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
@@ -333,6 +359,8 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				category=Notification.FOLLOWING
 			)
 
+		return redirect(question)
+
 
 class SchoolQuestionFilter(filters.FilterSet):
 	# this query will take long in cases where the school question is too long
@@ -343,6 +371,12 @@ class SchoolQuestionFilter(filters.FilterSet):
 	class Meta:
 		model = SchoolQuestion
 		fields = ['school', 'content',]
+	
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
 
 	def filter_content(self, queryset, name, value):
 		value_list = value.split()
@@ -367,6 +401,12 @@ class SchoolQuestionList(FilterView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 
+		schools = Institution.objects.prefetch_related(
+			Prefetch('questions', queryset=SchoolQuestion.objects.only('id'))
+		)
+		context['schools'] = schools
+		context['total_num_qstns'] = SchoolQuestion.objects.count()
+
 		# optimise queries by using prefetch related on objects for the current page
 		page_obj = context.get('page_obj')
 		paginator = page_obj.paginator
@@ -375,6 +415,9 @@ class SchoolQuestionList(FilterView):
 		page_content = paginator.page(page_num).object_list
 		page_content.prefetch_related('upvoters', 'downvoters')
 		context['page_content'] = page_content
+
+		print('page content', page_content)
+		print('page obj', page_obj)
 		
 		return context
 
@@ -465,7 +508,7 @@ class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
 	template_name = 'qa_site/misc/comment_edit.html'
 
 	def get_success_url(self):
-		return self.get_object().question.get_absolute_url()
+		return self.get_object().parent_object.get_absolute_url()
 
 
 class AcademicQuestionCommentUpdate(CommentUpdate):
@@ -485,7 +528,7 @@ class CommentDelete(GetObjectMixin, CanDeleteCommentMixin, DeleteView):
 	template_name = 'qa_site/misc/comment_confirm_delete.html'
 
 	def get_success_url(self):
-		return self.get_object().question.get_absolute_url()
+		return self.get_object().parent_object.get_absolute_url()
 
 
 class AcademicQuestionCommentDelete(CommentDelete):

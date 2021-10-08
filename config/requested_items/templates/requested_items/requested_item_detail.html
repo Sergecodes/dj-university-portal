@@ -6,7 +6,7 @@
 {% load app_extras %}  {# custom tag #}
 
 {% block title %}
-	<title>{{ requested_item.item_requested }}</title>
+	<title>{{ requested_item.item_requested }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -20,7 +20,7 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
-		<h2>{{ requested_item.item_requested|title }}</h2>
+		<h2>{{ requested_item.item_requested }}</h2>
 
 		<!-- item photos and info -->
 		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
@@ -57,7 +57,11 @@
 					<tr>
 						<td>{% trans 'School' %}</td>
 						<td>
-							<a href="{% url 'requested_items:requested-item-list' %}?school={{ requested_item.school_id }}" class="text-decoration-none">{{ requested_item.school }}</a>
+							{% if requested_item.school %}
+								<a href="{% url 'requested_items:requested-item-list' %}?school={{ requested_item.school_id }}" class="text-decoration-none">{{ requested_item.school }}</a>
+							{% else %}
+								{% trans 'Anywhere' %}
+							{% endif %}
 						</td>
 					</tr>
 					<tr>
@@ -69,6 +73,32 @@
 					<tr>
 						<td>{% trans 'Posted' %}</td>
 						<td>{{ requested_item.posted_datetime|naturaltime }}</td>
+					</tr>
+					<tr>
+						<td>{% trans 'By' %}</td>
+						<td>
+							{% with poster=requested_item.poster %}
+							{% if poster.has_social_profile %}
+								<a 
+									class="text-decoration-none" 
+									href="{{ poster.get_absolute_url }}"
+								>
+									{{ poster.full_name }}
+								</a>
+							{% else %}
+								<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+									{{ poster.full_name }}
+								</span>
+							{% endif %}
+							{% endwith %}
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Views' %}</td>
+						<td>
+							{{ requested_item.view_count }}
+							<i class="ms-1 far fa-eye" aria-hidden="true"></i>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -85,7 +115,7 @@
 			
 		<!-- contact details -->
 		<section class="contact-details">
-			<h4 class="text-success">{% trans 'Contact' %} {{ requested_item.contact_name }}</h4>
+			<h4 class="text-success">{% trans 'Contact' %} {{ requested_item.poster.full_name }}</h4>
 			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
@@ -103,8 +133,9 @@
 								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
+								aria-label="{% trans 'Contact via WhatsApp' %}"
 							>
-								<i class="fab fa-whatsapp"></i>
+								<i class="fab fa-whatsapp" aria-hidden="true"></i>
 							</a>
 						{% endif %}
 					</div>
@@ -118,8 +149,17 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-items-wrp">
 			<h5 class="mb-4">
-				{% trans 'Similar requested items in' %} 
-				<a href="#" class="text-decoration-none">{{ item.school }}</a>
+				{% if requested_item.school %}
+					{% trans 'Similar requested items in' %} 
+					<a 
+						href="{% url 'requested_items:requested-item-list' %}?school_id={{ requested_item.school_id }}" 
+						class="text-decoration-none"
+					>
+						{{ requested_item.school }}
+					</a>
+				{% else %}
+					{% trans 'Similar items' %}
+				{% endif %}
 			</h5>
 			<div class="row">
 				{% for sim_item, photo in similar_items|zip:first_photos %}
@@ -131,7 +171,7 @@
 							</a>
 						{% else %}
 							<a href="{{ sim_item.get_absolute_url }}" class="d-inline-block text-decoration-none">
-								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2"></i>
+								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2" aria-hidden="true"></i>
 								<p>{{ sim_item.item_requested }}</p>
 							</a>
 						{% endif %}

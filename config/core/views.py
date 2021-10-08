@@ -1,7 +1,13 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.db.models import Prefetch
+from django.http.response import Http404
+from django.shortcuts import render
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_GET
 from django.views.generic.base import TemplateView
 
+from core.utils import get_search_results, get_label
 from lost_and_found.models import LostItem, FoundItem
 from marketplace.models import ItemListing, AdListing
 from notifications.models import Notification
@@ -22,10 +28,10 @@ class HomePageView(TemplateView):
 
 		## questions ##
 		academic_questions = AcademicQuestion.objects.prefetch_related(
-			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
+			Prefetch('answers', queryset=AcademicAnswer.objects.only('id'))
 		).defer('content')[:NUM_QUESTIONS]
 		school_questions = SchoolQuestion.objects.select_related('school').prefetch_related(
-			Prefetch('answers', queryset=SchoolAnswer.objects.all().only('id'))
+			Prefetch('answers', queryset=SchoolAnswer.objects.only('id'))
 		)[:NUM_QUESTIONS]
 
 		## marketplace(items / adverts) ##
@@ -111,20 +117,6 @@ class HomePageView(TemplateView):
 		'''
 
 
-class SiteUsageInfoView(TemplateView):
-	template_name = "core/site_usage_info.html"
-
-
-# def delete_post_and_penalize_user(request):
-# 	"""mod only"""
-	# delete post and penalize user
-# 	# call User.objects.penalize_user(...)
-# 	# and 
-
-# def absolve_post...
-	# pass
-
-
 class NotificationsView(LoginRequiredMixin, TemplateView):
 	template_name = "core/notifications.html"
 
@@ -153,7 +145,8 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 
 		## For cases where target posts may be included multiple times
 		## use a set to have single instances.
-		# activies (there may be many activities on a single post; eg likes, dislikes, comments...)
+		# activies (there may be many activities on a single post; 
+		# eg likes, dislikes, comments...)
 		activities_notifs_targets = set()
 		for notif in activities_notifs:
 			activities_notifs_targets.add(notif.target)
@@ -163,7 +156,8 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		# for notif in mentions_notifs:
 		# 	mentions_notifs_targets.add(notif.target)
 
-		# followings (a single post can have multiple activities, and user will be notified multiple times)
+		# followings (a single post can have multiple activities, 
+		# and user will be notified multiple times)
 		followings_notifs_targets = set()
 		for notif in followings_notifs:
 			followings_notifs_targets.add(notif.target)
@@ -171,6 +165,12 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		# for flags_notifs, the poster of the flagged post may receive multiple notifications
 		# regarding the same post, but these notifications(verbs) are unique.
 
+		## determine if each category has any unread notifs
+		# unread() returns the unread notifications in the queryset
+		context['general_has_unread'] = general_notifs.unread().exists()
+		context['flags_has_unread'] = flags_notifs.unread().exists()
+		context['activities_has_unread'] = activities_notifs.unread().exists()
+		context['followings_has_unread'] = followings_notifs.unread().exists()
 
 		context['general_notifs'] = general_notifs
 		context['flags_notifs'] = flags_notifs
@@ -180,13 +180,99 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		
 		return context
 
-	# def get(self, request, *args, **kwargs):
-	# 	return render(request, self.template_name, self.get_context_data())
+
+@require_GET
+def search_site(request):
+	"""
+	Perform a search through all apps on the site 
+	based on the keywords received from the form.
+	"""
+	NUM_ITEMS, RESULTS_TEMPLATE = 5, 'core/search_results.html'
+
+	keywords = request.GET.get('keywords', '')
+	keyword_list = keywords.split()
+
+	if not keyword_list:
+		return render(
+			request, 
+			RESULTS_TEMPLATE, 
+			{'num_results': 0, 'keyword_list': [], 'keywords': ''}
+		)
+
+	results, results_count, count = get_search_results(keyword_list)
+
+	return render(request, RESULTS_TEMPLATE, {
+		'keyword_list': keyword_list,
+		'keywords': keywords,
+		'num_results': count,
+		'results_count': results_count,
+		'academic_questions': results['academic_questions'][:NUM_ITEMS],
+		'school_questions': results['school_questions'][:NUM_ITEMS],
+		'item_listings': results['item_listings'][:NUM_ITEMS],
+		'ad_listings': results['ad_listings'][:NUM_ITEMS],
+		'requested_items': results['requested_items'][:NUM_ITEMS],
+		'lost_items': results['lost_items'][:NUM_ITEMS],
+		'found_items': results['found_items'][:NUM_ITEMS],
+		'past_papers': results['past_papers'][:NUM_ITEMS],
+	})
+
+
+@require_GET
+def get_category_search_results(request, category):
+	"""
+	Display search results of `keywords` in `category` 
+	where category is basicaly an app in site.
+	"""
+	TEMPLATE_NAME = 'core/category_search_results.html'
+	RESULTS_PER_PAGE = 3
+	CATEGORIES = (
+		'academic_questions', 'school_questions', 'item_listings',
+		'ad_listings', 'requested_items', 'lost_items', 
+		'found_items', 'past_papers'
+	)
+	keywords = request.GET.get('keywords', '')
+	keyword_list = keywords.split()
 	
-	# def post(self, request, *args, **kwargs):
-	# 	POST, user = request.POST, request.user
+	if not keyword_list:
+		return render(request, TEMPLATE_NAME, {
+			'keyword_list': [],
+			'keywords': '',
+			'count': 0
+		})
 
-	# 	if 'mark_as_read' in POST:
-	# 		notif_id = POST.get('notif_id')
-	# 		notif = get_object_or_404(user.notifications.unread(), id=notif_id)
+	if category not in CATEGORIES:
+		raise Http404(_('Invalid category'))
 
+	results, count = get_search_results(keyword_list, category)
+
+	## paginate results
+	paginator = Paginator(results, RESULTS_PER_PAGE)
+	page_number = request.GET.get('page')
+	# if page_number is None, the first page is returned
+	page_obj = paginator.get_page(page_number) 
+
+	return render(request, TEMPLATE_NAME, {
+		'keyword_list': keyword_list,
+		'keywords': keywords,
+		'app_label': get_label(category),
+		'results': results,
+		'count': count,
+		'page_obj': page_obj,
+		# if more than one page is present, then the results are paginated
+		'is_paginated': paginator.num_pages > 1
+	})
+
+
+class SiteUsageInfoView(TemplateView):
+	template_name = "core/site_usage_info.html"
+
+
+
+# def delete_post_and_penalize_user(request):
+# 	"""mod only"""
+	# delete post and penalize user
+# 	# call User.objects.penalize_user(...)
+# 	# and 
+
+# def absolve_post...
+	# pass

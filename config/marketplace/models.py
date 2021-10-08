@@ -1,6 +1,7 @@
 from ckeditor.fields import RichTextField
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.template.defaultfilters import capfirst
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -194,6 +195,7 @@ class ListingPost(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.title)
+		self.title = capfirst(self.title)
 		super().save(*args, **kwargs)
 
 	class Meta:

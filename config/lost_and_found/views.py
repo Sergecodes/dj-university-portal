@@ -129,6 +129,13 @@ class FoundItemFilter(filters.FilterSet):
 		model = FoundItem
 		fields = ['school', 'item_found', ]
 
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is so as to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		# print(self.filters)
+		self.filters['school'].label = _('School')
+
 	def filter_item(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(
@@ -162,6 +169,12 @@ class LostItemFilter(filters.FilterSet):
 	class Meta:
 		model = LostItem
 		fields = ['school', 'item_lost', ]
+
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is so as to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
 
 	def filter_item(self, queryset, name, value):
 		value_list = value.split()

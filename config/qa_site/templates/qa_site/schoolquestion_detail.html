@@ -7,7 +7,7 @@
 {% load flag_tags %}
 
 {% block title %}
-	<title>{{ question|safe }}</title>
+	<title>{{ question|safe }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -128,6 +128,15 @@
 					{% trans 'Concerning' %}
 					<a href="{% url 'qa_site:school-question-list' %}?school={{ question.school_id }}" class="text-decoration-none">{{ question.school }}</a>
 				</span>
+				{% with view_count=question.view_count %}
+				<p class="mx-1">
+					{% trans 'Views' %}:
+					<span class="ms-2">
+						{{ view_count }}
+						<i class="far fa-eye ms-1" aria-hidden="true"></i>
+					</span>
+				</p>
+				{% endwith %}
 			</p>
 
 			<hr class="mb-3">
@@ -204,7 +213,7 @@
 							<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
 						</span>
 						<!-- flag form -->
-						{% render_flag_form question user request k=3 %}
+						{% render_flag_form question user request %}
 					</div>
 					<!-- todo report(flag) here -->
 

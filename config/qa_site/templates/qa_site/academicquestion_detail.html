@@ -8,7 +8,7 @@
 {% load flag_tags %}
 
 {% block title %}
-	<title>{{ question.title }}</title>
+	<title>{{ question.title }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -138,7 +138,7 @@
 			<span class="mx-1">
 				{% trans 'By' %}
 				{% if question_poster.has_social_profile %}
-					{# note that this `border-bottom-dotted` is a custom class, not form bootstrap. #}
+					{# note that this `border-bottom-dotted` is a custom class, not from bootstrap. #}
 					<a 
 						class="px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted" 
 						href="{{ question_poster.get_absolute_url }}"
@@ -151,8 +151,17 @@
 			</span>
 			<span class="mx-1">
 				{% trans 'In' %}
-				<a href="#" class="text-decoration-none">{{ question.subject.name }}</a>
+				<a href="{% url 'qa_site:academic-question-list' %}?subject={{ question.subject_id }}" class="text-decoration-none">{{ question.subject.name }}</a>
 			</span>
+			{% with view_count=question.view_count %}
+			<p class="mx-1">
+				{% trans 'Views' %}:
+				<span class="ms-2">
+					{{ view_count }}
+					<i class="far fa-eye ms-1" aria-hidden="true"></i>
+				</span>
+			</p>
+			{% endwith %}
 		</p>
 
 		<hr class="mb-3">
@@ -160,11 +169,13 @@
 			<div class="mt-3 mb-4 question-content">
 				{{ question.content|safe }}
 			</div>
-			<div class="question-taglist">
-				{% for tag in question_tags %}
-					<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
-				{% endfor %}
-			</div>
+			{% if question_tags.exists %}
+				<div class="question-taglist">
+					{% for tag in question_tags %}
+						<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
+					{% endfor %}
+				</div>
+			{% endif %}
 
 			<!-- question-reaction(like, dislike, bookmark, flag) -->
 			<div class="mt-3 mb-3 question-reaction">
@@ -575,7 +586,8 @@
 		{% endwith %}
 	</article>
 
-	<!-- related questions -->
+	
+	<!-- Related Questions -->
 	{% if related_qstns.exists %}
 		<hr class="mb-4">
 		<section class="p-3">
@@ -584,10 +596,21 @@
 				<div class="mb-2"> <!-- class 'related-question' -->
 					<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 						<span 
-							class="badge align-middle px-2 py-1 me-2 {% if question.score > 0 %} bg-success {% elif question.score < 0 %} bg-danger {% else %} bg-secondary {% endif %}"
-						>{{ question.score }}</span>
+							class="
+								badge align-middle px-2 py-1 me-2 
+								{% if question.score > 0 %} bg-success 
+								{% elif question.score < 0 %} bg-danger 
+								{% else %} bg-secondary {% endif %}
+							"
+						>
+							{{ question.score }}
+						</span>
 						<span>
-							{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+							{{ question.title }} - 
+							<strong>
+								{{ question.num_answers }} {% trans 'answer' 
+								 question.num_answers|pluralize }}
+							</strong>
 						</span>
 					</a>
 					<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
@@ -604,6 +627,10 @@
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'js/flag.js' %}"></script>
 <script>
+	// call highlight js to highligt code on page
+	hljs.highlightAll();
+
+	
 	// reduce margin of paragraphs so as to use less space..
 	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
 

@@ -83,7 +83,6 @@ class ItemListingForm(forms.ModelForm):
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
-		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		
 		self.helper = FormHelper()
@@ -117,7 +116,6 @@ class ItemListingForm(forms.ModelForm):
 			),
 			Fieldset(_("Seller's Information"),
 				'contact_email',
-				'contact_name',
 				'contact_numbers'
 			),
 			# modal button to trigger button used in the template.
@@ -197,7 +195,6 @@ class AdListingForm(forms.ModelForm):
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
-		self.fields['contact_name'].initial = user.full_name
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['category'].empty_label = None
 
@@ -226,7 +223,6 @@ class AdListingForm(forms.ModelForm):
 			),
 			Fieldset(_("Seller's Information"),
 				'contact_email',
-				'contact_name',
 				'contact_numbers'
 			),
 			# modal button to trigger button used in the template.

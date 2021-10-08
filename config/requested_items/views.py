@@ -160,6 +160,13 @@ class RequestedItemFilter(filters.FilterSet):
 	class Meta:
 		model = RequestedItem
 		fields = ['school', 'item_requested', 'category', ]
+	
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
+		self.filters['category'].label = _('Category')
 
 	def filter_item(self, queryset, name, value):
 		value_list = value.split()

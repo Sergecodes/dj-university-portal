@@ -9,7 +9,6 @@
 {% block head %}
 <head>
 	{% block title %}
-	<title>CamerSchools</title>
 	{% endblock title %}
 
 	<meta charset="utf-8">
@@ -39,15 +38,18 @@
 			<div class="container-fluid row align-items-center px-4">
 				<div class="text-center col-lg-3">
 					<a class="d-inline-block" href="{% url 'core:home' %}">
-						<img src="{% static 'images/yellow-logo.png' %}" class="logo__img" alt="CamerSchools logo">
+						<img src="{% static 'images/yellow-logo.png' %}" class="logo__img" alt="CamerSchools home">
 					</a>
 				</div>
 				<div class="d-none d-lg-block col-lg-5 ps-0 header-search-form">
-					<form class="d-flex" method="get">
-						<input class="form-control me-2" type="search" placeholder="{% trans 'Enter your search keywords here...' %}" aria-label="{% trans 'Search' %}">
-						<!-- <button class="btn btn-outline-light" type="submit">{% trans 'Search' %}</button> -->
+					<form class="d-flex" method="get" action="{% url 'core:site-search' %}">
+						<input 
+							class="form-control me-2" 
+							type="search" name="keywords" 
+							placeholder="{% trans 'Enter your search keywords here...' %}" 
+							aria-label="{% trans 'Enter your search keywords' %}">
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
-						</form>
+					</form>
 				</div>
 				
 				<!-- Form to select language (desktop view) -->
@@ -72,11 +74,11 @@
 						<a href="{% url 'core:my-notifs' %}" class="position-relative header-notifs-link">
 							<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 								<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
-									<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: white; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+									<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 								</g>
 							</svg>
-							<span class="d-block {% if '/my-notifications/' in request %} link-black {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
+							<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 							{% if user.notifications.unread %}
 								<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border notifier-circle">
 									<span class="visually-hidden">{% trans 'New notifications' %}</span>
@@ -101,8 +103,10 @@
 								<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="white"></path>
 							</svg>
 							<br>
-							<span>{% trans 'My Account' %}</span>
-							<i class="fas fa-angle-down"></i>
+							<span>
+								{% trans 'My Account' %}
+								<i class="fas fa-angle-down" aria-hidden="true"></i>
+							</span>
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
 							<div class="px-4 py-2">
@@ -189,11 +193,11 @@
 							<a href="{% url 'core:my-notifs' %}" class="header-notifs-link">
 								<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 									<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
-										<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-										<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+										<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+										<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 									</g>
 								</svg>
-								<span class="d-block {% if '/my-notifications/' in request %} link-dark {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
+								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 							</a>
 						</li>
 						<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
@@ -210,8 +214,10 @@
 									<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="white"></path>
 								</svg>
 								<br>
-								<span>{% trans 'My Account' %}</span>
-								<i class="fas fa-angle-down"></i>
+								<span>
+									{% trans 'My Account' %}
+									<i class="fas fa-angle-down" aria-hidden="true"></i>
+								</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu2">
 								<div class="px-4 py-2">
@@ -409,7 +415,7 @@
 	{% comment %} <div class="container pt-3 pb-2 mb-4 institution-searchbox">
 		<form method="get" class="institution-search-form">
 			<div class="row">
-				<div class="col-12 col-md-3 mb-2">
+				<div class="col-md-3 mb-2">
 					<select class="form-select" aria-label="{% trans 'Select institution' %}">
 					  <option value="state-institution" selected>{% trans 'State institution' %}</option>
 					  <option value="private-institution">{% trans 'Private institution' %}</option>
@@ -419,7 +425,7 @@
 					<select class="form-select institution-list js-institution-list">
 					</select>
 				</div>
-				<div class="col-12 col-md-auto">
+				<div class="col-md-auto">
 					<button type="submit" class="btn btn-success form-submit-button institution-search-form__submit-button">{% trans 'View' %}</button>
 				</div>
 			</div>
@@ -434,25 +440,32 @@
 	<footer class="bg-success bg-gradient pb-2 pt-4 footer">
 		<div class="container-lg ">
 			<div class="row">
-				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-info">
+				<div class="col-sm-6 mb-3 mb-lg-auto footer-info">
 					<h2 class="footer__subheading">CamerSchools</h2>
 					<p class="small">
 						{% trans 'We provide you with information and resources for schools in Cameroon.' %}
 					</p>
 					<div class="mt-3">
-						<form method="get">
+						<form method="get" action="{% url 'core:site-search' %}">
 							<div class="row flex-column">
 								<div class="col-sm-12 col-lg-8">
-									<input class="form-control mb-2" type="search" placeholder="{% trans 'Search...' %}" aria-label="{% trans 'Search' %}">
+									<input 
+										class="form-control mb-2" 
+										type="search" name="keywords" 
+										placeholder="{% trans 'Search...' %}" 
+										aria-label="{% trans 'Search' %}"
+									>
 								</div>
 								<div class="col col-lg-6">
-									<button class="btn btn-sm btn-light text-break w-50 py-1" type="submit">{% trans 'SEARCH' %}</button>
+									<button class="btn btn-sm btn-light text-break w-50 py-1" type="submit">
+										{% trans 'SEARCH' %}
+									</button>
 								</div>
 							</div>
 						</form>
 					</div>
 				</div>
-				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-explore">
+				<div class="col-sm-6 mb-3 mb-lg-auto footer-explore">
 					<h2 class="footer__subheading">{% trans 'Explore' %}</h2>
 					<div class="row">
 						<div class="col pe-lg-0 ">
@@ -505,7 +518,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-channels">
+				<div class="col-sm-6 mb-3 mb-lg-auto footer-channels">
 					<h2 class="footer__subheading">{% trans 'Channels' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">
@@ -545,7 +558,7 @@
 						</li>
 					</ul>
 				</div>
-				<div class="col-12 col-sm-6 mb-3 mb-lg-auto footer-legal">
+				<div class="col-sm-6 mb-3 mb-lg-auto footer-legal">
 					<h2 class="footer__subheading">{% trans 'Legal' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">

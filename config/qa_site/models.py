@@ -356,6 +356,10 @@ class SchoolQuestion(Question):
 	def __str__(self):
 		return filters.truncatewords(remove_tags(self.content), 10)
 
+	def save(self, *args, **kwargs):
+		self.content = filters.capfirst(self.content)
+		super().save(*args, **kwargs)
+
 	def get_absolute_url(self):
 		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})
 
@@ -373,6 +377,13 @@ class AcademicQuestionTag(TagBase):
 
 
 class TaggedAcademicQuestion(TaggedItemBase):
+	# DON'T rename this field !!
+	# renaming it will require multiple customizations at the GenericRelation level
+	# which is definitely not worthwile !
+	content_object = models.ForeignKey(
+		'AcademicQuestion',
+		on_delete=models.CASCADE
+	)
 	tag = models.ForeignKey(
 		AcademicQuestionTag,
 		on_delete=models.CASCADE,
@@ -440,6 +451,7 @@ class AcademicQuestion(Question):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.title)
+		self.title = filters.capfirst(self.title)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):

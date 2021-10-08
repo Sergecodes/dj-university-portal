@@ -77,11 +77,34 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		user, passed_username = self.request.user, self.kwargs.get('username')
 		if user.username == passed_username and user.has_social_profile:
 			return True
-		else:
-			return False
+			
+		return False
+
+	def get_login_url(self):
+		user = self.request.user
+
+		if user.is_anonymous:
+			return reverse('users:login')
+
+		if not user.has_social_profile:
+			return reverse('socialize:create-profile')
+
+		return super().get_login_url()
+
+	def get_permission_denied_message(self):
+		user, passed_username = self.request.user, self.kwargs.get('username')
+		if user.username != passed_username:
+			return _('You can only update your own profile')
+
+		# if username is user's but he doesn't have a social profile
+		if not user.has_social_profile():
+			return _("You don't have a social profile ")
+			
+		return super().get_permission_denied_message()
 
 	def get(self, request, *args, **kwargs):
-		# this will always be non-null coz there's a test to ensure only users with social profiles can access these methods
+		# this will always be non-null coz there's a test 
+		# to ensure only users with social profiles can access these methods
 		object = request.user.social_profile
 
 		return render(request, self.template_name, {
@@ -99,6 +122,8 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 			social_profile = social_profile_form.save(commit=False)
 			social_profile.social_media = social_media
 			social_profile.save()
+			# save any m2m fields coz form was saved with commit=False
+			social_profile_form.save_m2m()
 			
 			return redirect('/')
 
@@ -178,15 +203,14 @@ class SocialProfileFilter(filters.FilterSet):
 		widget=forms.CheckboxInput(),
 		label=_('Must have profile image'),
 		method='filter_dp',
-		help_text=_('<br>Most users do not have profile images')
+		help_text=_('<br>Most users do not have a profile image')
 	)
 
 	class Meta:
 		model = SocialProfile
 		fields = [
-			'name', 'school', 'gender', 
-			'main_language', 'age', 'level', 
-			'interest', 'has_profile_image', 
+			'name', 'school', 'gender', 'main_language', 'age', 
+			'level', 'interest', 'has_profile_image', 
 		]	
 
 	def filter_language(self, queryset, name, value):
@@ -197,6 +221,13 @@ class SocialProfileFilter(filters.FilterSet):
 		return queryset.filter(user__first_language=value)		
 	
 	def filter_age(self, queryset, name, value):
+		# passed age should be coercible to an integer
+		# else don't filter(return same queryset)
+		try:
+			value = int(value)
+		except ValueError:
+			return queryset
+
 		now = timezone.now()
 
 		# don't fret, querysets are lazy
@@ -225,7 +256,7 @@ class SocialProfileFilter(filters.FilterSet):
 			5: queryset.filter(birth_date__lte=(now-timedelta(days=30*365)).date()),
 		}
 		
-		return lookup[int(value)]
+		return lookup[value]
 
 	def filter_dp(self, queryset, name, value):
 		# if user wants profiles with dp
@@ -234,11 +265,16 @@ class SocialProfileFilter(filters.FilterSet):
 		return queryset
 
 	def filter_gender(self, queryset, name, value):
+		# don't bother filtering if gender is invalid
+		if value not in ('M', 'F'):
+			return queryset
 		return queryset.filter(gender=value)
 
 	def filter_interest(self, queryset, name, value):
 		# if no value was passed (if user is filtering by 'Anything')
 		# exclude users that set this field to 'Not interested'. (val = 'none')
+		# even if 'none' is passed, exclude these users.
+		# see model SocialProfile.INTERESTED_RELATIONSHIPS
 		if not value or value == 'none':
 			return queryset.exclude(interested_relationship='none')
 		else:
@@ -296,6 +332,7 @@ def friend_finder(request):
 
 class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 	## List of filtered social profile results
+	# by default, this will return all the objects of the model.
 	model = SocialProfile
 	# context_object_name = 'social_profiles'
 	filterset_class = SocialProfileFilter
@@ -305,6 +342,6 @@ class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['random_users'] = get_random_profiles()
+		context['random_profiles'] = get_random_profiles()
 
 		return context

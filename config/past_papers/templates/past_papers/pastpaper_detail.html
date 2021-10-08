@@ -7,7 +7,14 @@
 {% comment %} {% load app_extras %}  {# custom tag #} {% endcomment %}
 
 {% block title %}
-	<title>{{ past_paper.title }}</title>
+	{% get_current_language as LANGUAGE_CODE %}
+	<title>
+		{% if LANGUAGE_CODE == 'fr' %}
+			{% trans 'Epreuve de' %} {{ past_paper.title }}
+		{% else  %}
+			{{ past_paper.title }} {% trans 'paper' %}
+		{% endif %}
+	 | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -31,11 +38,33 @@
 			<span class="text-muted">{% trans 'Uploaded on' %}</span>
 			{{ past_paper.posted_datetime|date:'d M, Y' }}
 			{% trans 'by' %}
-			<a href="{% url 'users:view-profile' username=user.username %}" class="text-decoration-none">
-				{{ user.username }}
-			</a>
-			{% trans 'in' %}
-			<a href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}" class="text-decoration-none">{{ past_paper.school }}</a>
+			{% with poster=past_paper.poster %}
+			{% if poster.has_social_profile %}
+				<a 
+					class="text-decoration-none" 
+					href="{{ poster.get_absolute_url }}"
+				>
+					{{ poster.full_name }}
+				</a>
+			{% else %}
+				<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+					{{ poster.full_name }}
+				</span>
+			{% endif %}
+			{% endwith %}
+			{% if past_paper.school %}
+				{% trans 'for' %}
+				<a href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}" class="text-decoration-none">{{ past_paper.school }}</a>
+			{% endif %}
+			{% with view_count=past_paper.view_count %}
+			<div>
+				{% trans 'Views' %}:
+				<span class="ms-2">
+					{{ view_count }}
+					<i class="far fa-eye ms-1" aria-hidden="true"></i>
+				</span>
+			</div>
+			{% endwith %}
 		</section>
 
 		{# file viewer #}
@@ -48,13 +77,13 @@
 			</object>
 		</section>
 		<a href="{{ past_paper.file.url }}" class="btn btn-primary mb-5" download>
-			<i class="fas fa-file-download" aria-hidden="true"></i>
+			<i class="fas fa-file-download me-1" aria-hidden="true"></i>
 			{% trans 'Download file' %}
 		</a>
 
 		{# comments section #}
 		<section class="mb-2">
-			{% if comments.count %}
+			{% if comments.exists %}
 				<h5>
 					{% blocktrans count num_comments=comments.count with title=past_paper.title %}
 						{{ num_comments }} comment on <strong>{{ title }}</strong>
@@ -62,7 +91,7 @@
 						{{ num_comments }} comments on <strong>{{ title }}</strong>
 					{% endblocktrans %}
 				</h5>
-				<ul class="list-group list-group-flush pe-4">
+				<ul class="list-group list-group-flush pe-4 mb-3">
 					{% for comment in page_obj %}
 						<li class="list-group-item pb-3 mb-2 ms-2 {% if forloop.first %} pt-3 {% endif %}">
 							<p class="text-break m-0">{{ comment.content }}</p>
@@ -76,92 +105,11 @@
 							<span class="text-muted" title="{{ comment.posted_datetime }}">&nbsp; - &nbsp; {{ comment.posted_datetime|date:'d M, Y' }}</span>
 						</li> 
 					{% endfor %}
-						
-					{% if is_paginated %}
-						<ul class="pagination ms-3 mb-3 mt-4">
-							{% if page_obj.has_previous %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Previous' %}"
-										class="page-link" 
-										href="?page={{ page_obj.previous_page_number }}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-left"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-left"></i>
-									</span>
-								</li>
-							{% endif %}
-
-							{% if page_obj.number|add:'-4' > 1 %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?page={{ page_obj.number|add:'-5' }}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% for i in page_obj.paginator.page_range %}
-								{% if page_obj.number == i %}
-									<li class="page-item active">
-										<span class="page-link">
-											{{ i }} <span class="visually-hidden">{% trans 'Current' %}</span>
-										</span>
-									</li>
-								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
-									<li class="page-item">
-										<a 
-											class="page-link"
-											href="?page={{ i }}"
-										>
-											{{ i }}
-										</a>
-									</li>
-								{% endif %}
-							{% endfor %}
-
-							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
-								<li class="page-item">
-									<a 
-										class="page-link"
-										href="?page={{ page_obj.number|add:'5' }}"
-									>
-										&hellip;
-									</a>
-								</li>
-							{% endif %}
-
-							{% if page_obj.has_next %}
-								<li class="page-item">
-									<a 
-										aria-label="{% trans 'Next' %}"
-										class="page-link" 
-										href="?page={{ page_obj.next_page_number }}"
-									>
-										<span aria-hidden="true">
-											<i class="fas fa-chevron-right"></i>
-										</span>
-									</a>
-								</li>
-							{% else %}
-								<li class="page-item disabled">
-									<span class="page-link">
-										<i class="fas fa-chevron-right" aria-hidden="true"></i>
-									</span>
-								</li>
-							{% endif %}
-						</ul>
-					{% endif %}
 				</ul>
+						
+				{% if is_paginated %}
+					{% include 'core/pagination.html' with page_obj=page_obj %}
+				{% endif %}
 			{% endif %}
 			
 			<hr class="mb-4">
@@ -180,10 +128,11 @@
 	</article>
 
 	{% if similar_papers.exists %}
-		<section class="border mb-5 p-3">
+		<section class="border p-3">
 			<h4 class="mb-3 opacity-75">
 				{% blocktrans with subject=past_paper.subject.name level=past_paper.get_level_display %}
-					Some similar <span class="fw-bold">{{ subject }}</span> papers for <span class="fw-bold">{{ level }}</span>
+					Some similar <span class="fw-bold">{{ subject }}</span> 
+					papers for <span class="fw-bold">{{ level }}</span>
 				{% endblocktrans %}
 			</h4>
 			<ul class="list-group list-group-flush">
@@ -199,9 +148,8 @@
 				{% endfor %}
 			</ul>
 		</section>
-	{% else %}
-		<div class="mb-5">
 	{% endif %}
+	<div class="mb-5">
 </div>
 {% endblock content %}
 

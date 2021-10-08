@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.template.defaultfilters import capfirst
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -45,7 +46,10 @@ class RequestedItem(Post):
 		related_name='requested_items',
 		related_query_name='requested_item',
 		null=True, blank=True,
-		help_text=_("Allow this field empty if it doesn't concern a particular school")
+		help_text=_(
+			'Allow this field empty if you are willing to go to '
+			'another area to buy the item, not in your school.'
+		)
 	)
 	poster = models.ForeignKey(
 		User, 
@@ -60,6 +64,7 @@ class RequestedItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_requested)
+		self.title = capfirst(self.title)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):

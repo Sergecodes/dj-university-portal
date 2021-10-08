@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.template.defaultfilters import capfirst
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -43,6 +44,7 @@ class FoundItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_found)
+		self.item_found = capfirst(self.item_found)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):
@@ -105,6 +107,7 @@ class LostItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_lost)
+		self.item_lost = capfirst(self.item_lost)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):

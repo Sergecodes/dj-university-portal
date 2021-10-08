@@ -6,7 +6,7 @@
 {% load app_extras %}  {# custom tag #}
 
 {% block title %}
-	<title>{{ lost_item.item_lost }}</title>
+	<title>{% trans 'Lost' %} {{ lost_item.item_lost }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -17,24 +17,40 @@
 {% endblock %}
 
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 lostitem-art">
-		<h2 class="text-capitalize">{{ lost_item.item_lost }}</h2>
-		<span class="d-inline-block">
+		<h2>{{ lost_item.item_lost|title }}</h2>
+		<div class="d-inline-block">
 			{% trans 'School' %}:
 			<a href="{% url 'lost_and_found:lost-item-list' %}?school={{ lost_item.school_id }}" class="text-decoration-none"> {{ lost_item.school }}</a>
-		</span>
-		<div class="mb-3">
-			<span class="text-secondary" title="{{ lost_item.posted_datetime }}">
-				{% trans 'Reported' %} {{ lost_item.posted_datetime|naturaltime }}
-			</span>
 			{% with view_count=lost_item.view_count %}
 			<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 				<i class="far fa-eye me-1" aria-hidden="true"></i>
 				<span class="visually-hidden">{% trans 'Number of views' %}</span>
 				{{ view_count }}
 			</span>
+			{% endwith %}
+		</div>
+		<div class="mb-3">
+			{% trans 'Reported' %} 
+			<span class="text-muted me-2" title="{{ lost_item.posted_datetime }}">
+				{{ lost_item.posted_datetime|naturaltime }}
+			</span>
+			{% trans 'By' %} 
+			{% with poster=lost_item.poster %}
+			{% if poster.has_social_profile %}
+				<a 
+					class="text-decoration-none" 
+					href="{{ poster.get_absolute_url }}"
+				>
+					{{ poster.full_name }}
+				</a>
+			{% else %}
+				<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+					{{ poster.full_name }}
+				</span>
+			{% endif %}
 			{% endwith %}
 		</div>
 		
@@ -74,7 +90,7 @@
 		</div>	
 		<!-- contact details -->
 		<section class="contact-details">
-			<h4 class="text-success">{% trans 'Contact' %} {{ lost_item.contact_name }}</h4>
+			<h4 class="text-success">{% trans 'Contact' %} {{ lost_item.poster.full_name }}</h4>
 			<ul class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
@@ -92,8 +108,9 @@
 								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
+								aria-label="{% trans 'Contact via WhatsApp' %}"
 							>
-								<i class="fab fa-whatsapp"></i>
+								<i class="fab fa-whatsapp" aria-hidden="true"></i>
 							</a>
 						{% endif %}
 					</li>

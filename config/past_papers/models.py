@@ -160,6 +160,7 @@ class PastPaper(models.Model):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = filters.slugify(self.title)
+		self.title = filters.capfirst(self.title)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):

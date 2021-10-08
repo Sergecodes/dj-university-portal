@@ -145,7 +145,7 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	slug_url_kwarg = 'username'
 	slug_field = 'username'
 	template_name = 'users/edit_profile.html'
-	# success_url = reverse_url('users:view-profile')
+	permission_denied_message = _('This is not your username. You can only edit your own account.')
 
 	def test_func(self):
 		# Permit access only to current user 
@@ -192,14 +192,15 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		user = self.object
 		
 		# remove all previous numbers
-		# no clear() method available coz null is not = True.
+		# no clear() method available coz null is not = True for this field
 		user.phone_numbers.all().delete()
 		
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
 			phone_number.owner = user
 			phone_number.save()
-		# print(user.phone_numbers.all())
+			# save many2many fields since the form was saved with commit=False
+			number_form.save_m2m()
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
@@ -214,9 +215,9 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		return context
 
 
-def logout_and_login(request):
-	"""Logout the redirect user to login page."""
-	return logout_then_login(request)
+# def logout_and_login(request):
+# 	"""Logout then redirect user to login page."""
+# 	return logout_then_login(request)
 
 
 ### PROFILE TEMPLATES SECTIONS ###

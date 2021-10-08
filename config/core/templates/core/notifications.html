@@ -6,7 +6,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Inbox - Notifications' %}</title>
+	<title>{% trans 'Inbox - Notifications' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -29,12 +29,17 @@
 			{% for notif in general_notifs %}
 				{% if forloop.first %}
 				<p class="mb-4">
-					<a href="{% url 'notifications:mark_category_as_read' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
-						{% trans 'Mark all as read' %}
-					</a>
-					<a href="{% url 'notifications:delete_category_notifs' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+					{% if general_has_unread %}
+						<a href="{% url 'notifications:mark_category_as_read' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-secondary me-2">
+							{% trans 'Mark all as read' %}
+						</a>
+					{% endif %}
+					<a href="{% url 'notifications:delete_category_notifs' 'G' %}?next={{ request.path }}" class="btn btn-sm btn-danger">
 						{% trans 'Delete all' %}
 					</a>
+				</p>
+				<p class="mt-3">
+					{% trans 'The following messages were sent from CamerSchools' %}:
 				</p>
 				<ul style="list-style-type: square;">
 				{% endif %}
@@ -64,7 +69,8 @@
 				{% endif %}
 			{% empty %}
 				<div class="alert alert-primary py-2" role="alert">
-					{% trans 'You have no notification in your inbox.' %}
+					{% trans 'You have no message in your inbox.' %} <br>
+					{% trans 'Messages from CamerSchools to you will be displayed here.' %}
 				</div>
 			{% endfor %}	
 		</section>	
@@ -75,9 +81,9 @@
 			<h4 class="pb-1 border-bottom border-danger text-danger">
 				{% trans 'Reported Posts' %}
 			</h4>
-			{# intenionally; do not display mark all as read and delete-all buttons for flagged posts.. #}
-			{# make e suffer e one xD #}
-			<p class="mt-3">{% trans 'The following posts have been reported:' %}</p>
+			{# intentionally; do not display mark all as read and delete-all buttons for flagged posts.. #}
+			{# make e suffer small :) #}
+			<p class="mt-3">{% trans 'The following posts have been reported' %}:</p>
 			<ul style="list-style-type: square;">
 			{% for notif in flags_notifs %}
 				<li class="mb-2 p-1 {% if notif.unread %} bg-secondary opacity-50 {% endif %}">
@@ -149,10 +155,12 @@
 			</h4>
 			{% if activities_notifs_targets %}
 				<p class="mb-4">
-					<a href="{% url 'notifications:mark_all_posts_as_read' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
-						{% trans 'Mark all as read' %}
-					</a>
-					<a href="{% url 'notifications:delete_all_post_notifs' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+					{% if activities_has_unread %}
+						<a href="{% url 'notifications:mark_all_posts_as_read' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-secondary me-2">
+							{% trans 'Mark all as read' %}
+						</a>
+					{% endif %}
+					<a href="{% url 'notifications:delete_all_post_notifs' 'A' %}?next={{ request.path }}" class="btn btn-sm btn-danger">
 						{% trans 'Delete all' %}
 					</a>
 				</p>
@@ -210,10 +218,12 @@
 			</h4>
 			{% if followings_notifs_targets %}
 				<p class="mb-4">
-					<a href="{% url 'notifications:mark_all_posts_as_read' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-secondary">
-						{% trans 'Mark all as read' %}
-					</a>
-					<a href="{% url 'notifications:delete_all_post_notifs' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-danger ms-2">
+					{% if followings_has_unread %}
+						<a href="{% url 'notifications:mark_all_posts_as_read' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-secondary me-2">
+							{% trans 'Mark all as read' %}
+						</a>
+					{% endif %}
+					<a href="{% url 'notifications:delete_all_post_notifs' 'FF' %}?next={{ request.path }}" class="btn btn-sm btn-danger">
 						{% trans 'Delete all' %}
 					</a>
 				</p>

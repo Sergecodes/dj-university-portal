@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Items' %}</title>
+	<title>{% trans 'Items' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -18,117 +18,142 @@
 {% endblock %}
 
 {% block content %}
-<!-- 100% wide undil lg. (At lg it turns to container.) -->
+<!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-list-container">
 	<h2 class="text-success mb-3">{% trans 'Items for Sale' %}</h2>
-	<section class="mb-3 listing-search-form-wrp">
-		<form method="get" class="p-3 listing-search-form">
-			<h4>{% trans 'Filter' %}</h4>
-			{% with filter.form as form %}
-				<div class="row">
-					<div class="form-group col-sm-6">
-						{{ form.school|as_crispy_field }}
-					</div>
-					<div class="form-group col-sm-6">
-						{{ form.category|as_crispy_field }}
-					</div>
-					<div class="form-group">
-						{{ form.title|as_crispy_field }}
-					</div>
-				</div>
-			{% endwith %}
-			<button type="submit" class="btn btn-primary">
-				<i class="fas fa-search"></i>
-				{% trans 'Search' %}
-			</button>		
-		</form>
-	</section>
+	<div class="border ps-3 pe-2">
+		<section class="pt-3 mb-2">
+			<p>
+				{% blocktrans %}
+					Sell items and view items posted by other students for sale.
+				{% endblocktrans %}
+			</p>
+			<a href="{% url 'marketplace:item-listing-create' %}" class="btn btn-warning mb-3">
+				{% trans 'Sell an item' %}
+			</a>
+		</section>
 
-	<nav class="">
-		<div class="nav nav-tabs" id="nav-tab">
-			<!-- use text-primary to style link. 
-				link-primary doesn't work due to the .nav-link.active class
-			-->
-			<a 
-				class="nav-link active text-primary" 
-				id="nav-items-tab"  
-				aria-controls="nav-items" 
-				aria-selected="true"
-				href="{% url 'marketplace:item-listing-list' %}"
-			>
-				{% trans 'Items' %}
-			</a>
-			<a 
-				class="nav-link" 
-				href="{% url 'marketplace:ad-listing-list' %}"
-				id="nav-adverts-tab" 
-				aria-controls="nav-adverts" 
-				aria-selected="false"
-			>
-				{% trans 'Adverts' %}
-			</a>
-		</div>
-	</nav>
-	<div class="tab-content" id="nav-tabContent">
-		<div 
-			class="tab-pane active" 
-			id="nav-items" 
-			aria-labelledby="nav-items-tab"
-		>	
-			<section class="listing-list-wrp">
-				<ul class="listing-list js-listing-list">
+		<section class="mb-3 listing-search-form-wrp">
+			<form method="get" class="p-3 listing-search-form">
+				<h4>{% trans 'Filter' %}</h4>
+				{% with filter.form as form %}
+					<div class="row">
+						<div class="form-group col-sm-6">
+							{{ form.school|as_crispy_field }}
+						</div>
+						<div class="form-group col-sm-6">
+							{{ form.category|as_crispy_field }}
+						</div>
+						<div class="form-group">
+							{{ form.title|as_crispy_field }}
+						</div>
+					</div>
+				{% endwith %}
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search" aria-hidden="true"></i>
+					{% trans 'Search' %}
+				</button>		
+			</form>
+		</section>
+
+		<nav class="">
+			<div class="nav nav-tabs" id="nav-tab">
+				<!-- use text-primary to style link. 
+					link-primary doesn't work due to the .nav-link.active class
+				-->
+				<a 
+					class="nav-link active text-primary" 
+					id="nav-items-tab"  
+					aria-controls="nav-items" 
+					aria-selected="true"
+					href="{% url 'marketplace:item-listing-list' %}"
+				>
+					{% trans 'Items' %}
+				</a>
+				<a 
+					class="nav-link" 
+					href="{% url 'marketplace:ad-listing-list' %}"
+					id="nav-adverts-tab" 
+					aria-controls="nav-adverts" 
+					aria-selected="false"
+				>
+					{% trans 'Adverts' %}
+				</a>
+			</div>
+		</nav>
+		<div class="tab-content" id="nav-tabContent">
+			<div 
+				class="tab-pane active" 
+				id="nav-items" 
+				aria-labelledby="nav-items-tab"
+			>	
+				<section class="listing-list-wrp">
+					<ul class="listing-list">
 						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
 							{% with cond=listing.condition %}
-								<li class="d-flex p-3 pb-4 mb-2 post js-post">
-									<div class="flex-shrink-0">
-										<a href="{{ listing.get_absolute_url }}">
-											<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-										</a>
-									</div>
-									<div class="flex-grow-1 ms-4">
-										<a 
-											href="{{ listing.get_absolute_url }}" 
-											class="h5 text-decoration-none"
-										>
-											{{ listing.title }}
-										</a>
-										<br class="mb-4">
+							<li class="d-flex p-3 pb-4 mb-2 post">
+								<div class="flex-shrink-0">
+									<a href="{{ listing.get_absolute_url }}">
+										<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+									</a>
+								</div>
+								<div class="flex-grow-1 ms-4">
+									<a 
+										href="{{ listing.get_absolute_url }}" 
+										class="h5 text-decoration-none"
+									>
+										{{ listing.title }}
+									</a>
+									<br class="mb-4">
+									<a 
+										class="text-decoration-none" 
+										href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}"
+									>
+										{{ listing.school }}
+									</a>
+									&nbsp;- &nbsp;
+									<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
+
+									{% with view_count=listing.view_count %}
+									<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+										<i class="far fa-eye me-1" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Number of views' %}</span>
+										{{ view_count }}
+									</span>
+									{% endwith %}
+									<br class="mb-1">
+									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+									<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+									{% trans 'by' %}
+									{% with poster=listing.poster %}
+									{% if poster.has_social_profile %}
 										<a 
 											class="text-decoration-none" 
-											href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}"
+											href="{{ poster.get_absolute_url }}"
 										>
-											{{ listing.school }}
+											{{ poster.full_name }}
 										</a>
-										&nbsp;- &nbsp;
-										<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
-
-										{% with view_count=listing.view_count %}
-										<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
-											<i class="far fa-eye me-1" aria-hidden="true"></i>
-											<span class="visually-hidden">{% trans 'Number of views' %}</span>
-											{{ view_count }}
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
 										</span>
-										{% endwith %}
-										<br class="mb-1">
-										<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
-										<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
-										{% trans 'by' %}
-										<a href="{{ listing.poster.get_absolute_url }}" class="text-decoration-none">{{ listing.poster.username }}</a>
-									</div>
-								</li> 
+									{% endif %}
+									{% endwith %}
+								</div>
+							</li> 
 							{% endwith %}
 						{% endfor %}
 
-					{% if is_paginated %}
-						{% include 'core/pagination.html' with page_obj=page_obj %}
-					{% endif %}
-				</ul>
-				
-			</section>
+						{% if is_paginated %}
+							{% include 'core/pagination.html' with page_obj=page_obj %}
+						{% endif %}
+					</ul>
+					
+				</section>
+			</div>
 		</div>
 	</div>
-
 </div>
 {% endblock content %}
 

@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Adverts' %}</title>
+	<title>{% trans 'Adverts' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -21,65 +21,76 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 listing-list-container">
 	<h2 class="text-success mb-3">{% trans 'Adverts' %}</h2>
-	<section class="mb-3 listing-search-form-wrp">
-		<form method="get" class="p-3 listing-search-form">
-			<h4>{% trans 'Filter' %}</h4>
-			{% with filter.form as form %}
-				<div class="row">
-					<div class="form-group col-sm-6">
-						{{ form.school|as_crispy_field }}
-					</div>
-					<div class="form-group col-sm-6">
-						{{ form.category|as_crispy_field }}
-					</div>
-					<div class="form-group">
-						{{ form.title|as_crispy_field }}
-					</div>
-				</div>
-			{% endwith %}
-			<button type="submit" class="btn btn-primary">
-				<i class="fas fa-search" aria-hidden="true"></i>
-				{% trans 'Search' %}
-			</button>
-			
-		</form>
-	</section>
+	<div class="border ps-3 pe-2">
+		<section class="pt-3 mb-2">
+			<p>
+				{% blocktrans %}
+					Advertize products and view products advertized by other students.
+				{% endblocktrans %}
+			</p>
+			<a href="{% url 'marketplace:ad-listing-create' %}" class="btn btn-warning mb-3">
+				{% trans 'Post an advert' %}
+			</a>
+		</section>
 
-	<nav class="">
-		<div class="nav nav-tabs" id="nav-tab">
-			<a 
-				class="nav-link" 
-				href="{% url 'marketplace:item-listing-list' %}"
-				id="nav-items-tab" 
-				aria-controls="nav-items" 
-				aria-selected="false"
-			>
-				{% trans 'Items' %}
-			</a>
-			<!-- use text-primary to style link. link-primary doesn't work due to the 
-				.nav-link.active class-->
-			<a 
-				class="nav-link active text-primary" 
-				id="nav-adverts-tab" 
-				aria-controls="nav-adverts" 
-				aria-selected="true"
-				href="{% url 'marketplace:ad-listing-list' %}"
-			>
-				{% trans 'Adverts' %}
-			</a>
-		</div>
-	</nav>
-	<div class="tab-content" id="nav-tabContent">
-		<div 
-			class="tab-pane active" 
-			id="nav-items" 
-			aria-labelledby="nav-items-tab"
-		>	
-			<section class="listing-list-wrp">
-				<ul class="listing-list js-listing-list">
-					<div class="js-listing-list-content">
+		<section class="mb-3 listing-search-form-wrp">
+			<form method="get" class="p-3 listing-search-form">
+				<h4>{% trans 'Filter' %}</h4>
+				{% with filter.form as form %}
+					<div class="row">
+						<div class="form-group col-sm-6">
+							{{ form.school|as_crispy_field }}
+						</div>
+						<div class="form-group col-sm-6">
+							{{ form.category|as_crispy_field }}
+						</div>
+						<div class="form-group">
+							{{ form.title|as_crispy_field }}
+						</div>
+					</div>
+				{% endwith %}
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search" aria-hidden="true"></i>
+					{% trans 'Search' %}
+				</button>
+				
+			</form>
+		</section>
+
+		<nav class="">
+			<div class="nav nav-tabs" id="nav-tab">
+				<a 
+					class="nav-link" 
+					href="{% url 'marketplace:item-listing-list' %}"
+					id="nav-items-tab" 
+					aria-controls="nav-items" 
+					aria-selected="false"
+				>
+					{% trans 'Items' %}
+				</a>
+				<!-- use text-primary to style link. link-primary doesn't work due to the 
+					.nav-link.active class-->
+				<a 
+					class="nav-link active text-primary" 
+					id="nav-adverts-tab" 
+					aria-controls="nav-adverts" 
+					aria-selected="true"
+					href="{% url 'marketplace:ad-listing-list' %}"
+				>
+					{% trans 'Adverts' %}
+				</a>
+			</div>
+		</nav>
+		<div class="tab-content" id="nav-tabContent">
+			<div 
+				class="tab-pane active" 
+				id="nav-items" 
+				aria-labelledby="nav-items-tab"
+			>	
+				<section class="listing-list-wrp">
+					<ul class="listing-list">
 						{% for listing, photo in page_obj|zip:first_photos %}
-							<li class="d-flex p-3 pb-4 mb-2 post js-post">
+							<li class="d-flex p-3 pb-2 mb-2 post">
 								<div class="flex-shrink-0">
 									{% if photo %}
 										<a href="{{ listing.get_absolute_url }}">
@@ -87,7 +98,8 @@
 										</a>
 									{% else %}
 										<a href="{{ listing.get_absolute_url }}" class="d-inline-block link-secondary">
-											<i class="far fa-image fa-7x px-4 opacity-50"></i>
+											<i class="far fa-image fa-7x px-4 opacity-50" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Advert' %}</span>
 										</a>
 									{% endif %}
 								</div>
@@ -96,7 +108,7 @@
 										href="{{ listing.get_absolute_url }}" 
 										class="h5 text-decoration-none"
 									>
-										{{ listing.title }}
+										{{ listing.title
 									</a>
 									<br class="mb-4">
 									{% if listing.school %}
@@ -109,6 +121,13 @@
 									{% else %}
 										<span>{% trans 'No particular school' %}</span>
 									{% endif %}
+									{% with view_count=listing.view_count %}
+									<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+										<i class="far fa-eye me-1" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Number of views' %}</span>
+										{{ view_count }}
+									</span>
+									{% endwith %}
 									<br class="mb-1">
 									{% if listing.pricing == '-' %}
 										<span>{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
@@ -116,22 +135,33 @@
 										<span class="fw-bold">{{ listing.pricing }}</span>
 										<span> | {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% endif %}
-									{# TODO some users don't have social profile #}
 									{% trans 'by' %}
-									<a href="{{ listing.poster.get_absolute_url }}" class="text-decoration-none">{{ listing.poster.username }}</a>
+									{% with poster=listing.poster %}
+									{% if poster.has_social_profile %}
+										<a 
+											class="text-decoration-none" 
+											href="{{ poster.get_absolute_url }}"
+										>
+											{{ poster.full_name }}
+										</a>
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
+										</span>
+									{% endif %}
+									{% endwith %}
 								</div>
 							</li> 
 						{% endfor %}
-					</div>
 
-					{% if is_paginated %}
-						{% include 'core/pagination.html' with page_obj=page_obj %}
-					{% endif %}
-				</ul>
-				
-			</section>
+						{% if is_paginated %}
+							{% include 'core/pagination.html' with page_obj=page_obj %}
+						{% endif %}
+					</ul>
+					
+				</section>
+			</div>
 		</div>
 	</div>
-
 </div>
 {% endblock content %}

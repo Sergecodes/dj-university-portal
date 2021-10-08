@@ -1,0 +1,202 @@
+{# Display search results; all apps. #}
+
+{% extends 'core/base.html' %}
+
+{% load i18n %}
+
+{% block title %}
+	<title>{% trans 'Search Results' %} | CamerSchools</title>
+{% endblock %}
+
+{% block content %}
+<article class="container mb-5 search-results-container">
+	<h2 class="text-success"> 
+		{% if num_results == 0 %}
+			{% trans 'No search result for' %} 
+		{% else %}
+			{{ num_results }} {% trans 'Search Result' %}
+			{{ num_results|pluralize }} {% trans 'for' %} 
+		{% endif %}
+		{% if keyword_list %} {{ keyword_list }} {% else %} "" {% endif %}
+	</h2>
+
+	<div class="border p-3">
+		{# ad listings #}
+		{% if ad_listings.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Adverts' %} ({{ results_count.ad_listings }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for ad in ad_listings %}
+						<li class="list-group-item">
+							<a href="{{ ad.get_absolute_url }}" class="text-decoration-none">
+								{{ ad }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='ad_listings' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# item listings #}
+		{% if item_listings.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Items for Sale' %} ({{ results_count.item_listings }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for item in item_listings %}
+						<li class="list-group-item">
+							<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+								{{ item }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='item_listings' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# academic questions #}
+		{% if academic_questions.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Academic Questions' %} ({{ results_count.academic_questions }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for question in academic_questions %}
+						<li class="list-group-item">
+							<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+								{{ question }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='academic_questions' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# school-based questions #}
+		{% if school_questions.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'School-Based Questions' %} ({{ results_count.school_questions }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for question in school_questions %}
+						<li class="list-group-item">
+							<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+								{{ question }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='school_questions' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# requested items #}
+		{% if requested_items.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Requested Items' %} ({{ results_count.requested_items }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for item in requested_items %}
+						<li class="list-group-item">
+							<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+								{{ item }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='requested_items' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# past papers #}
+		{% if past_papers.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Past Papers' %} ({{ results_count.past_papers }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for paper in past_papers %}
+						<li class="list-group-item">
+							<a href="{{ paper.get_absolute_url }}" class="text-decoration-none">
+								{{ paper }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='past_papers' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+
+		{# found items #}
+		{% if found_items.exists %}
+			<section class="mb-5">
+				<h3>{% trans 'Found Items' %} ({{ results_count.found_items }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for item in found_items %}
+						<li class="list-group-item">
+							<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+								{{ item }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='found_items' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+
+		{# lost items #}
+		{% if lost_items.exists %}
+			<section class="mb-3">
+				<h3>{% trans 'Lost Items' %} ({{ results_count.lost_items }})</h3>
+				<ul class="list-group list-group-flush mb-4">
+					{% for item in lost_items %}
+						<li class="list-group-item">
+							<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+								{{ item }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<a 
+					href="{% url 'core:category-search' category='lost_items' %}?keywords={{ keywords|urlencode }}" 
+					class="btn btn-success"
+				>
+					{% trans 'View All Results' %}
+				</a>
+			</section>
+		{% endif %}
+	</div>
+</article>
+{% endblock %}

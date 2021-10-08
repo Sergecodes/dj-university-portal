@@ -6,7 +6,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Search Results' %}</title>
+	<title>{% trans 'Search Results' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -37,11 +37,13 @@
 								<div class="flex-shrink-0">
 									{% if dp %}
 										<a href="{{ profile.get_absolute_url }}">
-											<img class="py-2 profile-item__img" src="{{ dp.url }}" alt="{{ dp.profile_filename }}">
+											{# alt used here without visually-hidden. for accessibility.. #}
+											<img class="py-2 profile-item__img" src="{{ dp.url }}" alt="{% trans 'Social profile' %}">
 										</a>
 									{% else %}
 										<a href="{{ profile.get_absolute_url }}" class="d-inline-block link-secondary">
-											<i class="far fa-user fa-5x px-3 py-3 shadow opacity-50"></i>
+											<i class="far fa-user fa-5x px-3 py-3 shadow opacity-50" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Social profile' %}</span>
 										</a>
 									{% endif %}
 								</div>
@@ -50,7 +52,7 @@
 										href="{{ profile.get_absolute_url }}" 
 										class="h5 text-decoration-none d-inline-block"
 									>
-										{{ user.username }}
+										{{ profile.user.username }}
 									</a>
 									<div>
 										<strong>{% trans 'Age Range' %}:</strong>

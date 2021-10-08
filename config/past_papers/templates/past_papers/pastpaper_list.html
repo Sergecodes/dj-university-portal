@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Past Papers' %}</title>
+	<title>{% trans 'Past Papers' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -47,26 +47,26 @@
 			</a>
 		</section>
 		<section class="mb-3">
-			<form method="get" class="p-3 m-3 border">
+			<form method="get" class="p-3 m-3 border filter-form">
 				<h4>{% trans 'Filter' %}</h4>
 				{% with filter.form as form %}
 					<div class="row">
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-6">
 							{{ form.school|as_crispy_field }}
 						</div>
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-6">
 							{{ form.level|as_crispy_field }}
 						</div>
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-5">
 							{{ form.subject|as_crispy_field }}
 						</div>
-						<div class="form-group col-12 col-md-5">
+						<div class="form-group col-md-7">
 							{{ form.title|as_crispy_field }}
 						</div>
 					</div>
 				{% endwith %}
 				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-search"></i>
+					<i class="fas fa-search" aria-hidden="true"></i>
 					{% trans 'Search' %}
 				</button>
 			</form>
@@ -86,14 +86,14 @@
 						<div class="mt-2">
 							<a 
 								class="badge bg-info link-light opacity-75 text-decoration-none" 
-								href="#"
+								href="{% url 'past_papers:past-paper-list' %}?level={{ past_paper.level }}"
 								title="{{ past_paper.get_level_display }}"
 							>
 								{{ past_paper.level }}
 							</a>
 							<a 
 								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
-								href="#"
+								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
 							>
 								{{ past_paper.subject }}
 							</a>
@@ -105,7 +105,14 @@
 									&nbsp; ({{ past_paper.school }})
 								</a>
 							{% endif %}
-							<div class="d-inline ms-3 small">
+							{% with view_count=past_paper.view_count %}
+							<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+								<i class="far fa-eye me-1" aria-hidden="true"></i>
+								<span class="visually-hidden">{% trans 'Number of views' %}</span>
+								{{ view_count }}
+							</span>
+							{% endwith %}
+							<div class="d-block small mt-2">
 								<span class="text-muted">{% trans 'uploaded by' %}</span>
 								<a 
 									href="{{ past_paper.poster.get_absolute_url }}"
@@ -113,7 +120,9 @@
 								>
 									{{ past_paper.poster.username }}
 								</a>
-								<span class="small text-muted">&nbsp; - &nbsp;{{ past_paper.posted_datetime|naturaltime }}</span>
+								<span class="small text-muted">
+									&nbsp; - &nbsp;{{ past_paper.posted_datetime|naturaltime }}
+								</span>
 							</div>
 						</div>
 					</li> 
@@ -122,6 +131,8 @@
 				{% if is_paginated %}
 					{% include 'core/pagination.html' with page_obj=page_obj %}
 				{% endif %}
+				<!-- to create empty space ...-->
+				<div class="mb-3"></div>
 			</ul>
 		</section>
 	</article>

@@ -7,7 +7,7 @@
 <!-- {% load app_extras %} -->
 
 {% block title %}
-	<title>{% trans 'Reported Lost Items' %}</title>
+	<title>{% trans 'Reported Lost Items' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -64,10 +64,12 @@
 								{% if photo %}
 									<a href="{{ lost_item.get_absolute_url }}">
 										<img class="py-2 lostitem-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										{# no visually hidden text needed here since the alt attribute on the photo is present #}
 									</a>
 								{% else %}
 									<a href="{{ lost_item.get_absolute_url }}" class="d-inline-block link-secondary">
-										<i class="far fa-image fa-7x px-4 opacity-50"></i>
+										<i class="far fa-image fa-7x px-4 opacity-50" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Item' %}</span>
 									</a>
 								{% endif %}
 							</div>
@@ -96,7 +98,20 @@
 								<span>
 									{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}
 									{% trans 'by' %}
-									<a href="{{ poster.get_absolute_url }}" class="text-decoration-none">{{ poster.username }}</a>
+									{% with poster=lost_item.poster %}
+									{% if poster.has_social_profile %}
+										<a 
+											class="text-decoration-none" 
+											href="{{ poster.get_absolute_url }}"
+										>
+											{{ poster.full_name }}
+										</a>
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
+										</span>
+									{% endif %}
+									{% endwith %}
 								</span>
 							</div>
 						</li> 

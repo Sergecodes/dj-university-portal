@@ -7,7 +7,7 @@
 <!-- {% load flag_tags %} -->
 
 {% block title %}
-	<title>{{ listing.title }}</title>
+	<title>{{ listing.title }} {% trans 'for sale' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -132,12 +132,38 @@
 						<td>{% trans 'Posted' %}</td>
 						<td>{{ listing.posted_datetime|naturaltime }}</td>
 					</tr>
+					<tr>
+						<td>{% trans 'By' %}</td>
+						<td>
+							{% with poster=listing.poster %}
+							{% if poster.has_social_profile %}
+								<a 
+									class="text-decoration-none" 
+									href="{{ poster.get_absolute_url }}"
+								>
+									{{ poster.full_name }}
+								</a>
+							{% else %}
+								<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+									{{ poster.full_name }}
+								</span>
+							{% endif %}
+							{% endwith %}
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Views' %}</td>
+						<td>
+							{{ listing.view_count }}
+							<i class="ms-1 far fa-eye" aria-hidden="true"></i>
+						</td>
+					</tr>
 				</table>
 			</div>
 		</div>
 		<div class="mb-4">
 			<h3 class="mb-3">{% trans 'Item Description' %}</h3>
-			<div>{{ listing.description|safe }}</div>
+			<div class="listing-description">{{ listing.description|safe }}</div>
 		</div>
 
 		<!-- post activities -->
@@ -183,7 +209,7 @@
 
 		<!-- contact details -->
 		<section>
-			<h4 class="text-success">{% trans 'Contact' %} {{ listing.contact_name }}</h4>
+			<h4 class="text-success">{% trans 'Contact' %} {{ listing.poster.full_name }}</h4>
 			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
@@ -201,8 +227,9 @@
 								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
+								aria-label="{% trans 'Contact via WhatsApp' %}"
 							>
-								<i class="fab fa-whatsapp"></i>
+								<i class="fab fa-whatsapp" aria-hidden="true"></i>
 							</a>
 						{% endif %}
 					</div>

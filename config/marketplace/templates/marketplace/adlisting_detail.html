@@ -6,7 +6,7 @@
 {% load app_extras %}  {# custom tag #}
 
 {% block title %}
-	<title>{{ listing.title }}</title>
+	<title>{{ listing.title }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -77,7 +77,7 @@
 <!-- 100% wide undil lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
-		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
+		<h1 class="h2 mb-3 listing-title">{{ listing.title
 		
 		<!-- photos and info -->
 		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
@@ -114,8 +114,12 @@
 					<tr>
 						<td>{% trans 'School' %}</td>
 						<td>
-							<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
-						</td>
+							{% if listing.school %}
+								<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+							{% else %}
+								-
+							{% endif %}
+							</td>
 					</tr>
 					<tr>
 						<td>{% trans 'Category' %}</td>
@@ -126,6 +130,32 @@
 					<tr>
 						<td>{% trans 'Posted' %}</td>
 						<td>{{ listing.posted_datetime|naturaltime }}</td>
+					</tr>
+					<tr>
+						<td>{% trans 'By' %}</td>
+						<td>
+							{% with poster=listing.poster %}
+							{% if poster.has_social_profile %}
+								<a 
+									class="text-decoration-none" 
+									href="{{ poster.get_absolute_url }}"
+								>
+									{{ poster.full_name }}
+								</a>
+							{% else %}
+								<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+									{{ poster.full_name }}
+								</span>
+							{% endif %}
+							{% endwith %}
+						</td>
+					</tr>
+					<tr>
+						<td>{% trans 'Views' %}</td>
+						<td>
+							{{ listing.view_count }}
+							<i class="ms-1 far fa-eye" aria-hidden="true"></i>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -178,7 +208,7 @@
 
 		<!-- contact details -->
 		<section>
-			<h4 class="text-success">{% trans 'Contact' %} {{ listing.contact_name }}</h4>
+			<h4 class="text-success">{% trans 'Contact' %} {{ listing.poster.full_name }}</h4>
 			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
@@ -196,8 +226,9 @@
 								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
+								aria-label="{% trans 'Contact via WhatsApp' %}"
 							>
-								<i class="fab fa-whatsapp"></i>
+								<i class="fab fa-whatsapp" aria-hidden="true"></i>
 							</a>
 						{% endif %}
 					</div>
@@ -224,7 +255,7 @@
 							</a>
 						{% else %}
 							<a href="{{ sim_listing.get_absolute_url }}" class="d-inline-block text-decoration-none">
-								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2"></i>
+								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2" aria-hidden="true"></i>
 								<p>{{ sim_listing.title }}</p>
 							</a>
 						{% endif %}

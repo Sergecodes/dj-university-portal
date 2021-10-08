@@ -152,6 +152,10 @@ img {
 	padding-left: 1px;
 }
 
+.header-notifs-link__text {
+	font-size: .72rem;
+}
+
 .header-notifs-link:hover,
 .header-profile-menu:hover {
 	filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
@@ -277,6 +281,11 @@ img {
 	margin-left: 5px;
 }
 
+/** SEARCH PAGES **/
+.search-results-container {
+	width: 75%;
+}
+
 
 /*** USER REGISTRATION & LOGIN PAGES ***/
 /* remove asterisk from required fields when using django-crispyforms */
@@ -346,11 +355,13 @@ img {
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
 	.user-form--edit,
-	.user-form--signup {
+	.user-form--signup
+	.search-results-container {
 		width: 100%;  
 	}
 
 	.user-form--login {
 		width: 90%;  
 	}
+
 }

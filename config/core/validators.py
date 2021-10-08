@@ -52,7 +52,8 @@ def validate_academic_question_tags(tags:str):
 	leading and trailing whitespaces stripped.
 	"""
 	# first validate length
-	if n := len(tags.split()) > MAX_TAGS:
+	# note the brackets surrounding the walrus operator !
+	if (n := len(tags.split())) > MAX_TAGS:
 		raise ValidationError(
 			_('Enter at most %(max_tags)d tags; you entered %(number)d.'),
 			params={'max_tags': MAX_TAGS, 'number': n}

@@ -37,11 +37,11 @@ urlpatterns = [
 		auth_views.LogoutView.as_view(),
 		name='logout'
 	),
-	path(
-		_('logout_then_login/'),
-		views.logout_and_login,
-		name='logout-then-login'
-	),
+	# path(
+	# 	_('logout_then_login/'),
+	# 	views.logout_and_login,
+	# 	name='logout-then-login'
+	# ),
 	path(
 		_('change-password/'),
 		auth_views.PasswordChangeView.as_view(

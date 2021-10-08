@@ -41,21 +41,7 @@ Oct 4:
 - convert pagination template to template that can be included.
 - update views
 - bookmarking, sharing etc..
-- convert question tags to comma separated values.
-{
-	### to get users tags from question creation form,  ###
-	user enters 'tag1, tag2,   tag3'
-	tags = self.cleaned_data.get('tags')
-	correct_tags = ''
-	# validate: remove all other characters apart from comma.
-	# in frontend, tell user that tags will be correctly parsed. 
-	for char in tags:
-		if char is alphanumeric or char is comma or char is space:
-			correct_tags += char
 
-	tags_list = tags.replace(' ', '').split(',')
-	# returns tags_list = ['tag1', 'tag2', 'tag3']
-}
 
 - in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
 - make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block .. (if form.invalid .. in js)
@@ -68,9 +54,13 @@ Oct 4:
 - share links on detail pages
 - remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
+# highlight each occurrence of keywords in search results page.
 # - cached property (with ttl) package is a must ! especially for complex computations.(in future)
 # - use ajax for username select ... 
+# - in institution checkbox, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
+# section of site where users can ask site related questions
 # - after 24hrs, votes can't be recalled.
+# count number of downloads for past paper .. ajax on download button click
 # - remove confirm password field, implement show password checkbox
 # - change the flag alert div to a toast. (create custom info toast...)
 # - add repost(relist) button near posts older than x days.

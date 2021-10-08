@@ -5,7 +5,7 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-<title>{% trans 'Update Profile' %}</title>
+<title>{% trans 'Update Profile' %} | CamerSchools</title>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -53,7 +53,7 @@
 						<tr>
 							{% for field in form.visible_fields %}
 								<th scope="col">
-									{{ field.label|capfirst }}
+									{{ field.label }}
 								</th>
 							{% endfor %}
 						</tr>

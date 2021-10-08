@@ -25,13 +25,9 @@
     /* width: 85%; */
 }
 
-.requested-items-list-art {
-	width: 85%;
-}
-
-.requested-item-item {
-    border-bottom: 1px solid #ddd;
-}
+/* .requested-item-item {
+    
+} */
 
 .requested-item-item__img {
     width: 10rem;
@@ -76,10 +72,8 @@
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
-    /* .requested-item-art { */
     .requested-item-form-container,
-    .requested-items-list-container,
-	.requested-items-list-art {
+    .requested-items-list-container {
         width: 100%;
     }
 

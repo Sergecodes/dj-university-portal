@@ -181,7 +181,15 @@ class PastPaperFilter(filters.FilterSet):
 	class Meta:
 		model = PastPaper
 		fields = ['school', 'subject', 'level', 'title', ]
-	
+		
+	def __init__(self, *args, **kwargs):
+		# set label for fields,
+		# this is to enable translation of labels.
+		super().__init__(*args, **kwargs)
+		self.filters['school'].label = _('School')
+		self.filters['subject'].label = _('Subject')
+		self.filters['level'].label = _('Level')
+
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(

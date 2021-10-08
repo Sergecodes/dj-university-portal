@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block title %}
-	<title>{% trans 'Ask a Question' %}</title>
+	<title>{% trans 'Ask a Question' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -17,7 +17,8 @@
 	<section class="border pt-4 p-2">
 		<div class="row mb-5">
 			<div class="col-lg-4">
-				<img src="{% static 'images/chillpill.jpg' %}" alt="{% trans 'Academic questions image' %}" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 qstn-descr-img">
+				{# since this image is purely decorative, set alt="" so screen readers won't read it #}
+				<img src="{% static 'images/chillpill.jpg' %}" alt="" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 qstn-descr-img">
 			</div>
 			<div class="col-lg-8">
 				<h4>{% trans 'Academic Questions' %}</h4>
@@ -36,7 +37,7 @@
 		</div>
 		<div class="row mb-3">
 			<div class="col-lg-4">
-				<img src="{% static 'images/460791.jpg' %}" alt="{% trans 'School-based questions image' %}" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 qstn-descr-img">
+				<img src="{% static 'images/460791.jpg' %}" alt="" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 qstn-descr-img">
 			</div>
 			<div class="col-lg-8">
 				<h4>{% trans 'School-Based Questions' %}</h4>

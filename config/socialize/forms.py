@@ -38,49 +38,49 @@ class SocialMediaFollowForm(forms.ModelForm):
 					Column(
 						PrependedText(
 							'email', 
-							'<i class="far fa-envelope fs-5 link-danger"></i>', 
+							'<i class="far fa-envelope fs-5 link-danger" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'facebook_follow', 
-							'<i class="fab fa-facebook-f link-primary"></i>', 
+							'<i class="fab fa-facebook-f link-primary" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'twitter_follow', 
-							'<i class="fab fa-twitter link-primary"></i>',
+							'<i class="fab fa-twitter link-primary" aria-hidden="true"></i>',
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'instagram_follow', 
-							'<i class="fab fa-instagram fa-lg link-danger"></i>', 
+							'<i class="fab fa-instagram fa-lg link-danger" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'tiktok_follow', 
-							'<i class="fab fa-tiktok"></i>', 
+							'<i class="fab fa-tiktok" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'github_follow', 
-							'<i class="fab fa-github fa-lg"></i>', 
+							'<i class="fab fa-github fa-lg" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'website_follow', 
-							'<i class="fas fa-link"></i>', 
+							'<i class="fas fa-link" aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-10 mb-0'
 					),

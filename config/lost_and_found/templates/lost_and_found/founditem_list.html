@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'Reported Found Items' %}</title>
+	<title>{% trans 'Reported Found Items' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -73,12 +73,20 @@
 								</a>
 								<div class="d-inline ms-3">
 									<span class="text-muted">{% trans 'Published by' %}</span>
-									<a 
-										href="{{ poster.get_absolute_url }}"
-										class="text-decoration-none"
-									>
-										{{ poster.username }}
-									</a>
+									{% with poster=found_item.poster %}
+									{% if poster.has_social_profile %}
+										<a 
+											class="text-decoration-none" 
+											href="{{ poster.get_absolute_url }}"
+										>
+											{{ poster.full_name }}
+										</a>
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
+										</span>
+									{% endif %}
+									{% endwith %}
 									<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>
 									{% with view_count=found_item.view_count %}
 									<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">

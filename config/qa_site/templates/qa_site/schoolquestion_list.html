@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'School-Based Questions' %}</title>
+	<title>{% trans 'School-Based Questions' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -20,95 +20,136 @@
 {% block content %}
 <div class="container-lg mb-5">
 	<h2 class="text-success">{% trans 'School-Based Questions' %}</h2>
-	<article class="border question-list-art">
-		<section class="px-3 pt-4">
-			<p>
-				{% blocktrans %}
-					Questions posted or answered here are those related to particular schools. 
-					So you can find questions that have been answered on issues relating to Departments, 
-					Courses or Change of Course, Resumption Period, School Cut-Off, Admissions or 
-					Criteria for Admission into a particular institution. <br>
-					Enter here to answer questions or post questions relating to a particular school.
-				{% endblocktrans %}
-			</p>
-			<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-warning mb-3">
-				{% trans 'Ask a Question' %}
-			</a>
-		</section>
-		<!-- search form -->
-		<section class="mb-3">
-			<!-- questions-search-form -->
-			<form method="get" class="p-3 m-3 border filter-form">
-				<h4>{% trans 'Filter' %}</h4>
-				{% with filter.form as form %}
-					<div class="row">
-						<div class="form-group col-md-5">
-							{{ form.school|as_crispy_field }}
-						</div>
-						<div class="form-group col-md-7">
-							{{ form.content|as_crispy_field }}
-						</div>
-					</div>
-				{% endwith %}
-				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-search"></i>
-					{% trans 'Search' %}
-				</button>
-			</form>
-		</section>
-
-		<section class="questions-list-wrp">
-			<ul class="pe-4 questions-list">
-				{% for question in page_content %}
-					{% with poster=question.poster score=question.score num_answers=question.num_answers %}
-						<li class="d-flex pb-3 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
-							<div class="text-secondary text-center small flex-shrink-0">
-								<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
-									<span class="d-block">{{ score }}</span>
-									<span>{% trans 'vote' %}{{ score|pluralize }}</span>
-								</div>
-								<div class="{% if num_answers > 0 %} text-success {% endif %} question-summary__answer-count">
-									<span class="d-block">{{ num_answers }}</span>
-									<span>{% trans 'answer' %}{{ num_answers|pluralize }}</span>
-								</div>
+	<div class="d-flex">
+		<article class="border question-list-art">
+			<section class="px-3 pt-4">
+				<p>
+					{% blocktrans %}
+						Questions posted or answered here are those related to particular schools. 
+						So you can find questions that have been answered on issues relating to Departments, 
+						Courses or Change of Course, Resumption Period, School Cut-Off, Admissions or 
+						Criteria for Admission into a particular institution. <br>
+						Enter here to answer questions or post questions relating to a particular school.
+					{% endblocktrans %}
+				</p>
+				<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-warning mb-3">
+					{% trans 'Ask a Question' %}
+				</a>
+			</section>
+			<!-- search form -->
+			<section class="mb-3">
+				<!-- questions-search-form -->
+				<form method="get" class="p-3 m-3 border filter-form">
+					<h4>{% trans 'Filter' %}</h4>
+					{% with filter.form as form %}
+						<div class="row">
+							<div class="form-group col-md-5">
+								{{ form.school|as_crispy_field }}
 							</div>
-							<div class="flex-grow-1 ms-3">
-								<a 
-									href="{{ question.get_absolute_url }}" 
-									class="h5 mb-3 text-decoration-none d-inline-block"
-								>
-									{# `safe` is used at the end to also remove html entities #}
-									{{ question.content|remove_tags|truncatewords:80|safe }}
-								</a>
-								<div class="mb-2 mb-lg-0 question-meta">
-									<a 
-										class="badge rounded-pill bg-info link-light text-decoration-none" 
-										href="{% url 'qa_site:school-question-list' %}?school={{ question.school_id }}"
-									>
-										{{ question.school }}
-									</a>
-									<div class="d-inline-block mt-2 ms-lg-5">
-										<span class="text-muted">{% trans 'asked by' %}</span>
-										<a 
-											href="{{ poster.get_absolute_url }}"
-											class="text-decoration-none"
-										>
-											{{ poster.username }}
-										</a>
-										<span class="small text-muted">&nbsp; - &nbsp;{{ question.posted_datetime|naturaltime }}</span>
+							<div class="form-group col-md-7">
+								{{ form.content|as_crispy_field }}
+							</div>
+						</div>
+					{% endwith %}
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-search" aria-hidden="true"></i>
+						{% trans 'Search' %}
+					</button>
+				</form>
+			</section>
+
+			<section class="questions-list-wrp">
+				<ul class="pe-4 questions-list">
+					{% for question in page_content %}
+						{% with poster=question.poster score=question.score num_answers=question.num_answers %}
+							<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
+								<div class="text-secondary text-center small flex-shrink-0">
+									<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
+										<span class="d-block">{{ score }}</span>
+										<span>{% trans 'vote' %}{{ score|pluralize }}</span>
+									</div>
+									<div class="{% if num_answers > 0 %} text-success {% endif %} question-summary__answer-count">
+										<span class="d-block">{{ num_answers }}</span>
+										<span>{% trans 'answer' %}{{ num_answers|pluralize }}</span>
 									</div>
 								</div>
-							</div>
-						</li> 
-					{% endwith %}
-				{% endfor %}
-					
-				{% if is_paginated %}
-					{% include 'core/pagination.html' with page_obj=page_obj %}
-				{% endif %}
-			</ul>
-		</section>
-	</article>
+								<div class="flex-grow-1 ms-3">
+									<a 
+										href="{{ question.get_absolute_url }}" 
+										class="h5 mb-4 text-decoration-none d-inline-block"
+									>
+										{# `safe` is used at the end to also remove html entities #}
+										{{ question.content|remove_tags|truncatewords:80|safe }}
+									</a>
+									<div class="mb-2 mb-lg-0 question-meta">
+										<a 
+											class="badge rounded-pill bg-info link-light text-decoration-none" 
+											href="{% url 'qa_site:school-question-list' %}?school={{ question.school_id }}"
+										>
+											{{ question.school }}
+										</a>
+										{% with view_count=question.view_count %}
+										<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+											<i class="far fa-eye me-1" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Number of views' %}</span>
+											{{ view_count }}
+										</span>
+										{% endwith %}
+										<div class="d-block mt-2">
+											<span class="text-muted">{% trans 'asked by' %}</span>
+											{% with question_poster=question.poster %}
+											{% if question_poster.has_social_profile %}
+												<a 
+													class="text-decoration-none" 
+													href="{{ question_poster.get_absolute_url }}"
+												>
+													{{ question_poster.username }}
+												</a>
+											{% else %}
+												<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+													{{ question_poster.username }}
+												</span>
+											{% endif %}
+											{% endwith %}
+											<span class="small text-muted">&nbsp;{{ question.posted_datetime|naturaltime }}</span>
+										</div>
+									</div>
+								</div>
+							</li> 
+						{% endwith %}
+					{% endfor %}
+						
+					{% if is_paginated %}
+						{% include 'core/pagination.html' with page_obj=page_obj %}
+					{% endif %}
+				</ul>
+			</section>
+		</article>
+
+		{# this section is visible only on lg devices and greater #}
+		<!-- questions-schools-list -->
+		<aside class="d-none d-lg-block w-25">
+			<div class="card border-success">
+				<h5 class="card-header bg-success text-light">{% trans 'Schools' %}</h5>
+				<ul class="list-group list-group-flush">
+					{% for school in schools %}
+						<li class="list-group-item">
+							<a 
+								href="{% url 'qa_site:school-question-list' %}?school={{ school.id }}" class="small text-decoration-none"
+							>
+								{{ school.name }} ({{ school.questions.count }})
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
+				<p class="card-footer card-text">
+					<small class="text-muted">
+						{{ total_num_qstns }} {% trans 'question' %}{{ total_num_qstns|pluralize }}
+					</small>
+				</p>
+			</div>
+		</aside>
+	</div>
 </div>
 {% endblock content %}
 

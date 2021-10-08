@@ -1,0 +1,41 @@
+{# Display search results; per app #}
+
+{% extends 'core/base.html' %}
+
+{% load i18n %}
+
+{% block title %}
+	<title>{{ app_label }} {% trans 'Search Results' %} | CamerSchools</title>
+{% endblock %}
+
+
+{% block content %}
+<article class="container mb-5 search-results-container">
+	<div class="border p-3">
+		{# results #}
+		{% if count != 0 %}
+		<section>
+			<h3 class="mb-4">
+				({{ count }}) {% trans 'Search Result' %}{{ count|pluralize }} {% trans 'for' %}
+				{% if keyword_list %} {{ keyword_list }} {% else %} "" {% endif %} {% trans 'in' %} {{ app_label }}
+			</h3>
+			<ul class="list-group list-group-flush mb-4">
+				{% for item in page_obj %}
+					<li class="list-group-item">
+						<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+							{{ item }}
+						</a>
+					</li> 
+				{% endfor %}	
+			</ul>
+
+			{% if is_paginated %}
+				{% include 'core/pagination.html' with page_obj=page_obj %}
+			{% endif %}
+			<div class="mb-2">
+		</section>
+		{% endif %}
+	</div>
+</article>
+
+{% endblock %}

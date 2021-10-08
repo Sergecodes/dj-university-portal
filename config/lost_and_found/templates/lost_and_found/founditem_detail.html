@@ -6,7 +6,7 @@
 {% load app_extras %}  
 
 {% block title %}
-	<title>{{ found_item.item_found }}</title>
+	<title>{% trans 'Found' %} {{ found_item.item_found }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -20,7 +20,7 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 founditem-art">
-		<h2 class="text-capitalize">{{ found_item.item_found }}</h2>
+		<h2>{{ found_item.item_found|title }}</h2>
 		<div class="d-inline-block">
 			{% trans 'School' %}:
 			<a 
@@ -37,9 +37,25 @@
 			</span>
 			{% endwith %}
 		</div>
-		<span class="text-muted mb-4" title="{{ found_item.posted_datetime }}">
-			{% trans 'Reported' %} {{ found_item.posted_datetime|naturaltime }}
-		</span>
+		<div class="mb-4">
+			{% trans 'Reported' %} 
+			<span class="text-muted me-2" title="{{ found_item.posted_datetime }}">
+				{{ found_item.posted_datetime|naturaltime }}
+			</span>
+			{% trans 'By' %} 
+			{% with poster=found_item.poster %}
+			{% if poster.has_social_profile %}
+				<a 
+					class="text-decoration-none" 
+					href="{{ poster.get_absolute_url }}"
+				>
+					{{ poster.full_name }}
+				</a>
+			{% else %}
+				<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ poster.full_name }}</span>
+			{% endif %}
+			{% endwith %}
+		</div>
 		
 		<div class="mb-5 how-found-wrp">
 			{{ found_item.how_found }}
@@ -58,7 +74,7 @@
 
 		<!-- contact details -->
 		<section class="contact-details">
-			<h4 class="text-success">{% trans 'Contact' %} {{ found_item.contact_name }}</h4>
+			<h4 class="text-success">{% trans 'Contact' %} {{ found_item.poster.full_name }}</h4>
 			<ul class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %}
 					{% with phone_number.number as number %}
@@ -71,13 +87,16 @@
 							{{ number|parse_tel }}
 						</a>
 						{% if phone_number.can_whatsapp %}
+							{# see this SO question about the title and aria-label attributes #}
+							{# https://stackoverflow.com/questions/27953425/ #}
 							<a 
 								href="https://wa.me/237{{ number }}" 
 								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
+								aria-label="{% trans 'Contact via WhatsApp' %}"
 							>
-								<i class="fab fa-whatsapp"></i>
+								<i class="fab fa-whatsapp" aria-hidden="true"></i>
 							</a>
 						{% endif %}
 					</li>

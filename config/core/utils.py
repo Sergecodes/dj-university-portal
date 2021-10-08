@@ -2,14 +2,124 @@ import os
 import re
 from django.apps import apps
 from django.conf import settings
+from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
+from functools import reduce
 from random import choice
 
 BASE_DIR = settings.BASE_DIR
 
 
 ## CORE ##
+def get_search_results(keyword_list, category=None):
+	"""
+	Search for the words in `keyword_list` in `category` label's model.
+	`category`: App label or mnemonic..
+	`keyword_list`: list of words to search with
+	"""
+
+	# import models here coz models won't be ready if the imports are placed at the top
+	# since some functions here are used
+	# in models and they need to be called when initializing the model
+	LostItem = apps.get_model('lost_and_found.LostItem')
+	FoundItem = apps.get_model('lost_and_found.FoundItem')
+	ItemListing = apps.get_model('marketplace.ItemListing')
+	AdListing = apps.get_model('marketplace.AdListing')
+	AcademicQuestion = apps.get_model('qa_site.AcademicQuestion')
+	SchoolQuestion = apps.get_model('qa_site.SchoolQuestion')
+	PastPaper = apps.get_model('past_papers.PastPaper')
+	RequestedItem = apps.get_model('requested_items.RequestedItem')
+
+	# don't fret, querysets are lazily evaluated.
+	SEARCH_RESULTS = {
+		## lost and found app
+		'lost_items': LostItem.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(item_lost__icontains=word) for word in keyword_list]
+				)
+			).only('item_lost'),
+		'found_items': FoundItem.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(item_found__icontains=word) for word in keyword_list]
+				)
+			).only('item_found'),
+		
+		## marketplace app
+		'item_listings': ItemListing.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(title__icontains=word) for word in keyword_list]
+				)
+			).only('title'),
+		'ad_listings': AdListing.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(title__icontains=word) for word in keyword_list]
+				)
+			).only('title'),
+
+		## past papers app
+		'past_papers': PastPaper.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(title__icontains=word) for word in keyword_list]
+				)
+			).only('title'),
+
+		## qa_site app
+		'academic_questions': AcademicQuestion.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(title__icontains=word) for word in keyword_list]
+				)
+			).only('title'),
+		# school questions are generally short, so this query shouldn't hurt that much
+		'school_questions': SchoolQuestion.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(content__icontains=word) for word in keyword_list]
+				)
+			).only('content'),
+
+		## requested_items app
+		'requested_items': RequestedItem.objects.filter(
+				reduce(
+					lambda x, y: x | y, 
+					[Q(item_requested__icontains=word) for word in keyword_list]
+				)
+			).only('item_requested'),
+	}
+
+	# get total results and count if no category was passed
+	if not category:
+		results_count = {
+			'lost_items': SEARCH_RESULTS['lost_items'].count(),
+			'found_items': SEARCH_RESULTS['found_items'].count(),
+			'item_listings': SEARCH_RESULTS['item_listings'].count(),
+			'ad_listings': SEARCH_RESULTS['ad_listings'].count(),
+			'past_papers': SEARCH_RESULTS['past_papers'].count(),
+			'academic_questions': SEARCH_RESULTS['academic_questions'].count(),
+			'school_questions': SEARCH_RESULTS['school_questions'].count(),
+			'requested_items': SEARCH_RESULTS['requested_items'].count(),
+		}
+
+		total_count = 0
+		counts = results_count.values()
+
+		for count in counts:
+			total_count += count
+
+		return (SEARCH_RESULTS, results_count, total_count)
+
+	# results and count if category was passed
+	results = SEARCH_RESULTS[category]
+	return (results, results.count())
+
+
 def generate_pdf(instance_list, gen_file_name, dir='media', gen_files_dir='past_papers'):
 	"""
 	Generate a pdf containing images in instance_list and return a django File object pointing to the pdf. Mostly(only) used with the past_papers app. \n
@@ -68,6 +178,37 @@ def get_photos(model, photos_name_list, dir):
 
 	print(photo_instances)
 	return photo_instances
+
+
+def get_label(category):
+	"""
+	Used in search results to print an app label name for the category.
+	Ex. 'ad_listings' => 'Ad Listings'
+	"""
+	# do this instead of using a more generic method such as `category.title().replace('_', ' ')`
+	# coz we need the labels translated.
+	label = ''
+
+	if category == 'ad_listings':
+		label = _('Adverts')
+	elif category == 'item_listings':
+		label = _('Items for Sale')
+	elif category == 'requested_items':
+		label = _('Requested Items')
+	elif category == 'past_papers':
+		label = _('Past Papers')
+	elif category == 'lost_items':
+		label = _('Lost Items')
+	elif category == 'found_items':
+		label = _('Found Items')
+	elif category == 'school_questions':
+		label = _('School-Based Questions')
+	elif category == 'academic_questions':
+		label = _('Academic Questions')
+	else:
+		raise ValueError("Category is invalid")
+
+	return label
 
 
 ## FLAGGING ##
