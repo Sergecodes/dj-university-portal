@@ -11,7 +11,12 @@ urlpatterns = [
 	path(_('request-item/'), views.RequestedItemCreate.as_view(), name='requested-item-create'),
 	path(_('<int:pk>/edit/'), views.RequestedItemUpdate.as_view(), name='requested-item-update'),
 	path(_('<int:pk>/delete/'), views.RequestedItemDelete.as_view(), name='requested-item-delete'),
-	path(_('<int:pk>/<slug:slug>/'), views.RequestedItemDetail.as_view(), name='requested-item-detail'),
+	path('<int:pk>/<slug:slug>/', views.RequestedItemDetail.as_view(), name='requested-item-detail'),
 	path('<int:pk>/', views.RequestedItemDetail.as_view(), name='requested-item-detail'),
-
+	
+	path(
+		'ajax/requested-item/bookmark/', 
+		views.requested_item_bookmark_toggle, 
+		name='requested-item-bookmark-toggle'
+	)
 ]

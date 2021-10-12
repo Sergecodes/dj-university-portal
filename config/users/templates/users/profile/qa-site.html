@@ -3,7 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
-{% load app_extras %} {# custom dir #}
+{% load app_extras %} 
 
 {% block title %}
 	<title>{% trans 'Profile - Questions/Answers' %} | CamerSchools</title>
@@ -26,19 +26,12 @@
 				<h2 class="text-success text-center mb-3">{% trans 'Questions & Answers' %}</h2>
 
 				<!-- user's academic questions -->
-				<section class="mb-4">
-					<h4 class="text-success">
-						{% trans 'My Academic Questions' %}
-						<span class="text-muted">({{ academic_questions.count }})</span>
-					</h4>
-					{% if not academic_questions.exists %}
-						<div class="alert alert-info" role="alert">
-							{% trans 'You have not asked any academic question yet.' %} <br>
-							{% trans 'Click' %}
-							<a href="{% url 'qa_site:academic-question-create' %}">{% trans 'here' %}</a>
-							{% trans 'to ask an academic question.' %}
-						</div>
-					{% else %}
+				<section class="mb-5">
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'My Academic Questions' %}
+							<span class="text-muted">({{ academic_questions.count }})</span>
+						</h4>
 						{% for question in academic_questions %}
 							<div class="mb-2">
 								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
@@ -52,27 +45,45 @@
 								<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
 								<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not asked any academic question yet.' %} <br>
+								{% trans 'Click' %}
+								<a href="{% url 'qa_site:academic-question-create' %}">{% trans 'here' %}</a>
+								{% trans 'to ask an academic question.' %}
+							</div>
+						{% endfor %}	
+					</div>
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked Academic Questions' %}
+							<span class="text-muted">({{ bookmarked_academic_qstns.count }})</span>
+						</h4>
+						{% for question in bookmarked_academic_qstns %}
+							<div class="mb-2">
+								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+									{{ question.title }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any academic question yet.' %}
+							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>	
 				</section>	
 
-				<!-- user's academic answers -->
-				{# todo #}
-
 				<!-- user's school-based questions -->
-				<section class="mb-4">
-					<h4 class="text-success">
-						{% trans 'My School-Based Questions' %}
-						<span class="text-muted">({{ school_questions.count }})</span>
-					</h4>
-					{% if not school_questions.exists %}
-						<div class="alert alert-info" role="alert">
-							{% trans 'You have not asked any school-based question yet.' %} <br>
-							{% trans 'Click' %}
-							<a href="{% url 'qa_site:school-question-create' %}">{% trans 'here' %}</a>
-							{% trans 'to ask a question concerning a particular school.' %}
-						</div>
-					{% else %}
+				<section class="mb-5">
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'My School-Based Questions' %}
+							<span class="text-muted">({{ school_questions.count }})</span>
+						</h4>
 						{% for question in school_questions %}
 							<div class="mb-2">
 								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
@@ -89,8 +100,88 @@
 								<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
 								<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not asked any school-based question yet.' %} <br>
+								{% trans 'Click' %}
+								<a href="{% url 'qa_site:school-question-create' %}">{% trans 'here' %}</a>
+								{% trans 'to ask a question concerning a particular school.' %}
+							</div>
+						{% endfor %}	
+					</div>
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked School Questions' %}
+							<span class="text-muted">({{ bookmarked_school_qstns.count }})</span>
+						</h4>
+						{% for question in bookmarked_school_qstns %}
+							<div class="mb-2">
+								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+									{{ question }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any school question yet.' %}
+							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>	
+				</section>	
+
+				<!-- user's answers -->
+				<section class="mb-4">
+					<h4 class="text-success mb-3">
+						{% trans 'My Answers' %}
+						{% with aca_count=academic_answers.count school_count=school_answers.count %}
+						<span class="text-muted small">
+							(
+							{% trans 'Academic' %} - {{ aca_count }}
+							&nbsp;;&nbsp; 
+							{% trans 'School-Based' %} - {{ school_count }}
+							)
+						</span>
+						{% endwith %}
+					</h4>
+					{% for answer in academic_answers %}
+						<div class="mb-2">
+							<a href="{{ answer.question.get_absolute_url }}" class="text-decoration-none">
+								{{ answer.content|remove_tags|truncatewords:50|safe }}
+							</a>
+							<span class="small text-muted mx-2">
+								{% trans 'Answered' %} {{ answer.posted_datetime|naturaltime }}
+							</span>
+						</div>
+					{% empty %}
+						<div class="alert alert-primary" role="alert">
+							{% trans 'You have not answered any academic question yet.' %} <br>
+							{% trans 'Click' %}
+							<a href="{% url 'qa_site:academic-question-list' %}">{% trans 'here' %}</a>
+							{% trans 'to see some questions.' %}
+						</div>
+					{% endfor %}	
+
+					<hr class="my-2">
+					{% for answer in school_answers %}
+						<div class="mb-2">
+							<a href="{{ answer.question.get_absolute_url }}" class="text-decoration-none">
+								{{ answer.content|remove_tags|truncatewords:50|safe }}
+							</a>
+							<span class="small text-muted mx-2">
+								{% trans 'Answered' %} {{ answer.posted_datetime|naturaltime }}
+							</span>
+						</div>
+					{% empty %}
+						<div class="alert alert-primary" role="alert">
+							{% trans 'You have not answered any school-based question yet.' %} <br>
+							{% trans 'Click' %}
+							<a href="{% url 'qa_site:school-question-list' %}">{% trans 'here' %}</a>
+							{% trans 'to see some questions.' %}
+						</div>
+					{% endfor %}	
 				</section>	
 			</div>
 		</div>

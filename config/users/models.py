@@ -224,6 +224,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# for now, return the user's points.  # TODO
 		return self.site_points
 
+	## QA_SITE APP
 	def add_answer(self, question, answer, question_type):
 		"""Add answer to question."""
 		# question_type can be 'academic' or 'school-based'
@@ -425,7 +426,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		answer.downvoters.add(self)
 		return (True, answer.downvote_count) if output else (True, '')
 
-	## Verify if user can edit or delete posts ##
+	# Verify if user can edit or delete posts ##
 	# NOTE that if any argument is added to any of these functions,
 	# some functionalities will break, including the template filters in core/template_tags module.
 	def can_edit_question(self, question):
@@ -436,8 +437,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		- Questions with (3 score or 2 answers) and above can't be edited
 		- Only poster can edit question
 		"""
+		
 		# first verify if answer can be edited
-		if question.score > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
+		if question.score > QUESTION_CAN_EDIT_VOTE_LIMIT or \
+			question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
 			return False
 
 		# now verify if user is poster
@@ -453,6 +456,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		- Moderator can delete only flagged questions(posts)
 		- Poster can delete question only if it has less than 3 votes or less than 2 answers
 		"""
+		
 		if self.is_staff:
 			return True
 
@@ -464,7 +468,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return True
 		
 		# verify if question can be deleted
-		if question.score > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
+		if question.score > QUESTION_CAN_DELETE_VOTE_LIMIT or \
+			question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
 			return False
 
 		# now verify if user is owner
@@ -479,6 +484,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		- Answers with (5 score) and above can't be edited
 		- Only poster can edit answer
 		"""
+					
 		# first verify if answer can be edited
 		if answer.score > ANSWER_CAN_EDIT_VOTE_LIMIT:
 			return False
@@ -496,6 +502,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		- Moderator can delete only flagged answers
 		- Poster can delete answer only if it has less than 3 votes
 		"""
+					
 		if self.is_staff:
 			return True
 		
@@ -520,8 +527,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		- After 5 minutes, comments can't be edited.
 		- Comments with 5 upvotes and above can't be edited
 		"""
+					
 		# first verify if comment can be edited
-		if (comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT) or not comment.is_within_edit_timeframe:
+		if (comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT) or \
+			not comment.is_within_edit_timeframe:
 			return False
 
 		# now verify if user is poster
@@ -535,9 +544,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 		To test if a user can delete a comment.
 		- Staff can delete any comment
 		- Moderator can delete only flagged comments
-		- Comments with 5 upvotes and above can't be deleted
+		- Comments with 5 upvotes and above can't be deleted by mod nor poster.
 		- Poster can delete comment
 		"""
+					
 		if self.is_staff:
 			return True
 
@@ -555,30 +565,74 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		return False
 
+	## PAST PAPERS APP
+	# RECALL that past papers shouldn't be editable.
 
-	# def undownvote_answer(self, answer, output=False):
-	# 	answer.downvoters.remove(self)
-	# 	return answer.downvote_count if output else None	
+	def can_delete_past_paper(self, past_paper):
+		"""
+		To test if user can delete past paper(in this order)
+		- Staff can delete any paper
+		- Moderator can delete only flagged papers(despite of the posted datetime)
+		- After 30mins, past paper can't be deleted by poster
+		- Poster can delete paper
+		"""
+					
+		if self.is_staff:
+			return True
 
-	# def bookmark_question(self, question, output=False):
-	# 	question.bookmarkers.add(self)
-	# 	return question.bookmark_count if output else None
+		# if it is flagged, moderator can delete.
+		if self.is_mod and Flag.objects.is_flagged(past_paper):
+			return True
+		
+		if not past_paper.is_within_delete_timeframe:
+			return False
+			
+		if self.id == past_paper.poster_id:
+			return True
 
-	# def unbookmark_question(self, question, output=False):
-	# 	question.bookmarkers.remove(self)
-	# 	return question.bookmark_count if output else None
+		return False
 
-	# def bookmark_listing(self, listing, output=False):
-	# 	listing.bookmarkers.add(self)
-	# 	return listing.bookmark_count if output else None
+	def can_edit_past_paper_comment(self, comment):
+		"""
+		To test if user can edit past paper comment
+		- After 10mins, comment can't be edited
+		- Only poster can edit comment
+		"""
+					
+		# is comment editable ?
+		if not comment.is_within_edit_timeframe:
+			return False
 
-	# def unbookmark_listing(self, listing, output=False):
-	# 	listing.bookmarkers.remove(self)
-	# 	return listing.bookmark_count if output else None
+		# now verify if user is poster
+		if self.id == comment.poster_id:
+			return True
+			
+		return False
 
-	# def undownvote_question(self, question, output=False):
-	# 	question.downvoters.remove(self)
-	# 	return question.downvote_count if output else None
+	def can_delete_past_paper_comment(self, comment):
+		"""
+		To test if user can delete past paper comment
+		- staff can delete any comment
+		- moderators can delete flagged comments
+		- After 10mins, comment can't be deleted by poster
+		- poster can delete comment; other users nope.
+		"""
+					
+		if self.is_staff:
+			return True
+
+		# if it is flagged, moderator can delete.
+		if self.is_mod and Flag.objects.is_flagged(comment):
+			return True
+		
+		if not comment.is_within_delete_timeframe:
+			return False
+			
+		if self.id == comment.poster_id:
+			return True
+
+		return False
+
 
 
 

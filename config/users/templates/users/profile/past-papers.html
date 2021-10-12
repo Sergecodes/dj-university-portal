@@ -31,7 +31,7 @@
 						<span class="text-muted">({{ user.past_papers.count }})</span>
 					</h4> 
 					{% if not user.past_papers.exists %}
-						<div class="alert alert-info" role="alert">
+						<div class="alert alert-primary" role="alert">
 							{% trans 'You have not uploaded any past paper yet.' %} <br>
 							{% trans 'Click' %}
 							<a href="{% url 'past_papers:past-paper-upload' %}">{% trans 'here' %}</a>

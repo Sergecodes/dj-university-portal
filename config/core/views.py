@@ -267,6 +267,13 @@ class SiteUsageInfoView(TemplateView):
 	template_name = "core/site_usage_info.html"
 
 
+class PrivacyPolicyView(TemplateView):
+	template_name = "core/privacy_policy.html"
+
+
+class TermsAndConditionsView(TemplateView):
+	template_name = "core/terms_and_conditions.html"
+
 
 # def delete_post_and_penalize_user(request):
 # 	"""mod only"""

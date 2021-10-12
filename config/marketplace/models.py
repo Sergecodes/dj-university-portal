@@ -188,10 +188,6 @@ class ListingPost(Post):
 	def __str__(self):
 		return self.title
 
-	@property
-	def bookmark_count(self):
-		return self.bookmarkers.count()
-
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.title)
@@ -265,7 +261,6 @@ class ItemListing(ListingPost):
 		related_query_name='bookmarked_item_listing',
 		blank=True
 	)
-
 
 	def get_absolute_url(self, with_slug=True):
 		""" Returns the url to access a detail record for this item. """

@@ -51,6 +51,10 @@ class Post(models.Model):
 		validators=[validate_email]
 	)
 
+	@property
+	def bookmark_count(self):
+		self.bookmarkers.count()
+
 	class Meta:
 		abstract = True
 

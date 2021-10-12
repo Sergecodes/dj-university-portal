@@ -4,11 +4,17 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.template import defaultfilters as filters
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from flagging.models import Flag
 
-from core.constants import PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR
+from core.constants import (
+	PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR,
+	PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
+	PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT,
+	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
+)
 from core.models import Institution
 from qa_site.models import Subject
 from users.models import get_dummy_user
@@ -75,6 +81,24 @@ class Comment(models.Model):
 	def parent_object(self):
 		return self.past_paper
 
+	@property
+	def is_within_edit_timeframe(self):
+		"""
+		Verify if past paper comment is within edition time_frame
+		"""
+		if (timezone.now() - self.posted_datetime) > PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT:
+			return False
+		return True
+
+	@property
+	def is_within_delete_timeframe(self):
+		"""
+		Verify if past paper comment is within deletion time_frame
+		"""
+		if (timezone.now() - self.posted_datetime) > PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT:
+			return False
+		return True
+
 
 class PastPaper(models.Model):
 	"""Official past papers and papers for revision."""
@@ -128,6 +152,12 @@ class PastPaper(models.Model):
 		related_name='past_papers',
 		related_query_name='past_paper'
 	) 
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_past_papers',
+		related_query_name='bookmarked_past_paper',
+		blank=True
+	)
 	# should be nullable; in case school isn't registered on our site.
 	school = models.ForeignKey(
 		Institution,
@@ -150,7 +180,8 @@ class PastPaper(models.Model):
 	last_modified = models.DateTimeField(auto_now=True)
 	# when the past paper was written..
 	# those with null=True will be considered as revision papers..
-	written_date = models.DateField(_('Written date'), null=True, blank=True)  
+	written_date = models.DateField(_('Written date'), null=True, blank=True) 
+	# language not original_language. this model is not translatable. 
 	language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
 	view_count = models.PositiveIntegerField(default=0)
 
@@ -169,8 +200,21 @@ class PastPaper(models.Model):
 		return reverse('past_papers:past-paper-detail', kwargs={'pk': self.id})
 
 	@property
+	def bookmark_count(self):
+		return self.bookmarkers.count()
+
+	@property
 	def num_comments(self):
 		return self.comments.count()
+
+	@property
+	def is_within_delete_timeframe(self):
+		"""
+		Verify if past paper is within deletion time_frame
+		"""
+		if (timezone.now() - self.posted_datetime) > PAST_PAPER_CAN_DELETE_TIME_LIMIT:
+			return False
+		return True
 
 	@property
 	def actual_filename(self):

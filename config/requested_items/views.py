@@ -1,21 +1,27 @@
 import django_filters as filters
 import os
 from django_filters.views import FilterView
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, REQUESTED_ITEM_SUFFIX
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.utils import get_photos
+from core.utils import get_photos, should_redirect
 from .forms import RequestedItemForm
-from .mixins import CanDeleteRequestedItemMixin, CanEditRequestedItemMixin
+from .mixins import (
+	can_edit_item, can_delete_item,
+	CanDeleteRequestedItemMixin, CanEditRequestedItemMixin
+)
 from .models import RequestedItem, RequestedItemPhoto
 
 
@@ -210,11 +216,15 @@ class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	context_object_name = 'requested_item'
 
 	def get(self, request, *args, **kwargs):
+		if should_redirect(object := self.get_object(), kwargs.get('slug')):
+			return redirect(object, permanent=True)
+		
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 		
 	def get_context_data(self, **kwargs):
 		NUM_ITEMS = 4
+		user = self.request.user
 		context = super().get_context_data(**kwargs)
 		requested_item = self.object
 
@@ -222,8 +232,8 @@ class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		similar_items = RequestedItem.objects.prefetch_related('photos').filter(
 			school=requested_item.school,
 			category__name=requested_item.category.name
-		).only('item_requested', 'price_at_hand', 'posted_datetime')[:NUM_ITEMS]
-		print(similar_items)
+		).exclude(id=requested_item.id) \
+		.only('item_requested', 'price_at_hand', 'posted_datetime')[:NUM_ITEMS]
 
 		# get first photos of each similar item
 		first_photos = []
@@ -238,6 +248,30 @@ class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context['contact_numbers'] = requested_item.contact_numbers.all()
 		context['similar_items'] = similar_items
 		context['first_photos'] = first_photos
+		context['can_edit_item'] = False if user.is_anonymous else can_edit_item(user, requested_item)
+		context['can_delete_item'] = False if user.is_anonymous else can_delete_item(user, requested_item)
 
 		return context
+
+
+## Bookmarking
+@login_required
+@require_POST
+def requested_item_bookmark_toggle(request):
+	"""This view handles bookmarking for past papers"""
+	user, POST = request.user, request.POST
+	id, action = POST.get('id'), POST.get('action')
+	requested_item = get_object_or_404(RequestedItem, pk=id)
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		requested_item.bookmarkers.add(user)
+		return JsonResponse({'bookmarked': True}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		requested_item.bookmarkers.remove(user)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
 

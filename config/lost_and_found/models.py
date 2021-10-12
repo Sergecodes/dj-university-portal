@@ -37,6 +37,12 @@ class FoundItem(Post):
 		related_name='found_items',
 		related_query_name='found_item'
 	)
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_found_items',
+		related_query_name='bookmarked_found_item',
+		blank=True
+	)
 
 	def __str__(self):
 		return self.item_found
@@ -99,6 +105,14 @@ class LostItem(Post):
 		on_delete=models.CASCADE,
 		related_name='lost_items',
 		related_query_name='lost_item'
+	)
+	# no property @bookmark_count coz the parent class 
+	# already creates it.
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_lost_items',
+		related_query_name='bookmarked_lost_item',
+		blank=True
 	)
 
 	def __str__(self):

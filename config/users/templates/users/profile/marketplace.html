@@ -25,56 +25,99 @@
 				<h2 class="text-success text-center mb-3">{% trans 'Items & Adverts' %}</h2>
 
 				<!-- user's item listings -->
-				<section class="mb-4">
-					<h4 class="text-success">
-						{% trans 'My Items' %}
-						<span class="text-muted">({{ user.item_listings.count }})</span>
-					</h4>
-					{% if not user.item_listings.exists %}
-						<div class="alert alert-info" role="alert">
-							{% trans 'You have not posted any item for sale yet.' %} <br>
-							{% trans 'Click' %}
-							<a href="{% url 'marketplace:item-listing-create' %}">{% trans 'here' %}</a>
-							{% trans 'to post an item for sell.' %}
-						</div>
-					{% else %}
-						{% for listing in user.item_listings.all %}
+				<section class="mb-5">
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'My Items' %}
+							<span class="text-muted">({{ item_listings.count }})</span>
+						</h4>
+						{% for listing in item_listings %}
 							<div class="mb-2">
 								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
 									{{ listing.title }}
 								</a>
-								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+								<span class="small text-muted mx-2">
+									{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not posted any item for sale yet.' %} <br>
+								{% trans 'Click' %}
+								<a href="{% url 'marketplace:item-listing-create' %}">{% trans 'here' %}</a>
+								{% trans 'to post an item for sell.' %}
 							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>
+					
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked Items' %}
+							<span class="text-muted">({{ bookmarked_items.count }})</span>
+						</h4>
+						{% for item in bookmarked_items %}
+							<div class="mb-2">
+								<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+									{{ item.title }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Published' %} {{ item.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any item yet.' %}
+							</div>
+						{% endfor %}
+					</div>	
 				</section>	
 
 				<!-- user's advert listings -->
 				<section class="mb-4">
-					<h4 class="text-success">
-						{% trans 'My Adverts' %}
-						<span class="text-muted">({{ user.ad_listings.count }})</span>
-					</h4>
-					{% if not user.ad_listings.exists %}
-						<div class="alert alert-info" role="alert">
-							{% trans 'You have not posted any advert yet.' %} <br>
-							{% trans 'Click' %}
-							<a href="{% url 'marketplace:ad-listing-create' %}">{% trans 'here' %}</a>
-							{% trans 'to advertize something.' %}
-						</div>
-					{% else %}
-						{% for listing in user.ad_listings.all %}
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'My Adverts' %}
+							<span class="text-muted">({{ ad_listings.count }})</span>
+						</h4>
+						{% for listing in ad_listings %}
 							<div class="mb-2">
 								<a href="{{ listing.get_absolute_url }}" class="text-decoration-none">
 									{{ listing.title }}
 								</a>
 								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not posted any advert yet.' %} <br>
+								{% trans 'Click' %}
+								<a href="{% url 'marketplace:ad-listing-create' %}">{% trans 'here' %}</a>
+								{% trans 'to advertize something.' %}
+							</div>
+						{% endfor %}	
+					</div>
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked Adverts' %}
+							<span class="text-muted">({{ bookmarked_ads.count }})</span>
+						</h4>
+						{% for ad in bookmarked_ads %}
+							<div class="mb-2">
+								<a href="{{ ad.get_absolute_url }}" class="text-decoration-none">
+									{{ ad.title }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Published' %} {{ ad.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any advert yet.' %}
+							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>	
 				</section>	
-
-				{# add for bookmarked items and adverts separately. #}
 			</div>
 		</div>
 	</div>

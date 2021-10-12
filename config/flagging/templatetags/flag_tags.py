@@ -40,6 +40,7 @@ def render_flag_form(obj, user, request, display_title=False):
         'model_id': obj.id,
         'user': user,
         'has_flagged': has_flagged(user, obj),
+        'num_flags': Flag.objects.get_flag(obj).count,
         'flag_reasons': FlagInstance.reasons,
         'request': request,
         'display_title': display_title

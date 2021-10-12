@@ -2,12 +2,14 @@ import django_filters as filters
 import os
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, F
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
-from django.utils.text import slugify
+from django.urls import reverse_lazy
 from django.utils.translation import get_language, gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
@@ -18,19 +20,18 @@ from core.constants import (
 	MIN_ITEM_PHOTOS_LENGTH 
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.utils import get_photos, is_mobile
+from core.utils import get_photos, should_redirect
 from .forms import ItemListingForm, AdListingForm
-from .mixins import CanDeleteListingMixin, CanEditListingMixin
+from .mixins import (
+	can_edit_listing, can_delete_listing, 
+	CanDeleteListingMixin, CanEditListingMixin
+)
 from .models import (
 	ItemListing, ItemCategory, 
 	ItemListingPhoto, AdListing, AdListingPhoto
 )
 
 User = get_user_model()
-
-
-# class ListingsExplain(TemplateView):
-# 	template_name = 'marketplace/listings_explain.html'
 
 
 class ItemListingCreate(LoginRequiredMixin, CreateView):
@@ -188,9 +189,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		# get object (form.instance) and update fields before saving.
 		# this is better than calling form.save(commit=False);
 		# with the latter, you have to set some m2m stuff... (see super method for details.)
-		instance = form.instance	
-		instance.poster = user
-		instance.slug = slugify(instance.title)
+		# instance = form.instance	
 		listing = form.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
@@ -232,11 +231,15 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	context_object_name = 'listing'
 
 	def get(self, request, *args, **kwargs):
+		if should_redirect(object := self.get_object(), kwargs.get('slug')):
+			return redirect(object, permanent=True)
+		
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
+		user = self.request.user
 
 		context = super().get_context_data(**kwargs)
 		listing = self.object
@@ -246,7 +249,7 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			school=listing.school,
 			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 			sub_category__name=getattr(listing.sub_category, 'name', '')
-		).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
+		).exclude(id=listing.id).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 		
 		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 		sub_category_name = getattr(listing.sub_category, 'name', '')
@@ -271,6 +274,9 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['first_photos'] = first_photos
 		context['similar_listings'] = similar_listings
+		context['can_edit_item'] = False if user.is_anonymous else can_edit_listing(user, listing)
+		context['can_delete_item'] = False if user.is_anonymous else can_delete_listing(user, listing)
+		
 		return context
 
 
@@ -302,7 +308,6 @@ class ItemListingFilter(filters.FilterSet):
 				[Q(title__icontains=word) for word in value_list]
 			)
 		)
-		
 		return qs
 
 
@@ -413,13 +418,6 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	def form_valid(self, form):
 		request = self.request
 		session, user = request.session, request.user
-
-		# get object (form.instance) and update fields before saving.
-		# this is better than calling form.save(commit=False);
-		# with the latter, you have to set some m2m stuff... (see super method for details.)
-		instance = form.instance	
-		instance.poster = user
-		instance.slug = slugify(instance.title)
 		listing = form.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
@@ -461,11 +459,15 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	context_object_name = 'listing'
 
 	def get(self, request, *args, **kwargs):
+		if should_redirect(object := self.get_object(), kwargs.get('slug')):
+			return redirect(object, permanent=True)
+		
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
+		user = self.request.user
 		
 		context = super().get_context_data(**kwargs)
 		listing = self.object
@@ -474,7 +476,7 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		similar_listings = AdListing.objects.prefetch_related('photos').filter(
 			school=listing.school,
 			category__name=listing.category.name
-		).only('title', 'pricing', 'posted_datetime')[0:NUM_LISTINGS]
+		).exclude(id=listing.id).only('title', 'pricing', 'posted_datetime')[0:NUM_LISTINGS]
 		print(similar_listings)
 
 		# get first photos of each similar listing
@@ -491,6 +493,8 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['similar_listings'] = similar_listings
 		context['first_photos'] = first_photos
+		context['can_edit_item'] = False if user.is_anonymous else can_edit_listing(user, listing)
+		context['can_delete_item'] = False if user.is_anonymous else can_delete_listing(user, listing)
 		
 		return context
 
@@ -548,3 +552,4 @@ class AdListingList(FilterView):
 		
 		context['first_photos'] = first_photos
 		return context
+

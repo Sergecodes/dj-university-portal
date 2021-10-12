@@ -7,24 +7,29 @@ from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.template.defaultfilters import slugify
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
+from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
 
 from core.constants import (
-	PAST_PAPERS_UPLOAD_DIR, 
+	PAST_PAPERS_UPLOAD_DIR, PAST_PAPER_SUFFIX,
 	PAST_PAPERS_PHOTOS_UPLOAD_DIR,
-	PAST_PAPER_SUFFIX,
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin 
-from core.utils import generate_pdf, get_photos
+from core.utils import generate_pdf, get_photos, should_redirect
 from qa_site.models import Subject
 from .forms import PastPaperForm, CommentForm
-from .models import PastPaper, PastPaperPhoto, Subject
+from .mixins import (
+	can_delete_paper, CanDeletePastPaperMixin, 
+	CanDeletePastPaperCommentMixin, CanEditPastPaperCommentMixin,
+)
+from .models import PastPaper, PastPaperPhoto, Comment
 
 
 class PastPaperCreate(LoginRequiredMixin, CreateView):
@@ -86,7 +91,7 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		instance_list = PastPaperPhoto.objects.bulk_create(instance_list)
 		# point past_paper file to generated file
 		past_paper.file.name = os.path.join(
-			PAST_PAPERS_UPLOAD_DIR, generate_pdf(instance_list, slugify(past_paper.title))
+			PAST_PAPERS_UPLOAD_DIR, generate_pdf(instance_list, past_paper.slug)
 		)
 		past_paper.save()
 
@@ -122,6 +127,11 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		'''
 
 
+class PastPaperDelete(GetObjectMixin, CanDeletePastPaperMixin, DeleteView):
+	model = PastPaper
+	success_url = reverse_lazy('past_papers:past-paper-list')
+
+
 @method_decorator(login_required, name='post')
 class PastPaperDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = PastPaper
@@ -141,23 +151,27 @@ class PastPaperDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		return redirect(past_paper.get_absolute_url())
 
 	def get(self, request, *args, **kwargs):
+		if should_redirect(object := self.get_object(), kwargs.get('slug')):
+			return redirect(object, permanent=True)
+		
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
-		NUM_SIMILAR_PAPERS = 5
-		COMMENTS_PER_PAGE = 2
+		NUM_SIMILAR_PAPERS, COMMENTS_PER_PAGE = 5, 2
+		user = self.request.user
+
 		context = super().get_context_data(**kwargs)
-		
 		past_paper = self.object
-		comments = past_paper.comments.select_related('poster').order_by('-posted_datetime')
+		comments = past_paper.comments.select_related('poster') \
+			.order_by('-posted_datetime')
 		
 		# get similar papers
 		similar_papers = PastPaper.objects.filter(
 			level=past_paper.level,
 			type=past_paper.type,
 			subject=past_paper.subject
-		).only('title').order_by('-posted_datetime')[:NUM_SIMILAR_PAPERS]
+		).exclude(id=past_paper.id).only('title').order_by('-posted_datetime')[:NUM_SIMILAR_PAPERS]
 
 		# paginate results
 		paginator = Paginator(comments, COMMENTS_PER_PAGE)
@@ -171,6 +185,7 @@ class PastPaperDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context['page_obj'] = page_obj
 		# if more than one page is present, then the results are paginated
 		context['is_paginated'] = paginator.num_pages > 1
+		context['can_delete_paper'] = False if user.is_anonymous else can_delete_paper(user, past_paper)
 
 		return context
 
@@ -201,6 +216,7 @@ class PastPaperFilter(filters.FilterSet):
 		
 		return qs
 
+
 class PastPaperList(FilterView):
 	model = PastPaper
 	filterset_class = PastPaperFilter
@@ -224,3 +240,46 @@ class PastPaperList(FilterView):
 		context['levels'] = PastPaper.LEVELS
 		
 		return context
+
+
+## Past paper comment edit and delete views
+class PastPaperCommentUpdate(GetObjectMixin, CanEditPastPaperCommentMixin, UpdateView):
+	# set fields to update.
+	# if you use the form_class attribute instead, 
+	# you will manually need to save/update some fields
+	fields = ['content']
+	model = Comment
+	template_name = 'past_papers/comment_edit.html'
+
+	def get_success_url(self):
+		return self.get_object().past_paper.get_absolute_url()
+
+
+class PastPaperCommentDelete(GetObjectMixin, CanDeletePastPaperCommentMixin, DeleteView):
+	model = Comment
+
+	def get_success_url(self):
+		return self.get_object().past_paper.get_absolute_url()
+
+
+## Bookmarking
+@login_required
+@require_POST
+def past_paper_bookmark_toggle(request):
+	"""This view handles bookmarking for past papers"""
+	user, POST = request.user, request.POST
+	id, action = POST.get('id'), POST.get('action')
+	past_paper = get_object_or_404(PastPaper, pk=id)
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		past_paper.bookmarkers.add(user)
+		return JsonResponse({'bookmarked': True}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		past_paper.bookmarkers.remove(user)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
+

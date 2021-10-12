@@ -1,12 +1,8 @@
 from django.conf import settings
-from django.contrib.auth import (
-	authenticate, login, logout,
-	get_user_model
-)
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator 
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.db.models.query import Prefetch
@@ -135,7 +131,7 @@ def activate_account(request, uidb64, token):
 		)
 	else:
 		return HttpResponse(
-			_('Activation link is invalid. Sign up again so as to get a new link.')
+			_('Activation link is invalid. Please sign up again so as to get a new link.')
 		)
 
 
@@ -168,7 +164,7 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		print(form.fields)
 		print(request.POST)
 		if request.POST.get('email'):
-			print("Email was sent")
+			print("Email was sent, errror")
 			form.add_error(
 				'email', 
 				ValidationError(_("You can't change your email address"))
@@ -215,13 +211,7 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		return context
 
 
-# def logout_and_login(request):
-# 	"""Logout then redirect user to login page."""
-# 	return logout_then_login(request)
-
-
 ### PROFILE TEMPLATES SECTIONS ###
-
 class Dashboard(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/dashboard.html"
 
@@ -229,49 +219,91 @@ class Dashboard(LoginRequiredMixin, TemplateView):
 class Marketplace(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/marketplace.html"
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+		# include slug too since it is used to get the url of the object
+		# also, for some unknown reason, the 'poster_id' field is requested.
+		fields = ('id', 'title', 'posted_datetime', 'slug', 'poster_id', )
+
+		context['item_listings'] = user.item_listings.only(*fields)
+		context['ad_listings'] = user.ad_listings.only(*fields)
+		context['bookmarked_items'] = user.bookmarked_item_listings.only(*fields)
+		context['bookmarked_ads'] = user.bookmarked_ad_listings.only(*fields)
+		
+		return context
 
 class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/qa-site.html"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		user, all_users = self.request.user, User.objects.all()
+		user = self.request.user
+		all_users_id = User.objects.only('id')
 
-		user_school_questions = user.school_questions.select_related('school').prefetch_related(
-			Prefetch('upvoters', queryset=all_users.only('id')),
-			Prefetch('downvoters', queryset=all_users.only('id')),
-			Prefetch('answers', queryset=SchoolAnswer.objects.all().only('id'))
+		context['school_questions'] = user.school_questions.select_related('school').prefetch_related(
+			Prefetch('upvoters', queryset=all_users_id),
+			Prefetch('downvoters', queryset=all_users_id),
+			Prefetch('answers', queryset=SchoolAnswer.objects.only('id'))
 		)
-		user_academic_questions = user.academic_questions.prefetch_related(
-			Prefetch('upvoters', queryset=all_users.only('id')),
-			Prefetch('downvoters', queryset=all_users.only('id')),
-			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
+		context['academic_questions'] = user.academic_questions.prefetch_related(
+			Prefetch('upvoters', queryset=all_users_id),
+			Prefetch('downvoters', queryset=all_users_id),
+			Prefetch('answers', queryset=AcademicAnswer.objects.only('id'))
 		)
 
-		context['school_questions'] = user_school_questions
-		context['academic_questions'] = user_academic_questions
+		qstn_fields = ('id', 'poster_id', 'posted_datetime', )
+		ans_fields = ('id', 'content', 'posted_datetime', 'question_id', 'poster_id', )
+		context['bookmarked_academic_qstns'] = user.bookmarked_academic_questions \
+			.only('title', *qstn_fields)
+		context['bookmarked_school_qstns'] = user.bookmarked_school_questions \
+			.only('content', *qstn_fields)
+
+		context['academic_answers'] = user.academic_answers.only('question__slug', *ans_fields)
+		context['school_answers'] = user.school_answers.only(*ans_fields)
+
 		return context
 
 
 class LostAndFound(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/lost-and-found.html"
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+		fields = ('id', 'slug', 'posted_datetime', 'poster_id', )
+
+		context['lost_items'] = user.lost_items.only('item_lost', *fields)
+		context['found_items'] = user.found_items.only('item_found', *fields)
+		context['bookmarked_lost_items'] = user.bookmarked_lost_items.only('item_lost', *fields)
+		context['bookmarked_found_items'] = user.bookmarked_found_items.only('item_found', *fields)
+		return context
+
 
 class RequestedItems(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/requested-items.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+		fields = ('id', 'slug', 'item_requested', 'posted_datetime', 'poster_id', )
+
+		context['requested_items'] = user.requested_items.only(*fields)
+		context['bookmarked_requested_items'] = user.bookmarked_requested_items.only(*fields)
+		return context
 
 
 class PastPaper(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/past-papers.html"
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+		fields = ('id', 'title', 'slug', 'posted_datetime', 'poster_id', )
 
-# class MyProfile(LoginRequiredMixin, DetailView):
-# 	model = User
-# 	template_name = 'users/profile/dashboard.html'
-
-# 	def get_object(self, queryset=None):
-# 		return self.request.user
-	
+		context['past_papers'] = user.past_papers.only(*fields)
+		context['bookmarked_past_papers'] = user.bookmarked_past_papers.only(*fields)
+		return context
 
 # Override auth views by redirecting user to appropriate page if he isn't logged in.
 # class UserLogin(auth_views.LoginView):

@@ -1,7 +1,6 @@
 """Basically for views that return a JsonResponse"""
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -15,7 +14,7 @@ from .models import ItemCategory, ItemListing, AdListing
 def item_bookmark_toggle(request):
 	"""This view handles bookmarking for item listings"""
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	listing = get_object_or_404(ItemListing, pk=id)
 
 	# if vote is new (not removing bookmark)
@@ -40,7 +39,7 @@ def item_bookmark_toggle(request):
 def ad_bookmark_toggle(request):
 	"""This view handles bookmarking for ad listings"""
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	listing = get_object_or_404(AdListing, pk=id)
 
 	# if vote is new (not removing bookmark)

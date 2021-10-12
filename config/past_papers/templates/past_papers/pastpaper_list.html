@@ -114,12 +114,20 @@
 							{% endwith %}
 							<div class="d-block small mt-2">
 								<span class="text-muted">{% trans 'uploaded by' %}</span>
-								<a 
-									href="{{ past_paper.poster.get_absolute_url }}"
-									class="text-decoration-none"
-								>
-									{{ past_paper.poster.username }}
-								</a>
+								{% with poster=past_paper.poster %}
+								{% if poster.has_social_profile %}
+									<a 
+										class="text-decoration-none" 
+										href="{{ poster.get_absolute_url }}"
+									>
+										{{ poster.username }}
+									</a>
+								{% else %}
+									<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+										{{ poster.username }}
+									</span>
+								{% endif %}
+								{% endwith %}
 								<span class="small text-muted">
 									&nbsp; - &nbsp;{{ past_paper.posted_datetime|naturaltime }}
 								</span>

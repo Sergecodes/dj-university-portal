@@ -57,6 +57,12 @@ class RequestedItem(Post):
 		related_name='requested_items',
 		related_query_name='requested_item'
 	)
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_requested_items',
+		related_query_name='bookmarked_requested_item',
+		blank=True
+	)
 
 	def __str__(self):
 		return self.item_requested

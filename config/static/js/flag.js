@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // element that contains flag 
     const spanEle = element.querySelector('span');
     var textSpan = spanEle.querySelector('span');
+    var textSpan = (document.querySelector('.js-first-child')).previousElementSibling;
 
     // `textSpan` will be null if no text is present. 
     // (such as flags near comments where no text is present)

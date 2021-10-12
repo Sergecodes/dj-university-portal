@@ -40,12 +40,14 @@ class Comment(models.Model):
 
 	def __str__(self):
 		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
-		# see answer with textwrap.shorten ..
+		# while you're at it, see the answer with textwrap.shorten ..
 		return filters.truncatewords(remove_tags(self.content), 10)
 
 	@property
 	def parent_object(self):
-		"""Get post under which comment belongs, used to get the url of post that contains comment."""
+		"""
+		Get post under which comment belongs, used to get the url of post that contains comment.
+		"""
 		# if comment is for answer
 		if hasattr(self, 'answer'):
 			return self.answer.question

@@ -47,7 +47,12 @@ class UserCreationForm(BaseUserCreationForm):
 		help_texts = {
 			'email': _("You won't be able to change your email.")
 		}
-		
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# remove autofocus set by superclass on `username_field` (email)
+		self.fields['email'].widget.attrs.pop('autofocus')
+
 	def save(self, commit=True):
 		# save this object's m2m method..
 		# a comment in this method (super().save()) says 

@@ -3,13 +3,15 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
-{% load app_extras %}  {# custom tag #}
+{% load flag_tags %}
+{% load app_extras %}  
 
 {% block title %}
-	<title>{{ requested_item.item_requested }} | CamerSchools</title>
+	<title>{% trans 'Looking for' %} {{ requested_item.item_requested }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
 	<link rel="stylesheet" href="{% static 'css/requested_items.css' %}">
 {% endblock extra_css %}
 
@@ -20,10 +22,10 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
-		<h2>{{ requested_item.item_requested }}</h2>
+		<h2>{% trans 'Looking for' %} {{ requested_item.item_requested }}</h2>
 
 		<!-- item photos and info -->
-		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
+		<div class="mb-4 mt-2 {% if photos.exists %} d-lg-flex {% endif %}">
 			{% if photos.exists %}
 				<div>
 					<div class="row mb-4 photo-slide">
@@ -105,13 +107,75 @@
 		</div>
 
 		<!-- item description -->
-		<div class="mb-5">
+		<div class="mb-4">
 			<h3 class="mb-3">{% trans 'Description' %}</h3>
 			<p>{{ requested_item.item_description }}</p>
 		</div>
 
-		<!-- post activities -->
-		{# TODO flagging form here #}
+		{# post actions #}
+		<div class="mb-4">
+			{# bookmark, sharing, flagging #}
+			<div class="mb-3">
+				<!-- Bookmark area -->
+				<div class="d-inline me-2">
+					{% url 'requested_items:requested-item-bookmark-toggle' as bookmark_url %}
+					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
+					{% render_bookmark_template requested_item bookmark_url title_text %}
+				</div>
+				<!-- Share area -->
+				<div class="d-inline mx-2">
+					{% trans 'Share a link to this post' as heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading %}
+				</div>
+				<!-- flag area -->
+				{# if post belongs to user, dont display flag widget #}
+				{% if user.id != requested_item.poster_id %}
+					<div class="d-inline ms-2">
+						{% if user.is_anonymous %}
+							{% get_login_url as login_url %}
+							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+								{% trans 'Report post' %}
+								<span>
+									{% include "flag/flag_icon.html" %}
+								</span>
+							</a>
+						{% else %}
+							{# this span shouldn't be removed ! #}
+							{# js needs an element with class js-flagHelper #}
+							<span class="link-danger js-flagHelper" role="button">
+								{% if has_flagged %} 
+									{% trans 'Remove flag' %}
+								{% else %} 
+									{% trans 'Report post' %} 
+								{% endif %}
+							</span> 
+							{% render_flag_form requested_item user request %}
+						{% endif %}
+					</div>
+				{% endif %}
+			</div>
+			{# editing and deleting #}
+			{% if can_edit_item or can_delete_item %}
+				<div class="mb-3">
+					{% if can_edit_item %}
+						<div class="d-inline me-2">
+							<a class="text-decoration-none link-danger" href="{% url 'requested_items:requested-item-update' pk=requested_item.pk %}">
+								<i class="fas fa-edit me-1" aria-hidden="true"></i>
+								{% trans 'Edit post' %}
+							</a>
+						</div>
+					{% endif %}
+					{% if can_delete_item %}
+						<div class="d-inline">
+							<a class="text-decoration-none link-danger" href="{% url 'requested_items:requested-item-delete' pk=requested_item.pk %}">
+								<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+								{% trans 'Delete post' %}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>	
 			
 		<!-- contact details -->
 		<section class="contact-details">
@@ -130,7 +194,7 @@
 						{% if phone_number.can_whatsapp %}
 							<a 
 								href="https://wa.me/237{{ number }}" 
-								class="text-success number-box__whatsapp"
+								class="text-success number-box__whatsapp js-whatsapp-tooltip"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
 								aria-label="{% trans 'Contact via WhatsApp' %}"
@@ -186,8 +250,17 @@
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
+<script src="{% static 'js/flag.js' %}"></script>
 <script>
+	// initialize whatsapp tooltips on the page
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('.js-whatsapp-tooltip'));
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl);
+	});
+
+	// photos gallery
 	{% if photos.exists %}
 		var $images = $('.js-photo-slide__img');
 		$images.on('click', {$images: $images}, expandImage);
@@ -198,10 +271,13 @@
 		$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
 	{% endif %}
 
-	// initialize all tooltips on the page
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
+	/* FLAG FORM */
+	// trigger click on flag-report-icon when flag helper is clicked
+	$('.js-flagHelper').click(function() {
+		var $parentWrp = $(this).parent();
+		console.log($parentWrp);
+		$parentWrp.find('.js-flag-report-icon').first().click();
+		// $('.js-flag-report-icon').first().click();
 	});
 </script>
 {% endblock %}

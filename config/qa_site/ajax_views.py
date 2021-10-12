@@ -39,7 +39,7 @@ def vote_academic_thread(request):
 	It should be called via client side..
 	"""
 	user, POST = request.user, request.POST
-	thread_id, thread_type = int(POST.get('id')), POST.get('thread_type')
+	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
 	print(POST)
 	
@@ -246,7 +246,7 @@ def vote_school_thread(request):
 	This view handles upvotes and downvotes for questions, answers and comments of as school-based question.
 	"""
 	user, POST = request.user, request.POST
-	thread_id, thread_type = int(POST.get('id')), POST.get('thread_type')
+	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
 	print(POST)
 
@@ -441,8 +441,9 @@ def vote_school_thread(request):
 @require_POST
 def academic_question_bookmark_toggle(request):
 	"""This view handles bookmarking for academic questions"""
+	# yes, user can bookmark his own question
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	question = get_object_or_404(AcademicQuestion, pk=id)
 
 	# if vote is new (not removing bookmark)
@@ -463,7 +464,7 @@ def academic_question_bookmark_toggle(request):
 def school_question_bookmark_toggle(request):
 	"""This view handles bookmarking for school-based questions"""
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	question = get_object_or_404(SchoolQuestion, pk=id)
 
 	# if vote is new (not removing bookmark)
@@ -484,8 +485,12 @@ def school_question_bookmark_toggle(request):
 def academic_question_follow_toggle(request):
 	"""This view handles following for academic questions"""
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	question = get_object_or_404(AcademicQuestion, pk=id)
+
+	# user can't follow his own question
+	if user.id == question.poster_id:
+		return JsonResponse({'error': _("You can't follow your own question")}, status=403)
 
 	# if user is following
 	if action == 'follow':
@@ -505,8 +510,12 @@ def academic_question_follow_toggle(request):
 def school_question_follow_toggle(request):
 	"""This view handles following for school-based questions"""
 	user, POST = request.user, request.POST
-	id, action = int(POST.get('id')), POST.get('action')
+	id, action = POST.get('id'), POST.get('action')
 	question = get_object_or_404(SchoolQuestion, pk=id)
+
+	# user can't follow his own question
+	if user.id == question.poster_id:
+		return JsonResponse({'error': _("You can't follow your own question")}, status=403)
 
 	# if user is following
 	if action == 'follow':

@@ -1,19 +1,20 @@
 import copy
 import django_filters as filters
 from datetime import timedelta, timezone
+from django import forms
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from django import forms
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View 
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import DetailView
-from random import choice
+from django.views.generic.base import TemplateView
 
 from core.mixins import IncrementViewCountMixin
 from core.models import Institution
@@ -310,6 +311,39 @@ class SocialProfileDetail(
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		profile = self.object
+		social_media = profile.social_media
+
+		context['user'] = profile.user
+		context['profile_info'] = {
+			_('Level'): profile.get_level_display(),
+			_('Department'): profile.department,
+			_('School'): profile.school.name if profile.school_id else _('Not given'),
+			_('Gender'): profile.gender,
+			_('Aged between'): profile.age_range,
+			_('A little about me'): about_me if (about_me := profile.about_me) else _('Not given'),
+			_('My hobbies and interests'): hobbies if (hobbies := profile.hobbies) else _('Not given'),
+			_('Currently'): profile.get_current_relationship_display(),
+			_('Interested in'): profile.get_interested_relationship_display(),
+		}
+		context['social_media_links'] = {
+			_('Email'): email if (email := social_media.email) else '',
+			'GitHub': github if (github := social_media.github_follow) else '',
+			_('Website'): web_links if (web_links := social_media.website_follow) else '',
+			'Tiktok': tiktok if (tiktok := social_media.tiktok_follow) else '',
+			'Facebook': facebook if (facebook := social_media.facebook_follow) else '',
+			'Twitter': twitter if (twitter := social_media.twitter_follow) else '',
+			'Instagram': instagram if (instagram := social_media.instagram_follow) else ''
+		}
+		
+		return context
+
+
+class CamerSchoolsProfileView(TemplateView):
+	template_name = 'socialize/camerschools_profile.html'
+
 
 @user_passes_test(
 	has_social_profile, 
@@ -345,3 +379,37 @@ class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 		context['random_profiles'] = get_random_profiles()
 
 		return context
+
+
+## Bookmarking
+@user_passes_test(
+	has_social_profile, 
+	login_url=reverse_lazy('socialize:create-profile')
+)
+@login_required
+@require_POST
+def social_profile_bookmark_toggle(request):
+	"""This view handles bookmarking for past papers"""
+	user, POST = request.user, request.POST
+	id, action = POST.get('id'), POST.get('action')
+	# remember SocialProfile has no attribute id.
+	social_profile = get_object_or_404(SocialProfile, user_id=id)
+
+	# user can't bookmark his own profile
+	# there is a test to ensure only users with social profiles can access this view
+	if user.social_profile == social_profile:
+		return JsonResponse({'bookmarked': False}, status=403) #Forbidden
+
+	# if vote is new (not removing bookmark)
+	if action == 'bookmark':
+		social_profile.bookmarkers.add(user)
+		return JsonResponse({'bookmarked': True}, status=200)
+
+	# if user is retracting bookmark
+	elif action == 'recall-bookmark':
+		social_profile.bookmarkers.remove(user)
+		return JsonResponse({'unbookmarked': True}, status=200)
+	else:
+		return JsonResponse({'error': _('Invalid action')}, status=400)
+
+

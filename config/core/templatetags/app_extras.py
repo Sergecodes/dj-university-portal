@@ -7,9 +7,10 @@ from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
 from core.utils import parse_phone_number, is_mobile
+from past_papers.mixins import can_edit_comment, can_delete_comment
 # i imported the User module directly; this was to ensure that the User methods will work.
 # and identified by the code editor; xD
-# just allow it as-is.
+# just allow it as it is.
 from users.models import User
 
 register = template.Library()
@@ -23,6 +24,10 @@ register.filter(User.can_edit_comment)
 register.filter(User.can_delete_comment)
 register.filter(User.can_edit_answer)
 register.filter(User.can_delete_answer)
+
+## register past_papers editing and deleting methods..
+register.filter(can_edit_comment)
+register.filter(can_delete_comment)
 
 
 @register.filter
@@ -89,8 +94,9 @@ def get_login_url():
 	return login_url
 
 
-@register.inclusion_tag('core/bookmarking.html')
+@register.inclusion_tag('core/bookmarking.html', takes_context=True)
 def render_bookmark_template(
+	context,
 	object, 
 	bookmark_url, 
 	title_text=_('Add this post to your favourites. (click again to undo)')
@@ -98,6 +104,7 @@ def render_bookmark_template(
 	bookmarkers = object.bookmarkers.only('id')
 	
 	return {
+		'user': context['user'],
 		'object_id': object.id,
 		'bookmarkers': bookmarkers,
 		'num_bookmarkers': bookmarkers.count(),

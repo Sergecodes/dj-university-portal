@@ -65,6 +65,8 @@
 {% endwith %}
 
 <script>
+	var shareToolTips = document.querySelectorAll('.js-share-tooltip');
+	
 	// change default tags to sanitize for bootstrap tooltips with html content
 	// see getbootstrap.com/docs/5.0/getting-started/javascript/#sanitizer
 	var defaultAllowList = bootstrap.Tooltip.Default.allowList;
@@ -73,7 +75,8 @@
 
 	/* initialise all tooltips on the page */
 	// notably the social media share tooltip
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	// note that we select only the class .js-share-tooltip; 
+	var tooltipTriggerList = [].slice.call(shareToolTips);
 	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 		return new bootstrap.Tooltip(tooltipTriggerEl);
 	});
@@ -98,9 +101,12 @@
 
 	// bootstrap tooltips are asyncronously initialised,
 	// so wait until tooltip html template is inserted before adding click event.
-	var myToolTipEl = document.querySelector('.js-share-tooltip');
-	myToolTipEl.addEventListener('inserted.bs.tooltip', function() {
-		$('.js-copy-button').first().click(onCopyLink);
-	});
+	// var myToolTipEl = shareToolTip;
+	for (var i = 0; i < shareToolTips.length; i++) {
+		shareToolTips[i].addEventListener('inserted.bs.tooltip', function() {
+			$('.js-copy-button').first().click(onCopyLink);
+		});
+	}
+	
 
 </script>

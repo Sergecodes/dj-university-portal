@@ -1,6 +1,7 @@
 {# Template to permit bookmarking and unbookmarking of objects #}
 {# only one instance of this template should exist per page. #}
 {# to enable multiple instances, revise javascript. #}
+
 {% load i18n %}
 {% load static %}
 
@@ -8,7 +9,7 @@
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
-			{% trans 'You must login before adding a post.' %} 
+			{% trans 'You must login to bookmark a post.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
 				<a href="{% url 'users:login' %}" target="_blank">
@@ -72,7 +73,7 @@
 		{% trans 'Bookmark' %}
 	{% endif %}
 </a>
-<span class="ms-1 text-primary">
+<span class="text-primary">
 	&nbsp;
 	<span class="js-bookmarkCount">{{ num_bookmarkers }}</span>
 </span>

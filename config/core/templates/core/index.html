@@ -26,7 +26,7 @@
 								{# use alt="" since this image is purely decorative #}
 								{# see https://w3.org/WAI/tutorials/images/decorative #}
 								{# also see other image categories while you're at it. #}
-								<img src="{% static 'images/chillpill.jpg' %}" alt="" class="rounded extra-info-img">
+								<img src="{% static 'images/stacked-open-books.jpeg' %}" alt="" class="rounded extra-info-img">
 								<span class="visually-hidden">{% trans 'Academic questions' %}</span>
 							</a>
 						</div>
@@ -60,7 +60,7 @@
 					<div class="d-flex mb-3">
 						<div class="flex-shrink-0 me-3">
 							<a href="{% url 'qa_site:school-question-list' %}">
-								<img src="{% static 'images/460791.jpg' %}" alt="" class="rounded extra-info-img">
+								<img src="{% static 'images/some students.jpeg' %}" alt="" class="rounded extra-info-img">
 								<span class="visually-hidden">{% trans 'School-based questions' %}</span>
 							</a>
 						</div>
@@ -107,10 +107,10 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Latest Items' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for listing, photo in items_and_photos %}
 					{% with cond=listing.condition %}
-						<li class="col-lg-4 mb-4 index-page-list__item">
+						<li class="col-lg-4 mb-4">
 							<div class="d-flex">
 								<div class="flex-shrink-0">
 									<a href="{{ listing.get_absolute_url }}">
@@ -155,9 +155,9 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Latest Adverts' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for listing, photo in ads_and_photos %}
-					<li class="col-lg-4 mb-4 index-page-list__item">
+					<li class="col-lg-4 mb-4">
 						<div class="d-flex">
 							<div class="flex-shrink-0">
 								{% if photo %}
@@ -213,9 +213,9 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Requested Items' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for requested_item, photo in requested_items_and_photos %}
-					<li class="col-lg-4 mb-4 index-page-list__item">
+					<li class="col-lg-4 mb-4">
 						<div class="d-flex">
 							<div class="flex-shrink-0">
 								{% if photo %}
@@ -265,9 +265,9 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for past_paper in past_papers %}
-					<li class="col-lg-4 mb-4 index-page-list__item">
+					<li class="col-lg-4 mb-4">
 						<a 
 							href="{{ past_paper.get_absolute_url }}" 
 							class="fw-bold text-decoration-none"
@@ -320,9 +320,9 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Lost Items' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for lost_item, photo in lost_items_and_photos %}
-					<li class="col-lg-4 mb-4 index-page-list__item">
+					<li class="col-lg-4 mb-4">
 						<div class="d-flex">
 							<div class="flex-shrink-0">
 								{% if photo %}
@@ -374,9 +374,9 @@
 			<h2 class="section-title text-success mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Found Items' %}</span>
 			</h2>
-			<ul class="row ps-0 mb-3 index-page-list">
+			<ul class="row list-unstyled mb-3">
 				{% for found_item in found_items %}
-					<li class="col-lg-3 mb-4 index-page-list__item">
+					<li class="col-lg-3 mb-4">
 						<a 
 							href="{{ found_item.get_absolute_url }}" 
 							class="fw-bold text-decoration-none"

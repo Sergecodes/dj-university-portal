@@ -1,0 +1,208 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}
+	<title>{% trans 'CamerSchools Social Profile' %}</title>
+{% endblock %}
+
+
+{% block content %}
+<article class="container-lg mb-5 pt-3">
+	<h3 class="text-success">CamerSchools</h3>
+	<section class="border pt-4 p-2 ps-4">
+		{# profile image #}
+		<div class="d-inline-block mb-5">
+			<img 
+				src="{% static 'images/yellow-logo.png' %}" 
+				style="background-color: #1e935d;"
+				class="shadow p-2" 
+				height="220px"
+				width="300px"
+				alt="CamerSchools logo"
+			>
+		</div>
+		<div class="mb-5">
+			<h3>{% trans 'About Us' %}</h3>
+			<div>
+				{% comment %}
+				- &#128516: smiley 
+				- &#9997;   hand holding pen
+				- &#127929; piano
+				- &#127928; guitar
+				- &#127926; songs 
+				- &#128076; ok 
+				- &#128170; strong
+				- &#128175; 100 doubly-underlined
+				- &#128253; movie camera 
+				- &#128293; fire
+				- &#128367; lit candle
+				- &#128374; dark sunglasses
+				- &#128526; emoji with dark sunglasses
+				- &#128521; wink
+				- &#1F3AF;  direct hit emoji 🎯
+				- &#1F4BB;  laptop
+				- &#127773; sun smirking left emoji
+				{% endcomment %}
+				<p>
+					{% blocktrans %}
+					Uhm, well we don't have much to say about us, just that we love providing 
+					services to those in need &#128516;. <br>
+					However, we'll like to use this opportunity to shout out to some of our favorite pals. <br>
+					Please do check them out too.
+					{% endblocktrans %}
+				</p>
+
+				{# description list #}
+				<dl class="mb-2">
+					<dt>TN CONCEPT</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						A superb graphic designer. He is infact the person who designed our logo &#10024; .
+						<br>
+						Visit his Facebook page at 
+						<a href="#" class="text-decoration-none">TN Concept</a>; you're welcome!
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Berka &#127926;</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						A great musician &#9997;. 
+						Check him out yourself at 
+						<a 
+							href="https://youtube.com/channel/UCtVRvCot6-HZK_b13cVxL6A" 
+							class="text-decoration-none"
+						>
+							YouTube
+						</a>
+						and do listen to his tracks &#128076;.
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Le Magicien &#128253;</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						He's a tech genius and Youtuber. <br>
+						Contact him if you have any computer-related worries,
+						he might even send some computer tricks your way. &#128521; <br> 
+						Also, do visit his 
+						<a 
+							href="https://youtube.com/c/LInfoFacile" 
+							class="text-decoration-none"
+						>
+							YouTube Channel
+						</a>
+						, he has over a thousand subs &#128170; 
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Steven &#127929;</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						A great instumentalist. He plays the piano, guitar, violin (just to name a few). <br>
+						He also offers classes on how to become a master in these instruments. <br>
+						<a 
+							href="tel:699843635" 
+							class="text-decoration-none"
+						>
+							Contact him
+						</a>.
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Ambassadeur</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						A tech-savvy genius. <br>
+						Also, 
+						<a 
+							href="tel:657427908" 
+							class="text-decoration-none"
+						>
+							contact him
+						</a>
+						to get a hold of the latest 4.75G Orange SIM Cards. &#128175; <br>
+						PS. He's based in Yaoundé. 
+						{% endblocktrans %}
+					</dd>
+				</dl>
+
+				<hr class="mt-4 mb-5">
+				<p class="">
+					{% blocktrans %}
+					Ok, now let's check out some programmers &#127773;
+					{% endblocktrans %}
+				</p>
+				<dl class="mt-2">
+					<dt>D3</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						A focused &#127919; <span title="Mongo Expressjs Reactjs Nodejs">MERN</span> coder.
+						Check him out at 
+						<a href="https://findword.games" class="text-decoration-none">
+							FindWord game
+						</a>.
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Jugalux</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						An amazing front-end developer.
+						<a 
+							href="https://electroniccore.stage.yaknema.com/" 
+							class="text-decoration-none"
+						>
+							This
+						</a>
+						and 
+						<a 
+							href="https://findinvest.stage.yaknema.com/" 
+							class="text-decoration-none"
+						>
+							this
+						</a>
+						are some of her works. <br>
+						Drop her an 
+						<a href="mailto:jugalux111@gmail.com" class="text-decoration-none">
+							email
+						</a>.
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Omega</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						This is the guy to contact whenever you want to develop a software product.
+						He's a systems analyst. <br>
+						<a href="mailto:omerfotso006@gmail.com" class="text-decoration-none">
+							Email him
+						</a>.
+						{% endblocktrans %}
+					</dd>
+
+					<dt>Marc</dt>
+					<dd class="mb-3">
+						{% blocktrans %}
+						An awesome Reactjs and Vuejs developer. He uses the 
+						<span title="Mongo Expressjs Reactjs Nodejs">MERN</span> and 
+						<span title="Mongo Expressjs Vuejs Nodejs">MEAN</span> stacks. <br>
+						Have a look at his
+						<a href="https://codewithmarc.com/" class="text-decoration-none">
+							blog
+						</a>
+						and follow him on
+						<a href="https://github.com/marcSitze/" class="text-decoration-none">
+							GitHub
+						</a>.
+						{% endblocktrans %}
+					</dd>
+				</dl>
+			</div>
+		</div>
+	</section>
+</article>
+{% endblock %}
+

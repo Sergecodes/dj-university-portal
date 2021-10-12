@@ -60,7 +60,8 @@ IS_FLAGGED_COUNT = FLAGS_ALLOWED + 1
 
 ### LOST_AND_FOUND APP ###
 # Changes in points:
-	# post found item: +5 points (you should understand why it doesn't have to be more; user can upload his items...)
+	# post found item: +5 points (you should understand why it doesn't have to be more; 
+	# user might decite to upload his own items to gain more points...)
 PUBLISH_FOUND_ITEM_POINTS_CHANGE = +5
 # period for which a post is valid(active)
 # determines for how long a post will be displayed on the site.
@@ -81,10 +82,17 @@ AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
 
 ## PAST_PAPERS APP ##
 # Changes in points:
-	# upload past paper: +5 points (ensure file paper is unique upon posting...)
+	# upload past paper: +5 points (TODO ensure file paper is unique upon posting... ?)
 UPLOAD_PAPER_POINTS_CHANGE = +5
 PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
 PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
+# after this period, past paper can't be deleted
+# NOTE that past paper can't be edited !
+# no stress me for di manipulate papers and pdf them :)
+PAST_PAPER_CAN_DELETE_TIME_LIMIT = timedelta(minutes=30)
+# after this number of minutes, comment can't be edited/deleted
+PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=10)
+PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT = timedelta(minutes=10)
 
 
 ## QA_SITE APP ##

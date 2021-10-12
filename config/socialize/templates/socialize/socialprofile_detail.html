@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+	<title>{{ user.username }} - {% trans 'social profile' %} | CamerSchools</title>
+{% endblock %}
+
+
+{% block content %}
+<article class="container-lg mb-5 pt-3">
+	<h3 class="text-success">{{ user.full_name }} ({{ user.username }})</h3>
+	<section class="border pt-4 p-2 ps-4">
+		<div class="mb-4">
+			{# profile image #}
+			<div class="mb-4">
+				{% if object.profile_image %}
+					<img 
+						class="shadow p-2" 
+						height="300px"
+						width="300px"
+						src="{{ object.profile_image.url }}" 
+						alt="{% trans 'User profile image' %}"
+					>
+				{% else %}
+					<i class="far fa-user fa-5x shadow p-2"></i>
+				{% endif %}
+			</div>
+			{# user info #}
+			<h3 class="mb-3">{% trans 'User Info' %}</h3>
+			<div class="ps-3">
+				{% for field, val in profile_info.items %}
+					<p class="mb-2">
+						<span class="text-warning">{{ field }}</span>: {{ val }}
+					</p>
+				{% endfor %}
+			</div>
+		</div>
+		{# social media links #}
+		<div>
+			<h3>{% trans 'Social Media Links' %}</h3>
+			<div class="ps-3">
+				{% for field, val in social_media_links.items %}
+					{% if val %}
+						<p class="mb-2">
+							<span class="fw-bold">{{ field }}</span>: {{ val }}
+						</p>
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	</section>
+</article>
+{% endblock %}
+

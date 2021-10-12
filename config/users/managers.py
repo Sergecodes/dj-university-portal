@@ -212,15 +212,12 @@ class UserManager(BaseUserManager, Manager):
 		)
 
 		# notification with link to CamerSchools profile
-		camerschools_account = self.get_site_account()
+		# camerschools_account = self.get_site_account()
 		notify.send(
 			sender=user,  # just use same user as sender
 			recipient=user, 
 			verb=_("Welcome to CamerSchools. Click here to view our social profile"),
-			follow_url=reverse(
-				'socialize:view-profile', 
-				kwargs={'username': camerschools_account.username}
-			),
+			follow_url=reverse('socialize:camerschools-profile'),
 			category=Notification.GENERAL
 		)
 

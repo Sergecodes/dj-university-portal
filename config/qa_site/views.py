@@ -20,6 +20,7 @@ from core.constants import (
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.models import Institution
+from core.utils import should_redirect
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -108,13 +109,16 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		return redirect(question.get_absolute_url())
 	
 	def get(self, request, *args, **kwargs):
+		if should_redirect(object := self.get_object(), kwargs.get('slug')):
+			return redirect(object, permanent=True)
+		
 		self.set_view_count()
 		return super().get(request, *args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
-		question, user, all_users = self.object, self.request.user, User.objects.all()
+		question, user, all_users = self.object, self.request.user, User.objects.active()
 
 		# initialize comment and answer forms
 		qstn_comment_form = AcademicQuestionCommentForm()
@@ -163,8 +167,8 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['no_slug_url'] = question.get_absolute_url(with_slug=False)
-		context['can_edit_question'] = user.can_edit_question(question)
-		context['can_delete_question'] = user.can_delete_question(question)
+		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
+		context['can_delete_question'] = False if user.is_anonymous else user.can_delete_question(question)
 		
 		return context
 
@@ -253,7 +257,6 @@ class AcademicQuestionFilter(filters.FilterSet):
 				[Q(tags__name__icontains=word) for word in tag_list]
 			)
 		)
-
 		return qs
 
 
@@ -386,7 +389,6 @@ class SchoolQuestionFilter(filters.FilterSet):
 				[Q(content__icontains=word) for word in value_list]
 			)
 		)
-		
 		return qs
 
 
@@ -479,10 +481,10 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		
 		answers = question.answers.prefetch_related(
 			'comments', 
-			Prefetch('upvoters', queryset=User.objects.all().only('id'))
+			Prefetch('upvoters', queryset=User.objects.active().only('id'))
 		).all()
 		comments = question.comments.prefetch_related(
-			Prefetch('upvoters', queryset=User.objects.all().only('id'))
+			Prefetch('upvoters', queryset=User.objects.active().only('id'))
 		).all()
 
 		context['answers'] = answers
@@ -490,8 +492,8 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context['num_answers'] = answers.count()
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
-		context['can_edit_question'] = user.can_edit_question(question)
-		context['can_delete_question'] = user.can_delete_question(question)
+		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
+		context['can_delete_question'] = False if user.is_anonymous else user.can_delete_question(question)
 
 		return context
 
@@ -552,9 +554,6 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 	fields = ['content']
 	template_name = 'qa_site/misc/answer_edit.html'
 
-	def get_success_url(self):
-		return self.get_object().question.get_absolute_url()
-
 	def form_valid(self, form):
 		answer = form.save()
 		question = answer.question
@@ -568,6 +567,8 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 				target=question,
 				category=Notification.FOLLOWING
 			)
+		
+		return redirect(question)
 
 
 class AcademicAnswerUpdate(AnswerUpdate):
@@ -598,6 +599,7 @@ class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
 				category=Notification.FOLLOWING
 			)
 
+		# call super method to delete the object etc
 		return super().delete(request, *args, **kwargs)
 
 

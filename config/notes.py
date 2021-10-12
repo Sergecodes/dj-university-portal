@@ -1,62 +1,17 @@
 # I either give an order or my point of view. I don't give advices. - Draco
 # Don't get that twisted
 
-Oct 1:
-	- update user profile/dashboard accordingly (following, bookmarks, etc..;  add my answers(aca and school-based) and my bookmarked questions.)
-	- remaining front end validations (full name, username)
-	- social_profile_detail.html page. 
-	# - send notification to new user... with camerschools profile nd link to site rules.
-	
 
-Oct 2:
-	# - in item/ad listing, make tab items clickable (links.)
-	- create a general usage page where each section of the site will be explained. eg. Questions:
-	- say that all fields marked or ending with * are required.  (just include this in the site rules.
-	# - add possibility to enter code, maths, where required !;
-	# - update view_count when object is visited. don't increment view count if owner visits post.
-	- add asterisk after condition_description when condition changes. (to show the description is required)
-	- convert all lists with div to ul > li; 
-
-
-Oct 3:
-	# - in social profile list(after filter), use (5 random users) insted of top ... users
-	- notify followers when qa_site post is updated..
-	- exclude view_count from forms.
-	- wide site search feature.
-	- clicking on a university in a listing should filter results by that university.  = show optional text if no item is on listing page...
-	- enforce MIN_LISTING_PHOTOS_LENGTH for item listing creation. return form_invalid... ? 
-	- create next links to redirect to needed templates after user leaves that page. e.g redirect back to listing create view when user clicks on edit profile number and finishes editing
-	- finalize listing detail page (compare with JUMIA.); also add "return to items" like myschool. add "post item" links too like both sites.
-	- append (- CamerSchools) to title of each page. apparently, sites like myschool and SO do this.
-	- add warning text when user tries to leave page(question and listing creation forms..) window.onunload ?
-
-
-Oct 4:
-
-
-# - username @username ... mentions 
-# - don't do sharing for now, since site is not fully operational..
-	- set login url for various mixins
-- enable moderator see number of flags of a post. (notifications template. also on detail page ?)
-- convert pagination template to template that can be included.
-- update views
-- bookmarking, sharing etc..
-
-
-- in list views, use thumbnails of images. can append thumbnail image with '_thumb'...
-- make ckeditor field colored after form invalid. eg. set border: 1px solid red on the django-ckeditor-widget and its following span.invalid-feedback to d-block .. (if form.invalid .. in js)
-- insert watermark(site url) on image before saving (add logo(site url) on image before posting.)
-- set max-height of all ckeditor images (images posted via ckeditor  to say 200px;
-- !! validate uploaded file types and sizes in views that permit file uploads !!!!!
-- constraint on file size (maybe max 1MB)
-- google translations !
-- aws file serving
-- share links on detail pages
-- remove poster from list view ??  maybe in some listings (such as marketplace, etc..)
+# freeprivacypolicy.com  (cool)
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 # highlight each occurrence of keywords in search results page.
+# on question detail page, enable ordering answers (by date posted, votes, etc..)
+# on listing pages, enable ordering (by date too..)
+# - check if past paper is unique upon posting... ? if possible .
 # - cached property (with ttl) package is a must ! especially for complex computations.(in future)
 # - use ajax for username select ... 
+# - username mentions in comments (questions)
+# - implement sharing(social media...)
 # - in institution checkbox, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
 # section of site where users can ask site related questions
 # - after 24hrs, votes can't be recalled.

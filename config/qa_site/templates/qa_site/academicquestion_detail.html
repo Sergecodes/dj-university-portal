@@ -4,15 +4,17 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-{% load app_extras %}  
 {% load flag_tags %}
+{% load app_extras %}  
 
 {% block title %}
 	<title>{{ question.title }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
+	{% if user.is_authenticated and user.id != question.poster_id %}
+		<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
+	{% endif %}
 	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
 {% endblock %}
 
@@ -103,7 +105,8 @@
 		<div class="toast-body">
 			<p>	
 				{% blocktrans %}
-					You are no longer following this question. You'll not receive notifications when there's activity on this post.
+					You are no longer following this question. 
+					You'll not receive notifications when there's activity on this post.
 				{% endblocktrans %} <br>
 				{% trans 'Click' %}
 				<a href="#">{% trans 'here' %}</a>
@@ -220,7 +223,7 @@
 				<!-- Bookmark area -->
 				<div class="d-inline mx-2">
 					{% url 'qa_site:academic-bookmark-toggle' as bookmark_url %}
-					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
+					{% trans 'Add this question to your favourites. (click again to undo)' as title_text %}
 					{% render_bookmark_template question bookmark_url title_text %}
 				</div>
 				<!-- Share area -->
@@ -229,12 +232,12 @@
 					{% include 'core/social_share_tooltip.html' with heading=heading %}
 				</div>
 				<!-- flag area -->
-				{# if question belongs to user, don't display follow widget. #}
+				{# if question belongs to user, dont display flag widget #}
 				{% if user != question_poster %}
 					<div class="d-inline ms-2">
 						{% if user.is_anonymous %}
 							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
-								{% trans 'Report content' %}
+								{% trans 'Report post' %}
 								<span>
 									{% include "flag/flag_icon.html" %}
 								</span>
@@ -244,7 +247,7 @@
 								{% if has_flagged %} 
 									{% trans 'Remove flag' %}
 								{% else %} 
-									{% trans 'Report content' %} 
+									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
 							{% render_flag_form question user request %}
@@ -332,7 +335,7 @@
 							<!-- flag form -->
 							{% if user != comment_poster %}
 								{% if user.is_anonymous %}
-									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report content' %}" title="{% trans 'Report content' %}">
+									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
 										<span>
 											{% include "flag/flag_icon.html" %}
 										</span>
@@ -343,23 +346,25 @@
 							{% endif %}
 
 							{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
-							<!-- edit icon button -->
-							{% if user|can_edit_comment:comment %}
-								{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
-								<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
-								>
-									<i class="far fa-edit" aria-hidden="true"></i>
-									<span class="visually-hidden">{% trans 'Edit' %}</span>
-								</a>
-							{% endif %}
+							{% if user.is_authenticated %}
+								<!-- edit icon button -->
+								{% if user|can_edit_comment:comment %}
+									{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
+									<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
+									>
+										<i class="far fa-edit" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Edit' %}</span>
+									</a>
+								{% endif %}
 
-							<!-- delete icon button -->
-							{% if user|can_delete_comment:comment %}
-								<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
-								>
-									<i class="fas fa-trash-alt" aria-hidden="true"></i>
-									<span class="visually-hidden">{% trans 'Delete' %}</span>
-								</a>
+								<!-- delete icon button -->
+								{% if user|can_delete_comment:comment %}
+									<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
+									>
+										<i class="fas fa-trash-alt" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Delete' %}</span>
+									</a>
+								{% endif %}
 							{% endif %}
 						</div>
 					</div>
@@ -411,7 +416,7 @@
 				<span class="answers-header__count">
 					{{ num_answers }} {% trans 'Answer' %}{{ num_answers|pluralize }}
 				</span>
-				<!-- TODO insert order_by dropdown form here (like myschool ...) -->
+				{# TODO insert order_by dropdown form here (like myschool ...) #}
 				<div></div>
 			</div>
 			<div class="answers-list">
@@ -465,7 +470,7 @@
 							<span class="ms-3">
 								{% if user.is_anonymous %}
 									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
-										{% trans 'Report content' %}
+										{% trans 'Report post' %}
 										<span>
 											{% include "flag/flag_icon.html" %}
 										</span>
@@ -475,7 +480,7 @@
 										{% if has_flagged %} 
 											{% trans 'Remove flag' %}
 										{% else %} 
-											{% trans 'Report content' %} 
+											{% trans 'Report post' %} 
 										{% endif %}
 									</span> 
 									{% render_flag_form answer user request %}
@@ -514,7 +519,7 @@
 										</a>
 										<!-- flag form -->
 										{% if user.is_anonymous %}
-											<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report content' %}" title="{% trans 'Report content' %}">
+											<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
 												<span>
 													{% include "flag/flag_icon.html" %}
 												</span>
@@ -590,7 +595,7 @@
 	<!-- Related Questions -->
 	{% if related_qstns.exists %}
 		<hr class="mb-4">
-		<section class="p-3">
+		<aside class="p-3">
 			<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
 			{% for question in related_qstns %}
 				<div class="mb-2"> <!-- class 'related-question' -->
@@ -608,8 +613,8 @@
 						<span>
 							{{ question.title }} - 
 							<strong>
-								{{ question.num_answers }} {% trans 'answer' 
-								 question.num_answers|pluralize }}
+								{{ question.num_answers }} {% trans 'answer' %} 
+								{{ question.num_answers|pluralize }}
 							</strong>
 						</span>
 					</a>
@@ -617,20 +622,20 @@
 					<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 				</div>
 			{% endfor %}
-		</section>
+		</aside>
 	{% else %}
 		<br>
 	{% endif %}
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'js/flag.js' %}"></script>
+<script src="{% static 'js/flag.js' %}"></script>
 <script>
 	// call highlight js to highligt code on page
 	hljs.highlightAll();
 
-	
 	// reduce margin of paragraphs so as to use less space..
 	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
 
@@ -668,7 +673,6 @@
 
 		// if thread type is invalid
 		var threadType = event.currentTarget.dataset.thread;
-		console.log(threadType);
 		if (!THREAD_TYPES.includes(threadType)) {
 			event.stopImmediatePropagation();
 			displayErrorOccurredToast();
@@ -713,11 +717,11 @@
 				$('#addQuestionCommentArea').ckeditor({
 					toolbar: 'Custom',
 					toolbar_Custom: [
-						['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'], 
+						['Bold', 'Italic', 'Link', 'CodeSnippet'], 
 					],
 					// width: '50%',
 					width: isMobile ? '100%' : '50%',
-					extraPlugins: 'codesnippet,eqneditor'
+					extraPlugins: 'codesnippet'
 				});
 				
 			} else if ($this.hasClass('js-add-answer-comment')) {
@@ -729,11 +733,11 @@
 				$textArea.ckeditor({
 					toolbar: 'Custom',
 					toolbar_Custom: [
-						['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'],
+						['Bold', 'Italic', 'Link', 'CodeSnippet'],
 					],
 					// width: '50%',
 					width: isMobile ? '100%' : '50%',
-					extraPlugins: 'codesnippet,eqneditor'
+					extraPlugins: 'codesnippet'
 				});
 
 			} else if ($this.hasClass('js-add-answer')) {
@@ -853,7 +857,7 @@
 					} else {
 						console.log(response);
 						var msg = response['message'];
-						{% comment %} console.log({{ msg|linebreaksbr }}); {% endcomment %}
+						// console.log({{ msg|linebreaksbr }}); 
 						displayCustomErrorToast(response['message']);
 					}
 				},
@@ -944,9 +948,9 @@
 	});
 
 
+	/** FOLLOWING **/
 	// do this only if user isn't owner of question
-	{% if user != question_poster %}
-		/** FOLLOWING **/
+	{% if user.id != question.poster_id %}
 		// no need to complicate following by creating another template and script
 		// besides it is used in only two templates; (both questions detail templates)
 		$('.js-follow-button').click(function(event) {

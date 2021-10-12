@@ -26,24 +26,47 @@
 
 				<!-- user's requested items -->
 				<section class="mb-4">
-					<!-- <h4 class="text-success">
-						{% trans 'Requested Items' %}
-						<span class="text-muted">({{ user.requested_items.count }})</span>
-					</h4> -->
-					{% if not user.requested_items.exists %}
-						<div class="alert alert-info" role="alert">
-							{% trans 'You have not requested any item yet.' %}
-						</div>
-					{% else %}
-						{% for requested_item in user.requested_items.all %}
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'Requested Items' %}
+							<span class="text-muted">({{ requested_items.count }})</span>
+						</h4>
+						{% for item in requested_items %}
 							<div class="mb-2">
-								<a href="{{ requested_item.get_absolute_url }}" class="text-decoration-none">
-									{{ requested_item.item_requested }}
+								<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+									{{ item.item_requested }}
 								</a>
-								<span class="small text-muted mx-2">{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}</span>
+								<span class="small text-muted mx-2">
+									{% trans 'Posted' %} {{ item.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not requested any item yet.' %}
 							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked Requested Items' %}
+							<span class="text-muted">({{ bookmarked_requested_items.count }})</span>
+						</h4>
+						{% for item in bookmarked_requested_items%}
+							<div class="mb-2">
+								<a href="{{ item.get_absolute_url }}" class="text-decoration-none">
+									{{ item }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Posted' %} {{ item.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any requested item yet.' %}
+							</div>
+						{% endfor %}
+					</div>		
 				</section>	
 			</div>
 		</div>

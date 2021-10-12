@@ -112,7 +112,7 @@
 							<div class="px-4 py-2">
 								<a href="{% url 'users:profile-dashboard' %}" class="header-profile-info" role="button">
 									<span class="d-block">{{ user.username }}</span>
-									<span class="small text-dark fw-bold">{{ user.full_name }}</span>
+									<span class="small text-dark fw-bold">{{ user.full_name|truncatechars:18 }}</span>
 								</a>
 							</div>
 							<hr class="dropdown-divider">
@@ -223,7 +223,7 @@
 								<div class="px-4 py-2">
 									<a href="{% url 'users:profile-dashboard' %}" class="header-profile-info">
 										<span class="d-block">{{ user.username }}</span>
-										<span class="small text-dark">{{ user.full_name }}</span>
+										<span class="small text-dark">{{ user.full_name|truncatechars:18 }}</span>
 									</a>
 								</div>
 								<hr class="dropdown-divider">
@@ -440,10 +440,13 @@
 	<footer class="bg-success bg-gradient pb-2 pt-4 footer">
 		<div class="container-lg ">
 			<div class="row">
-				<div class="col-sm-6 mb-3 mb-lg-auto footer-info">
+				<div class="col-sm-6 mb-3 footer-info">
 					<h2 class="footer__subheading">CamerSchools</h2>
 					<p class="small">
-						{% trans 'We provide you with information and resources for schools in Cameroon.' %}
+						{% blocktrans %}
+						On CamerSchools, you can ask questions, request items you need, sell your items, advertize your products, view and download past papers for various subjects, contact other students and much more! <br>
+						We provide you with means to leverage your academic life.
+						{% endblocktrans %}
 					</p>
 					<div class="mt-3">
 						<form method="get" action="{% url 'core:site-search' %}">
@@ -465,29 +468,34 @@
 						</form>
 					</div>
 				</div>
-				<div class="col-sm-6 mb-3 mb-lg-auto footer-explore">
+				<div class="col-sm-6 mb-3 footer-explore">
 					<h2 class="footer__subheading">{% trans 'Explore' %}</h2>
 					<div class="row">
 						<div class="col pe-lg-0 ">
 							<ul class="nav flex-column">
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
+									<a class="nav-link footer__link" href="{% url 'core:home' %}">
 										{% trans 'Home' %}
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
-										{% trans 'Marketplace' %}
+									<a class="nav-link footer__link" href="{% url 'marketplace:item-listing-create' %}">
+										{% trans 'Sell an item' %}
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
+									<a class="nav-link footer__link" href="{% url 'qa_site:questions-explain' %}">
 										{% trans 'Ask a question' %}
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
-										{% trans 'Concours & Scholarships' %}
+									<a class="nav-link footer__link" href="{% url 'requested_items:requested-item-create' %}">
+										{% trans 'Request an Item' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'socialize:find-friend' %}">
+										{% trans 'Socialize' %}
 									</a>
 								</li>
 							</ul>
@@ -495,30 +503,35 @@
 						<div class="col ps-lg-0">
 							<ul class="nav flex-column">
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
-										{% trans 'Advertize something' %}
+									<a class="nav-link footer__link" href="{% url 'marketplace:ad-listing-create' %}">
+										{% trans 'Advertize a product' %}
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
-										{% trans 'Socialize' %}
+									<a class="nav-link footer__link" href="{% url 'past_papers:past-paper-upload' %}">
+										{% trans 'Upload a past paper' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'lost_and_found:lost-item-create' %}">
+										{% trans 'Report a lost item' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'lost_and_found:found-item-create' %}">
+										{% trans 'Report a found item' %}
 									</a>
 								</li>
 								{% comment %} <li class="nav-item">
 									<a class="nav-link footer__link" href="#">
-										{% trans 'Find change' %}
-									</a>
-								</li> {% endcomment %}
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="#">
 										{% trans 'Contact us' %}
 									</a>
-								</li>
+								</li> {% endcomment %}
 							</ul>
 						</div>
 					</div>
 				</div>
-				<div class="col-sm-6 mb-3 mb-lg-auto footer-channels">
+				<div class="col-sm-6 mb-3 footer-channels">
 					<h2 class="footer__subheading">{% trans 'Channels' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">
@@ -547,33 +560,33 @@
 							<span class="small d-inline-block">
 								{% trans 'Call Hours: 9am - 5pm (Mon - Fri)' %}
 							</span>
-							<span class="small d-inline-block">
-								{% trans 'WhatsApp:' %} +237677777777
+							<span class="small d-block">
+								{% trans 'WhatsApp:' %} +237 6 51 20 98 32
 							</span>
 						</li>
 						<li class="">
 							<span class="small d-inline-block">
-								{% trans 'Email: info@sitedomain.com' %}
+								{% trans 'Email: info@camerschools.com' %}
 							</span>
 						</li>
 					</ul>
 				</div>
-				<div class="col-sm-6 mb-3 mb-lg-auto footer-legal">
+				<div class="col-sm-6 mb-3 footer-legal">
 					<h2 class="footer__subheading">{% trans 'Legal' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">
-							<a class="nav-link footer__link" href="#">
+							<a class="nav-link footer__link" href="{% url 'core:terms-conditions' %}">
 								{% trans 'Terms' %}
 							</a>
 						</li>
 						<li class="nav-item mb-3">
-							<a class="nav-link footer__link" href="#">
+							<a class="nav-link footer__link" href="{% url 'core:privacy-policy' %}">
 								{% trans 'Privacy' %}
 							</a>
 						</li>
 						<li class="mb-3">
 							<span class="footer-legal">
-								{% trans 'Copyright &copy 2021 CamerSchools' %}
+								{% trans 'Copyright' %} &copy {% now 'Y' %} CamerSchools
 							</span>
 						</li>
 						<li class="">

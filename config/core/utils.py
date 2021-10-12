@@ -7,12 +7,50 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
 from functools import reduce
+from PIL import Image, ImageDraw, ImageFont
 from random import choice
 
 BASE_DIR = settings.BASE_DIR
+# get custom font here rather than loading it multiple times..
+IMAGE_FONT = ImageFont.truetype(
+	os.path.join(BASE_DIR, 'static/webfonts', 'ScheherazadeNew-Bold.ttf'),
+	40
+)
 
 
 ## CORE ##
+def should_redirect(object, test_slug):
+	"""
+	Verify if an object should be redirected or not.
+	Object is redirected if its slug is incorrect(not same as stored slug)
+	Ex: user requests for item/3/incorrect-slug  => item/3/correct-slug
+	"""
+
+	if not hasattr(object, 'slug'):
+		raise ValueError("Object must have a slug property")
+
+	if object.slug != test_slug:
+		return True
+	else:
+		return False
+
+
+def insert_text_in_photo(image_path, text='CamerSchools.com'):
+	"""Insert text on image"""
+	img = Image.open(image_path)
+	w, h = img.size
+
+	# call draw method to insert 2D graphics in an image
+	img_editable = ImageDraw.Draw(img)
+
+	text_w, text_h = img_editable.textsize(text, IMAGE_FONT)
+	x_pos, y_pos = h - text_h, w - text_w
+
+	img_editable.text((x_pos, y_pos), text, (192, 192, 192), font=IMAGE_FONT)
+	# save image and use same path so as to override it
+	img.save(image_path)
+
+
 def get_search_results(keyword_list, category=None):
 	"""
 	Search for the words in `keyword_list` in `category` label's model.

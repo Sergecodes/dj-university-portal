@@ -20,7 +20,7 @@
 {% block content %}
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 lostitem-form-container">
-	<form name='lost-item-form' class="lostitem-form" method="post">
+	<form name='lost-item-form' class="shadow lostitem-form" method="post">
 		{% csrf_token %}
 		<h2 class="text-center mb-4 text-success">{% trans 'Report a lost item'|title %}</h2>
 		

@@ -3,19 +3,21 @@
 {% load static %}
 {% load i18n %}
 {% load humanize %}
-{% load app_extras %}  {# custom tag #}
-<!-- {% load flag_tags %} -->
+{% load flag_tags %}
+{% load app_extras %}  
 
 {% block title %}
 	<title>{{ listing.title }} {% trans 'for sale' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
 	<link rel="stylesheet" href="{% static 'css/marketplace.css' %}">
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
 {% endblock %}
+
 
 {% block content %}
 <!-- toasts -->
@@ -75,7 +77,10 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
-		<h1 class="h2 mb-3 listing-title">{{ listing.title }}</h1>
+		<h1 class="h2 mb-3 listing-title">
+			{{ listing.title }} 
+			<span class="small">({% trans 'for sale' %})</span>
+		</h1>
 		<div class="d-lg-flex mb-4">
 			<div>
 				<div class="row mb-4 photo-slide">
@@ -166,32 +171,69 @@
 			<div class="listing-description">{{ listing.description|safe }}</div>
 		</div>
 
-		<!-- post activities -->
+		{# post actions #}
 		<div class="mb-4">
-			<!-- bookmark -->
-			<div class="d-inline ms-4">
-				<a 
-					role="button" 
-					data-id="{{ listing.id }}"
-					class="text-decoration-none js-bookmark" 
-					title="{% trans 'Add this item to your favourites. (click again to undo)' %}"
-				>
-					{% if user in bookmarkers %}
-						<i class="fas fa-star js-selected" aria-hidden="true"></i>
-						{% trans 'Bookmarked' %}
-					{% else %}
-						<i class="far fa-star" aria-hidden="true"></i>
-						{% trans 'Bookmark' %}
-					{% endif %}
-				</a>
-				<span class="ms-1 text-primary">
-					&nbsp;|&nbsp; 
-					<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
-				</span>
+			{# bookmark, sharing, flagging #}
+			<div class="mb-3">
+				<!-- Bookmark area -->
+				<div class="d-inline me-2">
+					{% url 'marketplace:item-bookmark-toggle' as bookmark_url %}
+					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
+					{% render_bookmark_template listing bookmark_url title_text %}
+				</div>
+				<!-- Share area -->
+				<div class="d-inline mx-2">
+					{% trans 'Share a link to this post' as heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading %}
+				</div>
+				<!-- flag area -->
+				{# if post belongs to user, dont display flag widget #}
+				{% if user.id != listing.poster_id %}
+					<div class="d-inline ms-2">
+						{% if user.is_anonymous %}
+							{% get_login_url as login_url %}
+							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+								{% trans 'Report post' %}
+								<span>
+									{% include "flag/flag_icon.html" %}
+								</span>
+							</a>
+						{% else %}
+							{# this span shouldn't be removed ! #}
+							{# js needs an element with class js-flagHelper #}
+							<span class="link-danger js-flagHelper" role="button">
+								{% if has_flagged %} 
+									{% trans 'Remove flag' %}
+								{% else %} 
+									{% trans 'Report post' %} 
+								{% endif %}
+							</span> 
+							{% render_flag_form listing user request %}
+						{% endif %}
+					</div>
+				{% endif %}
 			</div>
-
-			<!-- flag form -->
-			<!-- {% render_flag_form listing user request %} -->
+			{# editing and deleting #}
+			{% if can_edit_item or can_delete_item %}
+				<div class="mb-3">
+					{% if can_edit_item %}
+						<div class="d-inline mx-2">
+							<a class="text-decoration-none link-danger" href="{% url 'marketplace:item-listing-update' pk=listing.pk %}">
+								<i class="fas fa-edit me-1" aria-hidden="true"></i>
+								{% trans 'Edit post' %}
+							</a>
+						</div>
+					{% endif %}
+					{% if can_delete_item %}
+						<div class="d-inline mx-2">
+							<a class="text-decoration-none link-danger" href="{% url 'marketplace:item-listing-delete' pk=listing.pk %}">
+								<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+								{% trans 'Delete post' %}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
 		</div>
 
 		<div class="alert alert-warning pb-1 mb-5 warning-wrp" role="alert">
@@ -224,7 +266,7 @@
 						{% if phone_number.can_whatsapp %}
 							<a 
 								href="https://wa.me/237{{number}}" 
-								class="text-success number-box__whatsapp"
+								class="text-success number-box__whatsapp js-whatsapp-tooltip"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
 								aria-label="{% trans 'Contact via WhatsApp' %}"
@@ -262,10 +304,12 @@
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
+<script src="{% static 'js/flag.js' %}"></script>
 <script>
-	/* initialize all tooltips on the page */
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+	/* initialize whatsapp tooltips on the page */
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('.js-whatsapp-tooltip'));
 	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 		return new bootstrap.Tooltip(tooltipTriggerEl);
 	});
@@ -279,89 +323,14 @@
 	var $expandedImg = $('.js-expanded-img');
 	$expandedImg.attr({'src': firstImg.src, 'alt': firstImg.alt});
 
-	/** Bookmarking  */
-	// get current user's id.. 
-	// if user isn't logged in, user.id will be `None`
-	var currentUserId = "{{ user.id }}";
-	currentUserId = (currentUserId == "None" ? null : currentUserId);
-	var url = "{% url 'marketplace:item-bookmark-toggle' %}";
-	var bookmarkCount = {{ bookmarkers.count }}, $bookmarkCounter = $('.js-bookmarkCount').first();
-
-	$('.js-bookmark').click(function(event) {
-		// if user isn't logged in
-		if (!currentUserId) {
-			displayLoginRequiredToast();
-			return false;
-		}
-
-		var $this = $(this);
-		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
-		
-		// if user is trying to undo the bookmark
-		if ($icon.hasClass('js-selected')) {
-			var voteAction = 'recall-bookmark';
-
-			$.ajax({
-				url: url,
-				type: 'POST',
-				data: {id: id, action: voteAction},
-				dataType: 'json',
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-				},
-				success: function(result) {
-					if (result['unbookmarked']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
-
-						// update bookmark count
-						var newCount = parseInt($bookmarkCounter.text(), 10);
-						$bookmarkCounter.text(newCount - 1);
-						// $this.next().text(newCount - 1);
-
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Bookmark' %}";
-						displayListingBookmarkToggleToast(false);
-
-					} else {
-						console.error(result);
-						displayErrorOccurredToast();
-					}
-				}
-			});
-
-		} else {
-			// if user is adding a new bookmark
-			var voteAction = 'bookmark';
-
-			$.ajax({
-				url: url,
-				type: 'POST',
-				data: {id: id, action: voteAction},
-				dataType: 'json',
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-				},
-				success: function(result) {
-					if (result['bookmarked']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
-
-						// update bookmark count
-						var newCount = parseInt($bookmarkCounter.text(), 10);
-						$bookmarkCounter.text(newCount + 1);
-
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Bookmarked' %}";
-						displayListingBookmarkToggleToast(true);
-					} else {
-						console.error(result);
-						displayErrorOccurredToast();
-					}
-				}
-			});
-		}
+	
+	/* FLAG FORM */
+	// trigger click on flag-report-icon when flag helper is clicked
+	$('.js-flagHelper').click(function() {
+		var $parentWrp = $(this).parent();
+		console.log($parentWrp);
+		$parentWrp.find('.js-flag-report-icon').first().click();
+		// $('.js-flag-report-icon').first().click();
 	});
 
 </script>

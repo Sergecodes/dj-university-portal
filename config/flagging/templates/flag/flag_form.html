@@ -3,7 +3,6 @@
 {# NOTE: Any class on any of these templates should not be removed! This may disrupt the javascript functionality. To restyle an element, comment out its style in the flag.css stylesheet. Before modifying any element, be 100% sure that it won't disrupt the js functionality. #}
 {# ensure modal and files are in html template #}
 {% load i18n %}
-{% comment %} {% load flag_tags %} {% endcomment %}
 
 
 {% if user.is_anonymous %}
@@ -15,6 +14,8 @@
 		</span>
 	</a> {% endcomment %}
 {% else %}
+	{# this element will be used to in the script #}
+	<span class="d-none js-first-child"></span>
 	<span class="d-none js-flag-alert-msg">{% trans 'The report request could not be processed. Please refresh the page and try again.' %}</span>
 	<span class="d-none js-remove-flag">{% trans 'Remove flag' %}</span>
 	<span class="d-none js-report-content">{% trans 'Report post' %}</span>
@@ -65,5 +66,12 @@
 			</div>
 		</div>
 	</div>
+
+	{% if user.is_mod %}
+		{# mod can see number of flags on post #}
+		<span class="text-danger fw-bold ms-2">
+			({{ num_flags }} {% trans 'flag' %}{{ num_flags|pluralize }})
+		</span>
+	{% endif %}
 
 {% endif %}

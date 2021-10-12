@@ -40,12 +40,17 @@ class IncrementViewCountMixin:
 		# use their user attribute as poster..
 		# views have a model property
 		if self.model == SocialProfile:
-			owner = object.user
+			owner_id = object.user_id
 		else:
-			owner = object.poster
+			owner_id = object.poster_id
 
 		# if user is not the poster of this post
-		if request.user != owner:
+		if request.user.id != owner_id:
 			object.view_count = F('view_count') + 1
 			object.save(update_fields=['view_count'])
-		
+
+			# now refresh object(get object) so as to get object with computed view_count
+			# if you don't do this, view_count will be `F('view_count')+1`
+			object.refresh_from_db()
+
+

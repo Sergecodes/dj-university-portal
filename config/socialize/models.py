@@ -44,33 +44,27 @@ class SocialMediaFollow(models.Model):
 	"""Links to user's social media profiles"""
 	email = NormalizedEmailField(
 		_('Email address'),
-		max_length=50,
-		blank=True, null=True
+		max_length=50, blank=True
 	)
 	twitter_follow = models.CharField(
 		_('Twitter link or username'),
-		max_length=50,
-		blank=True, null=True
+		max_length=50, blank=True
 	)
 	facebook_follow = models.CharField(
 		_('Facebook link or username'),
-		max_length=50,
-		blank=True, null=True
+		max_length=50, blank=True
 	)
 	instagram_follow = models.CharField(
 		_('Instagram link or username'),
-		max_length=50,
-		blank=True, null=True
+		max_length=50, blank=True
 	)
 	tiktok_follow = models.CharField(
 		_('Tiktok link or username'),
-		max_length=50,
-		blank=True, null=True
+		max_length=50, blank=True
 	)
 	github_follow = models.CharField(
-		_('Github link or username'),
-		max_length=50,
-		blank=True, null=True
+		_('GitHub link or username'),
+		max_length=50, blank=True
 	)
 	website_follow = models.CharField(
 		_('Other website links'),
@@ -78,9 +72,31 @@ class SocialMediaFollow(models.Model):
 			'An example could be a link to a YouTube channel or Likee profile, etc.. <br> '
 			'Separate multiple links with a semicolon.'
 		),
-		max_length=250,
-		blank=True, null=True
+		max_length=250, blank=True
 	)
+
+	# def clean(self):
+	# 	## user should enter at least one social media value..
+	# 	fields = [field.name for field in self._meta.get_fields()]
+
+	# 	# list that contains boolean values for each social media platform
+	# 	boolean_list = []
+
+	# 	for field in fields:
+	#		value = getattr(self, field)
+	#		.... todo (see forms.clean)
+	#
+	# 		boolean_list.append(bool(value))
+		
+	# 	# ensure at least one social media link is present
+	# 	if not any(boolean_list):
+	#		raise ValidationError(_('At least one social media account must be added'))
+		
+	# 	return data
+
+	# def save(self, *args, **kwargs):
+	# 	self.clean()
+	# 	super().save(*args, **kwargs)
 
 
 class SocialProfile(models.Model):
@@ -116,7 +132,7 @@ class SocialProfile(models.Model):
 		_('Level'), 
 		choices=PastPaper.LEVELS, 
 		max_length=5, 
-		default='O'  # ordinary level
+		default=PastPaper.ORDINARY_LEVEL
 	)
 	about_me = models.TextField(_('A little about me'), blank=True)
 	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
@@ -155,9 +171,18 @@ class SocialProfile(models.Model):
 		Institution,
 		verbose_name=_('School'),
 		on_delete=models.SET_NULL,
+		# school may not be in list of available schools...
 		null=True, blank=True,
 		related_name='social_profiles',
 		related_query_name='social_profile'
+	)
+	# however, owner of social profile should not 
+	# be able to see bookmarkers.
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_social_profiles',
+		related_query_name='bookmarked_social_profile',
+		blank=True
 	)
 	current_relationship = models.CharField(
 		_('Current relationship'),
@@ -181,12 +206,6 @@ class SocialProfile(models.Model):
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	view_count = models.PositiveIntegerField(default=0)
-	# determine if users profile page is visible to other users
-	# is_visible = models.BooleanField(
-	# 	_('Profile visible to other users'),
-	# 	default=False, 
-	# 	help_text=_("<br>Enable <em>Socialize</em> and allow other users to be able to view my social profile.")
-	# )
 
 	objects = SocialProfileManager()
 
@@ -195,6 +214,10 @@ class SocialProfile(models.Model):
 		indexes = [
 			models.Index(fields=['-creation_datetime'])
 		]
+
+	@property
+	def bookmark_count(self):
+		return self.bookmarkers.count()
 
 	@property
 	def profile_filename(self):

@@ -124,7 +124,7 @@ class SchoolQuestionForm(forms.ModelForm):
 
 	class Meta:
 		model = SchoolQuestion
-		fields = ['school', 'content', 'view_count', ]
+		fields = ['school', 'content', ]
 
 
 class SchoolAnswerForm(forms.ModelForm):

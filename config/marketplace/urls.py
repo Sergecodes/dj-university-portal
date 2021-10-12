@@ -11,7 +11,7 @@ item_listing_patterns = [
 	path(_('sell-an-item/'), views.ItemListingCreate.as_view(), name='item-listing-create'),
 	path(_('<int:pk>/edit/'), views.ItemListingUpdate.as_view(), name='item-listing-update'),
 	path(_('<int:pk>/delete/'), views.ItemListingDelete.as_view(), name='item-listing-delete'),
-	path(_('<int:pk>/<slug:slug>/'), views.ItemListingDetail.as_view(), name='item-listing-detail'),
+	path('<int:pk>/<slug:slug>/', views.ItemListingDetail.as_view(), name='item-listing-detail'),
 	path('<int:pk>/', views.ItemListingDetail.as_view(), name='item-listing-detail'),
 ]
 
@@ -20,7 +20,7 @@ ad_listing_patterns = [
 	path(_('advertize/'), views.AdListingCreate.as_view(), name='ad-listing-create'),
 	path(_('<int:pk>/edit/'), views.AdListingUpdate.as_view(), name='ad-listing-update'),
 	path(_('<int:pk>/delete/'), views.AdListingDelete.as_view(), name='ad-listing-delete'),
-	path(_('<int:pk>/<slug:slug>/'), views.AdListingDetail.as_view(), name='ad-listing-detail'),
+	path('<int:pk>/<slug:slug>/', views.AdListingDetail.as_view(), name='ad-listing-detail'),
 	path('<int:pk>/', views.AdListingDetail.as_view(), name='ad-listing-detail'),
 ]
 

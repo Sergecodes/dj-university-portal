@@ -5,12 +5,14 @@
 {% load crispy_forms_tags %}
 {% load humanize %}
 {% load flag_tags %}
+{% load app_extras %}  
 
 {% block title %}
 	<title>{{ question|safe }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
 	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
 {% endblock %}
 
@@ -26,6 +28,14 @@
 
 {% block content %}
 <!-- toasts -->
+<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body js-toast-message">
@@ -72,33 +82,45 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
-			<p>
-				{% trans 'The post was added to your' %} 
-				<a href="#">{% trans 'favourites' %}.</a>
+			<p>	
+				{% blocktrans %}
+					You are now following this question. You'll receive notifications when there's activity on this post.
+				{% endblocktrans %} <br>
+				{% trans 'Click' %}
+				{# TODO go to section where following tags are. (use hashtag ) #}
+				<a href="#">{% trans 'here' %}</a>
+				{% trans 'to view the posts you are following' %}.
 			</p>
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
-			<p>
-				{% trans 'The post was removed from your' %} 
-				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
+			<p>	
+				{% blocktrans %}
+					You are no longer following this question. 
+					You'll not receive notifications when there's activity on this post.
+				{% endblocktrans %} <br>
+				{% trans 'Click' %}
+				<a href="#">{% trans 'here' %}</a>
+				{% trans 'to view the posts you are following' %}.
 			</p>
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
 
+{% get_login_url as login_url %}
+
 <div class="border py-3 mb-5 container-lg">
 	<article class="js-question" data-id="{{ question.id }}">
 		{% with question_poster=question.poster %}
-			<div class="text-end mb-3 mb-md-2 me-4">
+			<div class="text-end mb-3 mb-md-0 me-4">
 				<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-warning">
 					{% trans 'Ask a Question' %}
 				</a>
@@ -144,13 +166,9 @@
 				<div class="mt-3 mb-4 question-content">
 					{{ question.content|safe }}
 				</div>
-				<div class="question-taglist">
-					{% for tag in question_tags %}
-						<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
-					{% endfor %}
-				</div>
+				
 				<!-- Question reactions -->
-				<div class="mt-3 mb-4">
+				<div class="mt-3 mb-3">
 					<!-- upvote -->
 					<div class="d-inline mx-2">
 						<a 
@@ -192,40 +210,88 @@
 						<span class="ms-1 text-danger">{{ question.downvote_count }}</span>
 					</div>
 
-					<!-- Bookmark and flag section -->
-					<div class="d-inline ms-2">
-						<a 
-							role="button" 
-							data-id="{{ question.id }}"
-							class="text-decoration-none js-bookmark" 
-							title="{% trans 'Add this question to your favourites. (click again to undo)' %}"
-						>
-							{% if user in bookmarkers %}
-								<i class="fas fa-star js-selected" aria-hidden="true"></i>
-								{% trans 'Bookmarked' %}
-							{% else %}
-								<i class="far fa-star" aria-hidden="true"></i>
-								{% trans 'Bookmark' %}
-							{% endif %}
-						</a>
-						<span class="ms-1 text-primary">
-							&nbsp;|&nbsp; 
-							<span class="js-bookmarkCount">{{ bookmarkers.count }}</span>
-						</span>
-						<!-- flag form -->
-						{% render_flag_form question user request %}
+					<!-- Bookmark area -->
+					<div class="d-inline mx-2">
+						{% url 'qa_site:school-bookmark-toggle' as bookmark_url %}
+						{% trans 'Add this question to your favourites. (click again to undo)' as title_text %}
+						{% render_bookmark_template question bookmark_url title_text %}
 					</div>
-					<!-- todo report(flag) here -->
-
+					<!-- Share area -->
+					<div class="d-inline mx-2">
+						{% trans 'Share a link to this question' as heading %}
+						{% include 'core/social_share_tooltip.html' with heading=heading %}
+					</div>
+					<!-- flag area -->
+					{# if question belongs to user, don't display follow widget. #}
+					{% if user != question_poster %}
+						<div class="d-inline ms-2">
+							{% if user.is_anonymous %}
+								<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+									{% trans 'Report post' %}
+									<span>
+										{% include "flag/flag_icon.html" %}
+									</span>
+								</a>
+							{% else %}
+								<span class="link-danger js-flagHelper" role="button">
+									{% if has_flagged %} 
+										{% trans 'Remove flag' %}
+									{% else %} 
+										{% trans 'Report post' %} 
+									{% endif %}
+								</span> 
+								{% render_flag_form question user request %}
+							{% endif %}
+						</div>
+					{% endif %}
 				</div>
-				<p>
-					<a href="#" class="btn btn-sm btn-secondary">{% trans 'Click here' %} </a> 
-					{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' %}
-				</p>
-				<!-- insert share links here, they should be inline and not take up much space -->
-				<div></div>
+				
+				<!-- edit and delete area -->
+				{% comment %} do this check only if user is authenticated; 
+				since we need to determine if user can edit or delete the question {% endcomment %}
+				{% if can_edit_question or can_delete_question %}
+					<div class="mb-4">
+						{% if can_edit_question %}
+							<div class="d-inline mx-2">
+								<a class="text-decoration-none link-danger" href="{% url 'qa_site:school-question-update' pk=question.pk %}">
+									<i class="fas fa-edit me-1" aria-hidden="true"></i>
+									{% trans 'Edit question' %}
+								</a>
+							</div>
+						{% endif %}
+						{% if can_delete_question %}
+							<div class="d-inline mx-2">
+								<a class="text-decoration-none link-danger" href="{% url 'qa_site:school-question-delete' pk=question.pk %}">
+									<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+									{% trans 'Delete question' %}
+								</a>
+							</div>
+						{% endif %}
+					</div>
+				{% endif %}
+
+				<!-- follow area -->
+				{# if question belongs to user, don't display follow widget. #}
+				{% if user != question_poster %}
+					{% trans 'to unfollow this question (stop getting notifications when anyone posts a new answer to this question).' as unfollow_text %}
+					{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' as follow_text %}
+					<p>
+						<a data-id="{{ question.id }}" role="button" class="btn btn-sm {% if is_following %} btn-secondary js-selected {% else %} btn-outline-secondary {% endif %} js-follow-button">
+							{% trans 'Click here' %} 
+							<i class="fas fa-bullseye" aria-hidden="true"></i>
+						</a> 
+						<span class="js-follow-unfollow-text">
+							{% if is_following %}
+								{{ unfollow_text }}
+							{% else %}
+								{{ follow_text }}
+							{% endif %}
+						</span>
+					</p>
+				{% endif %}
 			</section>
 
+			<!-- question comments -->
 			<section class="px-3 question-comments">
 				{% for comment in comments %}
 					{% with comment_poster=comment.poster %}
@@ -238,7 +304,9 @@
 										&nbsp; &nbsp;
 									{% endif %}
 								</span>
-								<div class="d-inline-flex flex-column">
+								{# upvote and flag  #}
+								<div class="d-inline-flex flex-column align-items-center">
+									<!-- upvote icon button -->
 									<a 
 										role="button" 
 										class="mx-2 pb-1 js-upvote" 
@@ -255,15 +323,44 @@
 											<span class="visually-hidden">{% trans 'Like' %}</span>
 										{% endif %}
 									</a>
-									<a 
-										role="button" 
-										class="mx-2 link-secondary" 
-									>
-										<i class="far fa-flag" aria-hidden="true"></i>
-										<span class="visually-hidden">{% trans 'Flag comment' %}</span>
-									</a>
+
+									<!-- flag form -->
+									{% if user != comment_poster %}
+										{% if user.is_anonymous %}
+											<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
+												<span>
+													{% include "flag/flag_icon.html" %}
+												</span>
+											</a>
+										{% else %}
+											{% render_flag_form comment user request display_title=True %}
+										{% endif %}
+									{% endif %}
+
+									{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
+									{% if user.is_authenticated %}
+										<!-- edit icon button -->
+										{% if user|can_edit_comment:comment %}
+											{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
+											<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:school-question-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
+											>
+												<i class="far fa-edit" aria-hidden="true"></i>
+												<span class="visually-hidden">{% trans 'Edit' %}</span>
+											</a>
+										{% endif %}
+
+										<!-- delete icon button -->
+										{% if user|can_delete_comment:comment %}
+											<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:school-question-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
+											>
+												<i class="fas fa-trash-alt" aria-hidden="true"></i>
+												<span class="visually-hidden">{% trans 'Delete' %}</span>
+											</a>
+										{% endif %}
+									{% endif %}
 								</div>
 							</div>
+							
 							<div class="ms-3 js-comment-wrp">
 								{{ comment.content|safe }}
 								<span>-</span>
@@ -311,7 +408,7 @@
 					<span class="answers-header__count">
 						{{ num_answers }} {% trans 'Answer' %}{{ num_answers|pluralize }}
 					</span>
-					<!-- insert order_by dropdown form here (like myschool ...) -->
+					{# todo insert order_by dropdown form here (like myschool ...) #}
 					<div></div>
 				</div>
 				<div class="answers-list">
@@ -360,10 +457,29 @@
 									</a>
 									<span class="ms-1 text-danger">{{ answer.downvote_count }}</span>
 								</div>
+								<!-- flag area -->
+								<!-- this is the flag parent wrapper -->
+								<span class="ms-3">
+									{% if user.is_anonymous %}
+										<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+											{% trans 'Report post' %}
+											<span>
+												{% include "flag/flag_icon.html" %}
+											</span>
+										</a>
+									{% else %}
+										<span class="link-danger js-flagHelper" role="button">
+											{% if has_flagged %} 
+												{% trans 'Remove flag' %}
+											{% else %} 
+												{% trans 'Report post' %} 
+											{% endif %}
+										</span> 
+										{% render_flag_form answer user request %}
+									{% endif %}
+								</span>
 							</div>
-							<!-- todo insert share links here, they should be inline and not take up much space -->
-							<div></div>
-
+							
 							{# answer comments here #}
 							<div class="px-3 answer-comments">
 								{% for comment in answer.comments.all %}
@@ -376,7 +492,7 @@
 													&nbsp; &nbsp;
 												{% endif %}
 											</span>
-											<div class="d-inline-flex flex-column">
+											<div class="d-inline-flex flex-column align-items-center">
 												<a 
 													role="button" 
 													class="mx-2 pb-1 js-upvote" 
@@ -393,13 +509,16 @@
 														<span class="visually-hidden">{% trans 'Like' %}</span>
 													{% endif %}
 												</a>
-												<a 
-													role="button" 
-													class="mx-2 link-secondary" 
-												>
-													<i class="far fa-flag" aria-hidden="true"></i>
-													<span class="visually-hidden">{% trans 'Flag comment' %}</span>
-												</a>
+												<!-- flag form -->
+												{% if user.is_anonymous %}
+													<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
+														<span>
+															{% include "flag/flag_icon.html" %}
+														</span>
+													</a>
+												{% else %}
+													{% render_flag_form comment user request display_title=True %}
+												{% endif %}
 											</div>
 											<div class="ms-3 js-comment-wrp">
 												{{ comment.content|safe }}
@@ -464,8 +583,22 @@
 </div>
 {% endblock content %}
 
+
 {% block extra_js %}
+<script src="{% static 'js/flag.js' %}"></script>
 <script>
+	// reduce margin of paragraphs so as to use less space..
+	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
+
+	/* FLAG FORM */
+	// trigger click on flag-report-icon when flag helper is clicked
+	$('.js-flagHelper').click(function() {
+		var $parentWrp = $(this).parent();
+		console.log($parentWrp);
+		$parentWrp.find('.js-flag-report-icon').first().click();
+		// $('.js-flag-report-icon').first().click();
+	});
+
 	// possible thread types are {question, answer, question-comment, answer-comment}
 	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
@@ -475,7 +608,8 @@
 	var userId = "{{ user.id }}", userPoints = {{ user.site_points }};
 	var requiredDownvotePoints = {{ required_downvote_points }};
 	userId = (userId == "None" ? null : userId);
-	console.log(userPoints);
+	var csrfToken = "{{ csrf_token }}";
+
 
 	// enable username to be directly after comment
 	$('.js-comment-wrp').children().css('display', 'inline');
@@ -492,7 +626,6 @@
 
 		// if thread type is invalid
 		var threadType = event.currentTarget.dataset.thread;
-		console.log(threadType);
 		if (!THREAD_TYPES.includes(threadType)) {
 			event.stopImmediatePropagation();
 			displayErrorOccurredToast();
@@ -590,7 +723,7 @@
 				dataType: 'json',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
 					if (response['success']) {
@@ -636,7 +769,7 @@
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
 					if (response['success']) {
@@ -694,7 +827,7 @@
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
 					if (response['success']) {
@@ -732,7 +865,7 @@
 				type: 'POST',
 				data: {id: id, vote_type: voteType, thread_type: threadType, action: voteAction},
 				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
 					if (response['success']) {
@@ -757,88 +890,75 @@
 
 	});
 
-	/** Bookmarking  */
-	// get current user's id.. 
-	// if user isn't logged in, user.id will be `None`
-	var userId = "{{ user.id }}";
-	userId = (userId == "None" ? null : userId);
-	var url = "{% url 'qa_site:school-bookmark-toggle' %}";
-	var bookmarkCount = {{ bookmarkers.count }}, $bookmarkCounter = $('.js-bookmarkCount').first();
 
-	$('.js-bookmark').click(function(event) {
-		// if user isn't logged in
-		if (!userId) {
-			displayLoginRequiredToast();
-			return false;
-		}
+	/** FOLLOWING **/
+	// do this only if user isn't owner of question
+	{% if user.id != question.poster_id %}
+		// no need to complicate following by creating another template and script
+		// besides it is used in only two templates; (both questions detail templates)
+		$('.js-follow-button').click(function(event) {
+			// if user isn't logged in
+			if (!userId) {
+				displayLoginRequiredToast();
+				return false;
+			}
 
-		var $this = $(this);
-		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
-		
-		// if user is trying to undo the bookmark
-		if ($icon.hasClass('js-selected')) {
-			var voteAction = 'recall-bookmark';
+			var $this = $(this);
+			var id = parseInt(this.dataset.id, 10);
+			var url = "{% url 'qa_site:school-follow-toggle' %}";
+			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
+			
+			// if user is trying to undo the follow
+			if ($this.hasClass('js-selected')) {
+				var voteAction = 'recall-follow';
 
-			$.ajax({
-				url: url,
-				type: 'POST',
-				data: {id: id, action: voteAction},
-				dataType: 'json',
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-				},
-				success: function(result) {
-					if (result['unbookmarked']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['unfollowed']) {
+							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
+							$followUnfollowSpan.text({{ follow_text }});
+							displayFollowToggleToast(false);
 
-						// update bookmark count
-						var newCount = parseInt($bookmarkCounter.text(), 10);
-						$bookmarkCounter.text(newCount - 1);
-
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Bookmark' %}";
-						displayBookmarkToggleToast(false);
-
-					} else {
-						console.error(result);
-						displayErrorOccurredToast();
+						} else {
+							console.error(result);
+							displayErrorOccurredToast();
+						}
 					}
-				}
-			});
+				});
 
-		} else {
-			// if user is adding a new bookmark
-			var voteAction = 'bookmark';
+			} else {
+				// if user is following question
+				var voteAction = 'follow';
 
-			$.ajax({
-				url: url,
-				type: 'POST',
-				data: {id: id, action: voteAction},
-				dataType: 'json',
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
-				},
-				success: function(result) {
-					if (result['bookmarked']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
-
-						// update bookmark count
-						var newCount = parseInt($bookmarkCounter.text(), 10);
-						$bookmarkCounter.text(newCount + 1);
-
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Bookmarked' %}";
-						displayBookmarkToggleToast(true);
-					} else {
-						console.error(result);
-						displayErrorOccurredToast();
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['followed']) {
+							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
+							$followUnfollowSpan.text({{ unfollow_text }});
+							displayFollowToggleToast(true);
+						} else {
+							console.error(result);
+							displayErrorOccurredToast();
+						}
 					}
-				}
-			});
-		}
-	});
+				});
+			}
+		});
+	{% endif %}
+
 </script>
 {% endblock %}

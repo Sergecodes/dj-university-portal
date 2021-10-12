@@ -96,7 +96,7 @@ class LostItemForm(forms.ModelForm):
 		}
 
 	def __init__(self, *args, **kwargs):
-		user, initial_photos = kwargs.pop('user'), kwargs.pop('photos', [])
+		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
 		super().__init__(*args, **kwargs)
 
 		# email used for notifications concerning listing is user's email by default.
@@ -114,7 +114,7 @@ class LostItemForm(forms.ModelForm):
 				PhotoFormLayout(extra_context={
 					'form_for': 'lost_item', 
 					'upload_help_text': _("Upload maximum 3 photos of the lost item. Allow this empty if you do not have any photos."),
-					'photos': initial_photos
+					'initial_photos': initial_photos
 				}),  
 				'area_lost',
 				'how_lost',

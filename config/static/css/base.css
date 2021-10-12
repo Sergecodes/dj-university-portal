@@ -94,8 +94,7 @@ img {
 
 .nav-menu__link:focus,
 .nav-menu__link:hover {
-	color: #0e1e0a;  /* dark */
-	/* color: #f0cb46; */
+	color: #0e1e0a;  
 }
 
 .nav-menu__link--current,
@@ -267,8 +266,14 @@ img {
 	padding-left: 0;
 	padding-bottom: 4px;
 	color: #69bd66;
+	display: inline-block;
 }
 
+/* .footer__link:focus {
+	color: black;
+} */
+
+.footer__link:focus,
 .footer__link:hover {
 	/* color: #444; */
 	/* color: #eee; */
