@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
+from core.storage_backends import PublicMediaStorage
 from core.model_fields import NormalizedEmailField
 from core.models import Institution
 from past_papers.models import PastPaper
@@ -138,8 +139,11 @@ class SocialProfile(models.Model):
 	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
 	profile_image = models.ImageField(
 		_('Profile image'),
+		storage=PublicMediaStorage(),
 		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
-		null=True, blank=True
+		# no null=True needed, since this translates to a char field 
+		# and char fields don't need it..
+		blank=True  
 	)
 	birth_date = models.DateField(
 		_('Birthday'), 

@@ -1,5 +1,6 @@
 import bleach
 from django import template
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
@@ -99,16 +100,27 @@ def render_bookmark_template(
 	context,
 	object, 
 	bookmark_url, 
+	bookmarks_url,
 	title_text=_('Add this post to your favourites. (click again to undo)')
 ):
-	bookmarkers = object.bookmarkers.only('id')
+	# remember SocialProfile doesn't have 'id' field
+	SocialProfile = apps.get_model('socialize.SocialProfile')
+	object_model = type(object)
+
+	if object_model == SocialProfile:
+		bookmarkers = object.bookmarkers.only('user_id')
+	else:
+		bookmarkers = object.bookmarkers.only('id')
 	
 	return {
 		'user': context['user'],
-		'object_id': object.id,
+		'object_id': object.user_id if object_model == SocialProfile else object.id,
 		'bookmarkers': bookmarkers,
 		'num_bookmarkers': bookmarkers.count(),
+		# url that contains view that handles bookmark request
 		'bookmark_url': bookmark_url,
+		# url that maps to view that maps to template where bookmarked posts are
+		'bookmarks_url': bookmarks_url,  
 		'title_text': title_text
     }
 

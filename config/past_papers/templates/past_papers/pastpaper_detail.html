@@ -70,14 +70,22 @@
 		</section>
 
 		{# file viewer #}
-		<section>
-			{# use googledocs viewer after deployment #}
-			{% comment %} <iframe src="https://docs.google.com/gview?url=http://path.com/to/your/pdf.pdf&embedded=true" style="width:600px; height: 500px;" frameborder="0">
-			</iframe> {% endcomment %}
+		<section class="mb-5">
+			<!-- <iframe 
+				src="https://docs.google.com/gview?url={{ past_paper.file.url }}&embedded=true" 
+				style="width:600px; height: 500px;" 
+				frameborder="0"
+			>
+			</iframe> -->
 
-			<object data="{{ past_paper.file.url }}" type="application/pdf" width="100%" height="700px">
+			<object 
+				data="{{ past_paper.file.url }}" 
+				type="application/pdf" 
+				width="90%" 
+				height="500px">
 			</object>
 		</section>
+
 		{% with file=past_paper.file %}
 		<a href="{{ file.url }}" class="btn btn-primary mb-4" download>
 			<i class="fas fa-file-download me-1" aria-hidden="true"></i>
@@ -93,8 +101,9 @@
 				<!-- Bookmark area -->
 				<div class="d-inline me-2">
 					{% url 'past_papers:past-paper-bookmark-toggle' as bookmark_url %}
+					{% url 'users:profile-pastpapers' as bookmarks_url %}
 					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
-					{% render_bookmark_template past_paper bookmark_url title_text %}
+					{% render_bookmark_template past_paper bookmark_url bookmarks_url title_text %}
 				</div>
 				<!-- Share area -->
 				<div class="d-inline mx-2">

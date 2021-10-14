@@ -223,8 +223,9 @@
 				<!-- Bookmark area -->
 				<div class="d-inline mx-2">
 					{% url 'qa_site:academic-bookmark-toggle' as bookmark_url %}
+					{% url 'users:profile-qa' as bookmarks_url %}
 					{% trans 'Add this question to your favourites. (click again to undo)' as title_text %}
-					{% render_bookmark_template question bookmark_url title_text %}
+					{% render_bookmark_template question bookmark_url bookmarks_url title_text %}
 				</div>
 				<!-- Share area -->
 				<div class="d-inline mx-2">

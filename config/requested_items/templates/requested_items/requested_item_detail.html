@@ -119,8 +119,9 @@
 				<!-- Bookmark area -->
 				<div class="d-inline me-2">
 					{% url 'requested_items:requested-item-bookmark-toggle' as bookmark_url %}
+					{% url 'users:profile-requested' as bookmarks_url %}
 					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
-					{% render_bookmark_template requested_item bookmark_url title_text %}
+					{% render_bookmark_template requested_item bookmark_url bookmarks_url title_text %}
 				</div>
 				<!-- Share area -->
 				<div class="d-inline mx-2">

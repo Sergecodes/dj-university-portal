@@ -43,17 +43,15 @@ we need to inherit from the base template...
 			multiple 
 		>
 		<hr class="my-2">
-		<!-- container for photos -->
+		<!-- container for photos, generally obtained from get_form_kwargs() -->
 		<div class="row m-auto js-gallery">
-			{% for photo in initial_photos %}
+			{% for photo_info in initial_photos %}
 			<div class="col-4 col-lg-3 my-2 photo-wrp js-photo-wrp">
 				<img 
-					src="{{ photo.file.url }}"
+					src="{{ photo_info.url }}"
 					class="photo-wrp__img"
-					alt="{{ photo.title }}"
-					data-id="{{ photo.id }}"
-					data-filename="{{ photo.actual_filename }}"
-				> 
+					data-filename="{{ photo_info.filename }}"
+				>
 				<button  
 					type="button"
 					class="btn-close js-remove-photo"
@@ -147,6 +145,7 @@ we need to inherit from the base template...
 			
 			if (result.is_valid) {
 				// "<tr><td><a href='" + data.result.url + "'>" + data.result.name + "</a></td></tr>"
+				/*
 				$gallery.append(
 					"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
 						<img \
@@ -154,6 +153,21 @@ we need to inherit from the base template...
 							class='photo-wrp__img' \
 							alt='" + result.title + "' \
 							data-id='" + result.id + "' \
+							data-filename='" + result.filename + "' \
+						> \
+						<button  \
+							type='button' \
+							class='btn-close js-remove-photo' \
+							aria-label='" + "{% trans 'Delete' %}" + "' \
+						></button> \
+					</div>"
+				);
+				*/
+				$gallery.append(
+					"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
+						<img \
+							src='" + result.url + "' \
+							class='photo-wrp__img' \
 							data-filename='" + result.filename + "' \
 						> \
 						<button  \

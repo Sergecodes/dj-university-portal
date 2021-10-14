@@ -22,9 +22,10 @@
 			{% trans "Sorry, you have not yet earned enough to withdraw." %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
-				<a href="#" target="_blank">
+				<span class="text-primary">{% trans 'here' %}</span>
+				<!-- <a href="#" target="_blank">
 					{% trans 'here' %}
-				</a> 
+				</a>  -->
 				{% trans 'for more information.' %} 
 			</p>
 		</div>
@@ -58,11 +59,12 @@
 								</h5>
 							</div>
 							<div class="card-footer text-center">
-								<a href="#" class="text-decoration-none link-warning">
+								{# todo lol #}
+								<span class="text-warning">
 									{% trans 'More info' %}
 									{% comment %} <i class="fas fa-angle-double-right" aria-hidden="true"></i> {% endcomment %}
 									<i class="far fa-arrow-alt-circle-right" aria-hidden="true"></i>
-								</a>
+								</span>
 							</div>
 						</div>
 					</div>

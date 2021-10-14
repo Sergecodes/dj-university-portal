@@ -10,6 +10,7 @@
 # - check if past paper is unique upon posting... ? if possible .
 # - cached property (with ttl) package is a must ! especially for complex computations.(in future)
 # - use ajax for username select ... 
+# - on dashboard page, hide site points/or amount made and display only on click
 # - username mentions in comments (questions)
 # - implement sharing(social media...)
 # - in institution checkbox, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.

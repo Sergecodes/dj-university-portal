@@ -15,6 +15,7 @@ profile_patterns = [
 	path(_('lost-and-found/'), views.LostAndFound.as_view(), name='profile-lostfound'),
 	path(_('past-papers/'), views.PastPaper.as_view(), name='profile-pastpapers'),
 	path(_('requested-items/'), views.RequestedItems.as_view(), name='profile-requested'),
+	path(_('bookmarked-profiles/'), views.BookmarkedSocialProfiles.as_view(), name='profile-bookmarkedprofiles'),
 
 ]
 

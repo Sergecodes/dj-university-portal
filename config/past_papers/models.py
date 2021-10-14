@@ -16,6 +16,7 @@ from core.constants import (
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
 )
 from core.models import Institution
+from core.storage_backends import PublicMediaStorage
 from qa_site.models import Subject
 from users.models import get_dummy_user
 
@@ -26,7 +27,7 @@ class PastPaperPhoto(models.Model):
 	"""
 	These photos should be periodically removed from storage, since after upload they are practically useless since they are used solely to generate the pdf file containing these photos...
 	"""
-	file = models.ImageField(upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
+	file = models.ImageField(storage=PublicMediaStorage(), upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
@@ -145,7 +146,11 @@ class PastPaper(models.Model):
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
-	file = models.FileField(blank=True, upload_to=PAST_PAPERS_UPLOAD_DIR)
+	file = models.FileField(
+		storage=PublicMediaStorage(), 
+		upload_to=PAST_PAPERS_UPLOAD_DIR,
+		blank=True
+	)
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.SET(get_dummy_user),

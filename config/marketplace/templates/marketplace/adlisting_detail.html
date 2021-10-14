@@ -50,28 +50,6 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% trans 'The post was added to your' %} 
-				<a href="#">{% trans 'favourites' %}.</a>
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% trans 'The post was removed from your' %} 
-				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
 
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
@@ -176,8 +154,9 @@
 				<!-- Bookmark area -->
 				<div class="d-inline me-2">
 					{% url 'marketplace:ad-bookmark-toggle' as bookmark_url %}
+					{% url 'users:profile-marketplace' as bookmarks_url %}
 					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
-					{% render_bookmark_template listing bookmark_url title_text %}
+					{% render_bookmark_template listing bookmark_url bookmarks_url title_text %}
 				</div>
 				<!-- Share area -->
 				<div class="d-inline mx-2">

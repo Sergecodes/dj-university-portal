@@ -59,7 +59,7 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 			social_profile.original_language = get_language()
 			social_profile.save()
 			
-			return redirect('/')
+			return redirect(social_profile)
 			
 		return render(request, self.template_name, {
 			'profile_form': social_profile_form,
@@ -124,9 +124,9 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 			social_profile.social_media = social_media
 			social_profile.save()
 			# save any m2m fields coz form was saved with commit=False
-			social_profile_form.save_m2m()
+			# social_profile_form.save_m2m()
 			
-			return redirect('/')
+			return redirect(social_profile)
 
 		return render(request, self.template_name, {
 			'profile_form': SocialProfileForm(POST, instance=object),
@@ -316,7 +316,7 @@ class SocialProfileDetail(
 		profile = self.object
 		social_media = profile.social_media
 
-		context['user'] = profile.user
+		context['profile_user'] = profile.user
 		context['profile_info'] = {
 			_('Level'): profile.get_level_display(),
 			_('Department'): profile.department,
@@ -396,7 +396,7 @@ def social_profile_bookmark_toggle(request):
 	social_profile = get_object_or_404(SocialProfile, user_id=id)
 
 	# user can't bookmark his own profile
-	# there is a test to ensure only users with social profiles can access this view
+	# remember there is a test to ensure only users with social profiles can access this view
 	if user.social_profile == social_profile:
 		return JsonResponse({'bookmarked': False}, status=403) #Forbidden
 

@@ -61,7 +61,7 @@ class PastPaperForm(forms.ModelForm):
 		model = PastPaper
 		fields = [
 			'school', 'type', 'level', 'subject', 
-			'written_date', 'title', 'file', 'view_count', 
+			'written_date', 'title', 'file', 
 		]
 		widgets = {
 			'title': forms.TextInput(

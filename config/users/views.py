@@ -9,7 +9,8 @@ from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes, force_text
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
@@ -17,6 +18,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import PHONE_NUMBERS_KEY
 from qa_site.models import SchoolAnswer, AcademicAnswer
+from socialize.views import HasSocialProfileMixin
 from users.models import PhoneNumber
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
@@ -63,6 +65,8 @@ class UserCreate(CreateView):
 		# this method is called when the form has been successfully validated
 		# also accounts for sending confirmation email to user.
 		
+		# remember, by default, `is_active` field on User model is False
+		# so user won't be permitted to log in, even though his record exists in db
 		request, new_user = self.request, form.save()
 		
 		# compose and send email verification mail
@@ -90,34 +94,42 @@ class UserCreate(CreateView):
 		request.session[PHONE_NUMBERS_KEY] = phone_numbers_list
 
 		return HttpResponse(
-			_('Please confirm your email address to complete the registration')
+			_(
+				'Please confirm your email address to complete the registration.'
+				'You should receive a confirmation email anytime soon.'
+			)
 		)
 
 	def get_context_data(self, **kwargs):
-		data = super().get_context_data(**kwargs)
+		context = super().get_context_data(**kwargs)
 
 		# add the phone_number formset to this view's context
-		data['formset'] = PhoneNumberFormset(self.request.POST or None)
-		return data
+		context['formset'] = PhoneNumberFormset(self.request.POST or None)
+		return context
 
 
 def activate_account(request, uidb64, token):
 	"""Activate user account from email confirmation link"""
 	try:
-		uid = force_text(urlsafe_base64_decode(uidb64))
+		uid = force_str(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(pk=uid)
 	except (TypeError, ValueError, OverflowError, User.DoesNotExist):
 		user = None
 	
 	if user is not None and account_activation_token.check_token(user, token):
-		user.is_active = True
-		user.save()
-
-		# retrieve phone numbers from session and assign to user
+		# first retrieve(try to retrieve) phone numbers from session
 		phone_numbers = request.session.pop(PHONE_NUMBERS_KEY, [])
+		# phone numbers should normally be registered..
 		if not phone_numbers:
 			return HttpResponseBadRequest(_('No phone numbers registered.'))
 
+		# since phone number is ok, register user.
+		user.is_active = True
+		# don't update only is_active field. other fields might also need updating
+		# such as some datetime fields or django machinery stuff lol..
+		user.save()
+
+		# assign phone numbers to user
 		for number_dict in phone_numbers:
 			number = PhoneNumber(**number_dict)
 			number.owner = user
@@ -125,13 +137,21 @@ def activate_account(request, uidb64, token):
 
 		# send notifications(welcome-ish notifs) to new user
 		User.objects.notify_new_user(user)
+		login_url = reverse('users:login')
 
 		return HttpResponse(
-			_('You have successfully confirmed your email. Now you can log into your account')
+			_(
+				'You have successfully confirmed your email. Now you can log into your account. <br>'
+				'Login <a href="{login_url}">here</a>.'
+			)
 		)
 	else:
+		signup_url = reverse('users:register')
 		return HttpResponse(
-			_('Activation link is invalid. Please sign up again so as to get a new link.')
+			_(
+				'Activation link is invalid. <br>'
+				'Please <a href="{signup_url}">sign up</a> again so as to get a new link.'
+			)
 		)
 
 
@@ -304,6 +324,19 @@ class PastPaper(LoginRequiredMixin, TemplateView):
 		context['past_papers'] = user.past_papers.only(*fields)
 		context['bookmarked_past_papers'] = user.bookmarked_past_papers.only(*fields)
 		return context
+
+
+class BookmarkedSocialProfiles(LoginRequiredMixin, HasSocialProfileMixin, TemplateView):
+	template_name = "users/profile/bookmarked-profiles.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		user = self.request.user
+		fields = ('user_id', 'user__username', 'user__full_name' )
+		context['bookmarked_profiles'] = user.bookmarked_social_profiles.only(*fields)
+
+		return context
+
 
 # Override auth views by redirecting user to appropriate page if he isn't logged in.
 # class UserLogin(auth_views.LoginView):

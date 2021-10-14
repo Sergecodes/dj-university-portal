@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR
 from core.models import Post, Institution
+from core.storage_backends import PublicMediaStorage
 
 User = get_user_model()
 
@@ -140,7 +141,7 @@ class LostItemPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
 	# title = models.CharField(max_length=60, null=True, blank=True) 
-	file = models.ImageField(upload_to=LOST_ITEMS_PHOTOS_UPLOAD_DIR)
+	file = models.ImageField(storage=PublicMediaStorage(), upload_to=LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	lost_item = models.ForeignKey(
 		LostItem,

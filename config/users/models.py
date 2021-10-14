@@ -221,8 +221,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	def get_earnings(self):
 		"""Get user's earnings from his points"""
-		# for now, return the user's points.  # TODO
-		return self.site_points
+		# for now, return 0   # TODO
+		return 0
 
 	## QA_SITE APP
 	def add_answer(self, question, answer, question_type):

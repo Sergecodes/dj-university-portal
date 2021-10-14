@@ -140,7 +140,7 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + LOST_ITEM_SUFFIX, [])
 
 		form_kwargs['user'] = user
-		form_kwargs['photos'] = get_photos(LostItemPhoto, photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
+		form_kwargs['photos'] = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
@@ -288,11 +288,7 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 				session[user.username + LOST_ITEM_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + LOST_ITEM_SUFFIX, [])
-			lost_item_photos = get_photos(
-				LostItemPhoto, 
-				photos_list, 
-				LOST_ITEMS_PHOTOS_UPLOAD_DIR
-			)
+			lost_item_photos = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 
 		form_kwargs['user'] = user
 		print(lost_item_photos)

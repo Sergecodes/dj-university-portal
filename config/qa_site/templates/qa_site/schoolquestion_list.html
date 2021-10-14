@@ -20,8 +20,8 @@
 {% block content %}
 <div class="container-lg mb-5">
 	<h2 class="text-success">{% trans 'School-Based Questions' %}</h2>
-	<div class="d-flex">
-		<article class="border question-list-art">
+	<div class="d-lg-flex">
+		<article class="border pb-2 mb-4 mb-lg-3 question-list-art">
 			<section class="px-3 pt-4">
 				<p>
 					{% blocktrans %}
@@ -128,7 +128,7 @@
 
 		{# this section is visible only on lg devices and greater #}
 		<!-- questions-schools-list -->
-		<aside class="d-none d-lg-block w-25">
+		<aside class="schools-list-aside">
 			<div class="card border-success">
 				<h5 class="card-header bg-success text-light">{% trans 'Schools' %}</h5>
 				<ul class="list-group list-group-flush">

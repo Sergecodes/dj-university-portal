@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
@@ -21,8 +22,10 @@ from core.constants import (
 	PAST_PAPERS_UPLOAD_DIR, PAST_PAPER_SUFFIX,
 	PAST_PAPERS_PHOTOS_UPLOAD_DIR,
 )
-from core.mixins import GetObjectMixin, IncrementViewCountMixin 
-from core.utils import generate_pdf, get_photos, should_redirect
+from django.core.files.base import ContentFile
+from core.mixins import GetObjectMixin, IncrementViewCountMixin
+from core.storage_backends import PublicMediaStorage 
+from core.utils import generate_past_papers_pdf, get_photos, should_redirect
 from qa_site.models import Subject
 from .forms import PastPaperForm, CommentForm
 from .mixins import (
@@ -40,11 +43,7 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
 		photos_list = request.session.get(request.user.username + PAST_PAPER_SUFFIX, [])
 		
-		form_kwargs['initial_photos'] = get_photos(
-			PastPaperPhoto, 
-			photos_list, 
-			PAST_PAPERS_PHOTOS_UPLOAD_DIR
-		)
+		form_kwargs['initial_photos'] = get_photos(photos_list, PAST_PAPERS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
@@ -57,7 +56,10 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		file = request.FILES.get('file')
 
 		if file and photos_list:
-			form.add_error(None, ValidationError(_('Either upload a file or photo(s), not both.')))
+			form.add_error(
+				None, 
+				ValidationError(_('Either upload a file or photo(s), not both.'))
+			)
 		
 		if not file and not photos_list:
 			form.add_error(None, ValidationError(_('Upload a file or photo(s)')))
@@ -75,56 +77,27 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		past_paper.poster = user
 		past_paper.language = get_language()
 	
-		# get list of photo names, remember photos are not compulsory, so use empty list as default
+		# get list of photo names, remember photos are not compulsory, 
+		# so use empty list as default
 		photos_list = session.get(user.username + PAST_PAPER_SUFFIX, [])
-		instance_list = []
-
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo_path = os.path.join(PAST_PAPERS_PHOTOS_UPLOAD_DIR, photo_name)
-			f = open(photo_path, 'rb')
-			django_file = File(f)
-			instance_list.append(PastPaperPhoto(file=django_file))
-			f.close()
-
-		instance_list = PastPaperPhoto.objects.bulk_create(instance_list)
-		# point past_paper file to generated file
-		past_paper.file.name = os.path.join(
-			PAST_PAPERS_UPLOAD_DIR, generate_pdf(instance_list, past_paper.slug)
-		)
-		past_paper.save()
-
-		# remove photos list from session 
-		request.session.pop(user.username + PAST_PAPER_SUFFIX, [])
 		
+		if photos_list:
+			# generate past paper from photos
+			byte_str = generate_past_papers_pdf(photos_list, slugify(past_paper.title))
+			storage = PublicMediaStorage()
+			filename = slugify(past_paper.title)
+
+			# save byte string to django file
+			file = ContentFile(byte_str)
+			pdf_name = storage.save(PAST_PAPERS_UPLOAD_DIR + filename + '.pdf', file)
+			
+			past_paper.file.name = pdf_name
+			past_paper.save()
+
+			# remove photos list from session 
+			request.session.pop(user.username + PAST_PAPER_SUFFIX, [])
+
 		return redirect(past_paper)
-
-		'''
-		for photo_name in photos_list:
-			photo = PastPaperPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(PAST_PAPERS_PHOTOS_UPLOAD_DIR, photo_name)
-			# since photo already has file, no file will be created, just the model instance.
-			# save instance anyways, it may have some statistical/analytical uses in the future...
-			photo.save()
-			instance_list.append(photo)
-		'''
-
-		'''
-		## this is the previous code for saving photos when the upload modal wasn't yet used
-		# save photos to file system
-		uploaded_photos = request.FILES.getlist('photos')
-		# images will be cast to a list
-		images = PastPaperPhoto.objects.bulk_create(
-			[PastPaperPhoto(file=photo) for photo in uploaded_photos]
-		)
-		# point past_paper file to generated file
-		past_paper.file.name = os.path.join(
-			PAST_PAPERS_UPLOAD_DIR, generate_pdf(images, slugify(past_paper.title))
-		)
-		past_paper.save()
-		'''
 
 
 class PastPaperDelete(GetObjectMixin, CanDeletePastPaperMixin, DeleteView):

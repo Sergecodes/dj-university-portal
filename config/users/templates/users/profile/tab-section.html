@@ -34,6 +34,9 @@
                 {% trans 'Past Papers' %}
             </a>
             {% if user.has_social_profile %}
+                <a id="nav-bookmarkedprofiles-tab" href="{% url 'users:profile-bookmarkedprofiles' %}" class="list-group-item list-group-item-action {% if active_item == 'bookmarkedprofiles' %} active {% endif %}" aria-controls="nav-bookmarkedprofiles" aria-selected="{% if active_item == 'bookmarkedprofiles' %} true {% else %} false {% endif %}">
+                    {% trans 'Bookmarked Profiles' %}
+                </a>
                 <a id="nav-socialprofile-tab" href="{% url 'socialize:update-profile' username=user.username %}" class="list-group-item list-group-item-action {% if active_item == 'socialprofile' %} active {% endif %}" aria-controls="nav-socialprofile" aria-selected="{% if active_item == 'socialprofile' %} true {% else %} false {% endif %}">
                     {% trans 'Update Social Profile' %}
                 </a>

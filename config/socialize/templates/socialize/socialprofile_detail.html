@@ -1,15 +1,16 @@
 {% extends "core/base.html" %}
 
 {% load i18n %}
+{% load app_extras %}
 
 {% block title %}
-	<title>{{ user.username }} - {% trans 'social profile' %} | CamerSchools</title>
+	<title>{{ profile_user.username }} - {% trans 'social profile' %} | CamerSchools</title>
 {% endblock %}
 
 
 {% block content %}
 <article class="container-lg mb-5 pt-3">
-	<h3 class="text-success">{{ user.full_name }} ({{ user.username }})</h3>
+	<h3 class="text-success">{{ profile_user.full_name }} ({{ profile_user.username }})</h3>
 	<section class="border pt-4 p-2 ps-4">
 		<div class="mb-4">
 			{# profile image #}
@@ -49,6 +50,29 @@
 				{% endfor %}
 			</div>
 		</div>
+
+		{# ensure user can't see this form to bookmark his social profile #}
+		{% if user.social_profile != object %}
+			<!-- Bookmark area -->
+			<div class="d-inline">
+				{% url 'socialize:social-profile-bookmark-toggle' as bookmark_url %}
+				{% url 'users:profile-bookmarkedprofiles' as bookmarks_url %}
+				{% trans 'Bookmark this profile. (click again to undo)' as title_text %}
+				{% render_bookmark_template object bookmark_url bookmarks_url title_text %}
+			</div>
+		{% endif %}
+
+		{% comment %}
+		NO FLAGGING IN THIS APP (yet?). This is coz, in our current implementation of flagging, 
+		if post is flagged may be 2 or 3 times, user is penalized. However, the social profile
+		is a user's own info about himself. For some reason, some people (say 3) might find a user's
+		reasoning inappropriate (may be in about_me section) and will flag the post etc....
+		which may cause the user to be penalized for no just cause. 
+		However, there may be cases where a user's profile is actually fraudulent (eg. drug dealer lol)
+		perhaps in this case, user's should be able to flag ??
+		
+		NO, let them rather contact us.
+		{% endcomment %}
 	</section>
 </article>
 {% endblock %}

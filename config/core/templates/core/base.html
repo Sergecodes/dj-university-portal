@@ -479,6 +479,16 @@
 									</a>
 								</li>
 								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'socialize:camerschools-profile' %}">
+										{% trans 'CamerSchools Profile' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'core:usage-info' %}">
+										{% trans 'Website Usage Info' %}
+									</a>
+								</li>
+								<li class="nav-item">
 									<a class="nav-link footer__link" href="{% url 'marketplace:item-listing-create' %}">
 										{% trans 'Sell an item' %}
 									</a>
@@ -491,11 +501,6 @@
 								<li class="nav-item">
 									<a class="nav-link footer__link" href="{% url 'requested_items:requested-item-create' %}">
 										{% trans 'Request an Item' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'socialize:find-friend' %}">
-										{% trans 'Socialize' %}
 									</a>
 								</li>
 							</ul>
@@ -520,6 +525,11 @@
 								<li class="nav-item">
 									<a class="nav-link footer__link" href="{% url 'lost_and_found:found-item-create' %}">
 										{% trans 'Report a found item' %}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link footer__link" href="{% url 'socialize:find-friend' %}">
+										{% trans 'Socialize' %}
 									</a>
 								</li>
 								{% comment %} <li class="nav-item">

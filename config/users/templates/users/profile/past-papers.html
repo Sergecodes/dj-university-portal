@@ -26,35 +26,54 @@
 
 				<!-- user's past papers -->
 				<section class="mb-4">
-					<h4 class="text-success">
-						{% trans 'Uploaded Past Papers' %}
-						<span class="text-muted">({{ user.past_papers.count }})</span>
-					</h4> 
-					{% if not user.past_papers.exists %}
-						<div class="alert alert-primary" role="alert">
-							{% trans 'You have not uploaded any past paper yet.' %} <br>
-							{% trans 'Click' %}
-							<a href="{% url 'past_papers:past-paper-upload' %}">{% trans 'here' %}</a>
-							{% trans 'to upload a past paper.' %}
-						</div>
-					{% else %}
-						{% for past_paper in user.past_papers.all %}
+					<div class="mb-4">
+						<h4 class="text-success">
+							{% trans 'Uploaded Past Papers' %}
+							<span class="text-muted">({{ user.past_papers.count }})</span>
+						</h4> 
+						{% if not past_papers.exists %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not uploaded any past paper yet.' %} <br>
+								{% trans 'Click' %}
+								<a href="{% url 'past_papers:past-paper-upload' %}">{% trans 'here' %}</a>
+								{% trans 'to upload a past paper.' %}
+							</div>
+						{% else %}
+							{% for past_paper in past_papers %}
+								<div class="mb-2">
+									<a href="{{ past_paper.get_absolute_url }}" class="text-decoration-none">
+										{{ past_paper.title }}
+									</a>
+									<span class="small text-muted mx-2">{% trans 'Uploaded' %} {{ past_paper.posted_datetime|naturaltime }}</span>
+								</div>
+							{% endfor %}
+						{% endif %}
+					</div>
+					{# bookmarks #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Bookmarked Past Papers' %}
+							<span class="text-muted">({{ bookmarked_past_papers.count }})</span>
+						</h4>
+						{% for past_paper in bookmarked_past_papers%}
 							<div class="mb-2">
 								<a href="{{ past_paper.get_absolute_url }}" class="text-decoration-none">
 									{{ past_paper.title }}
 								</a>
-								<span class="small text-muted mx-2">{% trans 'Uploaded' %} {{ past_paper.posted_datetime|naturaltime }}</span>
+								<span class="small text-muted mx-2">
+									{% trans 'Uploaded' %} {{ past_paper.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You have not bookmarked any past paper yet.' %}
 							</div>
 						{% endfor %}
-					{% endif %}		
+					</div>			
 				</section>	
-
 			</div>
 		</div>
 	</div>
 </div>
 {% endblock content %}
 
-
-{% block extra_js %}
-{% endblock %} 

@@ -36,6 +36,14 @@ PAST_PAPER_SUFFIX = '_pastpaper_photos'
 LOST_ITEM_SUFFIX = '_lostitem_photos'
 REQUESTED_ITEM_SUFFIX = '_requesteditem_photos'
 
+# file upload directories
+LISTING_PHOTOS_UPLOAD_DIR = 'item_photos/'
+AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
+LOST_ITEMS_PHOTOS_UPLOAD_DIR = 'lost_items_photos/'
+PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
+PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
+REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
+PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
 
 ## FLAGGING app ##
 # this will be used to identify a bad user(user with some flagged posts)
@@ -66,7 +74,6 @@ PUBLISH_FOUND_ITEM_POINTS_CHANGE = +5
 # period for which a post is valid(active)
 # determines for how long a post will be displayed on the site.
 # LOST_OR_FOUND_ITEM_VALIDITY_PERIOD = timedelta(weeks=1)
-LOST_ITEMS_PHOTOS_UPLOAD_DIR = 'lost_items_photos/'
 # maximum number of photos to upload for a lost item
 MAX_LOST_ITEM_PHOTOS = 3
 
@@ -76,23 +83,20 @@ MAX_LOST_ITEM_PHOTOS = 3
 MIN_ITEM_PHOTOS_LENGTH = 3
 # maximum number of photos that an item listing can have
 MAX_ITEM_PHOTOS_LENGTH = 8
-LISTING_PHOTOS_UPLOAD_DIR = 'item_photos/'
-AD_PHOTOS_UPLOAD_DIR = 'ad_photos/'
 
 
 ## PAST_PAPERS APP ##
 # Changes in points:
 	# upload past paper: +5 points (TODO ensure file paper is unique upon posting... ?)
 UPLOAD_PAPER_POINTS_CHANGE = +5
-PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
-PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
 # after this period, past paper can't be deleted
 # NOTE that past paper can't be edited !
 # no stress me for di manipulate papers and pdf them :)
 PAST_PAPER_CAN_DELETE_TIME_LIMIT = timedelta(minutes=30)
 # after this number of minutes, comment can't be edited/deleted
-PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=10)
-PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT = timedelta(minutes=10)
+PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT = timedelta(minutes=10)
+PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT
+PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT = PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT
 
 
 ## QA_SITE APP ##
@@ -161,7 +165,6 @@ COMMENT_CAN_DELETE_UPVOTE_LIMIT = 4
 
 
 ### REQUESTED ITEMS APP ###
-REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
 # maximum number of photos to upload for a requested item
 MAX_REQUESTED_ITEM_PHOTOS = 3
 
@@ -170,7 +173,6 @@ MAX_REQUESTED_ITEM_PHOTOS = 3
 # Changes in points:
 	# add social profile: +5 points
 CREATE_SOCIAL_PROFILE_POINTS_CHANGE = +5
-PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
 
 
 ## USERS APP ##

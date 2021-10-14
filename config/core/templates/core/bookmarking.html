@@ -1,5 +1,5 @@
 {# Template to permit bookmarking and unbookmarking of objects #}
-{# only one instance of this template should exist per page. #}
+{# NOTE only one instance of this template should exist per page. #}
 {# to enable multiple instances, revise javascript. #}
 
 {% load i18n %}
@@ -41,7 +41,7 @@
 		<div class="toast-body">
 			<p>
 				{% trans 'The post was added to your' %} 
-				<a href="#">{% trans 'favourites' %}.</a>
+				<a href="{{ bookmarks_url }}">{% trans 'favourites' %}.</a>
 			</p>
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
@@ -52,7 +52,7 @@
 		<div class="toast-body">
 			<p>
 				{% trans 'The post was removed from your' %} 
-				<a href="#" class="link-danger">{% trans 'favourites' %}.</a>
+				<a href="{{ bookmarks_url }}" class="link-danger">{% trans 'favourites' %}.</a>
 			</p>
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>

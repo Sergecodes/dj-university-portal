@@ -1,0 +1,53 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+
+{% block title %}
+	<title>{% trans 'Profile - Bookmarked Social Profiles' %} | CamerSchools</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-lg mb-5">
+	<div class="d-lg-flex align-items-start border p-3">
+		{% include './tab-section.html' with active_item='bookmarkedprofiles' %}
+
+		<div class="tab-content flex-grow-1 mt-2 py-2 ms-lg-4 ps-lg-4 pe-lg-3 px-3 px-lg-0 border" id="nav-tabContent">
+			<div class="tab-pane active" id="nav-bookmarkedprofiles" aria-labelledby="nav-bookmarkedprofiles-tab">
+				<h2 class="text-success text-center mb-3">
+					{% trans 'Bookmarked Social Profiles' %}
+				</h2>
+
+				<section class="mb-4">
+					<!-- <h4 class="text-success">
+						{% trans 'Uploaded Past Papers' %}
+						<span class="text-muted">({{ user.past_papers.count }})</span>
+					</h4>  -->
+					{% for profile in bookmarked_profiles %}
+						{% with profile_user=profile.user %}
+						<div class="mb-3">
+							<a href="{{ profile.get_absolute_url }}" class="text-decoration-none">
+								{{ profile_user.full_name }} ({{ profile_user.username }})
+							</a>
+						</div>
+						{% endwith %}
+					{% empty %}
+						<div class="alert alert-primary" role="alert">
+							{% trans 'You have not bookmarked any social profile yet.' %} <br>
+							{% trans 'Click' %}
+							<a href="{% url 'socialize:find-friend' %}">{% trans 'here' %}</a>
+							{% trans 'to find social profiles.' %}
+						</div>
+					{% endfor %}
+				</section>	
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+

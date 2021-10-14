@@ -45,11 +45,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + ITEM_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = get_photos(
-			ItemListingPhoto, 
-			photos_list, 
-			LISTING_PHOTOS_UPLOAD_DIR
-		)
+		form_kwargs['initial_photos'] = get_photos(photos_list, LISTING_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
@@ -344,11 +340,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + AD_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = get_photos(
-			AdListingPhoto, 
-			photos_list, 
-			AD_PHOTOS_UPLOAD_DIR
-		)
+		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def form_valid(self, form):
@@ -404,11 +396,7 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 				session[user.username + AD_LISTING_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + AD_LISTING_SUFFIX, [])
-			listing_photos = get_photos(
-				AdListingPhoto, 
-				photos_list, 
-				AD_PHOTOS_UPLOAD_DIR
-			)
+			listing_photos = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 
 		form_kwargs['user'] = user
 		form_kwargs['initial_photos'] = listing_photos

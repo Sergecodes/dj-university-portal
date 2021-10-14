@@ -36,11 +36,7 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = get_photos(
-			RequestedItemPhoto, 
-			photos_list, 
-			REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
-		)
+		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def form_valid(self, form):
@@ -99,11 +95,7 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 				session[user.username + REQUESTED_ITEM_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
-			item_photos = get_photos(
-				RequestedItemPhoto, 
-				photos_list, 
-				REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
-			)
+			item_photos = get_photos( photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 
 		form_kwargs['user'] = user
 		form_kwargs['initial_photos'] = item_photos

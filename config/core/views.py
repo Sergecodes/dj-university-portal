@@ -7,7 +7,14 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
 from django.views.generic.base import TemplateView
 
-from core.utils import get_search_results, get_label
+from core.constants import (
+	ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE, ANSWER_CAN_DELETE_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT, ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, 
+	ASK_QUESTION_POINTS_CHANGE, COMMENT_CAN_DELETE_UPVOTE_LIMIT, COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT, INITIAL_POINTS, MAX_ANSWERS_PER_USER_PER_QUESTION, PAST_PAPER_CAN_DELETE_TIME_LIMIT, PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT, 
+	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
+	REQUIRED_DOWNVOTE_POINTS, 
+	
+)
+from core.utils import get_search_results, get_label, get_minutes
 from lost_and_found.models import LostItem, FoundItem
 from marketplace.models import ItemListing, AdListing
 from notifications.models import Notification
@@ -265,6 +272,32 @@ def get_category_search_results(request, category):
 
 class SiteUsageInfoView(TemplateView):
 	template_name = "core/site_usage_info.html"
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		# points rewarded when user posts something
+		context['post_points'] = 5
+		context['new_user_points'] = INITIAL_POINTS
+		context['ask_qstn_points'] = ASK_QUESTION_POINTS_CHANGE
+		context['upvote_points'] = POST_UPVOTE_POINTS_CHANGE
+		context['downvote_points'] = abs(POST_DOWNVOTE_POINTS_CHANGE)
+		context['downvote_req_points'] = REQUIRED_DOWNVOTE_POINTS
+		context['aca_ans_points'] = ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
+		context['school_ans_points'] = ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
+		context['max_answers'] = MAX_ANSWERS_PER_USER_PER_QUESTION
+		context['cannot_del_paper_time'] = get_minutes(PAST_PAPER_CAN_DELETE_TIME_LIMIT)
+		context['cannot_touch_paper_comment_time'] = get_minutes(PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT)
+		context['cannot_edit_qstn_vote'] = QUESTION_CAN_EDIT_VOTE_LIMIT
+		context['cannot_edit_qstn_ans_count'] = QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT
+		context['cannot_edit_ans_vote'] = ANSWER_CAN_EDIT_VOTE_LIMIT
+		context['cannot_edit_comment_vote'] = COMMENT_CAN_EDIT_UPVOTE_LIMIT
+		context['cannot_edit_comment_time'] = get_minutes(COMMENT_CAN_EDIT_TIME_LIMIT)
+		context['cannot_del_comment_vote'] = COMMENT_CAN_DELETE_UPVOTE_LIMIT
+		context['cannot_del_qstn_vote'] = QUESTION_CAN_DELETE_VOTE_LIMIT
+		context['cannot_del_qstn_ans_count'] = QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT
+		context['cannot_del_ans_vote'] = ANSWER_CAN_DELETE_VOTE_LIMIT
+		
+		return context
 
 
 class PrivacyPolicyView(TemplateView):

@@ -7,6 +7,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
+from core.storage_backends import PublicMediaStorage
 from core.models import Post, Institution
 from marketplace.models import ItemCategory
 
@@ -89,7 +90,7 @@ class RequestedItemPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
 	# title = models.CharField(max_length=60, null=True, blank=True) 
-	file = models.ImageField(upload_to=REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
+	file = models.ImageField(storage=PublicMediaStorage(), upload_to=REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	requested_item = models.ForeignKey(
 		RequestedItem,

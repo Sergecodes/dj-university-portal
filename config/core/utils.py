@@ -1,21 +1,29 @@
+import cryptocode
 import os
 import re
 from django.apps import apps
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
 from functools import reduce
+from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from random import choice
 
+from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR
+from core.storage_backends import PublicMediaStorage
+
 BASE_DIR = settings.BASE_DIR
+SECRET_KEY = settings.SECRET_KEY
 # get custom font here rather than loading it multiple times..
 IMAGE_FONT = ImageFont.truetype(
 	os.path.join(BASE_DIR, 'static/webfonts', 'ScheherazadeNew-Bold.ttf'),
-	40
+	50
 )
+storage = PublicMediaStorage()
 
 
 ## CORE ##
@@ -35,20 +43,49 @@ def should_redirect(object, test_slug):
 		return False
 
 
-def insert_text_in_photo(image_path, text='CamerSchools.com'):
+def actual_filename(photo):
+	"""
+	Get file name of file with extension (not relative path from MEDIA_URL).
+	`photo` should be in storage.
+	If files have the same name, Django automatically appends a unique string to each file before storing.
+	This property(function) returns the name of a file (on disk) with its extension.
+	Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+	"""
+	return os.path.basename(photo.name)
+
+
+def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 	"""Insert text on image"""
-	img = Image.open(image_path)
+	img = Image.open(photo)
 	w, h = img.size
 
 	# call draw method to insert 2D graphics in an image
 	img_editable = ImageDraw.Draw(img)
-
 	text_w, text_h = img_editable.textsize(text, IMAGE_FONT)
-	x_pos, y_pos = h - text_h, w - text_w
 
-	img_editable.text((x_pos, y_pos), text, (192, 192, 192), font=IMAGE_FONT)
-	# save image and use same path so as to override it
-	img.save(image_path)
+	# get cartesian position where to insert text
+	# use (image_ord - text_ord) as offset before manipulating the ordinate in question
+	# this will insert the text at bottom right corner
+	x_pos, y_pos = (w - text_w) - 15, (h - text_h) - 15
+
+	img_editable.text((x_pos, y_pos), text, (254, 192, 14), font=IMAGE_FONT)
+
+	## convert PIL image to django-compatible file object:
+	# img.show()
+	img_io = BytesIO()
+	img.save(img_io, format='PNG')
+
+	# create a new django file-like object that can be used
+	img_file = ContentFile(img_io.getvalue())
+	# this name will be in the form 'ad_photos/filename.png'
+	saved_file_name = storage.save(save_dir + storage.get_valid_name(photo.name), img_file)
+	
+	return saved_file_name
+
+
+def get_minutes(time_d):
+	"""Return the number of minutes of the timedelta object"""
+	return (time_d.seconds // 60) % 60
 
 
 def get_search_results(keyword_list, category=None):
@@ -158,30 +195,30 @@ def get_search_results(keyword_list, category=None):
 	return (results, results.count())
 
 
-def generate_pdf(instance_list, gen_file_name, dir='media', gen_files_dir='past_papers'):
+def generate_past_papers_pdf(file_names, gen_file_name, gen_files_dir='past_papers'):
 	"""
-	Generate a pdf containing images in instance_list and return a django File object pointing to the pdf. Mostly(only) used with the past_papers app. \n
-	`instance_list` is a list(or sequence) of the images(model instance used to store the image) eg. PastPaperPhoto \n
+	Generate a pdf containing images in file_names and return a django File object 
+	pointing to the pdf. \n
+	`file_names` is a list(or sequence) of the names of the files in s3 bucket; 
+	generally obtained from the session. \n
 	`gen_file_name` name(without extension) of output file \n
-	`dir` is the folder in BASE_DIR which contains upload_to directories) \n
-	`gen_files_dir` is the folder in `dir`(BASE_DIR/dir) where generated files should be stored
+	`gen_files_dir` is the folder in s3 bucket(after storage backend prefis) 
+	where generated files should be stored
 	"""
 	
 	pdf = FPDF()
-
-	for instance in instance_list:
+	image_urls = [storage.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + file) for file in file_names]
+	for url in image_urls:
 		pdf.add_page()
-		# path of image in storage
-		image_path = os.path.join(BASE_DIR, dir, instance.file.name)
 		# w=210, h=297 is the standard for A4 sized pdfs
-		# no height is set so that the original height of the image is maintained and the image isn't stretched vertically which may cause vertical distortion
-		pdf.image(image_path, 0, 0, 210)
-	# todo in production, surely change this to aws bucket path
-	output_file = os.path.join(BASE_DIR, dir, gen_files_dir, gen_file_name + '.pdf')
-	pdf.output(output_file, 'F')
+		# no height is set so that the original height of the image is maintained 
+		# and the image isn't stretched vertically which may cause vertical distortion
+		pdf.image(url, 0, 0, 210)
 
-	# return generated file's name (with extension)
-	return gen_file_name + '.pdf'
+	# output_file = os.path.join(gen_files_dir, gen_file_name + '.pdf')
+	# pdf.output(output_file, 'S')
+
+	return pdf.output(dest='S').encode('latin-1')
 
 
 def is_mobile(request):
@@ -194,28 +231,29 @@ def is_mobile(request):
 	return False
 
 
-def get_photos(model, photos_name_list, dir):
+def get_photos(photos_name_list, dir):
 	"""
-	Return list of model photo instances from photos names. Mostly used in CreateView and UpdateView get_form_kwargs() to construct list of initial_photos of the template. \n
-	`model` name of model containing the photo. eg ItemListingPhoto
-	`photos_name_list` is the list of the names of the photos \n
-	`dir` is the folder in MEDIA_ROOT where the photos are stored. eg. 'item_photos'. Can obtain some dir names from `core.constants.py`
+	Return list of aws photo urls. Mostly used in CreateView and UpdateView 
+	get_form_kwargs() to construct list of initial_photos of the template. \n
+	`photos_name_list` is the list of the names of the photos obtained from the session \n
+	`dir` is the folder in s3 bucket where the photos are stored. eg. 'item_photos'. 
+	Can obtain some dir names from `core.constants.py`
 	"""
 	if not photos_name_list:
 		print('No photos in list')
 		return []
 	
-	photo_instances = []
+	photos_info = []
 	for photo_name in photos_name_list:
-		photo = model()
-		# path to file (relative path from MEDIA_ROOT)
-		# each model should have a file field that holds the image.
-		photo.file.name = os.path.join(dir, photo_name)
-		photo.save()
-		photo_instances.append(photo)
+		# prints the path of the file eg. (ad_photos/filename.jpg)
+		file_path = os.path.join(dir, photo_name)
+		photos_info.append({
+			'url': storage.url(file_path),
+			# this is the format of the file name expected in the upload view..
+			'filename': cryptocode.encrypt(photo_name, SECRET_KEY)
+		})
 
-	print(photo_instances)
-	return photo_instances
+	return photos_info
 
 
 def get_label(category):
