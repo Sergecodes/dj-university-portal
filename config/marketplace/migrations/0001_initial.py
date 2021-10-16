@@ -5,7 +5,7 @@ import core.model_fields
 import datetime
 from django.db import migrations, models
 import django.db.models.deletion
-import hitcount.models
+# import hitcount.models
 
 
 class Migration(migrations.Migration):
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('original_language', models.CharField(choices=[('en', 'English'), ('fr', 'French')], default='fr', help_text='Initial language in which post was entered in.', max_length=3, verbose_name='Initial language')),
                 ('price', models.PositiveIntegerField(default=0, help_text='Figures and spaces only, no commas or dots. <br> Enter <b>-</b> for free products or services, or if the price is in the advert description.', verbose_name='Price')),
             ],
-            bases=(models.Model, hitcount.models.HitCountMixin),
+            # bases=(models.Model, hitcount.models.HitCountMixin),
         ),
         migrations.CreateModel(
             name='AdListingPhoto',
@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name_plural': 'Item Listings',
             },
-            bases=(models.Model, hitcount.models.HitCountMixin),
+            # bases=(models.Model, hitcount.models.HitCountMixin),
         ),
         migrations.CreateModel(
             name='ItemSubCategory',

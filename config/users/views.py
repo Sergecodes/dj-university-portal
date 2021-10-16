@@ -41,10 +41,7 @@ class UserCreate(CreateView):
 		i.e Redirect them to index page.
 		Only unauthed users can access this method..
 		"""
-		# just for testing, don't forget to remove this super user stuff.  TODO
-		if request.user.is_authenticated and request.user.is_superuser:
-			return super().get(request, *args, **kwargs)
-
+		
 		if request.user.is_authenticated:
 			return redirect('/')
 
@@ -250,6 +247,7 @@ class Marketplace(LoginRequiredMixin, TemplateView):
 		context['bookmarked_ads'] = user.bookmarked_ad_listings.only(*fields)
 		
 		return context
+
 
 class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 	template_name = "users/profile/qa-site.html"

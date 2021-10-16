@@ -33,7 +33,6 @@ urlpatterns += i18n_patterns(
     path(_('admin/'), admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
     path(_('flag/'), include('flagging.urls', namespace='flagging')),  
-    # path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
     path(_('lost-or-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('notifications/'), include('notifications.urls', namespace='notifications')),

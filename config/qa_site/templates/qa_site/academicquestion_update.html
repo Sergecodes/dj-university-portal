@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
+    <link rel="stylesheet" href="{% static 'minified/css/qa_site.min.css' %}">
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
@@ -31,7 +31,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.js' %}"></script>
+<script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
 	// show message when user is about to leave "dirty" form
 	var $form = $("[name='academic-question-form']");

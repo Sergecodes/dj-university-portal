@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" href="{% static 'css/past_papers.css' %}">
+	<link rel="stylesheet" href="{% static 'minified/css/past_papers.min.css' %}">
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
@@ -33,7 +33,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.js' %}"></script>
+<script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
 	// show message when user is about to leave "dirty" form
 	var $form = $("[name='past-paper-form']");
