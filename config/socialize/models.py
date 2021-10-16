@@ -34,7 +34,7 @@ class SocialProfileManager(models.Manager):
 				about_me='Nothing about me for now...',
 				hobbies='No hobbies for now',
 				birth_date=timezone.now(),
-				department='Computer Science',
+				speciality='Computer Science',
 				original_language='en',
 			)
 
@@ -152,10 +152,10 @@ class SocialProfile(models.Model):
 			"Your birth date and age won't be visible to other users."
 		)
 	)
-	department = models.CharField(
-		_('Department'),
+	speciality = models.CharField(
+		_('Speciality'),
 		max_length=30,
-		help_text=_("Enter your study speciality")
+		help_text=_("Enter your study department or speciality")
 	)
 	user = models.OneToOneField(
 		User,
@@ -209,6 +209,12 @@ class SocialProfile(models.Model):
 	creation_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
 	view_count = models.PositiveIntegerField(default=0)
 
 	objects = SocialProfileManager()

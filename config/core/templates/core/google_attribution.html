@@ -1,0 +1,21 @@
+{# used for google attribution(Google Translate) #}
+
+{% load static %}
+{% load i18n %}
+{% load app_extras %}
+
+{% get_current_language as LANGUAGE_CODE %}
+
+{% comment %}
+We display attribution to Google Translate if:
+	- there is an update_language and it is not equal to the current language
+	- there is no update_language(use original_language) and the current language is not the original_language
+{% endcomment %}
+{% if object|should_attribute:LANGUAGE_CODE %}
+	<span class="d-inline-block ms-3">
+		<img 
+			src="{% static 'images/googletrans-color-short.png' %}" 
+			alt="translated by Googe"
+		>
+	</span>
+{% endif %}

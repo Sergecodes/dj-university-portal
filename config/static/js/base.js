@@ -142,7 +142,7 @@ function hasOnlySpacesAndDigits(val) {
 	- All other characters are allowed(letters, numbers, hyphens and underscores).
  */
 function validateUsername(username) {
-	return /^[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{,11}$/.test(username);
+	return /^[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}$/.test(username);
 }
 
 

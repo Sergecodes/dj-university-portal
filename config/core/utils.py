@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
 from functools import reduce
+from google.cloud import translate_v2 as translate
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from random import choice
@@ -24,9 +25,26 @@ IMAGE_FONT = ImageFont.truetype(
 	50
 )
 storage = PublicMediaStorage()
-
+# export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
 
 ## CORE ##
+def translate_text(text, target):
+	"""
+	Translates text into the target language.
+	Target must be an ISO 639-1 language code.
+	See https://g.co/cloud/translate/v2/translate-reference#supported_languages
+	"""
+	translate_client = translate.Client()
+
+	# text can also be a sequence of strings, in which case
+	# this method will return a sequence of results for each text.
+	result = translate_client.translate(text, target_language=target)
+
+	# result will be a dict containing keys 
+	# `input`, `translatedText`, `detectedSourceLanguage`
+	return result
+
+
 def should_redirect(object, test_slug):
 	"""
 	Verify if an object should be redirected or not.
@@ -240,7 +258,7 @@ def get_photos(photos_name_list, dir):
 	Can obtain some dir names from `core.constants.py`
 	"""
 	if not photos_name_list:
-		print('No photos in list')
+		# print('No photos in list')
 		return []
 	
 	photos_info = []

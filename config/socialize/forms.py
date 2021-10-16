@@ -127,7 +127,7 @@ class SocialProfileForm(forms.ModelForm):
 		model = SocialProfile
 		exclude = ('user', 'social_media', 'original_language', 'last_modified', 'view_count', )
 		widgets = {
-			'department': forms.TextInput(
+			'speciality': forms.TextInput(
 				attrs={'placeholder': _('Ex. Mathematics')}
 			),
 			# set input to file input so as to activate `crispy form` magic
@@ -148,7 +148,7 @@ class SocialProfileForm(forms.ModelForm):
 				Row(
 					Column('school', css_class='form-group col-md-6 mb-0'),
 					Column('level', css_class='form-group col-md-6 mb-0'),
-					Column('department', css_class='col-md-6 mb-0'),
+					Column('speciality', css_class='col-md-6 mb-0'),
 					css_class='form-row'
 				),
 				css_class='mb-2'

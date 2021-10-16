@@ -17,7 +17,7 @@ User = get_user_model()
 # @receiver(post_save, sender=AcademicQuestionComment)
 def comment_posted(sender, instance, created, **kwargs):
 	"""Send notifications to users mentioned in this comment"""
-	print('comment_posted signal called')
+	# print('comment_posted signal called')
 	# if comment is new
 	if created:    
 		# TODO get mentioned users and send notifications to them

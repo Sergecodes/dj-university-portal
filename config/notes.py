@@ -3,8 +3,11 @@
 
 
 # freeprivacypolicy.com  (cool)
+#  - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
+# - enable translation for question tags, past paper comments(change model and translation.py too) and comments in qa_site
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 # highlight each occurrence of keywords in search results page.
+# - add following questions on profile-qa page.. when user follows a question, the displayed toast should link to this page
 # on question detail page, enable ordering answers (by date posted, votes, etc..)
 # on listing pages, enable ordering (by date too..)
 # - check if past paper is unique upon posting... ? if possible .

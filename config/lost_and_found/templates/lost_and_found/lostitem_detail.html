@@ -6,6 +6,8 @@
 {% load flag_tags %}
 {% load app_extras %} 
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{% trans 'Lost' %} {{ lost_item.item_lost }} | CamerSchools</title>
 {% endblock %}
@@ -22,7 +24,15 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 lostitem-art">
-		<h2>{% trans 'Lost' %} {{ lost_item.item_lost }}</h2>
+		{% with original_lang=lost_item.original_language %}
+		<h2>
+			{% trans 'Lost' %} 
+			<span {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ lost_item.item_lost }}
+			</span>
+			{% include 'core/google_attribution.html' with object=lost_item %}
+		</h2>
+		{% endwith %}
 		<div class="d-inline-block">
 			{% trans 'School' %}:
 			<a href="{% url 'lost_and_found:lost-item-list' %}?school={{ lost_item.school_id }}" class="text-decoration-none"> {{ lost_item.school }}</a>
@@ -72,15 +82,28 @@
 				<img class="w-100 expanded-img js-expanded-img">
 			</section>
 		{% endif %}
+
+		{% with original_lang=lost_item.original_language %}
+		<div class="mb-3" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+			<b>{% trans 'Where' %}</b>: 
+			{{ lost_item.area_lost }}
+			{% include 'core/google_attribution.html' with object=lost_item %}
+		</div>
 		
-		<div class="{% if lost_item.bounty %} mb-4 {% else %} mb-5 {% endif %} how-lost-wrp">
+		<div class="{% if lost_item.bounty %} mb-4 {% else %} mb-5 {% endif %} how-lost-wrp" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+			<b>{% trans 'How' %}</b>: 
 			{{ lost_item.how_lost }}
+			{% include 'core/google_attribution.html' with object=lost_item %}
 		</div>
 
 		{% if lost_item.bounty %}
-			<h3 class="mb-3">{% trans 'Bounty on item' %}</h3>
-			<p class="mb-2 bounty-wrp">{{ lost_item.bounty }}</p>
+			<h3 class="mb-3" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>{% trans 'Bounty on item' %}</h3>
+			<p class="mb-2 bounty-wrp">
+				{{ lost_item.bounty }}
+				{% include 'core/google_attribution.html' with object=lost_item %}
+			</p>
 		{% endif %}
+		{% endwith %}
 
 		{# post actions #}
 		<div class="mb-5">
@@ -96,7 +119,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this post' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=lost_item.item_lost url=lost_item.get_absolute_url %}
 				</div>
 				<!-- flag area -->
 				{# if post belongs to user, dont display flag widget #}

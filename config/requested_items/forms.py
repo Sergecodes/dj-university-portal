@@ -28,7 +28,7 @@ class RequestedItemForm(forms.ModelForm):
 	class Meta:
 		model = RequestedItem
 		exclude = (
-			'slug', 'posted_datetime', 'last_modified', 
+			'slug', 'slug_en', 'slug_fr', 'posted_datetime', 'last_modified', 
 			'poster', 'original_language', 'view_count', 
 		)
 		widgets = {

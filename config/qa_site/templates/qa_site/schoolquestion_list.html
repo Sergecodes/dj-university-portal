@@ -36,6 +36,7 @@
 					{% trans 'Ask a Question' %}
 				</a>
 			</section>
+
 			<!-- search form -->
 			<section class="mb-3">
 				<!-- questions-search-form -->
@@ -61,7 +62,7 @@
 			<section class="questions-list-wrp">
 				<ul class="pe-4 questions-list">
 					{% for question in page_content %}
-						{% with poster=question.poster score=question.score num_answers=question.num_answers %}
+						{% with poster=question.poster score=question.score num_answers=question.num_answers view_count=question.view_count poster=question.poster %}
 							<li class="d-flex pb-4 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
 								<div class="text-secondary text-center small flex-shrink-0">
 									<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
@@ -88,16 +89,13 @@
 										>
 											{{ question.school }}
 										</a>
-										{% with view_count=question.view_count %}
 										<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 											<i class="far fa-eye me-1" aria-hidden="true"></i>
 											<span class="visually-hidden">{% trans 'Number of views' %}</span>
 											{{ view_count }}
 										</span>
-										{% endwith %}
 										<div class="d-block mt-2">
 											<span class="text-muted">{% trans 'asked by' %}</span>
-											{% with question_poster=question.poster %}
 											{% if question_poster.has_social_profile %}
 												<a 
 													class="text-decoration-none" 
@@ -110,7 +108,6 @@
 													{{ question_poster.username }}
 												</span>
 											{% endif %}
-											{% endwith %}
 											<span class="small text-muted">&nbsp;{{ question.posted_datetime|naturaltime }}</span>
 										</div>
 									</div>

@@ -39,6 +39,15 @@ class Post(models.Model):
 		help_text=_('Language in which post was created'),
 		editable=False
 	)
+	# to know if a post has been edited, you can use this field; 
+	# it will be empty ('')
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		help_text=_('Language in which last update was done'),
+		editable=False,
+		blank=True
+	)
 	contact_numbers = models.ManyToManyField(
 		'users.PhoneNumber',
 		related_name='+',

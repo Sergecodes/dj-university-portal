@@ -6,6 +6,8 @@
 {% load humanize %}
 {% load app_extras %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{% trans 'Reported Found Items' %} | CamerSchools</title>
 {% endblock %}
@@ -24,8 +26,9 @@
 		<section class="px-3 pt-4">
 			<p>
 				{% blocktrans %}
-					A high percentage of missing items are in good hands. Have you found a missing item in your school ? <br>
-					Publish items you've found here.
+				Statistics say nearly 3,300 items are lost per year. 
+				Have you found a missing item in your school ? <br>
+				Publish items you've found here.
 				{% endblocktrans %}
 			</p>
 			<a href="{% url 'lost_and_found:found-item-create' %}" class="btn btn-warning mb-3">
@@ -55,49 +58,49 @@
 		<section>
 			<ul class="list-group list-group-flush ms-5 pe-4">
 				{% for found_item in page_obj %}
-					{% with poster=found_item.poster %}
-						<li class="list-group-item pb-3 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">
-							<a 
-								href="{{ found_item.get_absolute_url }}" 
-								class="fw-bold text-decoration-none"
-							>
+					{% with poster=found_item.poster view_count=found_item.view_count original_lang=found_item.original_language %}
+					<li class="list-group-item pb-3 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">
+						<a 
+							href="{{ found_item.get_absolute_url }}" 
+							class="fw-bold text-decoration-none"
+						>
+							<span {% if found_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 								{{ found_item.item_found }}
+							</span>
+						</a>
+						{% include 'core/google_attribution.html' with object=found_item %}
+
+						<!-- found item meta -->
+						<div class="mt-2">
+							<a 
+								class="small text-decoration-none" 
+								href="{% url 'lost_and_found:found-item-list' %}?school={{ found_item.school_id }}"
+							>
+								({{ found_item.school }})
 							</a>
-							<!-- found item meta -->
-							<div class="mt-2">
-								<a 
-									class="small text-decoration-none" 
-									href="{% url 'lost_and_found:found-item-list' %}?school={{ found_item.school_id }}"
-								>
-									({{ found_item.school }})
-								</a>
-								<div class="d-inline ms-3">
-									<span class="text-muted">{% trans 'Published by' %}</span>
-									{% with poster=found_item.poster %}
-									{% if poster.has_social_profile %}
-										<a 
-											class="text-decoration-none" 
-											href="{{ poster.get_absolute_url }}"
-										>
-											{{ poster.full_name }}
-										</a>
-									{% else %}
-										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
-											{{ poster.full_name }}
-										</span>
-									{% endif %}
-									{% endwith %}
-									<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>
-									{% with view_count=found_item.view_count %}
-									<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
-										<i class="far fa-eye me-1" aria-hidden="true"></i>
-										<span class="visually-hidden">{% trans 'Number of views' %}</span>
-										{{ view_count }}
+							<div class="d-inline ms-3">
+								<span class="text-muted">{% trans 'Published by' %}</span>
+								{% if poster.has_social_profile %}
+									<a 
+										class="text-decoration-none" 
+										href="{{ poster.get_absolute_url }}"
+									>
+										{{ poster.full_name }}
+									</a>
+								{% else %}
+									<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+										{{ poster.full_name }}
 									</span>
-									{% endwith %}
-								</div>
+								{% endif %}
+								<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>
+								<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+									<i class="far fa-eye me-1" aria-hidden="true"></i>
+									<span class="visually-hidden">{% trans 'Number of views' %}</span>
+									{{ view_count }}
+								</span>
 							</div>
-						</li> 
+						</div>
+					</li> 
 					{% endwith %}
 				{% endfor %}
 					

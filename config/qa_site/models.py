@@ -178,6 +178,12 @@ class Answer(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)
 
@@ -272,6 +278,12 @@ class Question(models.Model):
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
 	view_count = models.PositiveIntegerField(default=0)
 	# upvote_count = models.PositiveIntegerField(default=0)
 	# downvote_count = models.PositiveIntegerField(default=0)

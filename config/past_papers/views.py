@@ -195,7 +195,7 @@ class PastPaperList(FilterView):
 	filterset_class = PastPaperFilter
 	template_name = 'past_papers/pastpaper_list.html'
 	template_name_suffix = '_list'
-	paginate_by = 8
+	paginate_by = 7
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -226,6 +226,12 @@ class PastPaperCommentUpdate(GetObjectMixin, CanEditPastPaperCommentMixin, Updat
 
 	def get_success_url(self):
 		return self.get_object().past_paper.get_absolute_url()
+
+	def form_valid(self, form):
+		if 'content' in form.changed_data:
+			form.save()
+			
+		return redirect(self.get_success_url())
 
 
 class PastPaperCommentDelete(GetObjectMixin, CanDeletePastPaperCommentMixin, DeleteView):

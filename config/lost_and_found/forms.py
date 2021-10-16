@@ -26,14 +26,20 @@ class FoundItemForm(forms.ModelForm):
 	class Meta: 
 		model = FoundItem
 		exclude = (
-			'slug', 'posted_datetime', 'last_modified', 
+			# we include slug_en and slug_fr coz with `modeltranslation`,
+			# doing something like obj.slug_en = 'foo' also does obj.slug = 'foo'
+			# now if we don't exclude them, their values will be '' (obj.slug_en = '').
+			# so the object will be saved as obj.slug = ''
+			'slug', 'slug_en', 'slug_fr', 'posted_datetime', 'last_modified', 
 			'poster', 'original_language', 'view_count'
 		)
 		widgets = {
 			'item_found': forms.TextInput(attrs={'placeholder': _('Green backpack')}),
 			'area_found': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
 			'how_found': forms.Textarea(attrs={
-				'placeholder': _('I was walking near Amphi 250 and found the green backpack near the door.'),
+				'placeholder': _(
+					'I was walking near Amphi 250 and found the green backpack near the door.'
+				),
 				'rows': '3',
 			}),
 		}
@@ -81,7 +87,7 @@ class LostItemForm(forms.ModelForm):
 	class Meta:
 		model = LostItem
 		exclude = (
-			'slug', 'posted_datetime', 'last_modified', 
+			'slug', 'slug_en', 'slug_fr', 'posted_datetime', 'last_modified', 
 			'poster', 'original_language', 'view_count'
 		)
 		widgets = {
@@ -132,6 +138,15 @@ class LostItemForm(forms.ModelForm):
 					href=" + get_edit_numbers_url(user) + '>'
 					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</a>"
+			),
+			HTML(" \
+				<p class='alert alert-warning'>" \
+					+ str(_(
+						'If anyone says this item belongs to them, verify '
+						'that they are saying the truth by asking them questions '
+						'concerning the item; such as a detailed description of the item.'
+					)) +
+				"</p>"
 			),
 			Submit('submit', _('Publish item'), css_class='d-block'),
 		)

@@ -21,8 +21,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
-from core import views
-
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
@@ -35,8 +33,8 @@ urlpatterns += i18n_patterns(
     path(_('admin/'), admin.site.urls),
     path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
     path(_('flag/'), include('flagging.urls', namespace='flagging')),  
-    path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
-    path(_('lost-and-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
+    # path(_('hitcount/'), include('hitcount.urls', namespace='hitcount')),
+    path(_('lost-or-found/'), include('lost_and_found.urls', namespace='lost_and_found')),
     path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
     path(_('notifications/'), include('notifications.urls', namespace='notifications')),
     path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),

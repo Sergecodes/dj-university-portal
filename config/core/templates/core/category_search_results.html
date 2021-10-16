@@ -16,7 +16,13 @@
 		{% if count != 0 %}
 		<section>
 			<h3 class="mb-4">
-				({{ count }}) {% trans 'Search Result' %}{{ count|pluralize }} {% trans 'for' %}
+				({{ count }}) 
+				{% if count == 1 %}
+					{% trans 'Search Result' %}
+				{% else %}
+					{% trans 'Search Results' %}
+				{% endif %}
+				{% trans 'for' %}
 				{% if keyword_list %} {{ keyword_list }} {% else %} "" {% endif %} {% trans 'in' %} {{ app_label }}
 			</h3>
 			<ul class="list-group list-group-flush mb-4">

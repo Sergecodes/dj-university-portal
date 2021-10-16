@@ -14,7 +14,7 @@
 		{% if num_results == 0 %}
 			{% trans 'No search result for' %} 
 		{% else %}
-			{{ num_results }} {% trans 'Search Result' %}
+			{{ num_results }} {% trans 'Search Results' %}
 			{{ num_results|pluralize }} {% trans 'for' %} 
 		{% endif %}
 		{% if keyword_list %} {{ keyword_list }} {% else %} "" {% endif %}

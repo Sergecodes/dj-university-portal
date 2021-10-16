@@ -17,10 +17,9 @@ class AcademicQuestionTagTransOptions(TransOptions):
 @register(AcademicQuestion)
 class AcademicQuestionTransOptions(TransOptions):
 	fields = ('title', 'slug', 'content')
-	# `content` is optional(can be blank..) so translation should also be optional
-	required_languages = {
-		'default': ('title', 'slug')
-	}
+	# required_languages = {
+	# 	'default': ('title', 'slug')
+	# }
 	# check out the empty_values, may be it can be used with google translation...
 
 
@@ -33,37 +32,37 @@ class SchoolQuestionTransOptions(TransOptions):
 @register(AcademicAnswer)
 class AcademicAnswerTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr')
+	# required_languages = ('en', 'fr')
 
 
 @register(SchoolAnswer)
 class SchoolAnswerTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr')
+	# required_languages = ('en', 'fr')
 
 
 @register(AcademicAnswerComment)
 class AcademicAnswerCommentTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr')
+	# required_languages = ('en', 'fr')
 
 
 @register(SchoolAnswerComment)
 class SchoolAnswerCommentTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr')  
+	# required_languages = ('en', 'fr')  
 
 
 @register(AcademicQuestionComment)
 class AcademicQuestionCommentTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr')
+	# required_languages = ('en', 'fr')
 
 
 @register(SchoolQuestionComment)
 class SchoolQuestionCommentTransOptions(TransOptions):
 	fields = ('content', )
-	required_languages = ('en', 'fr') 
+	# required_languages = ('en', 'fr') 
 
 
 @register(Subject)

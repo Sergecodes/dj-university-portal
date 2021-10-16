@@ -16,7 +16,7 @@ from functools import reduce
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, REQUESTED_ITEM_SUFFIX
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.utils import get_photos, should_redirect
+from core.utils import get_photos, should_redirect, translate_text
 from .forms import RequestedItemForm
 from .mixins import (
 	can_edit_item, can_delete_item,
@@ -40,14 +40,39 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 		return form_kwargs
 
 	def form_valid(self, form):
-		request = self.request
-		user = request.user
-		session, username = request.session, user.username
-		
+		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
 		requested_item = self.object
+
+		## TRANSLATION
+		# get current language and language to translate to
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		translatable_fields = ['item_requested', 'item_description', 'price_at_hand', ]
+		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+		
+		# fields that need to be translated. (see translation.py)
+		# omit slug because google corrects the slug to appropriate string b4 translating.
+		# see demo in google translate .
+		field_values = [getattr(requested_item, field) for field in translatable_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(requested_item, trans_field, result_dict['translatedText'])
+
+		# if object was saved in say english, slug_en will be set but not slug_fr. 
+		# so get the slug in the other language
+		# also, at this point, these attributes will be set(translated)
+		if trans_lang == 'fr':
+			requested_item.item_requested_fr = slugify(requested_item.item_requested_fr)
+		elif trans_lang == 'en':
+			requested_item.item_requested_en = slugify(requested_item.item_requested_en)
+
 		requested_item.poster = user
-		requested_item.original_language = get_language()
+		requested_item.original_language = current_lang
 		requested_item.save()
 		
 		# add phone numbers (phone_numbers is a queryset)
@@ -56,20 +81,20 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 			requested_item.contact_numbers.add(phone_number)
 
 		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(username + REQUESTED_ITEM_SUFFIX, [])  # get list of photo names
-		print(photos_list)
-
+		photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, []) 
 		for photo_name in photos_list:
 			photo = RequestedItemPhoto()
 			# path to file (relative path from MEDIA_ROOT)
 			photo.file.name = os.path.join(REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
-			requested_item.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
+			# bulk=False saves the photo instance before adding
+			requested_item.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
 		# pop() default is empty list since photos are optional
-		request.session.pop(user.username + REQUESTED_ITEM_SUFFIX, [])
+		session.pop(user.username + REQUESTED_ITEM_SUFFIX, [])
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice. 
+		# Instead handle the redirect yourself.
 		return redirect(requested_item)
 
 
@@ -103,16 +128,38 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 		return form_kwargs
 
 	def form_valid(self, form):
-		request = self.request
-		session, user = request.session, request.user
+		session, user = self.request.session, self.request.user
+		requested_item = form.save(commit=False)	
 
-		# get object (form.instance) and update fields before saving.
-		# this is better than calling form.save(commit=False);
-		# with the latter, you have to set some m2m stuff... (see super method for details.)
-		instance = form.instance	
-		instance.poster = user
-		instance.slug = slugify(instance.item_requested)
-		requested_item = form.save()
+		## TRANSLATION
+		changed_data = form.changed_data
+
+		# get fields that are translatable(permitted to be translated)
+		permitted_fields = ['item_requested', 'item_description', 'price_at_hand', ]
+
+		updated_fields = [
+			field for field in changed_data if \
+			not field.endswith('_en') and not field.endswith('_fr')
+		]
+		desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		# get and translated values that need to be translated
+		field_values = [getattr(requested_item, field) for field in desired_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# get fields that need to be set after translation
+		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(requested_item, trans_field, result_dict['translatedText'])
+
+		requested_item.update_language = current_lang
+		requested_item.save()
 		
 		## add phone numbers to requested_item(phone_numbers is a queryset)
 		# first clear all requested_item's phone numbers
@@ -141,9 +188,10 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 			requested_item.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		request.session.pop(user.username + REQUESTED_ITEM_SUFFIX)
+		session.pop(user.username + REQUESTED_ITEM_SUFFIX)
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice. 
+		# Instead handle the redirect yourself.
 		return redirect(requested_item)
 
 
@@ -184,7 +232,7 @@ class RequestedItemList(FilterView):
 	template_name = 'requested_items/requested_item_list.html'
 	filterset_class = RequestedItemFilter
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

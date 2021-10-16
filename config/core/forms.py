@@ -24,7 +24,7 @@ class PhotoFormLayout(LayoutObject):
 
 		# Override class variable with an instance level variable
 		if template:
-			print(template)
+			# print(template)
 			self.template = template
 		
 	def render(self, form, form_style, context, **kwargs):

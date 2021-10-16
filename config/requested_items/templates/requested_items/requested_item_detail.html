@@ -6,8 +6,13 @@
 {% load flag_tags %}
 {% load app_extras %}  
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
-	<title>{% trans 'Looking for' %} {{ requested_item.item_requested }} | CamerSchools</title>
+	<title>
+		{% trans 'Looking for' %} 
+		{{ requested_item.item_requested }} | CamerSchools
+	</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -22,7 +27,15 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
-		<h2>{% trans 'Looking for' %} {{ requested_item.item_requested }}</h2>
+		<h2>
+			{% with original_lang=requested_item.original_language %}
+			{% trans 'Looking for' %} 
+			<span {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ requested_item.item_requested }}
+			</span>
+			{% include 'core/google_attribution.html' with object=requested_item %}
+			{% endwith %}	
+		</h2>
 
 		<!-- item photos and info -->
 		<div class="mb-4 mt-2 {% if photos.exists %} d-lg-flex {% endif %}">
@@ -107,10 +120,15 @@
 		</div>
 
 		<!-- item description -->
-		<div class="mb-4">
+		{% with original_lang=requested_item.original_language %}
+		<div class="mb-4" {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 			<h3 class="mb-3">{% trans 'Description' %}</h3>
-			<p>{{ requested_item.item_description }}</p>
+			<p>
+				{{ requested_item.item_description }}
+				{% include 'core/google_attribution.html' with object=requested_item %}
+			</p>
 		</div>
+		{% endwith %}
 
 		{# post actions #}
 		<div class="mb-4">
@@ -126,7 +144,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this post' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=requested_item.item_requested url=requested_item.get_absolute_url %}
 				</div>
 				<!-- flag area -->
 				{# if post belongs to user, dont display flag widget #}
@@ -227,23 +245,31 @@
 				{% endif %}
 			</h5>
 			<div class="row">
-				{% for sim_item, photo in similar_items|zip:first_photos %}
+				{% for similar_item, photo in similar_items|zip:first_photos %}
+					{% with original_lang=similar_item.original_language %}
 					<div class="col-sm-5 col-lg-3 mb-4 similar-req-item">
 						{% if photo %}
-							<a href="{{ sim_item.get_absolute_url }}" class="text-decoration-none">
+							<a href="{{ similar_item.get_absolute_url }}" class="text-decoration-none">
 								<img class="mb-2 similar-req-item__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-								<p>{{ sim_item.item_requested }}</p>
+								<p>
+									<span {% if similar_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+										{{ similar_item.item_requested }}
+									</span>
+								</p>
 							</a>
 						{% else %}
-							<a href="{{ sim_item.get_absolute_url }}" class="d-inline-block text-decoration-none">
+							<a href="{{ similar_item.get_absolute_url }}" class="d-inline-block text-decoration-none">
 								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2" aria-hidden="true"></i>
-								<p>{{ sim_item.item_requested }}</p>
+								<p>{{ similar_item.item_requested }}</p>
 							</a>
 						{% endif %}
-						{% if sim_item.price_at_hand != '-' %}
-							<span class="text-muted">{{ sim_item.price_at_hand }}</span>
+						{% include 'core/google_attribution.html' with object=requested_item %}
+
+						{% if similar_item.price_at_hand != '-' %}
+							<span class="text-muted">{{ similar_item.price_at_hand }}</span>
 						{% endif %}
 					</div>
+					{% endwith %}
 				{% endfor %}
 			</div>
 		</section>

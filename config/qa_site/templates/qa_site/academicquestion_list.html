@@ -6,6 +6,8 @@
 {% load humanize %}
 {% load app_extras %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{% trans 'Academic Questions' %} | CamerSchools</title>
 {% endblock %}
@@ -26,7 +28,11 @@
 			<section class="px-3 pt-4">
 				<p>
 					{% blocktrans %}
-						Post questions, or see solutions to questions relating to academic matters. Questions posted here are basically related to a particular subject (Maths, English, etc) or course (Science, Engineering, Arts, etc). Questions here are for students who would like to improve on their studies and help other students. Anyone can post and answer a question.
+					Post questions, or see solutions to questions relating to academic matters. 
+					Questions posted here are basically related to a particular subject 
+					(Maths, English, etc) or course (Science, Engineering, Arts, etc). 
+					Questions here are for students who would like to improve on their studies 
+					and help other students. Anyone can post or answer a question.
 					{% endblocktrans %}
 				</p>
 				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning mb-3">
@@ -61,7 +67,7 @@
 			<section class="questions-list-wrp">
 				<ul class="pe-4 questions-list">
 					{% for question in page_content %}
-						{% with poster=question.poster score=question.score num_answers=question.num_answers %}
+						{% with poster=question.poster score=question.score num_answers=question.num_answers view_count=question.view_count poster=question.poster original_lang=question.original_language %}
 							<li class="d-flex pb-3 border-bottom mb-3 {% if forloop.first %} pt-3 {% endif %} question-summary">
 								<div class="text-secondary text-center small flex-shrink-0">
 									<div class="mb-2 {% if score > 0 %} text-success {% elif score < 0 %} text-danger {% endif %} question-summary__vote-count">
@@ -73,13 +79,15 @@
 										<span>{% trans 'answer' %}{{ num_answers|pluralize }}</span>
 									</div>
 								</div>
-								<div class="flex-grow-1 ms-3">
+								<div class="flex-grow-1 ms-3" {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 									<a 
 										href="{{ question.get_absolute_url }}" 
 										class="h5 text-decoration-none d-inline-block"
 									>
 										{{ question.title }}
 									</a>
+									{% include 'core/google_attribution.html' with object=question %}
+
 									<p class="mb-3">
 										{# `safe` is used at the end to also remove html entities #}
 										{{ question.content|remove_tags|truncatewords:30|safe }}
@@ -92,24 +100,25 @@
 										>
 											{{ question.subject }}
 										</a>
-										{% with view_count=question.view_count %}
 											<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 												<i class="far fa-eye me-1" aria-hidden="true"></i>
 												<span class="visually-hidden">{% trans 'Number of views' %}</span>
 												{{ view_count }}
 										</span>
-										{% endwith %}
+
 										<!-- taglist -->
-										{% if question.tags.exists %}
+										{% for tag in question.tags.all %}
+											{% if forloop.first %}
 											<div class="mb-2">
-												{% for tag in question.tags.all %}
-													<span class="badge rounded-pill bg-secondary">{{ tag.name }}</span>
-												{% endfor %}
+											{% endif %}
+												<span class="badge rounded-pill bg-secondary">{{ tag.name }}</span>
+											{% if forloop.last %}
 											</div>
-										{% endif %}
+											{% endif %}
+										{% endfor %}
+											
 										<div class="d-block mt-1">
 											<span class="text-muted">{% trans 'asked by' %}</span>
-											{% with poster=question.poster %}
 											{% if poster.has_social_profile %}
 												<a 
 													class="text-decoration-none" 
@@ -122,7 +131,6 @@
 													{{ question.username }}
 												</span>
 											{% endif %}
-											{% endwith %}
 											<span class="small text-muted">
 												&nbsp;{{ question.posted_datetime|naturaltime }}
 											</span>
@@ -163,5 +171,3 @@
 </div>
 {% endblock content %}
 
-{% block extra_js %}
-{% endblock %} 

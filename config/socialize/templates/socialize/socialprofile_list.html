@@ -25,7 +25,7 @@
 				<a href="{% url 'socialize:find-friend' %}" class="btn btn-warning mb-3">
 					{% trans 'Back to Filter' %}
 				</a>
-				{# todo add filter for old and new members...; like myschool #}
+				{# TODO add filter for old and new members...; like myschool #}
 			</section>
 
 			<!-- results list -->
@@ -57,6 +57,10 @@
 									<div>
 										<strong>{% trans 'Age Range' %}:</strong>
 										{{ profile.age_range }} &nbsp; | &nbsp; {{ profile.actual_gender }}
+									</div>
+									<div>
+										<strong>{% trans 'Speciality' %}:</strong>
+										{{ profile.speciality }}
 									</div>
 									<div>
 										<strong>{% trans 'School' %}:</strong>

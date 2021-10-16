@@ -12,7 +12,7 @@ class UsernameValidator(RegexValidator):
 	- Username should not contain any symbols, dashes or spaces.
 	- All other characters are allowed(letters, numbers, hyphens and underscores).
 	"""
-	regex = r'\A[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{,11}\Z'
+	regex = r'\A[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}\Z'
 	message = _(
 		'Enter a valid username. This value should be between 4 to 15 characters and the first 4 characters must be all letters. \n '
 		'It should not contain any symbols, dashes or spaces. All other characters are allowed(letters, numbers, hyphens and underscores)'

@@ -41,7 +41,7 @@ def vote_academic_thread(request):
 	user, POST = request.user, request.POST
 	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
-	print(POST)
+	# print(POST)
 	
 	# possible thread types are {question, answer, question-comment, answer-comment}
 	if thread_type == 'question':
@@ -248,7 +248,7 @@ def vote_school_thread(request):
 	user, POST = request.user, request.POST
 	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
-	print(POST)
+	# print(POST)
 
 	# possible thread types are {question, answer, question-comment, answer-comment}
 	if thread_type == 'question':

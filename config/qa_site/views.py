@@ -9,6 +9,7 @@ from django.http.response import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
@@ -20,7 +21,7 @@ from core.constants import (
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.models import Institution
-from core.utils import should_redirect
+from core.utils import should_redirect, translate_text
 from .forms import (
 	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
@@ -34,10 +35,10 @@ from .mixins import (
 	CanEditCommentMixin, CanDeleteCommentMixin
 )
 from .models import (
-	SchoolAnswer, SchoolQuestionComment, Subject, AcademicAnswer,
+	SchoolAnswer, SchoolQuestionComment, Subject, 
 	AcademicQuestion, SchoolQuestion, SchoolAnswerComment,
 	AcademicQuestionComment, AcademicAnswerComment,
-	TaggedAcademicQuestion
+	TaggedAcademicQuestion, AcademicAnswer, 
 )
 
 User = get_user_model()
@@ -52,16 +53,43 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	model = AcademicQuestion
 
 	def form_valid(self, form):
-		request = self.request
 		self.object = form.save(commit=False)
-		question, poster = self.object, request.user
+		question, poster = self.object, self.request.user
+
+		## TRANSLATION (successfully translate before saving any object.)
+		# get current language and language to translate to
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		translatable_fields = ['title', 'content', ]
+		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+		
+		# fields that need to be translated. (see translation.py)
+		# ommit slug because google corrects the slug to appropriate string b4 translating.
+		# see demo in google translate .
+		field_values = [getattr(question, field) for field in translatable_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(question, trans_field, result_dict['translatedText'])
+
+		# if object was saved in say english, slug_en will be set but not slug_fr. 
+		# so get the slug in the other language
+		# also, at this point, these attributes will be set(translated)
+		if trans_lang == 'fr':
+			question.slug_fr = slugify(question.title_fr)
+		elif trans_lang == 'en':
+			question.slug_en = slugify(question.title_en)
+
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
 		
 		question.poster = poster
-		question.original_language = get_language()
+		question.original_language = current_lang
 		question.save()	
-		# save m2m fields since we used commit=False
+		# save m2m fields(such as tags, upvoters, ..) since we used commit=False
 		form.save_m2m()
 
 		return redirect(question)
@@ -205,8 +233,39 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/academicquestion_update.html'
 
 	def form_valid(self, form):
-		question = form.save()
+		question = form.save(commit=False)
 		followers = question.followers.all()
+
+		## TRANSLATION
+		changed_data = form.changed_data
+
+		# get fields that are translatable(permitted to be translated)
+		permitted_fields = ['title', 'content', ]
+
+		updated_fields = [
+			field for field in changed_data if \
+			not field.endswith('_en') and not field.endswith('_fr')
+		]
+		desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		# get and translated values that need to be translated
+		field_values = [getattr(question, field) for field in desired_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# get fields that need to be set after translation
+		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(question, trans_field, result_dict['translatedText'])
+
+		question.update_language = current_lang
+		question.save()
+		form.save_m2m()
 
 		# notify users that are following this question
 		for follower in followers:
@@ -266,7 +325,7 @@ class AcademicQuestionList(FilterView):
 	filterset_class = AcademicQuestionFilter
 	template_name = 'qa_site/academicquestion_list.html'
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -301,11 +360,29 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 	template_name = 'qa_site/schoolquestion_form.html'
 
 	def form_valid(self, form):
-		request = self.request
 		self.object = form.save(commit=False)
-		form.save_m2m()
-		school_question, poster = self.object, request.user
+		school_question, poster = self.object, self.request.user
 		school_question.school = form.cleaned_data['school']
+
+		## TRANSLATION
+		# get current language and language to translate to
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		translatable_fields = ['content', ]
+		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+		
+		# fields that need to be translated. (see translation.py)
+		# ommit slug because google corrects the slug to appropriate string b4 translating.
+		# see demo in google translate .
+		field_values = [getattr(school_question, field) for field in translatable_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(school_question, trans_field, result_dict['translatedText'])
+
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
 
@@ -349,8 +426,39 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/schoolquestion_update.html'
 
 	def form_valid(self, form):
-		question = form.save()
-		followers = question.followers.all()
+		school_question = form.save(commit=False)
+		followers = school_question.followers.all()
+
+		## TRANSLATION
+		changed_data = form.changed_data
+
+		# get fields that are translatable(permitted to be translated)
+		permitted_fields = ['content', ]
+
+		updated_fields = [
+			field for field in changed_data if \
+			not field.endswith('_en') and not field.endswith('_fr')
+		]
+		desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		# get and translated values that need to be translated
+		field_values = [getattr(school_question, field) for field in desired_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# get fields that need to be set after translation
+		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(school_question, trans_field, result_dict['translatedText'])
+
+		school_question.update_language = current_lang
+		school_question.save()
+		form.save_m2m()
 
 		# notify users that are following this question
 		for follower in followers:
@@ -358,11 +466,11 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				sender=follower,  # just use follower as sender,
 				recipient=follower, 
 				verb=_('There was an activity on the question'),
-				target=question,
+				target=school_question,
 				category=Notification.FOLLOWING
 			)
 
-		return redirect(question)
+		return redirect(school_question)
 
 
 class SchoolQuestionFilter(filters.FilterSet):
@@ -398,7 +506,7 @@ class SchoolQuestionList(FilterView):
 	filterset_class = SchoolQuestionFilter
 	template_name = 'qa_site/schoolquestion_list.html'
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -418,8 +526,8 @@ class SchoolQuestionList(FilterView):
 		page_content.prefetch_related('upvoters', 'downvoters')
 		context['page_content'] = page_content
 
-		print('page content', page_content)
-		print('page obj', page_obj)
+		# print('page content', page_content)
+		# print('page obj', page_obj)
 		
 		return context
 
@@ -461,7 +569,7 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 				if not added_result[0]:
 					return HttpResponseForbidden(added_result[1])
 
-		return redirect(question.get_absolute_url())
+		return redirect(question)
 
 	def get(self, request, *args, **kwargs):
 		self.set_view_count()
@@ -512,6 +620,14 @@ class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
 	def get_success_url(self):
 		return self.get_object().parent_object.get_absolute_url()
 
+	def form_valid(self, form):
+		# if comment was modified, save it.
+		# print(form.changed_data)
+		if 'content' in form.changed_data:
+			form.save()
+
+		return redirect(self.get_success_url())
+
 
 class AcademicQuestionCommentUpdate(CommentUpdate):
 	model = AcademicQuestionComment
@@ -555,18 +671,29 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 	template_name = 'qa_site/misc/answer_edit.html'
 
 	def form_valid(self, form):
-		answer = form.save()
+		answer = form.save(commit=False)
 		question = answer.question
 
-		# notify users that are following this answer's question
-		for follower in question.followers.all():
-			notify.send(
-				sender=follower,  # just use follower as sender,
-				recipient=follower, 
-				verb=_('There was an activity on the question'),
-				target=question,
-				category=Notification.FOLLOWING
-			)
+		if 'content' in form.changed_data:
+			## TRANSLATION
+			# get current language and language to translate to
+			current_lang = get_language()
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
+			translated_content = translate_text(answer.content, trans_lang)['translatedText']
+
+			setattr(answer, f'content_{trans_lang}', translated_content)
+			answer.update_language = current_lang
+			answer.save()
+
+			# notify users that are following this answer's question
+			for follower in question.followers.all():
+				notify.send(
+					sender=follower,  # just use follower as sender,
+					recipient=follower, 
+					verb=_('There was an activity on the question'),
+					target=question,
+					category=Notification.FOLLOWING
+				)
 		
 		return redirect(question)
 

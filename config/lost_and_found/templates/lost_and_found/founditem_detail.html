@@ -6,6 +6,8 @@
 {% load flag_tags %}
 {% load app_extras %}  
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{% trans 'Found' %} {{ found_item.item_found }} | CamerSchools</title>
 {% endblock %}
@@ -22,7 +24,15 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 founditem-art">
-		<h2>{% trans 'Found' %} {{ found_item.item_found }}</h2>
+		{% with original_lang=found_item.original_language %}
+		<h2>
+			{% trans 'Found' %} 
+			<span {% if found_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ found_item.item_found }}
+			</span>
+			{% include 'core/google_attribution.html' with object=found_item %}
+		</h2>
+		{% endwith %}
 		<div class="d-inline-block">
 			{% trans 'School' %}:
 			<a 
@@ -39,6 +49,7 @@
 			</span>
 			{% endwith %}
 		</div>
+		
 		<div class="inline-block mb-4">
 			{% trans 'Reported' %} 
 			<span class="text-muted me-2" title="{{ found_item.posted_datetime }}">
@@ -59,9 +70,19 @@
 			{% endwith %}
 		</div>
 
-		<div class="mb-3 how-found-wrp">
-			{{ found_item.how_found }}
+		{% with original_lang=found_item.original_language %}
+		<div class="mb-3" {% if found_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+			<b>{% trans 'Where' %}</b>: 
+			{{ found_item.area_found }}
+			{% include 'core/google_attribution.html' with object=found_item %}
 		</div>
+
+		<div class="mb-5 how-found-wrp" {% if found_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+			<b>{% trans 'How' %}</b>: 
+			{{ found_item.how_found }}
+			{% include 'core/google_attribution.html' with object=found_item %}
+		</div>
+		{% endwith %}
 
 		{# post actions #}
 		<div class="mb-5">
@@ -69,19 +90,19 @@
 			<div class="mb-3">
 				<!-- Bookmark area -->
 				<div class="d-inline me-2">
-					{% url 'lost_and_found:lost-item-bookmark-toggle' as bookmark_url %}
+					{% url 'lost_and_found:found-item-bookmark-toggle' as bookmark_url %}
 					{% url 'users:profile-lostfound' as bookmarks_url %}
 					{% trans 'Add this post to your favourites. (click again to undo)' as title_text %}
-					{% render_bookmark_template lost_item bookmark_url bookmarks_url title_text %}
+					{% render_bookmark_template found_item bookmark_url bookmarks_url title_text %}
 				</div>
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this post' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=found_item.item_found url=found_item.get_absolute_url %}
 				</div>
 				<!-- flag area -->
 				{# if post belongs to user, dont display flag widget #}
-				{% if user.id != lost_item.poster_id %}
+				{% if user.id != found_item.poster_id %}
 					<div class="d-inline ms-2">
 						{% if user.is_anonymous %}
 							{% get_login_url as login_url %}
@@ -101,7 +122,7 @@
 									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
-							{% render_flag_form lost_item user request %}
+							{% render_flag_form found_item user request %}
 						{% endif %}
 					</div>
 				{% endif %}
@@ -111,7 +132,7 @@
 				<div class="mb-3">
 					{% if can_edit_item %}
 						<div class="d-inline mx-2">
-							<a class="text-decoration-none link-danger" href="{% url 'lost_and_found:lost-item-update' pk=lost_item.pk %}">
+							<a class="text-decoration-none link-danger" href="{% url 'lost_and_found:found-item-update' pk=found_item.pk %}">
 								<i class="fas fa-edit me-1" aria-hidden="true"></i>
 								{% trans 'Edit post' %}
 							</a>
@@ -119,7 +140,7 @@
 					{% endif %}
 					{% if can_delete_item %}
 						<div class="d-inline mx-2">
-							<a class="text-decoration-none link-danger" href="{% url 'lost_and_found:lost-item-delete' pk=lost_item.pk %}">
+							<a class="text-decoration-none link-danger" href="{% url 'lost_and_found:found-item-delete' pk=found_item.pk %}">
 								<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
 								{% trans 'Delete post' %}
 							</a>
@@ -135,7 +156,7 @@
 		</button>
 		<p class="alert alert-warning pb-3 mb-4 claim-msg-wrp" role="alert">
 			{% blocktrans %}
-				We hope this item actually belongs to you. <br>
+				We hope this item really belongs to you. <br>
 				If it belongs to you, contact the poster using the details below.
 			{% endblocktrans %}
 		</p>	

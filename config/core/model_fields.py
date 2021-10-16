@@ -33,7 +33,7 @@ class ModifyingFieldDescriptor:
 
 class NormalizedEmailField(models.EmailField):
 	""" Override EmailField to convert emails to lowercase before saving """
-	description = _("Convert email to lowercase and convert 'googlemail' to 'gmail'.")
+	description = "Convert email to lowercase and convert 'googlemail' to 'gmail'"
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

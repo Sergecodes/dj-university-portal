@@ -64,7 +64,7 @@ class UserCreationForm(BaseUserCreationForm):
 		# remove 'password2' (confirm password) since it's not a field of the User model
 		data = dict(**self.cleaned_data)
 		data.pop('password2')
-		print(data)
+		# print(data)
 		
 		user = User.objects.create_user(
 			password=data.pop('password1'), 

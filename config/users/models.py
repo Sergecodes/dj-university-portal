@@ -4,7 +4,7 @@ from django.core.validators import validate_email
 from django.db import models
 from django.db.models import F
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 
 from core.constants import (
 	GENDERS, DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS,
@@ -17,7 +17,7 @@ from core.constants import (
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
 from core.model_fields import NormalizedEmailField
-from core.utils import parse_phone_number
+from core.utils import parse_phone_number, translate_text
 from core.validators import FullNameValidator, UsernameValidator
 from flagging.models import Flag
 from notifications.models import Notification
@@ -200,7 +200,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return super().delete(*args, **kwargs) 
 		else:
 			self.deactivate()
-			print("User's account deactivated successfully")
+			# print("User's account deactivated successfully")
 	
 	def get_absolute_url(self):
 		if self.has_social_profile:
@@ -246,6 +246,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 					MAX_ANSWERS_PER_USER_PER_QUESTION
 				)
 			)
+
+		## TRANSLATION 
+		# get current language and language to translate to
+		trans_lang = 'fr' if get_language() == 'en' else 'en'
+		# print('answer is', answer.content)
+
+		translated_content = translate_text(answer.content, trans_lang)['translatedText']
+		setattr(answer, f'content_{trans_lang}', translated_content)
 
 		answer.poster = self
 		answer.question = question

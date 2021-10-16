@@ -181,22 +181,20 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		# but it's marked disabled so it shouldn't be sent.
 		# it will be gotten from the object instance
 		# frontend prevention is done and this is for backend
-		print(form.fields)
-		print(request.POST)
+		# print(form.fields)
+		# print(request.POST)
 		if request.POST.get('email'):
-			print("Email was sent, errror")
+			# print("Email was sent, errror")
 			form.add_error(
 				'email', 
 				ValidationError(_("You can't change your email address"))
 			)
-		else:
-			print("All good, no email sent.")
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
 		else:
-			print(form.errors)
-			print(formset.errors)
+			# print(form.errors)
+			# print(formset.errors)
 			if not form.is_valid():
 				return self.form_invalid(form)
 			if not formset.is_valid():
@@ -286,7 +284,7 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 
 
 class LostAndFound(LoginRequiredMixin, TemplateView):
-	template_name = "users/profile/lost-and-found.html"
+	template_name = "users/profile/lost-or-found.html"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

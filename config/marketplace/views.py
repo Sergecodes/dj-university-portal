@@ -2,14 +2,12 @@ import django_filters as filters
 import os
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, F
-from django.http import JsonResponse
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
-from django.views.decorators.http import require_POST
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from functools import reduce
@@ -20,7 +18,7 @@ from core.constants import (
 	MIN_ITEM_PHOTOS_LENGTH 
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.utils import get_photos, should_redirect
+from core.utils import get_photos, should_redirect, translate_text
 from .forms import ItemListingForm, AdListingForm
 from .mixins import (
 	can_edit_listing, can_delete_listing, 
@@ -53,10 +51,10 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		form = self.get_form()
 		session, username = request.session, request.user.username
 
-		# print(request.POST, request.FILES)
-		# print(form.data)
-		# print(form.data['sub_category'])
-		# print(dir(form.fields['sub_category']))
+		# # print(request.POST, request.FILES)
+		# # print(form.data)
+		# # print(form.data['sub_category'])
+		# # print(dir(form.fields['sub_category']))
 
 		# validate minimum number of photos (backend)
 		# this check is also done on the frontend; but in an almost naive way..
@@ -80,16 +78,43 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		if form.is_valid():
 			return self.form_valid(form)
 		else:
-			print(form.errors)
+			# print(form.errors)
 			return self.form_invalid(form)
 
 	def form_valid(self, form):
-		request = self.request
-		session, username = request.session, request.user.username
+		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
 		listing = self.object
-		listing.poster = request.user
-		listing.original_language = get_language()
+
+		## TRANSLATION
+		# get current language and language to translate to
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		translatable_fields = ['title', 'description', 'condition_description', ]
+		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+		
+		# fields that need to be translated. (see translation.py)
+		# ommit slug because google corrects the slug to appropriate string b4 translating.
+		# see demo in google translate .
+		field_values = [getattr(listing, field) for field in translatable_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(listing, trans_field, result_dict['translatedText'])
+
+		# if object was saved in say english, slug_en will be set but not slug_fr. 
+		# so get the slug in the other language
+		# also, at this point, these attributes will be set(translated)
+		if trans_lang == 'fr':
+			listing.slug_fr = slugify(listing.title_fr)
+		elif trans_lang == 'en':
+			listing.slug_en = slugify(listing.title_en)
+
+		listing.poster = user
+		listing.original_language = current_lang
 		listing.save()
 		
 		# add phone numbers to listing(phone_numbers is a queryset)
@@ -99,7 +124,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		])
 
 		# get list of photo names
-		photos_list = session.get(username + ITEM_LISTING_SUFFIX)  
+		photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)  
 
 		# create photo instances pointing to the pre-created photos 
 		# recall that these photos are already in the file system
@@ -113,9 +138,10 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 			listing.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		request.session.pop(request.user.username + ITEM_LISTING_SUFFIX)
+		session.pop(user.username + ITEM_LISTING_SUFFIX)
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice.
+		# Instead handle the redirect yourself.
 		return redirect(listing)
 
 
@@ -171,22 +197,46 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		sub_category_field = form.fields['sub_category']
 		sub_category_field.queryset = category.sub_categories.all()
 			
-		# print(request.session.get(request.user.username + ITEM_LISTING_SUFFIX))
+		# # print(request.session.get(request.user.username + ITEM_LISTING_SUFFIX))
 		if form.is_valid():
 			return self.form_valid(form)
 		else:
-			print(form.errors)
+			# print(form.errors)
 			return self.form_invalid(form)
 
 	def form_valid(self, form):
-		request = self.request
-		session, user = request.session, request.user
+		session, user = self.request.session, self.request.user
+		listing = form.save(commit=False)
 
-		# get object (form.instance) and update fields before saving.
-		# this is better than calling form.save(commit=False);
-		# with the latter, you have to set some m2m stuff... (see super method for details.)
-		# instance = form.instance	
-		listing = form.save()
+		## TRANSLATION
+		changed_data = form.changed_data
+
+		# get fields that are translatable(permitted to be translated)
+		permitted_fields = ['title', 'description', 'condition_description', ]
+
+		updated_fields = [
+			field for field in changed_data if \
+			not field.endswith('_en') and not field.endswith('_fr')
+		]
+		desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		# get and translated values that need to be translated
+		field_values = [getattr(listing, field) for field in desired_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# get fields that need to be set after translation
+		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(listing, trans_field, result_dict['translatedText'])
+
+		listing.update_language = current_lang
+		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
 		# first clear all listing's phone numbers
@@ -199,7 +249,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 
 		## reconstruct photos
 		photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)
-		print(photos_list)
+		# # print(photos_list)
 		# first clear all photos of instance
 		listing.photos.clear()
 
@@ -215,7 +265,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 			listing.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		request.session.pop(user.username + ITEM_LISTING_SUFFIX)
+		session.pop(user.username + ITEM_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
@@ -314,7 +364,7 @@ class ItemListingList(FilterView):
 	template_name = 'marketplace/itemlisting_list.html'
 	# change the suffix coz by default FilterView expects '_filter'
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -344,12 +394,39 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		return form_kwargs
 
 	def form_valid(self, form):
-		request = self.request
-		session, username = request.session, request.user.username
+		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
 		listing = self.object
-		listing.poster = request.user
-		listing.original_language = get_language()
+
+		## TRANSLATION
+		# get current language and language to translate to
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		translatable_fields = ['title', 'description', 'pricing', ]
+		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+		
+		# fields that need to be translated. (see translation.py)
+		# ommit slug because google corrects the slug to appropriate string b4 translating.
+		# see demo in google translate .
+		field_values = [getattr(listing, field) for field in translatable_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(listing, trans_field, result_dict['translatedText'])
+
+		# if object was saved in say english, slug_en will be set but not slug_fr. 
+		# so get the slug in the other language
+		# also, at this point, these attributes will be set(translated)
+		if trans_lang == 'fr':
+			listing.slug_fr = slugify(listing.title_fr)
+		elif trans_lang == 'en':
+			listing.slug_en = slugify(listing.title_en)
+
+		listing.poster = user
+		listing.original_language = current_lang
 		listing.save()
 		
 		# add phone numbers to listing(phone_numbers is a queryset)
@@ -359,18 +436,20 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		])
 
 		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(username + AD_LISTING_SUFFIX, [])  # get list of photo names
+		photos_list = session.get(user.username + AD_LISTING_SUFFIX, []) 
 		for photo_name in photos_list:
 			photo = AdListingPhoto()
 			# path to file (relative path from MEDIA_ROOT)
 			photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
-			listing.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
+			# bulk=False saves the photo instance before adding
+			listing.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
 		# pop() default is empty list since adverts mustn't have photos
-		request.session.pop(request.user.username + AD_LISTING_SUFFIX, [])
+		session.pop(user.username + AD_LISTING_SUFFIX, [])
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice. 
+		# Instead handle the redirect yourself.
 		return redirect(listing)
 
 
@@ -404,9 +483,37 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		return form_kwargs
 
 	def form_valid(self, form):
-		request = self.request
-		session, user = request.session, request.user
-		listing = form.save()
+		session, user = self.request.session, self.request.user
+		listing = form.save(commit=False)
+		changed_data = form.changed_data
+
+		# get fields that are translatable(permitted to be translated)
+		permitted_fields = ['title', 'description', 'pricing', ]
+
+		updated_fields = [
+			field for field in changed_data if \
+			not field.endswith('_en') and not field.endswith('_fr')
+		]
+		desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+		## TRANSLATION
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+		# get and translated values that need to be translated
+		field_values = [getattr(listing, field) for field in desired_fields]
+		trans_results = translate_text(field_values, trans_lang)
+		
+		# get fields that need to be set after translation
+		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+		# each dict in trans_results contains keys: 
+		# `input`, `translatedText`, `detectedSourceLanguage`
+		for trans_field, result_dict in zip(translate_fields, trans_results):
+			setattr(listing, trans_field, result_dict['translatedText'])
+
+		listing.update_language = current_lang
+		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
 		# first clear all listing's phone numbers
@@ -435,7 +542,7 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 			listing.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		request.session.pop(user.username + AD_LISTING_SUFFIX)
+		session.pop(user.username + AD_LISTING_SUFFIX)
 
 		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
 		return redirect(listing)
@@ -465,7 +572,7 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			school=listing.school,
 			category__name=listing.category.name
 		).exclude(id=listing.id).only('title', 'pricing', 'posted_datetime')[0:NUM_LISTINGS]
-		print(similar_listings)
+		# print(similar_listings)
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -524,7 +631,7 @@ class AdListingList(FilterView):
 	filterset_class = AdListingFilter
 	template_name = 'marketplace/adlisting_list'
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

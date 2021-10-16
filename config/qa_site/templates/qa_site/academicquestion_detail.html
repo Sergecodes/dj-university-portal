@@ -7,21 +7,23 @@
 {% load flag_tags %}
 {% load app_extras %}  
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{{ question.title }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
-	{% if user.is_authenticated and user.id != question.poster_id %}
-		<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
-	{% endif %}
+	<link rel="stylesheet" type="text/css" href="{% static 'css/flag.css' %}">
 	<link rel="stylesheet" href="{% static 'css/qa_site.css' %}">
+	<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
 {% endblock %}
 
 {% block extra_script_pre %}
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/highlight.min.js' %}"></script>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -128,11 +130,19 @@
 					{% trans 'Ask a Question' %}
 				</a>
 			</p>
-			<h1 class="h2 question-header__title">{{ question.title }}</h1>
+			<h2 class="question-header__title">
+				{% with original_lang=question.original_language %}
+				<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+					{{ question.title }}
+				</span>
+				{% include 'core/google_attribution.html' with object=question %}
+				{% endwith %}
+			</h2>
 		</div>
+
 		{# question-info #}
 		<p class="mb-lg-1">
-			<span class="mx-1">
+			<span class="mx-1" >
 				{% trans 'Asked' %}
 				<strong title="{{ question.posted_datetime }}">
 					{{ question.posted_datetime|naturaltime }}
@@ -169,13 +179,18 @@
 
 		<hr class="mb-3">
 		<section class="mb-5 px-3 question-layout">
-			<div class="mt-3 mb-4 question-content">
+			{% with original_lang=question.original_language %}
+			<div class="mt-3 mb-4 question-content" {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 				{{ question.content|safe }}
+				{% include 'core/google_attribution.html' with object=question %}
 			</div>
+			{% endwith %}
 			{% if question_tags.exists %}
 				<div class="question-taglist">
 					{% for tag in question_tags %}
-						<span class="badge rounded-pill bg-secondary p-2">{{ tag.name }}</span>
+						<span class="badge rounded-pill bg-secondary p-2">
+							{{ tag.name }}
+						</span>
 					{% endfor %}
 				</div>
 			{% endif %}
@@ -230,7 +245,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this question' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=question.title url=question.get_absolute_url %}
 				</div>
 				<!-- flag area -->
 				{# if question belongs to user, dont display flag widget #}
@@ -424,9 +439,13 @@
 				{% for answer in answers %}
 					{# answer-layout #}
 					<div class="pt-2 pb-3 px-2 mb-3 border">
-						<div class="mt-3 mb-4 answer-content">
+						{% with original_lang=answer.original_language %}
+						<div class="mt-3 mb-4 answer-content" {% if answer|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 							{{ answer.content|safe }}
+							{% include 'core/google_attribution.html' with object=answer %}
 						</div>
+						{% endwith %}
+						
 						<div class="mt-3 mb-4 answer-reaction">
 							<div class="d-inline mx-2 answer-reaction-upvote">
 								<a 
@@ -487,7 +506,7 @@
 									{% render_flag_form answer user request %}
 								{% endif %}
 							</span>
-						</div>
+						</div>	
 
 						{# answer comments here #}
 						<div class="px-3 answer-comments">
@@ -599,20 +618,23 @@
 		<aside class="p-3">
 			<h5 class="mb-3">{% trans 'Related Questions' %}</h5>
 			{% for question in related_qstns %}
+				{% with original_lang=question.original_language question_score=question.score %}
 				<div class="mb-2"> <!-- class 'related-question' -->
 					<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 						<span 
 							class="
 								badge align-middle px-2 py-1 me-2 
-								{% if question.score > 0 %} bg-success 
-								{% elif question.score < 0 %} bg-danger 
+								{% if question_score > 0 %} bg-success 
+								{% elif question_score < 0 %} bg-danger 
 								{% else %} bg-secondary {% endif %}
 							"
 						>
-							{{ question.score }}
+							{{ question_score }}
 						</span>
 						<span>
-							{{ question.title }} - 
+							<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+								{{ question.title }}
+							</span> - 
 							<strong>
 								{{ question.num_answers }} {% trans 'answer' %} 
 								{{ question.num_answers|pluralize }}
@@ -620,8 +642,10 @@
 						</span>
 					</a>
 					<span class="small text-muted mx-2">{{ question.posted_datetime|naturaltime }}</span>
+					{% include 'core/google_attribution.html' with object=question %}
 					<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 				</div>
+				{% endwith %}
 			{% endfor %}
 		</aside>
 	{% else %}

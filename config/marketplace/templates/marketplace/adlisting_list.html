@@ -6,6 +6,8 @@
 {% load humanize %}
 {% load app_extras %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{% trans 'Adverts' %} | CamerSchools</title>
 {% endblock %}
@@ -25,7 +27,7 @@
 		<section class="pt-3 mb-2">
 			<p>
 				{% blocktrans %}
-					Advertize products and view products advertized by other students.
+				Advertize anything or view adverts posted by other students.
 				{% endblocktrans %}
 			</p>
 			<a href="{% url 'marketplace:ad-listing-create' %}" class="btn btn-warning mb-3">
@@ -90,6 +92,7 @@
 				<section class="listing-list-wrp">
 					<ul class="listing-list">
 						{% for listing, photo in page_obj|zip:first_photos %}
+							{% with view_count=listing.view_count poster=listing.poster original_lang=listing.original_language %}
 							<li class="d-flex p-3 pb-2 mb-2 post">
 								<div class="flex-shrink-0">
 									{% if photo %}
@@ -108,8 +111,11 @@
 										href="{{ listing.get_absolute_url }}" 
 										class="h5 text-decoration-none"
 									>
-										{{ listing.title }}
+										<span {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+											{{ listing.title }}
+										</span>
 									</a>
+									{% include 'core/google_attribution.html' with object=listing %}
 									<br class="mb-4">
 									{% if listing.school %}
 										<a 
@@ -121,22 +127,22 @@
 									{% else %}
 										<span>{% trans 'No particular school' %}</span>
 									{% endif %}
-									{% with view_count=listing.view_count %}
 									<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 										<i class="far fa-eye me-1" aria-hidden="true"></i>
 										<span class="visually-hidden">{% trans 'Number of views' %}</span>
 										{{ view_count }}
 									</span>
-									{% endwith %}
 									<br class="mb-1">
 									{% if listing.pricing == '-' %}
 										<span>{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% else %}
-										<span class="fw-bold">{{ listing.pricing }}</span>
+										<span class="fw-bold" {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+											{{ listing.pricing }}
+											{% include 'core/google_attribution.html' with object=listing %}
+										</span>
 										<span> | {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% endif %}
 									{% trans 'by' %}
-									{% with poster=listing.poster %}
 									{% if poster.has_social_profile %}
 										<a 
 											class="text-decoration-none" 
@@ -149,9 +155,9 @@
 											{{ poster.full_name }}
 										</span>
 									{% endif %}
-									{% endwith %}
 								</div>
 							</li> 
+							{% endwith %}
 						{% endfor %}
 
 						{% if is_paginated %}

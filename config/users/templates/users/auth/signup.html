@@ -44,7 +44,7 @@
 			</small>
 			
 			<!-- Formset for entering phone number -->
-			<table id="phoneNumbers" class="table js-phoneNumbersTable">
+			<table id="phoneNumbers" class="table mb-4 js-phoneNumbersTable">
 				{% for form in formset.forms %}
 					{% if forloop.first %}
 					<thead>
@@ -87,8 +87,19 @@
 				{{ formset.management_form }}
 			</table>
 
+			<p class="text-secondary mb-4">
+				{% trans 'By signing up, you agree to the' %}
+				<a href="{% url 'core:terms-conditions' %}" class="text-decoration-none">
+					{% trans 'Terms of Service' %}
+				</a>
+				{% trans 'and' %}
+				<a href="{% url 'core:privacy-policy' %}" class="text-decoration-none">
+					{% trans 'Privacy Policy' %}.
+				</a>
+			</p>
+
 			<button type="submit" class="w-100 mt-1 mb-4 py-2 btn btn-success">
-				{% trans 'Register' %}
+				{% trans 'Sign up' %}
 			</button>
 
 			<p class="mb-0">

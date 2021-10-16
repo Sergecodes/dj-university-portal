@@ -83,7 +83,7 @@ class LostItem(Post):
 			'Explain how you think you lost the item, ' 
 			'stating areas you passed across or visited'
 		), 
-		default=_('Good day, ... ')
+		default=_('Good day, ')
 	)
 	bounty = models.CharField(
 		_('Bounty'),

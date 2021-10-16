@@ -72,6 +72,32 @@ def remove_tags(text_body):
 	return bleach.clean(text_body, tags=[], strip=True)
 
 
+@register.filter
+def opposite_language(lang_code):
+	"""
+	Returns the 'opposite' of a given language.
+	eg. `en` return fr and `fr` returns en
+	"""
+	return 'en' if lang_code == 'fr' else 'fr'
+
+
+@register.filter
+def should_attribute(object, current_lang):
+	"""
+	Verify if Google's Google Translate should be attributed.
+	We display attribution to Google Translate if:
+	- there is an update_language and it is not equal to the current language
+	- there is no update_language(use original_language) and the current language 
+	is not the original_language
+	"""
+	original_lang, update_lang = object.original_language, object.update_language
+
+	if update_lang and update_lang != current_lang or \
+		not update_lang and original_lang != current_lang:
+		return True
+	return False
+
+
 @register.simple_tag
 def query_transform(request, **kwargs):
 	"""Insert kwargs into url"""

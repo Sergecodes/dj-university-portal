@@ -4,7 +4,9 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load humanize %}
-<!-- {% load app_extras %} -->
+{% load app_extras %}
+
+{% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
 	<title>{% trans 'Requested Items' %} | CamerSchools</title>
@@ -24,13 +26,16 @@
 		<section class="px-3 pt-4">
 			<p>
 				{% blocktrans %}
-					These are items that users are searching for to buy. <br> If you see an item here, you may contact the poster if you are in possession of the item and are willing to sell it.
+					These are items that users are searching for to buy. <br> 
+					If you see an item here, you may contact the poster 
+					if you are in possession of the item and are willing to sell it.
 				{% endblocktrans %}
 			</p>
 			<a href="{% url 'requested_items:requested-item-create' %}" class="btn btn-warning mb-3">
 				{% trans 'Request an item' %}
 			</a>
 		</section>
+
 		<!-- search form -->
 		<section class="mb-3">
 			<form method="get" class="p-3 m-3 border requested-items-search-form">
@@ -59,7 +64,7 @@
 		<section>
 			<ul class="ms-2 pe-lg-4 pe-1">
 				{% for requested_item, photo in page_obj|zip:first_photos %}
-					{% with poster=requested_item.poster %}
+					{% with poster=requested_item.poster poster=requested_item.poster view_count=requested_item.view_count original_lang=requested_item.original_language %}
 						<li class="d-flex p-3 pb-3 mb-2 requested-item-item">
 							<div class="flex-shrink-0">
 								{% if photo %}
@@ -73,13 +78,15 @@
 									</a>
 								{% endif %}
 							</div>
-							<div class="flex-grow-1 ms-4">
+							<div class="flex-grow-1 ms-4" {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 								<a 
 									href="{{ requested_item.get_absolute_url }}" 
 									class="h5 text-decoration-none"
 								>
 									{{ requested_item.item_requested }}
 								</a>
+								{% include 'core/google_attribution.html' with object=requested_item %}
+
 								<br class="mb-4">
 								{% if requested_item.school %}
 									<a 
@@ -93,7 +100,6 @@
 								<span>
 									{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}
 									{% trans 'by' %}
-									{% with poster=requested_item.poster %}
 									{% if poster.has_social_profile %}
 										<a 
 											class="text-decoration-none" 
@@ -106,9 +112,7 @@
 											{{ poster.full_name }}
 										</span>
 									{% endif %}
-									{% endwith %}
 								</span>
-								{% with view_count=requested_item.view_count %}
 								<p class="mt-1">
 									{% trans 'Views' %}:
 									<span class="ms-2">
@@ -116,7 +120,6 @@
 										<i class="far fa-eye ms-1" aria-hidden="true"></i>
 									</span>
 								</p>
-								{% endwith %}
 							</div>
 						</li> 
 					{% endwith %}

@@ -62,7 +62,7 @@ class ItemListingForm(forms.ModelForm):
 
 	class Meta:
 		model = ItemListing
-		exclude = ('poster', 'slug', 'original_language', 'view_count', )
+		exclude = ('poster', 'slug', 'slug_en', 'slug_fr', 'original_language', 'view_count', )
 		help_texts = {
 			'title': _("A descriptive title helps buyers find your item. State exactly what your 			item is. <br> Include words that buyers will use to search for your item"),
 			'condition': _("Select the condition of the item you're listing."),
@@ -179,7 +179,7 @@ class AdListingForm(forms.ModelForm):
 
 	class Meta:
 		model = AdListing
-		exclude = ('poster', 'slug', 'original_language', 'view_count', )
+		exclude = ('poster', 'slug', 'slug_en', 'slug_fr', 'original_language', 'view_count', )
 		help_texts = {
 			'title': _("A descriptive title helps others easily find your advert. <br> Include words that others will use to search for your advert"),
 		}

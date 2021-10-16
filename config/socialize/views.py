@@ -18,7 +18,7 @@ from django.views.generic.base import TemplateView
 
 from core.mixins import IncrementViewCountMixin
 from core.models import Institution
-from core.utils import get_random_profiles
+from core.utils import get_random_profiles, translate_text
 from past_papers.models import PastPaper
 from .forms import SocialProfileForm, SocialMediaFollowForm
 from .models import SocialProfile
@@ -54,9 +54,29 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 		if social_profile_form.is_valid() and social_media_form.is_valid():
 			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
+
+			## TRANSLATION
+			# get current language and language to translate to
+			current_lang = get_language()
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+			translatable_fields = ['speciality', 'about_me', 'hobbies', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			
+			# fields that need to be translated. (see translation.py)
+			# omit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(social_profile, field) for field in translatable_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(social_profile, trans_field, result_dict['translatedText'])
+
 			social_profile.user = request.user
 			social_profile.social_media = social_media
-			social_profile.original_language = get_language()
+			social_profile.original_language = current_lang
 			social_profile.save()
 			
 			return redirect(social_profile)
@@ -121,10 +141,37 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		if social_profile_form.is_valid() and social_media_form.is_valid():
 			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
+
+			## TRANSLATION
+			changed_data = social_profile_form.changed_data
+
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['speciality', 'about_me', 'hobbies', ]
+
+			updated_fields = [
+				field for field in changed_data if \
+				not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
+
+			current_lang = get_language()
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
+
+			# get and translated values that need to be translated
+			field_values = [getattr(social_profile, field) for field in desired_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(social_profile, trans_field, result_dict['translatedText'])
+
 			social_profile.social_media = social_media
+			social_profile.update_language = current_lang
 			social_profile.save()
-			# save any m2m fields coz form was saved with commit=False
-			# social_profile_form.save_m2m()
 			
 			return redirect(social_profile)
 
@@ -319,12 +366,12 @@ class SocialProfileDetail(
 		context['profile_user'] = profile.user
 		context['profile_info'] = {
 			_('Level'): profile.get_level_display(),
-			_('Department'): profile.department,
-			_('School'): profile.school.name if profile.school_id else _('Not given'),
+			_('Speciality'): profile.speciality,
+			_('School'): profile.school.name if profile.school_id else _('Not provided'),
 			_('Gender'): profile.gender,
 			_('Aged between'): profile.age_range,
-			_('A little about me'): about_me if (about_me := profile.about_me) else _('Not given'),
-			_('My hobbies and interests'): hobbies if (hobbies := profile.hobbies) else _('Not given'),
+			_('A little about me'): about_me if (about_me := profile.about_me) else _('Not provided'),
+			_('My hobbies and interests'): hobbies if (hobbies := profile.hobbies) else _('Not provided'),
 			_('Currently'): profile.get_current_relationship_display(),
 			_('Interested in'): profile.get_interested_relationship_display(),
 		}
@@ -372,7 +419,7 @@ class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 	filterset_class = SocialProfileFilter
 	template_name = 'socialize/socialprofile_list.html'
 	template_name_suffix = '_list'
-	paginate_by = 2
+	paginate_by = 7
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

@@ -17,13 +17,11 @@
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/base.css' %}">
-	<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
 	{% block extra_css %}
 	{% endblock extra_css %}
 
 	<script type="text/javascript" src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/highlight.min.js' %}"></script>
 	{% block extra_script_pre %}
 	{% endblock extra_script_pre %}
 </head>
@@ -74,11 +72,11 @@
 						<a href="{% url 'core:my-notifs' %}" class="position-relative header-notifs-link">
 							<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 								<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
-									<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+									<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+									<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 								</g>
 							</svg>
-							<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
+							<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 							{% if user.notifications.unread %}
 								<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border notifier-circle">
 									<span class="visually-hidden">{% trans 'New notifications' %}</span>
@@ -193,11 +191,11 @@
 							<a href="{% url 'core:my-notifs' %}" class="header-notifs-link">
 								<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
 									<g style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: none; fill-rule: nonzero; opacity: 1;" transform="translate(-1.6111111111111143 -1.6111111111111143) scale(3.22 3.22)" >
-										<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
-										<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+										<path d="M 83.25 74.548 H 6.75 c -1.536 0 -2.864 -0.988 -3.306 -2.457 c -0.441 -1.468 0.122 -3.022 1.401 -3.868 c 0.896 -0.594 1.954 -1.152 3.233 -1.707 c 5.52 -2.514 6.42 -16.025 7.144 -26.882 c 0.182 -2.74 0.355 -5.327 0.59 -7.664 c 1.926 -12.752 8.052 -20.942 18.223 -24.424 C 35.767 3.067 40.169 0 45 0 s 9.233 3.067 10.964 7.546 c 10.171 3.482 16.298 11.671 18.214 24.352 c 0.245 2.409 0.416 4.996 0.6 7.736 c 0.723 10.857 1.624 24.368 7.168 26.893 c 1.255 0.544 2.313 1.102 3.21 1.696 c 1.279 0.846 1.842 2.4 1.4 3.868 C 86.114 73.56 84.785 74.548 83.25 74.548 z M 45 2.934 c -3.818 0 -7.279 2.556 -8.416 6.215 l -0.228 0.733 l -0.732 0.231 c -9.568 3.018 -15.096 10.287 -16.9 22.224 c -0.221 2.216 -0.392 4.779 -0.573 7.493 c -0.816 12.242 -1.74 26.117 -8.88 29.368 c -1.129 0.49 -2.064 0.982 -2.806 1.473 c -0.265 0.175 -0.26 0.409 -0.21 0.575 c 0.051 0.168 0.177 0.368 0.496 0.368 h 76.5 c 0.318 0 0.445 -0.2 0.496 -0.368 c 0.05 -0.166 0.054 -0.4 -0.209 -0.575 h -0.001 c -0.741 -0.491 -1.677 -0.983 -2.782 -1.462 c -7.163 -3.261 -8.088 -17.137 -8.905 -29.379 c -0.181 -2.714 -0.352 -5.277 -0.582 -7.565 c -1.795 -11.864 -7.323 -19.134 -16.891 -22.151 l -0.732 -0.231 L 53.416 9.15 C 52.279 5.49 48.818 2.934 45 2.934 z" style="stroke: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
+										<path d="M 33.257 78.292 C 33.277 84.75 38.536 90 45 90 c 6.463 0 11.723 -5.25 11.743 -11.708 H 33.257 z M 45 87.066 c -3.816 0 -7.063 -2.443 -8.285 -5.843 h 16.57 C 52.063 84.623 48.816 87.066 45 87.066 z" style="stroke: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; stroke-width: 2; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} black {% else %} white {% endif %}; fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round" />
 									</g>
 								</svg>
-								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
+								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 							</a>
 						</li>
 						<li class="list-inline-item dropdown ms-2 text-center js-headerAccountInfo">
@@ -282,7 +280,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="buySellItem"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/items/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/items/' in request.path or '/articles/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -298,7 +296,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="viewPostAdvert"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/adverts/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/adverts/' in request.path or '/annonces/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -314,7 +312,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="requestedItems"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/requested-items/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/requested-items/' in request.path or '/objets-demandés/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -347,7 +345,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="lostFoundItems"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/lost-and-found/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/lost-or-found/' in request.path or '/perdu-ou-trouvé/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -365,7 +363,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="pastPapers"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/past-papers/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/past-papers/' in request.path or '/anciens-sujets/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -381,7 +379,7 @@
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
 								id="socialize"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/socialize/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/socialize/' in request.path or '/socialiser/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
@@ -444,7 +442,7 @@
 					<h2 class="footer__subheading">CamerSchools</h2>
 					<p class="small">
 						{% blocktrans %}
-						On CamerSchools, you can ask questions, request items you need, sell your items, advertize your products, view and download past papers for various subjects, contact other students and much more! <br>
+						On camerschools.com, you can ask questions, request items you need, sell your items, advertize your products, view and download past papers for various subjects, communicate with other students and much more! <br>
 						We provide you with means to leverage your academic life.
 						{% endblocktrans %}
 					</p>
@@ -480,7 +478,7 @@
 								</li>
 								<li class="nav-item">
 									<a class="nav-link footer__link" href="{% url 'socialize:camerschools-profile' %}">
-										{% trans 'CamerSchools Profile' %}
+										{% trans 'Our Social Profile' %}
 									</a>
 								</li>
 								<li class="nav-item">
@@ -545,7 +543,7 @@
 					<h2 class="footer__subheading">{% trans 'Channels' %}</h2>
 					<ul class="nav flex-column">
 						<li class="nav-item">
-							<a class="nav-link footer__link" href="#">
+							<a class="nav-link footer__link" href="https://www.facebook.com/profile.php?id=100073786242906">
 								{% trans 'Facebook' %}
 								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
 									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
@@ -556,7 +554,7 @@
 							</a>
 						</li>
 						<li class="nav-item mb-3">
-							<a class="nav-link footer__link" href="#">
+							<a class="nav-link footer__link" href="https://www.twitter.com/camerschools/">
 								{% trans 'Twitter' %}
 								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
 									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">

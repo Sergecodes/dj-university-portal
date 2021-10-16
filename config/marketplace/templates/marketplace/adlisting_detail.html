@@ -6,6 +6,8 @@
 {% load flag_tags %}
 {% load app_extras %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 {% block title %}
 	<title>{{ listing.title }} | CamerSchools</title>
 {% endblock %}
@@ -54,10 +56,15 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
+		{% with original_lang=listing.original_language %}
 		<h2 class="mb-3 listing-title">
-			{{ listing.title }} 
+			<span {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ listing.title }}
+			</span>
 			<span class="small">({% trans 'advert' %})</span>
+			{% include 'core/google_attribution.html' with object=listing %}
 		</h2>
+		{% endwith %}
 		
 		<!-- photos and info -->
 		<div class="mb-4 {% if photos.exists %} d-lg-flex {% endif %}">
@@ -88,7 +95,12 @@
 					<tr class="fs-5">
 						<td>{% trans 'Pricing' %}</td>
 						<td>
-							<span class="fw-bold">{{ listing.pricing }}</span>
+							{% with original_lang=listing.original_language %}
+							<span class="fw-bold" {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+								{{ listing.pricing }}
+							</span>
+							{% include 'core/google_attribution.html' with object=listing %}
+							{% endwith %}
 						</td>
 					</tr>
 					<tr>
@@ -142,10 +154,15 @@
 		</div>
 
 		<!-- advert description -->
+		{% with original_lang=listing.original_language %}
 		<div class="mb-4">
 			<h3 class="mb-3">{% trans 'Advert Description' %}</h3>
-			<div>{{ listing.description|safe }}</div>
+			<div {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ listing.description|safe }}
+				{% include 'core/google_attribution.html' with object=listing %}
+			</div>
 		</div>
+		{% endwith %}
 
 		{# post actions #}
 		<div class="mb-4">
@@ -161,7 +178,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this post' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=listing.title url=listing.get_absolute_url %}
 				</div>
 				<!-- flag area -->
 				{# if post belongs to user, dont display flag widget #}
@@ -267,22 +284,37 @@
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}
+					{% with original_lang=sim_listing.original_language %}
 					<div class="col-sm-5 col-lg-3 mb-4 similar-listing">
 						{% if photo %}
 							<a href="{{ sim_listing.get_absolute_url }}" class="text-decoration-none">
 								<img class="mb-2 similar-listing__img--ad" src="{{ photo.file.url }}" alt="{{ photo.title }}">
-								<p>{{ sim_listing.title }}</p>
+								<p>
+									<span {% if sim_listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+										{{ sim_listing.title }}
+									</span>
+								</p>
 							</a>
+							{% include 'core/google_attribution.html' with object=sim_listing %}
 						{% else %}
 							<a href="{{ sim_listing.get_absolute_url }}" class="d-inline-block text-decoration-none">
 								<i class="far fa-image fa-5x link-secondary opacity-50 mb-2" aria-hidden="true"></i>
-								<p>{{ sim_listing.title }}</p>
+								<p>
+									<span {% if sim_listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+										{{ sim_listing.title }}
+									</span>
+								</p>
 							</a>
+							{% include 'core/google_attribution.html' with object=sim_listing %}
 						{% endif %}
 						{% if sim_listing.pricing != '-' %}
-							<span class="text-muted">{{ sim_listing.pricing }}</span>
+							<span class="text-muted" {% if sim_listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+								{{ sim_listing.pricing }}
+							</span>
+							{% include 'core/google_attribution.html' with object=sim_listing %}
 						{% endif %}
 					</div>
+					{% endwith %}
 				{% endfor %}
 			</div>
 		</section>
