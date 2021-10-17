@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import jsonfield.fields
+# import jsonfield.fields
 
 
 class Migration(migrations.Migration):
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('public', models.BooleanField(db_index=True, default=True)),
                 ('deleted', models.BooleanField(db_index=True, default=False)),
                 ('emailed', models.BooleanField(db_index=True, default=False)),
-                ('data', jsonfield.fields.JSONField(blank=True, null=True)),
+                # ('data', jsonfield.fields.JSONField(blank=True, null=True)),
                 ('category', models.CharField(choices=[('G', 'General'), ('M', 'Mentions'), ('A', 'Activities')], default='G', max_length=2)),
                 ('action_object_content_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='notify_action_object', to='contenttypes.contenttype')),
                 ('actor_content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notify_actor', to='contenttypes.contenttype')),
