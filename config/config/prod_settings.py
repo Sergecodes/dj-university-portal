@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-import os
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,7 @@ SECRET_KEY = '!73!8_w-350#rrf(%z@5l5d#i%5v%sjpe%3uf+b9xc3^0zji-@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['camerschools.com', 'www.camerschools.com']
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]', 'camerschools.com', 'www.camerschools.com']
 AUTH_USER_MODEL = 'users.User'
 SITE_NAME = 'CamerSchools'
 
