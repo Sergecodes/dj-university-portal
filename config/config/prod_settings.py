@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '!73!8_w-350#rrf(%z@5l5d#i%5v%sjpe%3uf+b9xc3^0zji-@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
@@ -50,8 +50,8 @@ INSTALLED_APPS = [
 	'crispy_bootstrap5',
 	'django_extensions',
 	'django_filters',
-	'django_hosts',
-	'debug_toolbar',
+	# 'django_hosts',
+	# 'debug_toolbar',
 	# 'easy_thumbnails',
 	'storages',
 	'taggit',
@@ -71,13 +71,14 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-	# 'django_hosts.middleware.HostsRequestMiddleware',  # for django_hosts
 	'django.middleware.security.SecurityMiddleware',
+	'whitenoise.middleware.WhiteNoiseMiddleware',
+	# 'django_hosts.middleware.HostsRequestMiddleware',  # for django_hosts
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.locale.LocaleMiddleware',  # for translation
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
-	'debug_toolbar.middleware.DebugToolbarMiddleware',  # for debug_toolbar
+	# 'debug_toolbar.middleware.DebugToolbarMiddleware',  # for debug_toolbar
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -116,11 +117,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'sitedb',
-		'USER': 'sergeman',
-		'PASSWORD': 'notanumber',
-		'HOST': 'localhost',
-		'PORT': '5432',
+		'NAME': 'defaultdb',
+		'USER': 'doadmin',
+		'PASSWORD': 'w0Ye4iImpnoUyZis',
+		'HOST': 'db-postgresql-fra1-45768-do-user-10031233-0.b.db.ondigitalocean.com',
+		'PORT': '25060',
 	}
 }
 
@@ -174,7 +175,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 # This logs any emails sent to the console 
 # (e.g. so you can copy the password reset link from the console)
-USE_ZOHO = False
+USE_ZOHO = True
 
 if USE_ZOHO:
 	# see https://www.zoho.com/mail/help/zoho-smtp.html
@@ -218,7 +219,7 @@ AUTHENTICATION_BACKENDS = [
 ### django storages (s3) ###
 # TODO in production, use environment variables !
 # USE_S3 = os.getenv('USE_S3') == 'TRUE'
-USE_S3 = False
+USE_S3 = True
 
 if USE_S3:
 	# according to django-ckeditor, it won't work with S3 
@@ -238,6 +239,7 @@ if USE_S3:
 	STATIC_LOCATION_ = 'static'
 	STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN_}/{STATIC_LOCATION_}/'
 	STATICFILES_STORAGE = 'core.storage_backends.StaticStorage'
+	STATIC_ROOT = 'static/'
 
 	# s3 public media settings
 	PUBLIC_MEDIA_LOCATION_ = 'media'
@@ -347,8 +349,8 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 
 ### django_hosts ###
-ROOT_HOSTCONF = 'config.hosts'
-DEFAULT_HOST = 'www'
+# ROOT_HOSTCONF = 'config.hosts'
+# DEFAULT_HOST = 'www'
 
 
 ### django-taggit ###
@@ -358,14 +360,15 @@ TAGGIT_CASE_INSENSITIVE = True
 
 
 ### debug_toolbar ###
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
+if DEBUG == True:
+	INTERNAL_IPS = [
+		'127.0.0.1',
+	]
 
 
 ### modeltranslation ###
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
-MODELTRANSLATION_DEBUG = True
+# MODELTRANSLATION_DEBUG = True
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('fr', 'en')
 
 
