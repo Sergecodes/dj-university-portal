@@ -1,6 +1,6 @@
 bcrypt==3.1.7
 bleach==3.3.1
-boto3<=1.15.3
+boto3==1.18.60
 crispy-bootstrap5==0.4
 cryptocode==0.1
 Django==3.1.3
