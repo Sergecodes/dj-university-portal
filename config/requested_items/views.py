@@ -148,17 +148,20 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 
 		# get and translated values that need to be translated
 		field_values = [getattr(requested_item, field) for field in desired_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# get fields that need to be set after translation
-		translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(requested_item, trans_field, result_dict['translatedText'])
+		if field_values:
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		requested_item.update_language = current_lang
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(requested_item, trans_field, result_dict['translatedText'])
+
+			requested_item.update_language = current_lang
+			
 		requested_item.save()
 		
 		## add phone numbers to requested_item(phone_numbers is a queryset)

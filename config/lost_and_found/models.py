@@ -88,7 +88,7 @@ class LostItem(Post):
 	bounty = models.CharField(
 		_('Bounty'),
 		max_length=100,
-		null=True, blank=True, 
+		blank=True, 
 		help_text=_(
 			'Award/bounty given to the person who will return the item. '
 			'Make sure that you are in possession of the award. <br> '

@@ -245,7 +245,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this question' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading title=question.title url=question.get_absolute_url %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=question.title url=request.build_absolute_uri %}
 				</div>
 				<!-- flag area -->
 				{# if question belongs to user, dont display flag widget #}

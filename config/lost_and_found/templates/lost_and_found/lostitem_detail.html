@@ -119,7 +119,7 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this post' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading title=lost_item.item_lost url=lost_item.get_absolute_url %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title=lost_item.item_lost url=request.build_absolute_uri %}
 				</div>
 				<!-- flag area -->
 				{# if post belongs to user, dont display flag widget #}

@@ -225,17 +225,20 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 
 		# get and translated values that need to be translated
 		field_values = [getattr(listing, field) for field in desired_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# get fields that need to be set after translation
-		translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(listing, trans_field, result_dict['translatedText'])
+		if field_values:
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		listing.update_language = current_lang
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(listing, trans_field, result_dict['translatedText'])
+
+			listing.update_language = current_lang
+
 		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
@@ -502,17 +505,20 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 
 		# get and translated values that need to be translated
 		field_values = [getattr(listing, field) for field in desired_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# get fields that need to be set after translation
-		translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(listing, trans_field, result_dict['translatedText'])
+		if field_values:
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		listing.update_language = current_lang
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(listing, trans_field, result_dict['translatedText'])
+
+			listing.update_language = current_lang
+			
 		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)

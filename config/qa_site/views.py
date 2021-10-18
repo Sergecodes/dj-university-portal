@@ -233,7 +233,10 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/academicquestion_update.html'
 
 	def form_valid(self, form):
+
+		print(form.cleaned_data['tags'])
 		question = form.save(commit=False)
+		print(question.tags.all())
 		followers = question.followers.all()
 
 		## TRANSLATION
@@ -253,19 +256,25 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 		# get and translated values that need to be translated
 		field_values = [getattr(question, field) for field in desired_fields]
-		trans_results = translate_text(field_values, trans_lang)
 		
-		# get fields that need to be set after translation
-		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+		if field_values:
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(question, trans_field, result_dict['translatedText'])
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(question, trans_field, result_dict['translatedText'])
 
-		question.update_language = current_lang
+			question.update_language = current_lang
+
 		question.save()
-		form.save_m2m()
+
+		if 'tags' in changed_data:
+			question.tags.set(*form.cleaned_data['tags'])
+		print(question.tags.all())
 
 		# notify users that are following this question
 		for follower in followers:
@@ -446,19 +455,21 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 		# get and translated values that need to be translated
 		field_values = [getattr(school_question, field) for field in desired_fields]
-		trans_results = translate_text(field_values, trans_lang)
 		
-		# get fields that need to be set after translation
-		translate_fields = [field + '_' + trans_lang for field in desired_fields]
+		if field_values:
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# get fields that need to be set after translation
+			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(school_question, trans_field, result_dict['translatedText'])
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(school_question, trans_field, result_dict['translatedText'])
 
-		school_question.update_language = current_lang
+			school_question.update_language = current_lang
+
 		school_question.save()
-		form.save_m2m()
 
 		# notify users that are following this question
 		for follower in followers:

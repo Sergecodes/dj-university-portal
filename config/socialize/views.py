@@ -159,18 +159,21 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 
 			# get and translated values that need to be translated
 			field_values = [getattr(social_profile, field) for field in desired_fields]
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(social_profile, trans_field, result_dict['translatedText'])
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(social_profile, trans_field, result_dict['translatedText'])
+
+				social_profile.update_language = current_lang
 
 			social_profile.social_media = social_media
-			social_profile.update_language = current_lang
 			social_profile.save()
 			
 			return redirect(social_profile)
