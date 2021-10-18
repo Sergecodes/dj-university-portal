@@ -139,7 +139,7 @@ def activate_account(request, uidb64, token):
 		return HttpResponse(
 			_(
 				'You have successfully confirmed your email. Now you can log into your account. <br>'
-				'Login <a href="{login_url}">here</a>.'
+				f'Login <a href="{login_url}">here</a>.'
 			)
 		)
 	else:
@@ -147,7 +147,7 @@ def activate_account(request, uidb64, token):
 		return HttpResponse(
 			_(
 				'Activation link is invalid. <br>'
-				'Please <a href="{signup_url}">sign up</a> again so as to get a new link.'
+				f'Please <a href="{signup_url}">sign up</a> again so as to get a new link.'
 			)
 		)
 
