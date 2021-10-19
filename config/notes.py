@@ -15,7 +15,9 @@
 # - use ajax for username select ... 
 # - on dashboard page, hide site points/or amount made and display only on click
 # - username mentions in comments (questions)
-# - implement sharing(social media...)
+# - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected..
+# - display view count on social profile page. should only profile owner be able to see ?
+# - display "some users" aside on mobile too.
 # - in institution checkbox, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
 # section of site where users can ask site related questions
 # - after 24hrs, votes can't be recalled.

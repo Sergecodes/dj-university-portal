@@ -33,7 +33,7 @@
 				<ul>
 					{% for profile in page_obj %}
 						{% with dp=profile.profile_image user=profile.user %}
-							<li class="d-flex px-3 pb-3 mb-2 profile-item">
+							<li class="d-flex px-md-3 pb-3 mb-2 profile-item">
 								<div class="flex-shrink-0">
 									{% if dp %}
 										<a href="{{ profile.get_absolute_url }}">

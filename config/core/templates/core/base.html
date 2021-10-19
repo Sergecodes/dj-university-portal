@@ -197,7 +197,7 @@
 								</svg>
 								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 								{% if user.notifications.unread %}
-									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border notifier-circle">
+									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border" style="top:3.2rem;">
 										<span class="visually-hidden">{% trans 'New notifications' %}</span>
 									</span>
 								{% endif %}
@@ -404,7 +404,7 @@
 							</div>
 						</li>
 					</ul>
-					<form class="d-flex w-75 mx-auto my-2 d-lg-none">
+					<form class="d-flex my-2 d-lg-none">
 						<input class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
 					</form>

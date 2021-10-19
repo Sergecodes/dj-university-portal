@@ -1342,7 +1342,7 @@ msgstr ""
 
 #: core/templates/core/site_usage_info.html:202
 msgid "Editing"
-msgstr ""
+msgstr "Édition"
 
 #: core/templates/core/site_usage_info.html:206
 #, python-format
@@ -1354,6 +1354,12 @@ msgid ""
 "edited. \n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tQuestions : <b>Seul</b> l'auteur d'une question peut la modifier. "
+"Cependant, les questions avec plus de %(cannot_edit_qstn_vote)s votes (upvotes - "
+"downvotes) ou plus de %(cannot_edit_qstn_ans_count)s réponses ne peuvent pas être "
+"modifées. \n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:211
 #, python-format
@@ -1364,6 +1370,11 @@ msgid ""
 "edited. \n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tRéponses : <b>Seul</b> l'auteur d'une réponse peut la modifier. "
+"Cependant, les réponses avec plus de %(cannot_edit_ans_vote)s votes ne peuvent pas être "
+"modifées. \n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:216
 #, python-format
@@ -1375,10 +1386,16 @@ msgid ""
 "edited. \n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tCommentaires : <b>Seul</b> l'auteur d'un commentaire peut le modifier. "
+"Cependant, les commentaires avec plus de %(cannot_edit_comment_vote)s votes ne peuvent pas être "
+"modifés et après %(cannot_edit_comment_time)s minutes, les commentaires ne peuvent plus être "
+"modifés. \n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:223
 msgid "Deleting"
-msgstr ""
+msgstr "Suppression"
 
 #: core/templates/core/site_usage_info.html:227
 #, python-format
@@ -1390,6 +1407,12 @@ msgid ""
 "they may help future users that share similar questions.\n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tQuestions : Les questions avec plus de %(cannot_del_qstn_vote)s"
+"votes ou plus de %(cannot_del_qstn_ans_count)s réponses ne peuvent pas être supprimées par "
+"l'auteur. C'est parce que nous considérons que de telles questions sont précieuses et "
+"elles peuvent aider les futurs utilisateurs qui partagent des questions similaires.\n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:232
 #, python-format
@@ -1399,6 +1422,10 @@ msgid ""
 "votes can't be deleted for the same reason as above.\n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tRéponses : Les réponses avec plus de %(cannot_del_ans_vote)s"
+"votes ne peuvent pas être supprimées pour la même raison que ci-dessus.\n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:237
 #, python-format
@@ -1409,44 +1436,51 @@ msgid ""
 "information valuable to future users.\n"
 "\t\t\t\t\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\t\t\t\t\tCommentaires : Les commentaires avec plus de "
+"%(cannot_del_comment_vote)s votes ne peuvent pas être supprimés car ils peuvent contenir "
+"des informations utiles aux futurs utilisateurs.\n"
+"\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/social_share_tooltip.html:25
 msgid "Copy link"
-msgstr ""
+msgstr "Copier le lien"
 
 #: core/templates/core/social_share_tooltip.html:26
 msgid "Share on Facebook"
-msgstr ""
+msgstr "Partager sur Facebook"
 
 #: core/templates/core/social_share_tooltip.html:27
 msgid "Share on Twitter"
-msgstr ""
+msgstr "Partager sur Twitter"
 
 #: core/templates/core/social_share_tooltip.html:28
 msgid "Share on Whatsapp"
-msgstr ""
+msgstr "Partager sur WhatsApp"
 
 #: core/templates/core/social_share_tooltip.html:63
 msgid "Share"
-msgstr ""
+msgstr "Partager"
 
 #: core/templates/core/social_share_tooltip.html:94
 msgid "Link copied to clipboard."
-msgstr ""
+msgstr "Lien copié dans le presse-papiers."
 
 #: core/templates/core/social_share_tooltip.html:97
 msgid ""
 " An error occured when copying the link. <br> Try to copy it manually by "
 "selecting the text and copying. "
 msgstr ""
+" Une erreur s'est produite lors de la copie du lien. <br> Essayez de le copier manuellement en "
+"sélectionnant le texte et le copier. "
 
 #: core/templates/core/terms_and_conditions.html:5
 msgid "Terms and Conditions"
-msgstr ""
+msgstr "Termes et Conditions"
 
 #: core/templatetags/app_extras.py:118
 msgid "LOGIN_URL is not defined in the settings"
-msgstr ""
+msgstr "LOGIN_URL n'est pas défini dans les paramètres"
 
 #: core/templatetags/app_extras.py:130
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:95
@@ -1456,7 +1490,7 @@ msgstr ""
 #: past_papers/templates/past_papers/pastpaper_detail.html:105
 #: requested_items/templates/requested_items/requested_item_detail.html:141
 msgid "Add this post to your favourites. (click again to undo)"
-msgstr ""
+msgstr "Ajoutez cette publication à vos favoris. (cliquez à nouveau pour annuler)"
 
 #: core/urls.py:15
 msgid "home/"
@@ -1464,7 +1498,7 @@ msgstr "accueil/"
 
 #: core/urls.py:16
 msgid "site-usage/info/"
-msgstr ""
+msgstr "utilisation-du-site/info/"
 
 #: core/urls.py:17
 msgid "my-notifications/"
@@ -1472,7 +1506,7 @@ msgstr "mes-notifications/"
 
 #: core/urls.py:18
 msgid "privacy-policy/"
-msgstr ""
+msgstr "politique-de-confidentialité/"
 
 #: core/urls.py:19
 msgid "terms-and-conditions/"
@@ -1493,6 +1527,10 @@ msgid ""
 " It should not contain any symbols, dashes or spaces. All other characters "
 "are allowed(letters, numbers, hyphens and underscores)"
 msgstr ""
+"Entrez un nom d'utilisateur valide. Cette valeur doit être comprise entre 4 et 15 caractères et "
+"les 4 premiers caractères doivent être uniquement des lettres. \n"
+" Il ne doit contenir aucun symbole, tiret ou espace. Tous les autres caractères "
+"sont autorisés (lettres, chiffres, tirets et traits de soulignement)"
 
 #: core/validators.py:38
 msgid ""
@@ -1501,123 +1539,135 @@ msgid ""
 "No name should start or end with a hyphen, and no name should contain only "
 "hyphens."
 msgstr ""
+"Entrez un nom complet valide. Il devrait y avoir deux ou trois noms séparés par un "
+"un espace et chaque nom ne peut contenir que des lettres ou des traits d'union. \n"
+"Aucun nom ne doit commencer ou se terminer par un trait d'union, et aucun nom ne doit contenir uniquement "
+"traits d'union."
 
 #: core/validators.py:58
 #, python-format
 msgid "Enter at most %(max_tags)d tags; you entered %(number)d."
-msgstr ""
+msgstr "Saisissez au maximum %(max_tags)d tags ; vous avez entré %(number)d."
 
 #: core/validators.py:65
 msgid "Commas and quotes are not permitted."
-msgstr ""
+msgstr "Les virgules et les guillemets ne sont pas autorisés."
 
 #: core/views.py:251
 msgid "Invalid category"
-msgstr ""
+msgstr "Catégorie invalide"
 
 #: flagging/admin.py:36
 msgid "Edit object"
-msgstr ""
+msgstr "Modifier l'objet"
 
 #: flagging/managers.py:39
 #, python-format
 msgid "%(reason)s is an invalid reason"
-msgstr ""
+msgstr "%(reason)s est un motif invalide"
 
 #: flagging/managers.py:60
 msgid "Please supply some information as the reason for flagging"
-msgstr ""
+msgstr "Veuillez fournir quelques informations comme raison du signalement"
 
 #: flagging/managers.py:72
 msgid "You can't flag your own post."
-msgstr ""
+msgstr "Vous ne pouvez pas signaler votre propre publication."
 
 #: flagging/managers.py:81
 #, python-format
 msgid "This content has already been flagged by the user (%(user)s)"
-msgstr ""
+msgstr "Ce contenu a déjà été signalé par l'utilisateur (%(user)s)"
 
 #: flagging/managers.py:94
 #, python-format
 msgid "This content has not been flagged by the user (%(user)s)"
-msgstr ""
+msgstr "Ce contenu n'a pas été signalé par l'utilisateur (%(user)s)"
 
 #: flagging/mixins.py:26
 msgid "error"
-msgstr ""
+msgstr "erreur"
 
 #: flagging/models.py:27
 msgid "Unflagged"
-msgstr ""
+msgstr "Non signalé"
 
 #: flagging/models.py:28
 msgid "Flagged"
-msgstr ""
+msgstr "Signalé"
 
 #: flagging/models.py:29
 msgid "Flag rejected by the moderator"
-msgstr ""
+msgstr "Signalement rejeté par le modérateur"
 
 #: flagging/models.py:30
 msgid "Content modified by the author"
-msgstr ""
+msgstr "Contenu modifié par l'auteur"
 
 #: flagging/models.py:31
 msgid "Creator notified"
-msgstr ""
+msgstr "Créateur averti"
 
 #: flagging/models.py:47 notifications/models.py:19
 msgid "Flag"
-msgstr ""
+msgstr "Signalement"
 
 #: flagging/models.py:64 flagging/models.py:84
 #, python-format
 msgid "%(state)s is an invalid state"
-msgstr ""
+msgstr "%(state)s est un état invalide"
 
 #: flagging/models.py:117
 msgid "Something else"
-msgstr ""
+msgstr "Autre chose"
 
 #: flagging/models.py:138
 msgid "Flag Instance"
-msgstr ""
+msgstr "Instance de Signalement"
 
 #: flagging/models.py:139
 msgid "Flag Instances"
-msgstr ""
+msgstr "Instances de Signalement"
 
 #: flagging/models.py:149
 msgid "Please provide some information why you choose to report the content"
-msgstr ""
+msgstr "Veuillez fournir des informations sur les raisons pour lesquelles vous choisissez de signaler le contenu"
 
 #: flagging/signals.py:35
 msgid ""
 "Some users considered this post inappropriate. Edit or delete it now to "
 "prevent suspension. Also, ensure to avoid posting such posts in future."
 msgstr ""
+"Certains utilisateurs ont jugé cette publication inappropriée. Modifiez-le ou supprimez-le maintenant pour "
+"empêcher la suspension. Assurez-vous également d'éviter de publier de tel contenu à l'avenir."
 
 #: flagging/signals.py:45
 msgid ""
 "This post has been FLAGGED. You can delete it if you find it inappropriate "
 "or absolve if you find it appropriate."
 msgstr ""
+"Cette publication a été SIGNALÉE. Vous pouvez le supprimer si vous la trouvez inappropriée "
+"ou l'absoudre si vous la jugez appropriée."
 
 #: flagging/signals.py:71
 msgid ""
 "One of your posts has been deleted because it was considered inappropriate "
 "by many users."
 msgstr ""
+"Un de vos publications a été supprimé car elle était considérée inappropriée"
+"par de nombreux utilisateurs."
 
 #: flagging/signals.py:91
 msgid "Can delete flagged content"
-msgstr ""
+msgstr "Peut supprimer le contenu signalé"
 
 #: flagging/templates/flag/flag_form.html:20
 msgid ""
 "The report request could not be processed. Please refresh the page and try "
 "again."
 msgstr ""
+"Le signalement n'a pas pu être traité. Veuillez actualiser la page et essayer "
+"de nouveau."
 
 #: flagging/templates/flag/flag_form.html:21
 #: flagging/templates/flag/flag_form.html:33
@@ -1633,7 +1683,7 @@ msgstr ""
 #: qa_site/templates/qa_site/schoolquestion_detail.html:485
 #: requested_items/templates/requested_items/requested_item_detail.html:166
 msgid "Remove flag"
-msgstr ""
+msgstr "Retirer le signalement"
 
 #: flagging/templates/flag/flag_form.html:22
 #: flagging/templates/flag/flag_form.html:33
@@ -1664,29 +1714,31 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:156
 #: requested_items/templates/requested_items/requested_item_detail.html:168
 msgid "Report post"
-msgstr ""
+msgstr "Signaler la publication"
 
 #: flagging/templates/flag/flag_form.html:43
 msgid "Report this post"
-msgstr ""
+msgstr "Signaler cette publication"
 
 #: flagging/templates/flag/flag_form.html:63
 msgid "Submit"
-msgstr ""
+msgstr "Soumettre"
 
 #: flagging/templates/flag/flag_form.html:74
 msgid "flag"
-msgstr ""
+msgstr "signalement"
 
 #: flagging/utils.py:58
 msgid ""
 "The content has been flagged successfully. A moderator will review it "
 "shortly."
 msgstr ""
+"Le contenu a été signalé avec succès. Un modérateur l'examinera "
+"dans bientôt."
 
 #: flagging/utils.py:65
 msgid "The content has been unflagged successfully."
-msgstr ""
+msgstr "Le contenu a été supprimé avec succès."
 
 #: lost_and_found/ajax_views.py:28 lost_and_found/ajax_views.py:49
 #: marketplace/ajax_views.py:34 marketplace/ajax_views.py:55
@@ -1694,67 +1746,72 @@ msgstr ""
 #: qa_site/ajax_views.py:505 qa_site/ajax_views.py:530
 #: requested_items/views.py:316 socialize/views.py:460
 msgid "Invalid action"
-msgstr ""
+msgstr "Action non valide"
 
 #: lost_and_found/forms.py:37
 msgid "Green backpack"
-msgstr ""
+msgstr "Sac à dos vert"
 
 #: lost_and_found/forms.py:38 lost_and_found/forms.py:95
 msgid "Infront of Amphi 250"
-msgstr ""
+msgstr "Devant l'Amphi 250"
 
 #: lost_and_found/forms.py:41
 msgid ""
 "I was walking near Amphi 250 and found the green backpack near the door."
 msgstr ""
+"Je marchais près d'Amphi 250 et j'ai trouvé le sac à dos vert près de la porte."
 
 #: lost_and_found/forms.py:59
 msgid "Found Item Information"
-msgstr ""
+msgstr "Informations sur l'objet trouvé"
 
 #: lost_and_found/forms.py:65 lost_and_found/forms.py:129
 #: requested_items/forms.py:70
 msgid "Poster's Information"
-msgstr ""
+msgstr "Informations sur l'annonceur"
 
 #: lost_and_found/forms.py:73 lost_and_found/forms.py:139
 #: marketplace/forms.py:130 marketplace/forms.py:234
 #: requested_items/forms.py:78
 msgid "Edit phone numbers"
-msgstr ""
+msgstr "Modifier mes numéros de téléphone"
 
 #: lost_and_found/forms.py:76 lost_and_found/forms.py:151
 msgid "Publish item"
-msgstr ""
+msgstr "Publier l'objet"
 
 #: lost_and_found/forms.py:94
 msgid "Itel smartphone"
-msgstr ""
+msgstr "Téléphone Itel"
 
 #: lost_and_found/forms.py:97
 msgid ""
 "After our class in Amphi 250, i forgot my phone on the bench near the door "
 "then..."
 msgstr ""
+"Après notre cours à l'Amphi 250, j'ai oublié mon téléphone sur le banc près de la porte"
+"puis..."
 
 #: lost_and_found/forms.py:100
 msgid "2000F to the person who will return my phone to me"
-msgstr ""
+msgstr "2000F à la personne qui me rendra mon téléphone"
 
 #: lost_and_found/forms.py:101
 msgid "The phone has a black case and a 2GB memory card is inside ..."
-msgstr ""
+msgstr "Le téléphone a un boîtier noir et une carte mémoire de 2 Go est à l'intérieur ..."
 
 #: lost_and_found/forms.py:116
 msgid "Lost Item Information"
-msgstr ""
+msgstr "Information sur l'objet perdu"
 
 #: lost_and_found/forms.py:122
 msgid ""
 "Upload maximum 3 photos of the lost item. Allow this empty if you do not "
 "have any photos."
 msgstr ""
+"Téléchargez au maximum 3 photos de l'objet perdu. Laissez ce champ vide si vous n'avez pas "
+"de photo."
 
 #: lost_and_found/forms.py:145
 msgid ""
@@ -1762,40 +1819,43 @@ msgid ""
 "truth by asking them questions concerning the item; such as a detailed "
 "description of the item."
 msgstr ""
+"Si quelqu'un dit que cet article lui appartient, vérifiez qu'il dit le "
+"la vérité en leur posant des questions concernant l'article ; comme une "
+"description détaillée de l'article "
 
 #: lost_and_found/mixins.py:47 marketplace/mixins.py:41
 #: past_papers/mixins.py:35 past_papers/mixins.py:78
 #: requested_items/mixins.py:39
 msgid "Moderators can only delete flagged posts."
-msgstr ""
+msgstr "Les modérateurs ne peuvent supprimer que les messages signalés."
 
 #: lost_and_found/mixins.py:50 requested_items/mixins.py:43
 msgid "You can delete only items that were posted by you."
-msgstr ""
+msgstr "Vous ne pouvez supprimer que les objets que vous avez publiés."
 
 #: lost_and_found/models.py:18
 msgid "Item found"
-msgstr ""
+msgstr "Objet trouvé"
 
 #: lost_and_found/models.py:20
 msgid "What have you found?"
-msgstr ""
+msgstr "Qu'avez-vous trouvé ?"
 
 #: lost_and_found/models.py:23
 msgid "Area found"
-msgstr ""
+msgstr "Endroit trouvé"
 
 #: lost_and_found/models.py:25
 msgid "Where did you find the item?"
-msgstr ""
+msgstr "Où avez-vous trouvé l'objet ?"
 
 #: lost_and_found/models.py:27
 msgid "How found"
-msgstr ""
+msgstr "Comment trouvé"
 
 #: lost_and_found/models.py:27
 msgid "Explain how you found the item"
-msgstr ""
+msgstr "Expliquez comment vous avez trouvé l'objet"
 
 #: lost_and_found/models.py:30
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:37
@@ -1811,49 +1871,51 @@ msgstr ""
 #: socialize/templates/socialize/socialprofile_list.html:66
 #: socialize/views.py:370
 msgid "School"
-msgstr ""
+msgstr "Établissement"
 
 #: lost_and_found/models.py:70
 msgid "Item lost"
-msgstr ""
+msgstr "Objet perdu"
 
 #: lost_and_found/models.py:70
 msgid "What have you lost?"
-msgstr ""
+msgstr "Qu'avez-vous trouvé ?"
 
 #: lost_and_found/models.py:72 requested_items/models.py:31
 msgid "Item description"
-msgstr ""
+msgstr "Description de l'objet"
 
 #: lost_and_found/models.py:73
 msgid "Describe the lost item stating its important aspects."
-msgstr ""
+msgstr "Décrivez l'objet perdu en indiquant ses aspects importants."
 
 #: lost_and_found/models.py:76
 msgid "Area lost"
-msgstr ""
+msgstr "Endroit perdu"
 
 #: lost_and_found/models.py:78
 msgid "Where do you think you lost the item?"
-msgstr ""
+msgstr "Où pensez-vous avoir perdu l'objet ?"
 
 #: lost_and_found/models.py:81
 msgid "How lost"
-msgstr ""
+msgstr "Comment perdu"
 
 #: lost_and_found/models.py:83
 msgid ""
 "Explain how you think you lost the item, stating areas you passed across or "
 "visited"
 msgstr ""
+"Expliquez comment vous pensez avoir perdu l'objet, en indiquant les endroits que vous avez traversés ou "
+"visités"
 
 #: lost_and_found/models.py:86
 msgid "Good day, "
-msgstr ""
+msgstr "Bonjour, "
 
 #: lost_and_found/models.py:89
 msgid "Bounty"
-msgstr ""
+msgstr "Récompense"
 
 #: lost_and_found/models.py:93
 msgid ""
@@ -1861,12 +1923,15 @@ msgid ""
 "you are in possession of the award. <br> This is optional but can be used as "
 "motivation."
 msgstr ""
+"Récompense/prime donnée à la personne qui retournera l'objet. Assurez-vous que "
+"vous êtes en possession de la récompense. <br> Ceci est facultatif mais peut être utilisé comme "
+"motivation."
 
 #: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:7
 #: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:7
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:7
 msgid "Delete item"
-msgstr ""
+msgstr "Supprimer l'objet"
 
 #: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:15
 #: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:15
@@ -1875,7 +1940,7 @@ msgstr ""
 #: past_papers/templates/past_papers/pastpaper_confirm_delete.html:14
 #: requested_items/templates/requested_items/requesteditem_confirm_delete.html:21
 msgid "Are you sure you want to delete"
-msgstr ""
+msgstr "Etes-vous sûr que vous voulez supprimer"
 
 #: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:16
 #: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:16
@@ -1889,7 +1954,7 @@ msgstr ""
 #: qa_site/templates/qa_site/schoolquestion_confirm_delete.html:37
 #: requested_items/templates/requested_items/requesteditem_confirm_delete.html:22
 msgid "Yes, delete"
-msgstr ""
+msgstr "Oui, supprimer"
 
 #: lost_and_found/templates/lost_and_found/founditem_create.html:41
 #: lost_and_found/templates/lost_and_found/founditem_update.html:40
@@ -1913,11 +1978,12 @@ msgstr ""
 msgid ""
 "There are unsaved changes on this page which will be discarded if you leave."
 msgstr ""
+"Il y a des modifications non enregistrées sur cette page qui seront supprimées si vous quittez."
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:12
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:29
 msgid "Found"
-msgstr ""
+msgstr "Trouvé"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:45
 #: lost_and_found/templates/lost_and_found/founditem_list.html:96
@@ -1929,7 +1995,7 @@ msgstr ""
 #: qa_site/templates/qa_site/academicquestion_list.html:103
 #: qa_site/templates/qa_site/schoolquestion_list.html:92
 msgid "view"
-msgstr ""
+msgstr "vue"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:47
 #: lost_and_found/templates/lost_and_found/founditem_list.html:98
@@ -1941,7 +2007,7 @@ msgstr ""
 #: qa_site/templates/qa_site/academicquestion_list.html:105
 #: qa_site/templates/qa_site/schoolquestion_list.html:94
 msgid "Number of views"
-msgstr ""
+msgstr "Nombre de vuew"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:54
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:48
@@ -1950,7 +2016,7 @@ msgstr ""
 #: users/templates/users/profile/lost-and-found.html:60
 #: users/templates/users/profile/lost-and-found.html:88
 msgid "Reported"
-msgstr ""
+msgstr "Signalé"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:58
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:52
@@ -1960,7 +2026,7 @@ msgstr ""
 #: qa_site/templates/qa_site/schoolquestion_detail.html:139
 #: requested_items/templates/requested_items/requested_item_detail.html:93
 msgid "By"
-msgstr ""
+msgstr "Par"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:68
 #: lost_and_found/templates/lost_and_found/founditem_list.html:91
@@ -1984,17 +2050,17 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:104
 #: requested_items/templates/requested_items/requested_item_list.html:111
 msgid " User doesn't have a social profile "
-msgstr ""
+msgstr " L'utilisateur n'a pas de profil social "
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:75
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:88
 msgid "Where"
-msgstr ""
+msgstr "Où"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:81
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:94
 msgid "How"
-msgstr ""
+msgstr "Comment"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:100
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:121
@@ -2003,7 +2069,7 @@ msgstr ""
 #: past_papers/templates/past_papers/pastpaper_detail.html:110
 #: requested_items/templates/requested_items/requested_item_detail.html:146
 msgid "Share a link to this post"
-msgstr ""
+msgstr "Partager un lien vers cette publication"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:137
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:158
@@ -2012,7 +2078,7 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:183
 #: requested_items/templates/requested_items/requested_item_update.html:9
 msgid "Edit post"
-msgstr ""
+msgstr "Modifier la publication"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:145
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:166
@@ -2022,11 +2088,11 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:191
 #: requested_items/templates/requested_items/requesteditem_confirm_delete.html:7
 msgid "Delete post"
-msgstr ""
+msgstr "Supprimer la publication"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:155
 msgid "Claim item"
-msgstr ""
+msgstr "Réclamer l'objet"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:158
 msgid ""
@@ -2035,6 +2101,10 @@ msgid ""
 "\t\t\t\tIf it belongs to you, contact the poster using the details below.\n"
 "\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\tNous espérons que cet objet vous appartient vraiment. <br>\n"
+"\t\t\t\tS'il vous appartient, contactez le posteur en utilisant les coordonnées ci-dessous.\n"
+"\t\t\t"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:166
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:184
@@ -2042,7 +2112,7 @@ msgstr ""
 #: marketplace/templates/marketplace/itemlisting_detail.html:256
 #: requested_items/templates/requested_items/requested_item_detail.html:201
 msgid "Contact"
-msgstr ""
+msgstr "Contacter"
 
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:185
 #: lost_and_found/templates/lost_and_found/founditem_detail.html:186
@@ -2057,15 +2127,15 @@ msgstr ""
 #, fuzzy
 #| msgid "Works with WhatsApp"
 msgid "Contact via WhatsApp"
-msgstr "Fonctionne avec WhatsApp"
+msgstr "Contacter par WhatsApp"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:12
 msgid "Reported Found Items"
-msgstr ""
+msgstr "Objets Trouvés Signalés"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:24
 msgid "Items Found"
-msgstr ""
+msgstr "Objets Trouvés"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:28
 msgid ""
@@ -2075,10 +2145,15 @@ msgid ""
 "\t\t\t\tPublish items you've found here.\n"
 "\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\tLes statistiques indiquent que près de 3 300 objets sont perdus par an. \n"
+"\t\t\t\tAvez-vous trouvé un objet perdu dans votre établissement ? <br>\n"
+"\t\t\t\tPubliez les objets que vous avez trouvés ici.\n"
+"\t\t\t\t"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:35
 msgid "Publish an item you found"
-msgstr ""
+msgstr "Publier un objet que vous avez trouvé"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:40
 #: lost_and_found/templates/lost_and_found/lostitem_list.html:41
@@ -2090,47 +2165,49 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_list.html:42
 #: socialize/templates/socialize/socialprofile_filter.html:38
 msgid "Filter"
-msgstr ""
+msgstr "Filtrer"
 
 #: lost_and_found/templates/lost_and_found/founditem_list.html:82
 msgid "Published by"
-msgstr ""
+msgstr "Publié par"
 
 #: lost_and_found/templates/lost_and_found/founditem_update.html:8
 #: lost_and_found/templates/lost_and_found/founditem_update.html:24
 msgid "Edit found item"
-msgstr ""
+msgstr "Modifier l'objet trouvé"
 
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:12
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:29
 msgid "Lost"
-msgstr ""
+msgstr "Perdu"
 
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:100
 msgid "Bounty on item"
-msgstr ""
+msgstr "Récompense sur l'objet"
 
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:175
 msgid "Refund item"
-msgstr ""
+msgstr "Remettre l'objet"
 
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:177
 msgid "Props to you for deciding to refund this item!"
-msgstr ""
+msgstr "Merci à vous d'avoir décidé de remettre cet objet !"
 
 #: lost_and_found/templates/lost_and_found/lostitem_detail.html:179
 msgid ""
 "Thank you for deciding to refund this item to its owner. Contact the owner "
 "using the details below."
 msgstr ""
+"Merci d'avoir décidé de remettre cet objet à son propriétaire. Contacter le propriétaire "
+"en utilisant les détails ci-dessous."
 
 #: lost_and_found/templates/lost_and_found/lostitem_list.html:12
 msgid "Reported Lost Items"
-msgstr ""
+msgstr "Objets Perdus Signalés"
 
 #: lost_and_found/templates/lost_and_found/lostitem_list.html:24
 msgid "Items Lost"
-msgstr ""
+msgstr "Objets Perdus"
 
 #: lost_and_found/templates/lost_and_found/lostitem_list.html:28
 msgid ""
@@ -2140,6 +2217,11 @@ msgid ""
 "\t\t\t\tPublish items that you've lost here.\n"
 "\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\tUn pourcentage élevé d'objets perdus est entre de bonnes mains.\n"
+"\t\t\t\tAvez-vous perdu un objet ? <br>\n"
+"\t\t\t\tPubliez les objets que vous avez perdus ici.\n"
+"\t\t\t\t"
 
 #: lost_and_found/templates/lost_and_found/lostitem_list.html:102
 #: marketplace/templates/marketplace/adlisting_list.html:145
@@ -2147,16 +2229,16 @@ msgstr ""
 #: past_papers/templates/past_papers/pastpaper_detail.html:42
 #: requested_items/templates/requested_items/requested_item_list.html:102
 msgid "by"
-msgstr ""
+msgstr "par"
 
 #: lost_and_found/templates/lost_and_found/lostitem_update.html:8
 #: lost_and_found/templates/lost_and_found/lostitem_update.html:22
 msgid "Edit lost item"
-msgstr ""
+msgstr "Modifier l'objet perdu"
 
 #: lost_and_found/urls.py:11
 msgid "report-lost-item/"
-msgstr ""
+msgstr "signaler-objet-perdu/"
 
 #: lost_and_found/urls.py:12 lost_and_found/urls.py:21 marketplace/urls.py:12
 #: marketplace/urls.py:21 past_papers/urls.py:16 qa_site/urls.py:21
@@ -2164,7 +2246,7 @@ msgstr ""
 #: qa_site/urls.py:113 qa_site/urls.py:126 qa_site/urls.py:139
 #: requested_items/urls.py:12
 msgid "<int:pk>/edit/"
-msgstr ""
+msgstr "<int:pk>/modifier/"
 
 #: lost_and_found/urls.py:13 lost_and_found/urls.py:22 marketplace/urls.py:13
 #: marketplace/urls.py:22 past_papers/urls.py:11 past_papers/urls.py:25
@@ -2172,139 +2254,152 @@ msgstr ""
 #: qa_site/urls.py:98 qa_site/urls.py:118 qa_site/urls.py:131
 #: qa_site/urls.py:144 requested_items/urls.py:13
 msgid "<int:pk>/delete/"
-msgstr ""
+msgstr "<int:pk>/supprimer/"
 
 #: lost_and_found/urls.py:20
 msgid "report-found-item/"
-msgstr ""
+msgstr "signaler-objet-trouvé/"
 
 #: lost_and_found/urls.py:42
 msgid "lost-items/"
-msgstr ""
+msgstr "objets-perdus/"
 
 #: lost_and_found/urls.py:43
 msgid "found-items/"
-msgstr ""
+msgstr "objets-trouvés/"
 
 #: lost_and_found/views.py:118 lost_and_found/views.py:298
 #: marketplace/views.py:603 past_papers/views.py:167 qa_site/views.py:284
 #: qa_site/views.py:480 requested_items/views.py:204
 msgid "Keywords"
-msgstr ""
+msgstr "Mots clés"
 
 #: marketplace/forms.py:36
 msgid ""
 "Describe the item you're selling and provide complete and accurate details. "
 "<br> Use a clear and concise format to keep your description lisible."
 msgstr ""
+"Décrivez l'article que vous vendez et fournissez des détails complets et précis. "
+"<br> Utilisez un format clair et concis pour que votre description reste lisible."
 
 #: marketplace/forms.py:67
 msgid ""
 "A descriptive title helps buyers find your item. State exactly what your \t\t"
 "\titem is. <br> Include words that buyers will use to search for your item"
 msgstr ""
+"Un titre descriptif aide les acheteurs à trouver votre article. Indiquez exactement ce que votre \t\t"
+"\tarticle est. <br> Incluez les mots que les acheteurs utiliseront pour rechercher votre article"
 
 #: marketplace/forms.py:68 marketplace/models.py:247
 msgid "Select the condition of the item you're listing."
-msgstr ""
+msgstr "Sélectionnez l'état de l'article que vous mettez en vente."
 
 #: marketplace/forms.py:90 requested_items/forms.py:52
 msgid "School & Item Category"
-msgstr ""
+msgstr "Établissement et Catégorie d'article"
 
 #: marketplace/forms.py:99 marketplace/forms.py:211
 msgid "Listing Details"
-msgstr ""
+msgstr "Détails de l'annonce"
 
 #: marketplace/forms.py:110
 msgid "Upload at least 3 photos and at most 8 photos."
-msgstr ""
+msgstr "Téléchargez au moins 3 photos et au plus 8 photos."
 
 #: marketplace/forms.py:117 marketplace/forms.py:224
 msgid "Seller's Information"
-msgstr ""
+msgstr "Informations sur le vendeur"
 
 #: marketplace/forms.py:139
 msgid "Update item"
-msgstr ""
+msgstr "Mettre à jour l'annonce"
 
 #: marketplace/forms.py:141
 msgid "Post item"
-msgstr ""
+msgstr "Publier l'annonce"
 
 #: marketplace/forms.py:155
 msgid ""
 "The price you entered is invalid. Prices may contain only spaces and digits."
 msgstr ""
+"Le prix que vous avez entré n'est pas valide. Les prix ne peuvent contenir que des espaces et des chiffres."
 
 #: marketplace/forms.py:170
 msgid ""
 "Describe your advert. Use a clear and concise format to keep your "
 "description lisible."
 msgstr ""
+"Décrivez votre annonce. Utilisez un format clair et concis pour garder votre "
+"description lisible."
 
 #: marketplace/forms.py:184
 msgid ""
 "A descriptive title helps others easily find your advert. <br> Include words "
 "that others will use to search for your advert"
 msgstr ""
+"Un titre descriptif aide les autres à trouver facilement votre annonce. <br> Incluez des mots "
+"que d'autres utiliseront pour rechercher votre annonce"
 
 #: marketplace/forms.py:187
 msgid "Ex. 10,000F per unit"
-msgstr ""
+msgstr "Ex. 10 000F par unité"
 
 #: marketplace/forms.py:203
 msgid "School & Advert Category"
-msgstr ""
+msgstr "Établissement et Catégorie d'annonce"
 
 #: marketplace/forms.py:217
 msgid "It isn't obligatory to post a photo."
-msgstr ""
+msgstr "Il n'est pas obligatoire de télécharger une photo."
 
 #: marketplace/forms.py:239
 msgid "Update advert"
-msgstr ""
+msgstr "Mettre à jour l'annonce"
 
 #: marketplace/forms.py:241
 msgid "Post advert"
-msgstr ""
+msgstr "Publier l'annonce"
 
 #: marketplace/mixins.py:45
 msgid "You can delete only listings that were posted by you."
-msgstr ""
+msgstr "Vous ne pouvez supprimer que les annonces que vous avez publiées."
 
 #: marketplace/models.py:180 past_papers/models.py:145 qa_site/models.py:409
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 #: marketplace/models.py:182
 msgid ""
 "A descriptive title helps buyers find your item. <br> State exactly what "
 "your post is."
 msgstr ""
+"Un titre descriptif aide les acheteurs à trouver votre article. <br> Indiquez exactement "
+"ce que votre annonce est."
 
 #: marketplace/models.py:185
 #: requested_items/templates/requested_items/requested_item_detail.html:125
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: marketplace/models.py:186
 msgid ""
 "Describe the your post and provide complete and accurate details. Use a "
 "clear and concise format."
 msgstr ""
+"Décrivez votre message et fournissez des détails complets et précis. Utilisez un "
+"format clair et concis."
 
 #: marketplace/models.py:208
 msgid "New"
-msgstr "Nouveau"
+msgstr "Neuf"
 
 #: marketplace/models.py:209
 msgid "Used"
-msgstr ""
+msgstr "Utilisé"
 
 #: marketplace/models.py:210
 msgid "Defective(some parts are not working)"
-msgstr ""
+msgstr "Défectueux (certaines pièces ne fonctionnent pas)"
 
 #: marketplace/models.py:229 marketplace/models.py:289
 #: marketplace/templates/marketplace/adlisting_detail.html:117
@@ -2314,77 +2409,84 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:83
 #: requested_items/views.py:215
 msgid "Category"
-msgstr ""
+msgstr "Catégorie"
 
 #: marketplace/models.py:236
 msgid "Sub category"
-msgstr ""
+msgstr "Sous-catégorie"
 
 #: marketplace/models.py:243
 msgid "Condition"
-msgstr ""
+msgstr "État"
 
 #: marketplace/models.py:250
 #: marketplace/templates/marketplace/itemlisting_create.html:21
 msgid "Condition description"
-msgstr ""
+msgstr "Description de l'état"
 
 #: marketplace/models.py:251
 msgid ""
 "Provide details about the condition of a non brand-new item, including any "
 "defects or flaws, so that buyers know exactly what to expect."
 msgstr ""
+"Fournir des détails sur l'état d'un article non neuf, y compris tout "
+"défaut, afin que les acheteurs sachent exactement à quoi s'attendre."
 
 #: marketplace/models.py:256
 #: marketplace/templates/marketplace/itemlisting_detail.html:96
 msgid "Price"
-msgstr ""
+msgstr "Prix"
 
 #: marketplace/models.py:257
 msgid ""
 "Figures and spaces only, no commas or dots. <br> Enter <b>0</b> for free "
 "products or services."
 msgstr ""
+"Chiffres et espace(s) uniquement, pas de virgules ni de points. <br> Entrez <b>0</b> pour les "
+"produits gratuits ou services."
 
 #: marketplace/models.py:295
 #: marketplace/templates/marketplace/adlisting_detail.html:96
 msgid "Pricing"
-msgstr ""
+msgstr "Coût"
 
 #: marketplace/models.py:296
 msgid ""
 "Allow this field empty for free products and services or if the pricing is "
 "in the advert description."
 msgstr ""
+"Laissez ce champ vide pour les produits gratuits et services ou si le coût est "
+"dans la description de l'annonce."
 
 #: marketplace/models.py:307
 msgid ""
 "Allow this field empty if this advert does not concern a particular school."
 msgstr ""
+"Laissez ce champ vide si cette annonce ne concerne pas un établissement particulier."
 
 #: marketplace/templates/marketplace/adlisting_confirm_delete.html:7
 msgid "Delete advert"
-msgstr ""
+msgstr "Supprimer l'annonce"
 
 #: marketplace/templates/marketplace/adlisting_create.html:8
 #: marketplace/templates/marketplace/adlisting_create.html:24
 msgid "Advertize something"
-msgstr ""
+msgstr "Annoncer quelque chose"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:28
 #: marketplace/templates/marketplace/itemlisting_detail.html:29
 #: qa_site/templates/qa_site/academicquestion_detail.html:62
 #: qa_site/templates/qa_site/schoolquestion_detail.html:52
 msgid "You must login before adding a post."
-msgstr ""
+msgstr "Vous devez vous connecter avant de poster."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:64
 msgid "advert"
-msgstr ""
+msgstr "annonce"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:93
 msgid "Advert Info"
-msgstr ""
+msgstr "Informations sur l'annonce"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:146
 #: marketplace/templates/marketplace/itemlisting_detail.html:155
@@ -2394,16 +2496,16 @@ msgstr ""
 #: requested_items/templates/requested_items/requested_item_detail.html:112
 #: requested_items/templates/requested_items/requested_item_list.html:117
 msgid "Views"
-msgstr ""
+msgstr "Vues"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:159
 msgid "Advert Description"
-msgstr ""
+msgstr "Description de l'annonce"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:234
 #: marketplace/templates/marketplace/itemlisting_detail.html:242
 msgid "WARNING!"
-msgstr ""
+msgstr "ATTENTION!"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:236
 #: marketplace/templates/marketplace/itemlisting_detail.html:244
@@ -2411,6 +2513,8 @@ msgid ""
 "You should ensure you physically inspect or see the product to be purchased, "
 "and transact face to face."
 msgstr ""
+"Vous devez vous assurer d'inspecter ou de voir physiquement le produit à acheter, "
+"et faire des transactions face à face."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:237
 #: marketplace/templates/marketplace/itemlisting_detail.html:245
@@ -2418,6 +2522,8 @@ msgid ""
 "Do not make payment until you see the item and do not send money to \"reserve"
 "\" an item."
 msgstr ""
+"N'effectuez pas de paiement tant que vous n'avez pas vu l'article et n'envoyez pas d'argent à \"réserver"
+"\" un article."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:238
 #: marketplace/templates/marketplace/itemlisting_detail.html:246
@@ -2425,16 +2531,18 @@ msgid ""
 "Do not give your personal information such as bank details, credit card "
 "number, etc... "
 msgstr ""
+"Ne donnez pas vos informations personnelles telles que coordonnées bancaires, carte de crédit "
+"numéro de téléphone, etc... "
 
 #: marketplace/templates/marketplace/adlisting_detail.html:239
 #: marketplace/templates/marketplace/itemlisting_detail.html:247
 msgid "Ensure you meet with the seller in a public place."
-msgstr ""
+msgstr "Assurez-vous de rencontrer le vendeur dans un lieu public."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:240
 #: marketplace/templates/marketplace/itemlisting_detail.html:248
 msgid "Beware of very low prices."
-msgstr ""
+msgstr "Attention aux prix très bas."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:243
 #: marketplace/templates/marketplace/itemlisting_detail.html:251
@@ -2442,10 +2550,12 @@ msgid ""
 "If you understand the above warnings, contact the seller using the details "
 "below."
 msgstr ""
+"Si vous comprenez les avertissements ci-dessus, contactez le vendeur en utilisant les détails"
+"ci-dessous."
 
 #: marketplace/templates/marketplace/adlisting_detail.html:282
 msgid "Similar adverts in"
-msgstr ""
+msgstr "Annonces similaires à"
 
 #: marketplace/templates/marketplace/adlisting_list.html:29
 msgid ""
@@ -2453,33 +2563,36 @@ msgid ""
 "\t\t\t\tAdvertize anything or view adverts posted by other students.\n"
 "\t\t\t\t"
 msgstr ""
+"\n"
+"\t\t\t\tAnnoncez vos produits ou consultez les annonces publiées par d'autres étudiants.\n"
+"\t\t\t\t"
 
 #: marketplace/templates/marketplace/adlisting_list.html:71
 #: marketplace/templates/marketplace/itemlisting_list.html:12
 #: marketplace/templates/marketplace/itemlisting_list.html:73
 #: marketplace/templates/marketplace/listings_explain.html:23
 msgid "Items"
-msgstr ""
+msgstr "Articles"
 
 #: marketplace/templates/marketplace/adlisting_list.html:128
 msgid "No particular school"
-msgstr ""
+msgstr "Pas d'établissement particulier"
 
 #: marketplace/templates/marketplace/adlisting_update.html:8
 msgid "Edit advert listing"
-msgstr ""
+msgstr "Modifier l'annonce"
 
 #: marketplace/templates/marketplace/adlisting_update.html:25
 msgid "Edit Advert"
-msgstr ""
+msgstr "Modifier l'annonce"
 
 #: marketplace/templates/marketplace/itemlisting_create.html:9
 msgid "Create your item listing"
-msgstr ""
+msgstr "Créez votre annonce"
 
 #: marketplace/templates/marketplace/itemlisting_create.html:27
 msgid "Post an Item for Sale"
-msgstr ""
+msgstr "Publier un article en vente"
 
 #: marketplace/templates/marketplace/itemlisting_create.html:48
 #: marketplace/templates/marketplace/itemlisting_update.html:47
@@ -2488,6 +2601,9 @@ msgid ""
 "(where packaging is applicable). The item may have a custom package but it "
 "should be new. "
 msgstr ""
+"Un article neuf, non utilisé, non ouvert, non endommagé dans son emballage d'origine"
+"(où l'emballage est applicable). L'article peut avoir un emballage personnalisé mais il "
+"devrait être nouveau."
 
 #: marketplace/templates/marketplace/itemlisting_create.html:49
 #: marketplace/templates/marketplace/itemlisting_update.html:48
@@ -2495,6 +2611,8 @@ msgid ""
 "An item that has been used previously. The item may have some signs of "
 "cosmetic wear, but it is fully operational and functions as intended."
 msgstr ""
+"Un article qui a été utilisé précédemment. L'article peut avoir des signes d'usure "
+"mais il est pleinement opérationnel et fonctionne comme prévu."
 
 #: marketplace/templates/marketplace/itemlisting_create.html:50
 #: marketplace/templates/marketplace/itemlisting_update.html:49
