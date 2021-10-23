@@ -3,6 +3,8 @@
 
 
 # freeprivacypolicy.com  (cool)
+# - redirect to next url when user is editing phone numbers (in listings, requested items, etc..)
+# - add possibility to disconnect social profile
 #  - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
 # - enable translation for question tags, past paper comments(change model and translation.py too) and comments in qa_site
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)

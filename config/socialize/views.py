@@ -5,7 +5,7 @@ from django import forms
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -37,6 +37,9 @@ class CamerSchoolsProfileView(TemplateView):
 
 class HasSocialProfileMixin(UserPassesTestMixin):
 	login_url = reverse_lazy('socialize:create-profile')
+
+	def handle_no_permission(self):
+		return redirect(self.login_url + '?next=' + self.request.path)
 
 	def test_func(self):
 		# does the user calling this function have a social profile
@@ -93,7 +96,11 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 			social_profile.original_language = current_lang
 			social_profile.save()
 			
+			if next_url := request.GET.get('next'):
+				return redirect(next_url)
+			
 			return redirect(social_profile)
+
 			
 		return render(request, self.template_name, {
 			'profile_form': social_profile_form,
@@ -428,7 +435,7 @@ def friend_finder(request):
 	return render(request, 'socialize/socialprofile_filter.html', context)
 
 
-class SocialProfileList(LoginRequiredMixin, AccessMixin, FilterView):
+class SocialProfileList(LoginRequiredMixin, UserPassesTestMixin, FilterView):
 	## List of filtered social profile results
 	# by default, this will return all the objects of the model.
 	model = SocialProfile
