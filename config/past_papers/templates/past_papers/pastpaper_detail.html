@@ -33,7 +33,7 @@
 		<div class="d-flex justify-content-between">
 			<h2 class="mb-2">{{ past_paper.title }}</h2>
 			<a class="btn btn-warning" href="{% url 'past_papers:past-paper-upload' %}">
-				{% trans 'Upload a past paper' %}
+				{% trans 'Upload a past paper' context 'link' %}
 			</a>
 		</div>
 		<section class="text-muted mb-4">
@@ -289,7 +289,7 @@
 	// trigger click on flag-report-icon when flag helper is clicked
 	$('.js-flagHelper').click(function() {
 		var $parentWrp = $(this).parent();
-		console.log($parentWrp);
+		// console.log($parentWrp);
 		$parentWrp.find('.js-flag-report-icon').first().click();
 		// $('.js-flag-report-icon').first().click();
 	});

@@ -94,13 +94,13 @@
 						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
 							{% with cond=listing.condition view_count=listing.view_count poster=listing.poster original_lang=listing.original_language %}
-							<li class="d-flex p-3 pb-4 mb-2 post">
+							<li class="d-flex p-3 ps-0 ps-lg-auto pb-4 mb-2 post">
 								<div class="flex-shrink-0">
 									<a href="{{ listing.get_absolute_url }}">
 										<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								</div>
-								<div class="flex-grow-1 ms-4">
+								<div class="flex-grow-1 ms-3">
 									<a 
 										href="{{ listing.get_absolute_url }}" 
 										class="h5 text-decoration-none"

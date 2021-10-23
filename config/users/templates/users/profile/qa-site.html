@@ -25,8 +25,9 @@
 			<div class="tab-pane active" id="nav-qa" aria-labelledby="nav-qa-tab">
 				<h2 class="text-success text-center mb-3">{% trans 'Questions & Answers' %}</h2>
 
-				<!-- user's academic questions -->
+				<!-- academic questions -->
 				<section class="mb-5">
+					{# user's questions #}
 					<div class="mb-4">
 						<h4 class="text-success">
 							{% trans 'My Academic Questions' %}
@@ -54,8 +55,9 @@
 							</div>
 						{% endfor %}	
 					</div>
+
 					{# bookmarks #}
-					<div>	
+					<div class="mb-4">	
 						<h4 class="text-success">
 							{% trans 'Bookmarked Academic Questions' %}
 							<span class="text-muted">({{ bookmarked_academic_qstns.count }})</span>
@@ -75,10 +77,33 @@
 							</div>
 						{% endfor %}
 					</div>	
+
+					{# following #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Following Academic Questions' %}
+							<span class="text-muted">({{ following_academic_qstns.count }})</span>
+						</h4>
+						{% for question in following_academic_qstns %}
+							<div class="mb-2">
+								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+									{{ question.title }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You are not following any academic question.' %}
+							</div>
+						{% endfor %}
+					</div>	
 				</section>	
 
-				<!-- user's school-based questions -->
+				<!-- school-based questions -->
 				<section class="mb-5">
+					{# user's school questions #}
 					<div class="mb-4">
 						<h4 class="text-success">
 							{% trans 'My School-Based Questions' %}
@@ -109,8 +134,9 @@
 							</div>
 						{% endfor %}	
 					</div>
+
 					{# bookmarks #}
-					<div>	
+					<div class="mb-4">	
 						<h4 class="text-success">
 							{% trans 'Bookmarked School Questions' %}
 							<span class="text-muted">({{ bookmarked_school_qstns.count }})</span>
@@ -126,7 +152,29 @@
 							</div>
 						{% empty %}
 							<div class="alert alert-primary" role="alert">
-								{% trans 'You have not bookmarked any school question yet.' %}
+								{% trans 'You have not bookmarked any school-based question yet.' %}
+							</div>
+						{% endfor %}
+					</div>	
+
+					{# following #}
+					<div>	
+						<h4 class="text-success">
+							{% trans 'Following School Questions' %}
+							<span class="text-muted">({{ following_school_qstns.count }})</span>
+						</h4>
+						{% for question in following_school_qstns %}
+							<div class="mb-2">
+								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
+									{{ question }}
+								</a>
+								<span class="small text-muted mx-2">
+									{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+								</span>
+							</div>
+						{% empty %}
+							<div class="alert alert-primary" role="alert">
+								{% trans 'You are not following any school-based question.' %}
 							</div>
 						{% endfor %}
 					</div>	

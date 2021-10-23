@@ -60,25 +60,28 @@
 							</div>
 							<div class="card-footer text-center">
 								{# todo lol #}
-								<span class="text-warning">
+								<a href="{% url 'core:usage-info' %}" class="link-warning text-decoration-none">
 									{% trans 'More info' %}
 									{% comment %} <i class="fas fa-angle-double-right" aria-hidden="true"></i> {% endcomment %}
 									<i class="far fa-arrow-alt-circle-right" aria-hidden="true"></i>
-								</span>
+								</a>
 							</div>
 						</div>
 					</div>
 				</div>
 				{# display traditional button if user can't withdraw otherwise a link to withdraw page #}
-				{% if user.can_withdraw %}
-					<a class="btn btn-outline-primary mb-3" href="">
-						{% trans 'Withdraw earnings' %}
-					</a>
-				{% else %}
-					<button class="btn btn-outline-primary mb-3 js-withdrawBtn">
-						{% trans 'Withdraw earnings' %}
-					</button>
-				{% endif %}
+				{# uncomment this when withdrawing will be available #}
+				{% comment %}
+					{% if user.can_withdraw %}
+						<a class="btn btn-outline-primary mb-3" href="">
+							{% trans 'Withdraw earnings' %}
+						</a>
+					{% else %}
+						<button class="btn btn-outline-primary mb-3 js-withdrawBtn">
+							{% trans 'Withdraw earnings' %}
+						</button>
+					{% endif %}
+				{% endcomment %}
 			</div>
 		</div>
 	</div>

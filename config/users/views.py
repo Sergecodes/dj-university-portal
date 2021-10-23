@@ -41,7 +41,6 @@ class UserCreate(CreateView):
 		i.e Redirect them to index page.
 		Only unauthed users can access this method..
 		"""
-		
 		if request.user.is_authenticated:
 			return redirect('/')
 
@@ -139,7 +138,7 @@ def activate_account(request, uidb64, token):
 		return HttpResponse(
 			_(
 				'You have successfully confirmed your email. Now you can log into your account. <br>'
-				f'Login <a href="{login_url}">here</a>.'
+				'Login <a href="{}">here</a>.'.format(login_url)
 			)
 		)
 	else:
@@ -147,7 +146,7 @@ def activate_account(request, uidb64, token):
 		return HttpResponse(
 			_(
 				'Activation link is invalid. <br>'
-				f'Please <a href="{signup_url}">sign up</a> again so as to get a new link.'
+				'Please <a href="{}">sign up</a> again in order to get a new link.'.format(signup_url)
 			)
 		)
 
@@ -270,9 +269,17 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 
 		qstn_fields = ('id', 'poster_id', 'posted_datetime', )
 		ans_fields = ('id', 'content', 'posted_datetime', 'question_id', 'poster_id', )
+
+		# bookmarked questions
 		context['bookmarked_academic_qstns'] = user.bookmarked_academic_questions \
 			.only('title', *qstn_fields)
 		context['bookmarked_school_qstns'] = user.bookmarked_school_questions \
+			.only('content', *qstn_fields)
+
+		# following questions
+		context['following_academic_qstns'] = user.following_academic_questions \
+			.only('title', *qstn_fields)
+		context['following_school_qstns'] = user.following_school_questions \
 			.only('content', *qstn_fields)
 
 		context['academic_answers'] = user.academic_answers.only('question__slug', *ans_fields)

@@ -124,7 +124,8 @@ class PhoneNumberForm(forms.ModelForm):
 		model = PhoneNumber
 		fields = ('operator', 'number', 'can_whatsapp')
 		widgets = {
-			'number': forms.NumberInput(attrs={'type': 'tel'}),
+			'number': forms.NumberInput(attrs={'type': 'tel', 'class': 'js-number'}),
+			'operator': forms.Select(attrs={'class': 'js-operator', })
 		}
 
 

@@ -170,8 +170,8 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		question_tags = question.tags.all()
 		for tag in question_tags:
 			# build queryset of all TaggedItems. 
-			# since out AcademicQuestionTag serves as the through model, 
-			# it contains each tag and the object it's linked to
+			# since our AcademicQuestionTag serves as the through model, 
+			# it contains each tag and the object(question) it's linked to
 			# so get union(|) of these querysets
 			related_items |= tag.academic_questions.exclude(content_object=question)
 
@@ -233,10 +233,7 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/academicquestion_update.html'
 
 	def form_valid(self, form):
-
-		print(form.cleaned_data['tags'])
 		question = form.save(commit=False)
-		print(question.tags.all())
 		followers = question.followers.all()
 
 		## TRANSLATION
@@ -274,7 +271,7 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 		if 'tags' in changed_data:
 			question.tags.set(*form.cleaned_data['tags'])
-		print(question.tags.all())
+		# print(question.tags.all())
 
 		# notify users that are following this question
 		for follower in followers:

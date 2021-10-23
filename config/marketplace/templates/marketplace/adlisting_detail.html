@@ -279,8 +279,12 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
-				{% trans 'Similar adverts in' %} 
-				<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+				{% if listing.school_id %}
+					{% trans 'Similar adverts in' %} 
+					<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+				{% else %}
+					{% trans 'Similar adverts' %}
+				{% endif %}
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}
@@ -349,7 +353,7 @@
 	// trigger click on flag-report-icon when flag helper is clicked
 	$('.js-flagHelper').click(function() {
 		var $parentWrp = $(this).parent();
-		console.log($parentWrp);
+		// console.log($parentWrp);
 		$parentWrp.find('.js-flag-report-icon').first().click();
 		// $('.js-flag-report-icon').first().click();
 	});

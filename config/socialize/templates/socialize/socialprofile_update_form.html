@@ -37,7 +37,7 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.js' %}"></script>
+<script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
 	// show message when user is about to leave "dirty" form
 	var $form = $("[name='social-profile-form']");
@@ -47,4 +47,5 @@
 		// note that some(most) browsers will display their own message.
 		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
 	});
+</script>
 {% endblock %}

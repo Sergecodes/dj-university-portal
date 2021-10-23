@@ -61,7 +61,7 @@
 			<ul>
 				{% for lost_item, photo in page_obj|zip:first_photos %}
 					{% with poster=lost_item.poster original_lang=lost_item.original_language view_count=lost_item.view_count %}
-						<li class="d-flex p-3 pb-4 mb-2 lostitem-item">
+						<li class="d-flex p-3 ps-0 ps-lg-auto pb-4 mb-2 lostitem-item">
 							<div class="flex-shrink-0">
 								{% if photo %}
 									<a href="{{ lost_item.get_absolute_url }}">
@@ -76,7 +76,7 @@
 								{% endif %}
 							</div>
 
-							<div class="flex-grow-1 ms-4" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+							<div class="flex-grow-1 ms-3" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 								<a 
 									href="{{ lost_item.get_absolute_url }}" 
 									class="h5 text-decoration-none"

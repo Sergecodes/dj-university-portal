@@ -17,16 +17,12 @@
 
 {% block content %}
 <div class="container-lg mb-5 pastpaper-form-container">
-	<form 
-		name="past-paper-form"
-		class="px-3 shadow pastpaper-form"
-		method="post"
-		enctype="multipart/form-data"
-	>
+	<form name="past-paper-form" class="ps-3 pe-2 py-4 shadow" method="post" enctype="multipart/form-data">
 		{% csrf_token %}
-		<h2 class="text-center mb-4 text-success">{% trans 'Upload a Question Paper' %}</h2>
+		<h2 class="text-center mb-4 text-success">
+			{% trans 'Upload a Question Paper' %}
+		</h2>
 		{% crispy form %}
-		
 	</form>
 </div>
 {% endblock content %}
@@ -43,4 +39,5 @@
 		// note that some(most) browsers will display their own message.
 		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
 	});
+</script>
 {% endblock extra_js %}

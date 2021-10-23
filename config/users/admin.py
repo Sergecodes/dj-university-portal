@@ -41,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
         ),
         ('Site information', {
             'classes': ('wide', ),
-            'fields': ('first_language', 'site_points', 'is_staff', )
+            'fields': ('first_language', 'is_staff', )
             }
         ),
     )

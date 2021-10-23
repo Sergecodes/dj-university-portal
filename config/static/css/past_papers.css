@@ -4,13 +4,6 @@
 .pastpaper-form-container,
 .pastpaper-edit-comment-form-container {
     width: 70%;
-    padding-left: 2rem;  
-    padding-right: 1rem; 
-}
-
-.pastpaper-form {
-    padding-top: 1.5rem;  /* pt-4 */
-    padding-bottom: 1.5rem;  /* pb-4 */
 }
 
 .pastpaper-edit-comment-form {
@@ -42,11 +35,6 @@
     }
 
     .pastpaper-edit-comment-form {
-        padding-left: 1rem; /* ps-3 */
-        padding-right: 1rem; 
-    }
-
-	.pastpaper-form {
         padding-left: 1rem; /* ps-3 */
         padding-right: 1rem; 
     }

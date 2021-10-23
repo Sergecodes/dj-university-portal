@@ -22,7 +22,7 @@ SECRET_KEY = settings.SECRET_KEY
 # get custom font here rather than loading it multiple times..
 IMAGE_FONT = ImageFont.truetype(
 	os.path.join(BASE_DIR, 'static/webfonts', 'ScheherazadeNew-Bold.ttf'),
-	50
+	40
 )
 storage = PublicMediaStorage()
 # export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
@@ -236,6 +236,7 @@ def generate_past_papers_pdf(file_names, gen_file_name, gen_files_dir='past_pape
 	# output_file = os.path.join(gen_files_dir, gen_file_name + '.pdf')
 	# pdf.output(output_file, 'S')
 
+	# return pdf as string(buffer)
 	return pdf.output(dest='S').encode('latin-1')
 
 

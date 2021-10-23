@@ -93,7 +93,7 @@
 					<ul class="listing-list">
 						{% for listing, photo in page_obj|zip:first_photos %}
 							{% with view_count=listing.view_count poster=listing.poster original_lang=listing.original_language %}
-							<li class="d-flex p-3 pb-2 mb-2 post">
+							<li class="d-flex p-3 ps-0 ps-lg-auto pb-2 mb-2 post">
 								<div class="flex-shrink-0">
 									{% if photo %}
 										<a href="{{ listing.get_absolute_url }}">
@@ -106,13 +106,13 @@
 										</a>
 									{% endif %}
 								</div>
-								<div class="flex-grow-1 ms-4">
+								<div class="flex-grow-1 ms-3">
 									<a 
 										href="{{ listing.get_absolute_url }}" 
 										class="h5 text-decoration-none"
 									>
 										<span {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
-											{{ listing.title }}
+												{{ listing.title }}
 										</span>
 									</a>
 									{% include 'core/google_attribution.html' with object=listing %}

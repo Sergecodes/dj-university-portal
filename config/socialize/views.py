@@ -5,7 +5,7 @@ from django import forms
 from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import AccessMixin, UserPassesTestMixin, LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -31,11 +31,25 @@ def has_social_profile(user):
 	return user.has_social_profile
 
 
+class CamerSchoolsProfileView(TemplateView):
+	template_name = 'socialize/camerschools_profile.html'
+
+
 class HasSocialProfileMixin(UserPassesTestMixin):
 	login_url = reverse_lazy('socialize:create-profile')
 
 	def test_func(self):
-		return has_social_profile(self.request.user)
+		# does the user calling this function have a social profile
+		if not has_social_profile(self.request.user):
+			return False
+
+		# does the user with the passed username have a social profile
+		passed_user = get_object_or_404(
+			User.objects.active(), 
+			username=self.kwargs.get('username')
+		)
+		self._passed_user = passed_user
+		return has_social_profile(passed_user)
 
 
 class SocialProfileCreate(LoginRequiredMixin, View):
@@ -354,8 +368,12 @@ class SocialProfileDetail(
 
 	def get_object(self):
 		# directly return social profile since thanks to our mixin, 
-		# we are sure user has social profile
-		return self.request.user.social_profile
+		# we are sure the passed user has a social profile
+		# normally this property should be set in the mixin
+		if hasattr(self, '_passed_user'):
+			return self._passed_user.social_profile
+		else:
+			return SocialProfile.objects.get(user__username=self.kwargs.get('username'))
 
 	def get(self, request, *args, **kwargs):
 		self.set_view_count()
@@ -391,10 +409,6 @@ class SocialProfileDetail(
 		return context
 
 
-class CamerSchoolsProfileView(TemplateView):
-	template_name = 'socialize/camerschools_profile.html'
-
-
 @user_passes_test(
 	has_social_profile, 
 	# link to go to if user does not pass test.
@@ -414,7 +428,7 @@ def friend_finder(request):
 	return render(request, 'socialize/socialprofile_filter.html', context)
 
 
-class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
+class SocialProfileList(LoginRequiredMixin, AccessMixin, FilterView):
 	## List of filtered social profile results
 	# by default, this will return all the objects of the model.
 	model = SocialProfile
@@ -423,6 +437,12 @@ class SocialProfileList(LoginRequiredMixin, HasSocialProfileMixin, FilterView):
 	template_name = 'socialize/socialprofile_list.html'
 	template_name_suffix = '_list'
 	paginate_by = 7
+	permission_denied_message = _('You must have a social profile to be able to access this page')
+
+	def test_func(self):
+		"""User calling this function should have a social profile"""
+		if not has_social_profile(self.request.user):
+			return False
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

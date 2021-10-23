@@ -65,7 +65,7 @@
 			<ul class="ms-2 pe-lg-4 pe-1">
 				{% for requested_item, photo in page_obj|zip:first_photos %}
 					{% with poster=requested_item.poster poster=requested_item.poster view_count=requested_item.view_count original_lang=requested_item.original_language %}
-						<li class="d-flex p-3 pb-3 mb-2 requested-item-item">
+						<li class="d-flex p-3 ps-0 ps-lg-auto pb-3 mb-2 requested-item-item">
 							<div class="flex-shrink-0">
 								{% if photo %}
 									<a href="{{ requested_item.get_absolute_url }}">
@@ -78,7 +78,7 @@
 									</a>
 								{% endif %}
 							</div>
-							<div class="flex-grow-1 ms-4" {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+							<div class="flex-grow-1 ms-3" {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
 								<a 
 									href="{{ requested_item.get_absolute_url }}" 
 									class="h5 text-decoration-none"
@@ -133,6 +133,3 @@
 	</article>
 </div>
 {% endblock content %}
-
-{% block extra_js %}
-{% endblock %} 

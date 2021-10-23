@@ -643,7 +643,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 
-
 # this model isn't even required. if user flaunts a law, he will be warned.
 # if he persists, his account will be deleted(deactivated.)
 # class Suspension(models.Model):
