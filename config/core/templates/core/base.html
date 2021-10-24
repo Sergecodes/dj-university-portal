@@ -405,8 +405,8 @@
 							</div>
 						</li>
 					</ul>
-					<form class="d-flex my-2 d-lg-none">
-						<input class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+					<form class="d-flex my-2 d-lg-none" method="get" action="{% url 'core:site-search' %}">
+						<input name="keywords" class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
 					</form>
 				</div>
