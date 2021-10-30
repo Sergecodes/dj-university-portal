@@ -25,7 +25,7 @@ class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
 			return _(
-				"You can only edit questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. You may post a new question.".format(QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT)
+				"You can only edit questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. \n You may post a new question.".format(QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT)
 			)
 		return super().get_permission_denied_message()
 
@@ -43,7 +43,7 @@ class CanEditAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if answer.vote_count > ANSWER_CAN_EDIT_VOTE_LIMIT:
 			return _(
-				"You can only edit answers with less than {} votes(number of likes - number of dislikes). You may post a new answer if you have less than {} answers to this question.".format(ANSWER_CAN_EDIT_VOTE_LIMIT, MAX_ANSWERS_PER_USER_PER_QUESTION)
+				"You can only edit answers with less than {} votes(number of likes - number of dislikes). \n You may post a new answer if you have less than {} answers to this question.".format(ANSWER_CAN_EDIT_VOTE_LIMIT, MAX_ANSWERS_PER_USER_PER_QUESTION)
 			)
 		return super().get_permission_denied_message()
 
@@ -89,7 +89,7 @@ class CanDeleteQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if question.vote_count > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
 			return _(
-				"You can only delete questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. This question may help future users.".format(QUESTION_CAN_DELETE_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT)
+				"You can only delete questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. \n This question may help future users.".format(QUESTION_CAN_DELETE_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT)
 			)
 		return super().get_permission_denied_message()
 
@@ -110,7 +110,7 @@ class CanDeleteAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if answer.vote_count > ANSWER_CAN_DELETE_VOTE_LIMIT:
 			return _(
-				"You can only delete answers with less than {} votes(number of likes - number of dislikes). This answer may help future users.".format(ANSWER_CAN_DELETE_VOTE_LIMIT)
+				"You can only delete answers with less than {} votes(number of likes - number of dislikes). \n This answer may help future users.".format(ANSWER_CAN_DELETE_VOTE_LIMIT)
 			)
 		return super().get_permission_denied_message()
 

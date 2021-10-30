@@ -1,0 +1,131 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% load app_extras %}
+
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block title %}
+	<title>{% trans 'Reported Lost Items' %} | CamerSchools</title>
+{% endblock %}
+
+{% block extra_css %}
+	<!-- <link rel="stylesheet" href="{% static 'minified/css/lost_or_found.min.css' %}">  -->
+{% endblock extra_css %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5 lostitems-list-container">
+	<h2 class="text-success">{% trans 'Items Lost' %}</h2>
+	<article class="border">
+		<section class="px-3 pt-4">
+			<p>
+				{% blocktrans %}
+				A high percentage of missing items are in good hands.
+				Have you lost an item ? <br>
+				Publish items that you've lost here.
+				{% endblocktrans %}
+			</p>
+			<a href="{% url 'lost_or_found:lost-item-create' %}" class="btn btn-warning mb-3">
+				{% trans 'Publish a lost item' %}
+			</a>
+		</section>
+		<!-- search form -->
+		<section class="mb-3">
+			<form method="get" class="p-3 m-3 border lostitems-search-form">
+				<h4>{% trans 'Filter' %}</h4>
+				{% with filter.form as form %}
+					<div class="row">
+						<div class="form-group col-md-5">
+							{{ form.school|as_crispy_field }}
+						</div>
+						<div class="form-group col-md-7">
+							{{ form.item_lost|as_crispy_field }}
+						</div>
+					</div>
+				{% endwith %}
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search" aria-hidden="true"></i>
+					{% trans 'Search' %}
+				</button>
+			</form>
+		</section>
+
+		<!-- lost items list -->
+		<section>
+			<ul>
+				{% for lost_item, photo in page_obj|zip:first_photos %}
+					{% with poster=lost_item.poster original_lang=lost_item.original_language view_count=lost_item.view_count %}
+						<li class="d-flex p-3 ps-0 ps-lg-auto pb-4 mb-2 lostitem-item">
+							<div class="flex-shrink-0">
+								{% if photo %}
+									<a href="{{ lost_item.get_absolute_url }}">
+										<img class="py-2 post-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										{# no visually hidden text needed here since the alt attribute on the photo is present #}
+									</a>
+								{% else %}
+									<a href="{{ lost_item.get_absolute_url }}" class="d-inline-block link-secondary">
+										<i class="far fa-image fa-5x p-2 opacity-50" aria-hidden="true"></i>
+										<span class="visually-hidden">{% trans 'Item' %}</span>
+									</a>
+								{% endif %}
+							</div>
+
+							<div class="flex-grow-1 ms-3" {% if lost_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+								<a 
+									href="{{ lost_item.get_absolute_url }}" 
+									class="h5 text-decoration-none"
+								>
+									{{ lost_item.item_lost }}
+								</a>
+								{% include 'core/google_attribution.html' with object=lost_item %}
+								<br class="mb-4">
+								<a 
+									class="text-decoration-none" 
+									href="{% url 'lost_or_found:lost-item-list' %}?school={{ lost_item.school_id }}"
+								>
+									{{ lost_item.school }}
+								</a>
+								<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+									<i class="far fa-eye me-1" aria-hidden="true"></i>
+									<span class="visually-hidden">{% trans 'Number of views' %}</span>
+									{{ view_count }}
+								</span>
+								<br class="mb-1">
+								<span>
+									{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}
+									{% trans 'by' %}
+									{% if poster.has_social_profile %}
+										<a 
+											class="text-decoration-none" 
+											href="{{ poster.get_absolute_url }}"
+										>
+											{{ poster.full_name }}
+										</a>
+									{% else %}
+										<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
+											{{ poster.full_name }}
+										</span>
+									{% endif %}
+								</span>
+							</div>
+						</li> 
+					{% endwith %}
+				{% endfor %}
+
+				{% if is_paginated %}
+					{% include 'core/pagination.html' with page_obj=page_obj %}
+				{% endif %}
+			</ul>
+		</section>
+	</article>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock %} 

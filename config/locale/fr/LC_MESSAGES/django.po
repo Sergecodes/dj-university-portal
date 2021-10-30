@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-22 06:22+0000\n"
+"POT-Creation-Date: 2021-10-30 17:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: config/dev_settings.py:162 config/prod_settings.py:163
+#: config/dev_settings.py:182 config/prod_settings.py:182
 #: config/settings.py:182
 msgid "English"
 msgstr "Anglais"
 
-#: config/dev_settings.py:163 config/prod_settings.py:164
+#: config/dev_settings.py:183 config/prod_settings.py:183
 #: config/settings.py:183
 msgid "French"
 msgstr "Français"
@@ -92,19 +92,19 @@ msgstr "Chaîne non valide"
 msgid "Photo is not in list."
 msgstr "La photo n'est pas dans la liste"
 
-#: core/constants.py:20 socialize/models.py:257
+#: core/constants.py:20 socialize/models.py:229
 msgid "Male"
 msgstr "Mâle"
 
-#: core/constants.py:21 socialize/models.py:257
+#: core/constants.py:21 socialize/models.py:229
 msgid "Female"
 msgstr "Femelle"
 
-#: core/constants.py:58
+#: core/constants.py:63
 msgid "Spam | Exists only to promote a service "
 msgstr "Pourriel | N'existe que pour promouvoir un service "
 
-#: core/constants.py:59
+#: core/constants.py:64
 msgid "Abusive | Intended at promoting hatred"
 msgstr "Abusif | Destiné à promouvoir la haine"
 
@@ -137,9 +137,8 @@ msgstr "Langue dans laquelle la dernière mise à jour a été effectuée"
 msgid "Contact numbers"
 msgstr "Numéros de contact"
 
-#: core/models.py:57 core/templates/core/base.html:152
-#: core/templates/core/base.html:265 socialize/models.py:47 users/forms.py:45
-#: users/forms.py:94 users/models.py:88
+#: core/models.py:57 core/templates/core/base.html:155 socialize/models.py:20
+#: users/forms.py:45 users/forms.py:94 users/models.py:88
 msgid "Email address"
 msgstr "Adresse e-mail"
 
@@ -147,18 +146,18 @@ msgstr "Adresse e-mail"
 msgid "Email address to contact; enter a valid email."
 msgstr "Adresse e-mail à contacter ; entrez une adresse email valide."
 
-#: core/templates/core/base.html:47
+#: core/templates/core/base.html:49
 msgid "Enter your search keywords here..."
 msgstr "Entrez vos mots-clés de recherche ici..."
 
-#: core/templates/core/base.html:48
+#: core/templates/core/base.html:50
 msgid "Enter your search keywords"
 msgstr "Entrez vos mots-clés de recherche"
 
-#: core/templates/core/base.html:49 core/templates/core/base.html:410
-#: core/templates/core/base.html:411 core/templates/core/base.html:465
-#: lost_and_found/templates/lost_and_found/founditem_list.html:53
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:54
+#: core/templates/core/base.html:51 core/templates/core/base.html:395
+#: core/templates/core/base.html:396 core/templates/core/base.html:450
+#: lost_or_found/templates/lost_and_found/founditem_list.html:53
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:54
 #: marketplace/templates/marketplace/adlisting_list.html:56
 #: marketplace/templates/marketplace/itemlisting_list.html:56
 #: past_papers/templates/past_papers/pastpaper_list.html:70
@@ -169,183 +168,204 @@ msgstr "Entrez vos mots-clés de recherche"
 msgid "Search"
 msgstr "Rechercher"
 
-#: core/templates/core/base.html:80 core/templates/core/base.html:200
+#: core/templates/core/base.html:82 core/templates/core/base.html:203
 #: core/templates/core/notifications.html:22
 msgid "Notifications"
 msgstr "Notifications"
 
-#: core/templates/core/base.html:83 core/templates/core/base.html:203
+#: core/templates/core/base.html:85 core/templates/core/base.html:206
 msgid "New notifications"
 msgstr "Nouvelles notifications"
 
-#: core/templates/core/base.html:107 core/templates/core/base.html:223
+#: core/templates/core/base.html:109 core/templates/core/base.html:226
 msgid "My Account"
 msgstr "Mon Compte"
 
-#: core/templates/core/base.html:119 core/templates/core/base.html:235
+#: core/templates/core/base.html:121 core/templates/core/base.html:239
 #: users/templates/users/profile/dashboard.html:47
 #: users/templates/users/profile/tab-section.html:19
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: core/templates/core/base.html:120 core/templates/core/base.html:236
+#: core/templates/core/base.html:122 core/templates/core/base.html:242
 msgid "View Profile"
 msgstr "Voir mon profil"
 
-#: core/templates/core/base.html:121 core/templates/core/base.html:237
+#: core/templates/core/base.html:123 core/templates/core/base.html:244
 #: socialize/templates/socialize/socialprofile_update_form.html:33
 #: users/templates/users/edit_profile.html:8
 #: users/templates/users/edit_profile.html:28
 msgid "Update Profile"
 msgstr "Mettre à jour mon profil"
 
-#: core/templates/core/base.html:126 core/templates/core/base.html:128
-#: core/templates/core/base.html:241
+#: core/templates/core/base.html:128 core/templates/core/base.html:130
+#: core/templates/core/base.html:248
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: core/templates/core/base.html:135 core/templates/core/base.html:249
+#: core/templates/core/base.html:138 core/templates/core/base.html:256
 msgid "REGISTER"
 msgstr "S'INSCRIRE"
 
-#: core/templates/core/base.html:146 core/templates/core/base.html:157
-#: core/templates/core/base.html:260 core/templates/core/base.html:270
-#: users/templates/users/auth/login.html:22
+#: core/templates/core/base.html:149 core/templates/core/base.html:160
+#: core/templates/core/base.html:259 users/templates/users/auth/login.html:22
 msgid "LOGIN"
 msgstr "Connexion"
 
-#: core/templates/core/base.html:155 core/templates/core/base.html:268
+#: core/templates/core/base.html:158
 msgid "Password"
 msgstr "Mot de passe"
 
-#: core/templates/core/base.html:158 core/templates/core/base.html:271
+#: core/templates/core/base.html:161
 msgid "Forgot Password"
 msgstr "Mot de passe oublié"
 
-#: core/templates/core/base.html:160 core/templates/core/base.html:273
+#: core/templates/core/base.html:163
 msgid "Open login form on new page"
 msgstr "Ouvrir sur une nouvelle page"
 
-#: core/templates/core/base.html:169
+#: core/templates/core/base.html:172
 #: users/templates/users/profile/tab-section.html:5
 msgid "Toggle navigation"
 msgstr "Basculer la navigation"
 
-#: core/templates/core/base.html:284 core/templates/core/base.html:484
+#: core/templates/core/base.html:269 core/templates/core/base.html:469
 #: core/templates/core/index.html:9
 msgid "Home"
 msgstr "Accueil"
 
-#: core/templates/core/base.html:296
-msgid "Buy/Sell an item"
-msgstr "Acheter/Vendre un article"
+#: core/templates/core/base.html:281
+#, fuzzy
+#| msgid "Items for Sale"
+msgid "Items for sale"
+msgstr "Articles à vendre"
 
-#: core/templates/core/base.html:299
-msgid "Buy an item"
-msgstr "Acheter un article"
+#: core/templates/core/base.html:284
+#, fuzzy
+#| msgid "View Items"
+msgid "View/Buy items"
+msgstr "Voir/Acheter les articles"
 
-#: core/templates/core/base.html:300 core/templates/core/base.html:499
+#: core/templates/core/base.html:285 core/templates/core/base.html:484
 #: marketplace/templates/marketplace/itemlisting_list.html:34
 msgid "Sell an item"
 msgstr "Vendre un article"
 
-#: core/templates/core/base.html:312 core/templates/core/base.html:315
+#: core/templates/core/base.html:297 core/templates/core/search_results.html:27
+#: core/templates/core/site_usage_info.html:36 core/utils.py:288
+#: marketplace/templates/marketplace/adlisting_list.html:12
+#: marketplace/templates/marketplace/adlisting_list.html:25
+#: marketplace/templates/marketplace/adlisting_list.html:82
+#: marketplace/templates/marketplace/itemlisting_list.html:82
+#: marketplace/templates/marketplace/listings_explain.html:42
+msgid "Adverts"
+msgstr "Annonces"
+
+#: core/templates/core/base.html:300
 #: marketplace/templates/marketplace/adlisting_list.html:34
 msgid "Post an advert"
 msgstr "Publier une annonce"
 
-#: core/templates/core/base.html:316
+#: core/templates/core/base.html:301
 msgid "All Adverts"
 msgstr "Toutes les annonces"
 
-#: core/templates/core/base.html:328 core/templates/core/base.html:331
-#: core/templates/core/index.html:259
+#: core/templates/core/base.html:313
+#, fuzzy
+#| msgid "Requested Items"
+msgid "Requested items"
+msgstr "Articles demandés"
+
+#: core/templates/core/base.html:316 core/templates/core/index.html:259
 #: requested_items/templates/requested_items/requested_item_create.html:8
 #: requested_items/templates/requested_items/requested_item_list.html:35
 msgid "Request an item"
 msgstr "Demander un article"
 
-#: core/templates/core/base.html:332
+#: core/templates/core/base.html:317
 msgid "All requested items"
 msgstr "Tous les articles demandés"
 
-#: core/templates/core/base.html:344 core/templates/core/base.html:504
+#: core/templates/core/base.html:329 core/templates/core/base.html:489
 msgid "Ask a question"
 msgstr "Poser une question"
 
-#: core/templates/core/base.html:347 qa_site/models.py:455
+#: core/templates/core/base.html:332 qa_site/models.py:455
 msgid "Academic Question"
 msgstr "Question Académique"
 
-#: core/templates/core/base.html:348
+#: core/templates/core/base.html:333
 msgid "School-Based Question"
 msgstr "Question Scolaire"
 
-#: core/templates/core/base.html:349 core/templates/core/index.html:98
+#: core/templates/core/base.html:334 core/templates/core/index.html:98
 msgid "All Questions"
 msgstr "Toutes les Questions"
 
-#: core/templates/core/base.html:361
+#: core/templates/core/base.html:346
 msgid "Lost/Found Items"
 msgstr "Objets Perdus/Trouvés"
 
-#: core/templates/core/base.html:364 core/templates/core/index.html:368
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:35
+#: core/templates/core/base.html:349 core/templates/core/index.html:368
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:35
 msgid "Publish a lost item"
 msgstr "Publier un objet perdu"
 
-#: core/templates/core/base.html:365
+#: core/templates/core/base.html:350
 msgid "View lost items"
 msgstr "Voir les objets perdus"
 
-#: core/templates/core/base.html:366 core/templates/core/index.html:404
+#: core/templates/core/base.html:351 core/templates/core/index.html:404
 msgid "Publish a found item"
 msgstr "Publier un objet trouvé"
 
-#: core/templates/core/base.html:367
+#: core/templates/core/base.html:352
 msgid "View found items"
 msgstr "Voir les objets trouvés"
 
-#: core/templates/core/base.html:379
-#, fuzzy
-#| msgid "Upload a Past Paper"
-msgctxt "nav item dropdown"
-msgid "Upload a past paper"
-msgstr "Ancien Sujets"
+#: core/templates/core/base.html:364
+#: core/templates/core/search_results.html:137
+#: core/templates/core/site_usage_info.html:82 core/utils.py:294
+#: past_papers/templates/past_papers/pastpaper_list.html:10
+#: past_papers/templates/past_papers/pastpaper_list.html:22
+#: users/templates/users/profile/past-papers.html:25
+#: users/templates/users/profile/tab-section.html:34
+msgid "Past Papers"
+msgstr "Anciens Sujets"
 
-#: core/templates/core/base.html:382
+#: core/templates/core/base.html:367
 #, fuzzy
 #| msgid "Upload a Past Paper"
 msgctxt "dropdown child"
 msgid "Upload a past paper"
-msgstr "Téléverser"
+msgstr "Uploader"
 
-#: core/templates/core/base.html:383
+#: core/templates/core/base.html:368
 msgid "Past papers"
 msgstr "Anciens sujets"
 
-#: core/templates/core/base.html:395 core/templates/core/base.html:538
+#: core/templates/core/base.html:380 core/templates/core/base.html:523
 #: core/templates/core/site_usage_info.html:94
 msgid "Socialize"
 msgstr "Socialiser"
 
-#: core/templates/core/base.html:399
+#: core/templates/core/base.html:384
 msgid "Create social profile"
 msgstr "Créer mon profil social"
 
-#: core/templates/core/base.html:401
+#: core/templates/core/base.html:386
 msgid "Find a pal"
 msgstr "Trouver un pote"
 
-#: core/templates/core/base.html:403
+#: core/templates/core/base.html:388
 msgid "View social profile"
 msgstr "Voir mon profil social"
 
-#: core/templates/core/base.html:404
+#: core/templates/core/base.html:389
 msgid "Update social profile"
 msgstr "Mettre à jour mon profil social"
 
-#: core/templates/core/base.html:452
+#: core/templates/core/base.html:437
 msgid ""
 "\n"
 "\t\t\t\t\t\tOn camerschools.com, you can ask questions, request items you "
@@ -364,99 +384,95 @@ msgstr ""
 "universitaire.\n"
 "\t\t\t\t\t\t"
 
-#: core/templates/core/base.html:464
+#: core/templates/core/base.html:449
 msgid "Search..."
 msgstr "Rechercher..."
 
-#: core/templates/core/base.html:470
+#: core/templates/core/base.html:455
 msgid "SEARCH"
 msgstr "RECHERCHER"
 
-#: core/templates/core/base.html:478
+#: core/templates/core/base.html:463
 msgid "Explore"
 msgstr "Explorer"
 
-#: core/templates/core/base.html:489
+#: core/templates/core/base.html:474
 #, fuzzy
 #| msgid "Create social profile"
 msgid "Our Social Profile"
 msgstr "Notre Profil Social"
 
-#: core/templates/core/base.html:494
+#: core/templates/core/base.html:479
 msgid "Website Usage Info"
 msgstr "Utilisation du site"
 
-#: core/templates/core/base.html:509
+#: core/templates/core/base.html:494
 #: requested_items/templates/requested_items/requested_item_create.html:23
 msgid "Request an Item"
 msgstr "Demander un article"
 
-#: core/templates/core/base.html:518
+#: core/templates/core/base.html:503
 msgid "Advertize a product"
 msgstr "Annoncer un produit"
 
-#: core/templates/core/base.html:523
+#: core/templates/core/base.html:508
 #, fuzzy
 #| msgid "Upload a Past Paper"
 msgctxt "footer"
 msgid "Upload a past paper"
-msgstr "Téléverser un ancien sujet"
+msgstr "Uploader un ancien sujet"
 
-#: core/templates/core/base.html:528
+#: core/templates/core/base.html:513
 #: core/templates/core/site_usage_info.html:143
-#: lost_and_found/templates/lost_and_found/lostitem_create.html:9
-#: lost_and_found/templates/lost_and_found/lostitem_create.html:25
+#: lost_or_found/templates/lost_and_found/lostitem_create.html:9
+#: lost_or_found/templates/lost_and_found/lostitem_create.html:25
 msgid "Report a lost item"
 msgstr "Signaler un objet perdu"
 
-#: core/templates/core/base.html:533
+#: core/templates/core/base.html:518
 #: core/templates/core/site_usage_info.html:146
-#: lost_and_found/templates/lost_and_found/founditem_create.html:9
-#: lost_and_found/templates/lost_and_found/founditem_create.html:25
+#: lost_or_found/templates/lost_and_found/founditem_create.html:9
+#: lost_or_found/templates/lost_and_found/founditem_create.html:25
 msgid "Report a found item"
 msgstr "Signaler un objet trouvé"
 
-#: core/templates/core/base.html:552
+#: core/templates/core/base.html:537
 msgid "Channels"
 msgstr "Connecter"
 
-#: core/templates/core/base.html:556
+#: core/templates/core/base.html:541
 msgid "Facebook"
 msgstr "Facebook"
 
-#: core/templates/core/base.html:567
+#: core/templates/core/base.html:552
 msgid "Twitter"
 msgstr "Twitter"
 
-#: core/templates/core/base.html:578
-msgid "Call Hours: 9am - 5pm (Mon - Fri)"
-msgstr "Heures d'appel : 9h - 17h (Lun - Ven)"
-
-#: core/templates/core/base.html:581
+#: core/templates/core/base.html:567
 msgid "WhatsApp:"
 msgstr "WhatsApp"
 
-#: core/templates/core/base.html:586
+#: core/templates/core/base.html:572
 msgid "Email: info@camerschools.com"
 msgstr "Email : info@camerschools.com"
 
-#: core/templates/core/base.html:592
+#: core/templates/core/base.html:578
 msgid "Legal"
 msgstr "Légal"
 
-#: core/templates/core/base.html:596
+#: core/templates/core/base.html:582
 msgid "Terms"
 msgstr "Termes"
 
-#: core/templates/core/base.html:601
+#: core/templates/core/base.html:587
 msgid "Privacy"
 msgstr "Confidentialité"
 
-#: core/templates/core/base.html:606
+#: core/templates/core/base.html:592
 msgid "Copyright"
 msgstr "Droits d'auteur"
 
-#: core/templates/core/base.html:611
+#: core/templates/core/base.html:597
 msgid ""
 "All Names, Acronyms and Trademarks displayed on this website are those of "
 "their respective owners."
@@ -642,6 +658,75 @@ msgstr ""
 "toutes les informations que vous avez déjà entré.\n"
 "\t\t\t"
 
+#: core/templates/core/error_templates/400.html:6
+msgid "Bad request"
+msgstr ""
+
+#: core/templates/core/error_templates/400.html:14
+#, fuzzy
+#| msgid "Invalid string"
+msgid "Invalid request"
+msgstr "Chaîne non valide"
+
+#: core/templates/core/error_templates/400.html:16
+msgid ""
+"\n"
+"        Email us at <strong>info@camerschools.com</strong> for more "
+"information\n"
+"        "
+msgstr ""
+
+#: core/templates/core/error_templates/403.html:6
+#: core/templates/core/error_templates/403.html:14
+msgid "Permission Denied"
+msgstr ""
+
+#: core/templates/core/error_templates/403.html:20
+msgid "You are not permitted to access this page."
+msgstr ""
+
+#: core/templates/core/error_templates/403.html:23
+msgid ""
+"Use the site navigation links to explore the sections of this site that you "
+"can access."
+msgstr ""
+
+#: core/templates/core/error_templates/404.html:6
+#: core/templates/core/error_templates/404.html:14
+#, fuzzy
+#| msgid "How found"
+msgid "Page not found"
+msgstr "Comment trouvé"
+
+#: core/templates/core/error_templates/404.html:16
+msgid ""
+"\n"
+"        Check that you typed the address correctly, go back to your previous "
+"page \n"
+"        or try using our site search to find something specific.\n"
+"        "
+msgstr ""
+
+#: core/templates/core/error_templates/500.html:6
+#, fuzzy
+#| msgid "error"
+msgid "Error"
+msgstr "erreur"
+
+#: core/templates/core/error_templates/500.html:15
+msgid "An Error Occurred"
+msgstr ""
+
+#: core/templates/core/error_templates/500.html:18
+#, python-format
+msgid ""
+"\n"
+"            Click <a href=\"mailto:info@camerschools.com?subject=500 "
+"error&body=Hello CamerSchools, the page %(request.build_absolute_uri)s "
+"doesn't load.\">here</a> to email this error to us so we can look into it.\n"
+"            "
+msgstr ""
+
 #: core/templates/core/index.html:19
 msgid "Questions"
 msgstr "Questions"
@@ -651,7 +736,7 @@ msgid "Academic questions"
 msgstr "Questions académiques"
 
 #: core/templates/core/index.html:36 core/templates/core/search_results.html:71
-#: core/utils.py:301 qa_site/models.py:456
+#: core/utils.py:302 qa_site/models.py:456
 #: qa_site/templates/qa_site/academicquestion_list.html:12
 #: qa_site/templates/qa_site/academicquestion_list.html:24
 #: qa_site/templates/qa_site/questions_explain.html:24
@@ -707,7 +792,7 @@ msgid "School-based questions"
 msgstr "Questions scolaires"
 
 #: core/templates/core/index.html:70 core/templates/core/search_results.html:93
-#: core/utils.py:299 qa_site/templates/qa_site/questions_explain.html:43
+#: core/utils.py:300 qa_site/templates/qa_site/questions_explain.html:43
 #: qa_site/templates/qa_site/schoolquestion_list.html:10
 #: qa_site/templates/qa_site/schoolquestion_list.html:22
 msgid "School-Based Questions"
@@ -768,7 +853,7 @@ msgstr "Publier une Annonce"
 
 #: core/templates/core/index.html:214
 #: core/templates/core/search_results.html:115
-#: core/templates/core/site_usage_info.html:46 core/utils.py:291
+#: core/templates/core/site_usage_info.html:46 core/utils.py:292
 #: requested_items/templates/requested_items/requested_item_list.html:12
 #: users/templates/users/profile/requested-items.html:25
 #: users/templates/users/profile/requested-items.html:31
@@ -777,7 +862,7 @@ msgid "Requested Items"
 msgstr "Articles Demandés"
 
 #: core/templates/core/index.html:228
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:74
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:74
 #: requested_items/templates/requested_items/requested_item_list.html:77
 msgid "Item"
 msgstr "Article"
@@ -794,7 +879,7 @@ msgstr "Anciens sujets"
 #: users/templates/users/profile/past-papers.html:47
 #: users/templates/users/profile/past-papers.html:64
 msgid "Uploaded"
-msgstr "Téléversé"
+msgstr "Uploadé"
 
 #: core/templates/core/index.html:311
 msgid "View Past Papers"
@@ -802,16 +887,16 @@ msgstr "Voir les Anciens Sujets"
 
 #: core/templates/core/index.html:314
 msgid "Upload a Past Paper"
-msgstr "Téléverser un Ancien Sujet"
+msgstr "Uploader un Ancien Sujet"
 
 #: core/templates/core/index.html:321
 #: core/templates/core/search_results.html:182
-#: core/templates/core/site_usage_info.html:68 core/utils.py:295
+#: core/templates/core/site_usage_info.html:68 core/utils.py:296
 msgid "Lost Items"
 msgstr "Objets perdus"
 
 #: core/templates/core/index.html:358 core/templates/core/index.html:394
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:101
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:101
 #: users/templates/users/profile/lost-and-found.html:106
 #: users/templates/users/profile/marketplace.html:65
 #: users/templates/users/profile/marketplace.html:111
@@ -824,7 +909,7 @@ msgstr "Voir les Objets Perdus"
 
 #: core/templates/core/index.html:375
 #: core/templates/core/search_results.html:160
-#: core/templates/core/site_usage_info.html:71 core/utils.py:297
+#: core/templates/core/site_usage_info.html:71 core/utils.py:298
 msgid "Found Items"
 msgstr "Objets"
 
@@ -969,16 +1054,6 @@ msgstr "Politique de Confidentialité"
 msgid "No search result for"
 msgstr "Aucun résultat de recherche pour"
 
-#: core/templates/core/search_results.html:27
-#: core/templates/core/site_usage_info.html:36 core/utils.py:287
-#: marketplace/templates/marketplace/adlisting_list.html:12
-#: marketplace/templates/marketplace/adlisting_list.html:25
-#: marketplace/templates/marketplace/adlisting_list.html:82
-#: marketplace/templates/marketplace/itemlisting_list.html:82
-#: marketplace/templates/marketplace/listings_explain.html:42
-msgid "Adverts"
-msgstr "Annonces"
-
 #: core/templates/core/search_results.html:41
 #: core/templates/core/search_results.html:63
 #: core/templates/core/search_results.html:85
@@ -990,19 +1065,10 @@ msgstr "Annonces"
 msgid "View All Results"
 msgstr "Voir Tous les Résultats"
 
-#: core/templates/core/search_results.html:49 core/utils.py:289
+#: core/templates/core/search_results.html:49 core/utils.py:290
 #: marketplace/templates/marketplace/itemlisting_list.html:25
 msgid "Items for Sale"
 msgstr "Articles à Vendre"
-
-#: core/templates/core/search_results.html:137
-#: core/templates/core/site_usage_info.html:82 core/utils.py:293
-#: past_papers/templates/past_papers/pastpaper_list.html:10
-#: past_papers/templates/past_papers/pastpaper_list.html:22
-#: users/templates/users/profile/past-papers.html:25
-#: users/templates/users/profile/tab-section.html:34
-msgid "Past Papers"
-msgstr "Anciens Sujets "
 
 #: core/templates/core/site_usage_info.html:6
 msgid "Site Info"
@@ -1122,7 +1188,7 @@ msgstr ""
 "sujets et à partir de diverses écoles ; \n"
 "\t\t\t\t\t\t\tpour tous les niveaux (tels que o'levels, a'levels, "
 "probatoire, ...).\n"
-"\t\t\t\t\t\t\tOui, vous êtes également autorisé à téléverset des anciens "
+"\t\t\t\t\t\t\tOui, vous êtes également autorisé à uploader des anciens "
 "sujets(épreuves).\n"
 "\t\t\t\t\t\t\t"
 
@@ -1225,8 +1291,8 @@ msgstr ""
 "\t\t\t\t\t\t\t\t\t\tTélécharger un ancien papier. Si toutefois l'ancien "
 "sujet existe déjà \t\t\t\t\t\t\t\t\tsur le site, vos points seront annulés. "
 "<br>\n"
-"\t\t\t\t\t\t\t\t\tAlors ne téléversez que les sujets qui n'ont pas encore "
-"été téléversés.\n"
+"\t\t\t\t\t\t\t\t\tAlors ne uploadez que les sujets qui n'ont pas encore été "
+"téléversés.\n"
 "\t\t\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:153
@@ -1330,7 +1396,7 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t\t\tPar <b>publication</b>, nous nous référons à une question ou une "
+"\t\t\t\t\t\tPar <b>publication</b>, nous référons à une question ou une "
 "réponse. <br>\n"
 "\t\t\t\t\t\tVous obtenez %(ask_qstn_points)s points lorsque vous posez une "
 "question. \n"
@@ -1525,8 +1591,8 @@ msgid "LOGIN_URL is not defined in the settings"
 msgstr "LOGIN_URL n'est pas défini dans les paramètres"
 
 #: core/templatetags/app_extras.py:130
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:95
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:116
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:95
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:116
 #: marketplace/templates/marketplace/adlisting_detail.html:175
 #: marketplace/templates/marketplace/itemlisting_detail.html:183
 #: past_papers/templates/past_papers/pastpaper_detail.html:105
@@ -1535,31 +1601,31 @@ msgid "Add this post to your favourites. (click again to undo)"
 msgstr ""
 "Ajoutez cette publication à vos favoris. (cliquez à nouveau pour annuler)"
 
-#: core/urls.py:15
+#: core/urls.py:14
 msgid "home/"
 msgstr "accueil/"
 
-#: core/urls.py:16
+#: core/urls.py:15
 msgid "site-usage/info/"
 msgstr "utilisation-du-site/info/"
 
-#: core/urls.py:17
+#: core/urls.py:16
 msgid "my-notifications/"
 msgstr "mes-notifications/"
 
-#: core/urls.py:18
+#: core/urls.py:17
 msgid "privacy-policy/"
 msgstr "politique-de-confidentialité/"
 
-#: core/urls.py:19
+#: core/urls.py:18
 msgid "terms-and-conditions/"
 msgstr "termes-et-conditions/"
 
-#: core/urls.py:20
+#: core/urls.py:19
 msgid "search/"
 msgstr "rechercher/"
 
-#: core/urls.py:21
+#: core/urls.py:20
 msgid "search/<str:category>/"
 msgstr "rechercher/<str:category>/"
 
@@ -1720,8 +1786,8 @@ msgstr ""
 
 #: flagging/templates/flag/flag_form.html:21
 #: flagging/templates/flag/flag_form.html:33
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:120
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:141
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:120
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:141
 #: marketplace/templates/marketplace/adlisting_detail.html:200
 #: marketplace/templates/marketplace/itemlisting_detail.html:208
 #: past_papers/templates/past_papers/pastpaper_detail.html:130
@@ -1736,10 +1802,10 @@ msgstr "Retirer le signalement"
 
 #: flagging/templates/flag/flag_form.html:22
 #: flagging/templates/flag/flag_form.html:33
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:110
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:122
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:131
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:143
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:110
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:122
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:131
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:143
 #: marketplace/templates/marketplace/adlisting_detail.html:190
 #: marketplace/templates/marketplace/adlisting_detail.html:202
 #: marketplace/templates/marketplace/itemlisting_detail.html:198
@@ -1788,53 +1854,53 @@ msgstr ""
 msgid "The content has been unflagged successfully."
 msgstr "Le contenu a été supprimé avec succès."
 
-#: lost_and_found/ajax_views.py:28 lost_and_found/ajax_views.py:49
+#: lost_or_found/ajax_views.py:28 lost_or_found/ajax_views.py:49
 #: marketplace/ajax_views.py:34 marketplace/ajax_views.py:55
 #: past_papers/views.py:263 qa_site/ajax_views.py:459 qa_site/ajax_views.py:480
 #: qa_site/ajax_views.py:505 qa_site/ajax_views.py:530
-#: requested_items/views.py:319 socialize/views.py:477
+#: requested_items/views.py:319 socialize/views.py:508
 msgid "Invalid action"
 msgstr "Action non valide"
 
-#: lost_and_found/forms.py:37
+#: lost_or_found/forms.py:36
 msgid "Green backpack"
 msgstr "Sac à dos vert"
 
-#: lost_and_found/forms.py:38 lost_and_found/forms.py:95
+#: lost_or_found/forms.py:37 lost_or_found/forms.py:94
 msgid "Infront of Amphi 250"
 msgstr "Devant l'Amphi 250"
 
-#: lost_and_found/forms.py:41
+#: lost_or_found/forms.py:40
 msgid ""
 "I was walking near Amphi 250 and found the green backpack near the door."
 msgstr ""
 "Je marchais près d'Amphi 250 et j'ai trouvé le sac à dos vert près de la "
 "porte."
 
-#: lost_and_found/forms.py:59
+#: lost_or_found/forms.py:58
 msgid "Found Item Information"
 msgstr "Informations sur l'objet trouvé"
 
-#: lost_and_found/forms.py:65 lost_and_found/forms.py:129
+#: lost_or_found/forms.py:64 lost_or_found/forms.py:128
 #: requested_items/forms.py:70
 msgid "Poster's Information"
 msgstr "Informations sur l'annonceur"
 
-#: lost_and_found/forms.py:73 lost_and_found/forms.py:139
+#: lost_or_found/forms.py:72 lost_or_found/forms.py:138
 #: marketplace/forms.py:130 marketplace/forms.py:232
 #: requested_items/forms.py:78
 msgid "Edit phone numbers"
 msgstr "Modifier mes numéros de téléphone"
 
-#: lost_and_found/forms.py:76 lost_and_found/forms.py:151
+#: lost_or_found/forms.py:75 lost_or_found/forms.py:150
 msgid "Publish item"
 msgstr "Publier l'objet"
 
-#: lost_and_found/forms.py:94
+#: lost_or_found/forms.py:93
 msgid "Itel smartphone"
 msgstr "Téléphone Itel"
 
-#: lost_and_found/forms.py:97
+#: lost_or_found/forms.py:96
 msgid ""
 "After our class in Amphi 250, i forgot my phone on the bench near the door "
 "then..."
@@ -1842,21 +1908,21 @@ msgstr ""
 "Après notre cours à l'Amphi 250, j'ai oublié mon téléphone sur le banc près "
 "de la portepuis..."
 
-#: lost_and_found/forms.py:100
+#: lost_or_found/forms.py:99
 msgid "2000F to the person who will return my phone to me"
 msgstr "2000F à la personne qui me rendra mon téléphone"
 
-#: lost_and_found/forms.py:101
+#: lost_or_found/forms.py:100
 msgid "The phone has a black case and a 2GB memory card is inside ..."
 msgstr ""
 "Le téléphone a un boîtier noir et une carte mémoire de 2 Go est à "
 "l'intérieur ..."
 
-#: lost_and_found/forms.py:116
+#: lost_or_found/forms.py:115
 msgid "Lost Item Information"
 msgstr "Information sur l'objet perdu"
 
-#: lost_and_found/forms.py:122
+#: lost_or_found/forms.py:121
 msgid ""
 "Upload maximum 3 photos of the lost item. Allow this empty if you do not "
 "have any photos."
@@ -1864,7 +1930,7 @@ msgstr ""
 "Téléchargez au maximum 3 photos de l'objet perdu. Laissez ce champ vide si "
 "vous n'avez pas de photo."
 
-#: lost_and_found/forms.py:145
+#: lost_or_found/forms.py:144
 msgid ""
 "If anyone says this item belongs to them, verify that they are saying the "
 "truth by asking them questions concerning the item; such as a detailed "
@@ -1874,85 +1940,84 @@ msgstr ""
 "vérité en leur posant des questions concernant l'article ; comme une "
 "description détaillée de l'article "
 
-#: lost_and_found/mixins.py:47 marketplace/mixins.py:41
-#: past_papers/mixins.py:35 past_papers/mixins.py:78
-#: requested_items/mixins.py:39
+#: lost_or_found/mixins.py:47 marketplace/mixins.py:41 past_papers/mixins.py:35
+#: past_papers/mixins.py:78 requested_items/mixins.py:39
 msgid "Moderators can only delete flagged posts."
 msgstr "Les modérateurs ne peuvent supprimer que les messages signalés."
 
-#: lost_and_found/mixins.py:50 requested_items/mixins.py:43
+#: lost_or_found/mixins.py:50 requested_items/mixins.py:43
 msgid "You can delete only items that were posted by you."
 msgstr "Vous ne pouvez supprimer que les objets que vous avez publiés."
 
-#: lost_and_found/models.py:18
+#: lost_or_found/models.py:18
 msgid "Item found"
 msgstr "Objet trouvé"
 
-#: lost_and_found/models.py:20
+#: lost_or_found/models.py:20
 msgid "What have you found?"
 msgstr "Qu'avez-vous trouvé ?"
 
-#: lost_and_found/models.py:23
+#: lost_or_found/models.py:23
 msgid "Area found"
 msgstr "Endroit trouvé"
 
-#: lost_and_found/models.py:25
+#: lost_or_found/models.py:25
 msgid "Where did you find the item?"
 msgstr "Où avez-vous trouvé l'objet ?"
 
-#: lost_and_found/models.py:27
+#: lost_or_found/models.py:27
 msgid "How found"
 msgstr "Comment trouvé"
 
-#: lost_and_found/models.py:27
+#: lost_or_found/models.py:27
 msgid "Explain how you found the item"
 msgstr "Expliquez comment vous avez trouvé l'objet"
 
-#: lost_and_found/models.py:30
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:37
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:37
-#: lost_and_found/views.py:129 lost_and_found/views.py:312
+#: lost_or_found/models.py:30
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:37
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:37
+#: lost_or_found/views.py:129 lost_or_found/views.py:312
 #: marketplace/models.py:222 marketplace/models.py:302
 #: marketplace/templates/marketplace/adlisting_detail.html:107
 #: marketplace/templates/marketplace/itemlisting_detail.html:102
 #: marketplace/views.py:348 marketplace/views.py:619 past_papers/models.py:169
 #: past_papers/views.py:177 qa_site/views.py:498 requested_items/models.py:45
 #: requested_items/templates/requested_items/requested_item_detail.html:73
-#: requested_items/views.py:217 socialize/models.py:176
-#: socialize/templates/socialize/socialprofile_list.html:66
-#: socialize/views.py:387
+#: requested_items/views.py:217 socialize/models.py:149
+#: socialize/templates/socialize/socialprofile_list.html:68
+#: socialize/views.py:415
 msgid "School"
 msgstr "Établissement"
 
-#: lost_and_found/models.py:70
+#: lost_or_found/models.py:70
 msgid "Item lost"
 msgstr "Objet perdu"
 
-#: lost_and_found/models.py:70
+#: lost_or_found/models.py:70
 msgid "What have you lost?"
 msgstr "Qu'avez-vous trouvé ?"
 
-#: lost_and_found/models.py:72 requested_items/models.py:31
+#: lost_or_found/models.py:72 requested_items/models.py:31
 msgid "Item description"
 msgstr "Description de l'objet"
 
-#: lost_and_found/models.py:73
+#: lost_or_found/models.py:73
 msgid "Describe the lost item stating its important aspects."
 msgstr "Décrivez l'objet perdu en indiquant ses aspects importants."
 
-#: lost_and_found/models.py:76
+#: lost_or_found/models.py:76
 msgid "Area lost"
 msgstr "Endroit perdu"
 
-#: lost_and_found/models.py:78
+#: lost_or_found/models.py:78
 msgid "Where do you think you lost the item?"
 msgstr "Où pensez-vous avoir perdu l'objet ?"
 
-#: lost_and_found/models.py:81
+#: lost_or_found/models.py:81
 msgid "How lost"
 msgstr "Comment perdu"
 
-#: lost_and_found/models.py:83
+#: lost_or_found/models.py:83
 msgid ""
 "Explain how you think you lost the item, stating areas you passed across or "
 "visited"
@@ -1960,15 +2025,15 @@ msgstr ""
 "Expliquez comment vous pensez avoir perdu l'objet, en indiquant les endroits "
 "que vous avez traversés ou visités"
 
-#: lost_and_found/models.py:86
+#: lost_or_found/models.py:86
 msgid "Good day, "
 msgstr "Bonjour, "
 
-#: lost_and_found/models.py:89
+#: lost_or_found/models.py:89
 msgid "Bounty"
 msgstr "Récompense"
 
-#: lost_and_found/models.py:93
+#: lost_or_found/models.py:93
 msgid ""
 "Award/bounty given to the person who will return the item. Make sure that "
 "you are in possession of the award. <br> This is optional but can be used as "
@@ -1978,14 +2043,14 @@ msgstr ""
 "que vous êtes en possession de la récompense. <br> Ceci est facultatif mais "
 "peut être utilisé comme motivation."
 
-#: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:7
-#: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:7
+#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:7
+#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:7
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:7
 msgid "Delete item"
 msgstr "Supprimer l'objet"
 
-#: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:15
-#: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:15
+#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:15
+#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:15
 #: marketplace/templates/marketplace/adlisting_confirm_delete.html:21
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:21
 #: past_papers/templates/past_papers/pastpaper_confirm_delete.html:14
@@ -1993,8 +2058,8 @@ msgstr "Supprimer l'objet"
 msgid "Are you sure you want to delete"
 msgstr "Etes-vous sûr que vous voulez supprimer"
 
-#: lost_and_found/templates/lost_and_found/founditem_confirm_delete.html:16
-#: lost_and_found/templates/lost_and_found/lostitem_confirm_delete.html:16
+#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:16
+#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:16
 #: marketplace/templates/marketplace/adlisting_confirm_delete.html:22
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:22
 #: past_papers/templates/past_papers/comment_confirm_delete.html:21
@@ -2007,10 +2072,10 @@ msgstr "Etes-vous sûr que vous voulez supprimer"
 msgid "Yes, delete"
 msgstr "Oui, supprimer"
 
-#: lost_and_found/templates/lost_and_found/founditem_create.html:41
-#: lost_and_found/templates/lost_and_found/founditem_update.html:40
-#: lost_and_found/templates/lost_and_found/lostitem_create.html:41
-#: lost_and_found/templates/lost_and_found/lostitem_update.html:38
+#: lost_or_found/templates/lost_and_found/founditem_create.html:41
+#: lost_or_found/templates/lost_and_found/founditem_update.html:40
+#: lost_or_found/templates/lost_and_found/lostitem_create.html:41
+#: lost_or_found/templates/lost_and_found/lostitem_update.html:38
 #: marketplace/templates/marketplace/adlisting_create.html:40
 #: marketplace/templates/marketplace/adlisting_update.html:41
 #: marketplace/templates/marketplace/itemlisting_create.html:43
@@ -2019,28 +2084,28 @@ msgstr "Oui, supprimer"
 #: qa_site/templates/qa_site/academicquestion_form.html:43
 #: qa_site/templates/qa_site/academicquestion_update.html:42
 #: qa_site/templates/qa_site/schoolquestion_form.html:41
-#: qa_site/templates/qa_site/schoolquestion_update.html:41
+#: qa_site/templates/qa_site/schoolquestion_update.html:42
 #: requested_items/templates/requested_items/requested_item_create.html:40
 #: requested_items/templates/requested_items/requested_item_update.html:41
 #: socialize/templates/socialize/socialprofile_form.html:49
 #: socialize/templates/socialize/socialprofile_update_form.html:48
 #: users/templates/users/auth/signup.html:125
-#: users/templates/users/edit_profile.html:115
+#: users/templates/users/edit_profile.html:121
 msgid ""
 "There are unsaved changes on this page which will be discarded if you leave."
 msgstr ""
 "Il y a des modifications non enregistrées sur cette page qui seront "
 "supprimées si vous quittez."
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:12
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:29
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:12
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:29
 msgid "Found"
 msgstr "Trouvé"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:45
-#: lost_and_found/templates/lost_and_found/founditem_list.html:96
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:40
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:94
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:45
+#: lost_or_found/templates/lost_and_found/founditem_list.html:96
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:40
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:94
 #: marketplace/templates/marketplace/adlisting_list.html:130
 #: marketplace/templates/marketplace/itemlisting_list.html:123
 #: past_papers/templates/past_papers/pastpaper_list.html:109
@@ -2049,10 +2114,10 @@ msgstr "Trouvé"
 msgid "view"
 msgstr "vue"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:47
-#: lost_and_found/templates/lost_and_found/founditem_list.html:98
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:42
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:96
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:47
+#: lost_or_found/templates/lost_and_found/founditem_list.html:98
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:42
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:96
 #: marketplace/templates/marketplace/adlisting_list.html:132
 #: marketplace/templates/marketplace/itemlisting_list.html:125
 #: past_papers/templates/past_papers/pastpaper_list.html:111
@@ -2061,8 +2126,8 @@ msgstr "vue"
 msgid "Number of views"
 msgstr "Nombre de vuew"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:54
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:48
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:54
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:48
 #: notifications/models.py:21
 #: users/templates/users/profile/lost-and-found.html:39
 #: users/templates/users/profile/lost-and-found.html:60
@@ -2070,8 +2135,8 @@ msgstr "Nombre de vuew"
 msgid "Reported"
 msgstr "Signalé"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:58
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:52
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:58
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:52
 #: marketplace/templates/marketplace/adlisting_detail.html:127
 #: marketplace/templates/marketplace/itemlisting_detail.html:136
 #: qa_site/templates/qa_site/academicquestion_detail.html:151
@@ -2080,10 +2145,10 @@ msgstr "Signalé"
 msgid "By"
 msgstr "Par"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:68
-#: lost_and_found/templates/lost_and_found/founditem_list.html:91
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:62
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:111
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:68
+#: lost_or_found/templates/lost_and_found/founditem_list.html:91
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:62
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:111
 #: marketplace/templates/marketplace/adlisting_detail.html:138
 #: marketplace/templates/marketplace/adlisting_list.html:154
 #: marketplace/templates/marketplace/itemlisting_detail.html:147
@@ -2104,18 +2169,18 @@ msgstr "Par"
 msgid " User doesn't have a social profile "
 msgstr " L'utilisateur n'a pas de profil social "
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:75
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:88
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:75
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:88
 msgid "Where"
 msgstr "Où"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:81
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:94
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:81
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:94
 msgid "How"
 msgstr "Comment"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:100
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:121
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:100
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:121
 #: marketplace/templates/marketplace/adlisting_detail.html:180
 #: marketplace/templates/marketplace/itemlisting_detail.html:188
 #: past_papers/templates/past_papers/pastpaper_detail.html:110
@@ -2123,8 +2188,8 @@ msgstr "Comment"
 msgid "Share a link to this post"
 msgstr "Partager un lien vers cette publication"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:137
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:158
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:137
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:158
 #: marketplace/templates/marketplace/adlisting_detail.html:217
 #: marketplace/templates/marketplace/itemlisting_detail.html:225
 #: requested_items/templates/requested_items/requested_item_detail.html:183
@@ -2132,8 +2197,8 @@ msgstr "Partager un lien vers cette publication"
 msgid "Edit post"
 msgstr "Modifier la publication"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:145
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:166
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:145
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:166
 #: marketplace/templates/marketplace/adlisting_detail.html:225
 #: marketplace/templates/marketplace/itemlisting_detail.html:233
 #: past_papers/templates/past_papers/pastpaper_detail.html:146
@@ -2142,11 +2207,11 @@ msgstr "Modifier la publication"
 msgid "Delete post"
 msgstr "Supprimer la publication"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:155
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:155
 msgid "Claim item"
 msgstr "Réclamer l'objet"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:158
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:158
 msgid ""
 "\n"
 "\t\t\t\tWe hope this item really belongs to you. <br>\n"
@@ -2159,18 +2224,18 @@ msgstr ""
 "coordonnées ci-dessous.\n"
 "\t\t\t"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:166
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:184
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:166
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:184
 #: marketplace/templates/marketplace/adlisting_detail.html:248
 #: marketplace/templates/marketplace/itemlisting_detail.html:256
 #: requested_items/templates/requested_items/requested_item_detail.html:201
 msgid "Contact"
 msgstr "Contacter"
 
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:185
-#: lost_and_found/templates/lost_and_found/founditem_detail.html:186
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:201
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:202
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:185
+#: lost_or_found/templates/lost_and_found/founditem_detail.html:186
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:201
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:202
 #: marketplace/templates/marketplace/adlisting_detail.html:265
 #: marketplace/templates/marketplace/adlisting_detail.html:266
 #: marketplace/templates/marketplace/itemlisting_detail.html:273
@@ -2182,15 +2247,15 @@ msgstr "Contacter"
 msgid "Contact via WhatsApp"
 msgstr "Contacter par WhatsApp"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:12
+#: lost_or_found/templates/lost_and_found/founditem_list.html:12
 msgid "Reported Found Items"
 msgstr "Objets Trouvés Signalés"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:24
+#: lost_or_found/templates/lost_and_found/founditem_list.html:24
 msgid "Items Found"
 msgstr "Objets Trouvés"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:28
+#: lost_or_found/templates/lost_and_found/founditem_list.html:28
 msgid ""
 "\n"
 "\t\t\t\tStatistics say nearly 3,300 items are lost per year. \n"
@@ -2205,12 +2270,12 @@ msgstr ""
 "\t\t\t\tPubliez les objets que vous avez trouvés ici.\n"
 "\t\t\t\t"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:35
+#: lost_or_found/templates/lost_and_found/founditem_list.html:35
 msgid "Publish an item you found"
 msgstr "Publier un objet que vous avez trouvé"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:40
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:41
+#: lost_or_found/templates/lost_and_found/founditem_list.html:40
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:41
 #: marketplace/templates/marketplace/adlisting_list.html:40
 #: marketplace/templates/marketplace/itemlisting_list.html:40
 #: past_papers/templates/past_papers/pastpaper_list.html:51
@@ -2221,33 +2286,33 @@ msgstr "Publier un objet que vous avez trouvé"
 msgid "Filter"
 msgstr "Filtrer"
 
-#: lost_and_found/templates/lost_and_found/founditem_list.html:82
+#: lost_or_found/templates/lost_and_found/founditem_list.html:82
 msgid "Published by"
 msgstr "Publié par"
 
-#: lost_and_found/templates/lost_and_found/founditem_update.html:8
-#: lost_and_found/templates/lost_and_found/founditem_update.html:24
+#: lost_or_found/templates/lost_and_found/founditem_update.html:8
+#: lost_or_found/templates/lost_and_found/founditem_update.html:24
 msgid "Edit found item"
 msgstr "Modifier l'objet trouvé"
 
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:12
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:29
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:12
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:29
 msgid "Lost"
 msgstr "Perdu"
 
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:100
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:100
 msgid "Bounty on item"
 msgstr "Récompense sur l'objet"
 
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:175
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:175
 msgid "Refund item"
 msgstr "Remettre l'objet"
 
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:177
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:177
 msgid "Props to you for deciding to refund this item!"
 msgstr "Merci à vous d'avoir décidé de remettre cet objet !"
 
-#: lost_and_found/templates/lost_and_found/lostitem_detail.html:179
+#: lost_or_found/templates/lost_and_found/lostitem_detail.html:179
 msgid ""
 "Thank you for deciding to refund this item to its owner. Contact the owner "
 "using the details below."
@@ -2255,15 +2320,15 @@ msgstr ""
 "Merci d'avoir décidé de remettre cet objet à son propriétaire. Contacter le "
 "propriétaire en utilisant les détails ci-dessous."
 
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:12
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:12
 msgid "Reported Lost Items"
 msgstr "Objets Perdus Signalés"
 
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:24
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:24
 msgid "Items Lost"
 msgstr "Objets Perdus"
 
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:28
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:28
 msgid ""
 "\n"
 "\t\t\t\tA high percentage of missing items are in good hands.\n"
@@ -2277,7 +2342,7 @@ msgstr ""
 "\t\t\t\tPubliez les objets que vous avez perdus ici.\n"
 "\t\t\t\t"
 
-#: lost_and_found/templates/lost_and_found/lostitem_list.html:102
+#: lost_or_found/templates/lost_and_found/lostitem_list.html:102
 #: marketplace/templates/marketplace/adlisting_list.html:145
 #: marketplace/templates/marketplace/itemlisting_list.html:131
 #: past_papers/templates/past_papers/pastpaper_detail.html:42
@@ -2285,16 +2350,16 @@ msgstr ""
 msgid "by"
 msgstr "par"
 
-#: lost_and_found/templates/lost_and_found/lostitem_update.html:8
-#: lost_and_found/templates/lost_and_found/lostitem_update.html:22
+#: lost_or_found/templates/lost_and_found/lostitem_update.html:8
+#: lost_or_found/templates/lost_and_found/lostitem_update.html:22
 msgid "Edit lost item"
 msgstr "Modifier l'objet perdu"
 
-#: lost_and_found/urls.py:11
+#: lost_or_found/urls.py:11
 msgid "report-lost-item/"
 msgstr "signaler-objet-perdu/"
 
-#: lost_and_found/urls.py:12 lost_and_found/urls.py:21 marketplace/urls.py:12
+#: lost_or_found/urls.py:12 lost_or_found/urls.py:21 marketplace/urls.py:12
 #: marketplace/urls.py:21 past_papers/urls.py:16 qa_site/urls.py:21
 #: qa_site/urls.py:44 qa_site/urls.py:57 qa_site/urls.py:70 qa_site/urls.py:93
 #: qa_site/urls.py:113 qa_site/urls.py:126 qa_site/urls.py:139
@@ -2302,7 +2367,7 @@ msgstr "signaler-objet-perdu/"
 msgid "<int:pk>/edit/"
 msgstr "<int:pk>/modifier/"
 
-#: lost_and_found/urls.py:13 lost_and_found/urls.py:22 marketplace/urls.py:13
+#: lost_or_found/urls.py:13 lost_or_found/urls.py:22 marketplace/urls.py:13
 #: marketplace/urls.py:22 past_papers/urls.py:11 past_papers/urls.py:25
 #: qa_site/urls.py:26 qa_site/urls.py:49 qa_site/urls.py:62 qa_site/urls.py:75
 #: qa_site/urls.py:98 qa_site/urls.py:118 qa_site/urls.py:131
@@ -2310,19 +2375,19 @@ msgstr "<int:pk>/modifier/"
 msgid "<int:pk>/delete/"
 msgstr "<int:pk>/supprimer/"
 
-#: lost_and_found/urls.py:20
+#: lost_or_found/urls.py:20
 msgid "report-found-item/"
 msgstr "signaler-objet-trouvé/"
 
-#: lost_and_found/urls.py:42
+#: lost_or_found/urls.py:42
 msgid "lost-items/"
 msgstr "objets-perdus/"
 
-#: lost_and_found/urls.py:43
+#: lost_or_found/urls.py:43
 msgid "found-items/"
 msgstr "objets-trouvés/"
 
-#: lost_and_found/views.py:118 lost_and_found/views.py:302
+#: lost_or_found/views.py:118 lost_or_found/views.py:302
 #: marketplace/views.py:609 past_papers/views.py:167 qa_site/views.py:290
 #: qa_site/views.py:488 requested_items/views.py:207
 msgid "Keywords"
@@ -2913,15 +2978,15 @@ msgstr ""
 msgid "Technical"
 msgstr ""
 
-#: past_papers/models.py:143 past_papers/views.py:179 socialize/models.py:133
-#: socialize/templates/socialize/socialprofile_list.html:72
-#: socialize/views.py:385
+#: past_papers/models.py:143 past_papers/views.py:179 socialize/models.py:106
+#: socialize/templates/socialize/socialprofile_list.html:74
+#: socialize/views.py:413
 msgid "Level"
 msgstr ""
 
-#: past_papers/models.py:144 socialize/models.py:156
-#: socialize/templates/socialize/socialprofile_list.html:62
-#: socialize/views.py:386
+#: past_papers/models.py:144 socialize/models.py:129
+#: socialize/templates/socialize/socialprofile_list.html:64
+#: socialize/views.py:414
 msgid "Speciality"
 msgstr ""
 
@@ -3205,7 +3270,8 @@ msgstr ""
 #: qa_site/mixins.py:28
 msgid ""
 "You can only edit questions with less than {} votes(number of likes - number "
-"of dislikes) or less than {} answers. You may post a new question."
+"of dislikes) or less than {} answers. \n"
+" You may post a new question."
 msgstr ""
 
 #: qa_site/mixins.py:42
@@ -3215,8 +3281,8 @@ msgstr ""
 #: qa_site/mixins.py:46
 msgid ""
 "You can only edit answers with less than {} votes(number of likes - number "
-"of dislikes). You may post a new answer if you have less than {} answers to "
-"this question."
+"of dislikes). \n"
+" You may post a new answer if you have less than {} answers to this question."
 msgstr ""
 
 #: qa_site/mixins.py:64
@@ -3240,8 +3306,8 @@ msgstr ""
 #: qa_site/mixins.py:92
 msgid ""
 "You can only delete questions with less than {} votes(number of likes - "
-"number of dislikes) or less than {} answers. This question may help future "
-"users."
+"number of dislikes) or less than {} answers. \n"
+" This question may help future users."
 msgstr ""
 
 #: qa_site/mixins.py:106
@@ -3255,7 +3321,8 @@ msgstr ""
 #: qa_site/mixins.py:113
 msgid ""
 "You can only delete answers with less than {} votes(number of likes - number "
-"of dislikes). This answer may help future users."
+"of dislikes). \n"
+" This answer may help future users."
 msgstr ""
 
 #: qa_site/mixins.py:127
@@ -3708,10 +3775,6 @@ msgstr ""
 msgid "ask/"
 msgstr ""
 
-#: qa_site/urls.py:31
-msgid "<int:pk>/<slug:slug>/"
-msgstr ""
-
 #: qa_site/urls.py:164
 msgid "academic-questions/"
 msgstr ""
@@ -3874,143 +3937,143 @@ msgstr ""
 msgid "Additional Information"
 msgstr ""
 
-#: socialize/models.py:51
+#: socialize/models.py:24
 msgid "Twitter link or username"
 msgstr ""
 
-#: socialize/models.py:55
+#: socialize/models.py:28
 msgid "Facebook link or username"
 msgstr ""
 
-#: socialize/models.py:59
+#: socialize/models.py:32
 msgid "Instagram link or username"
 msgstr ""
 
-#: socialize/models.py:63
+#: socialize/models.py:36
 msgid "Tiktok link or username"
 msgstr ""
 
-#: socialize/models.py:67
+#: socialize/models.py:40
 msgid "GitHub link or username"
 msgstr ""
 
-#: socialize/models.py:71
+#: socialize/models.py:44
 msgid "Other website links"
 msgstr ""
 
-#: socialize/models.py:73
+#: socialize/models.py:46
 msgid ""
 "An example could be a link to a YouTube channel or Likee profile, etc.. <br> "
 "Separate multiple links with a semicolon."
 msgstr ""
 
-#: socialize/models.py:105
+#: socialize/models.py:78
 msgid "Single"
 msgstr ""
 
-#: socialize/models.py:106 socialize/models.py:120
+#: socialize/models.py:79 socialize/models.py:93
 msgid "Dating"
 msgstr ""
 
-#: socialize/models.py:107
+#: socialize/models.py:80
 msgid "Engaged"
 msgstr ""
 
-#: socialize/models.py:108
+#: socialize/models.py:81
 msgid "Married"
 msgstr ""
 
-#: socialize/models.py:109 socialize/models.py:125
+#: socialize/models.py:82 socialize/models.py:98
 msgid "Undecided"
 msgstr ""
 
-#: socialize/models.py:116
+#: socialize/models.py:89
 msgid "Not interested"
 msgstr ""
 
-#: socialize/models.py:117
+#: socialize/models.py:90
 msgid "Being chat pals"
 msgstr ""
 
-#: socialize/models.py:118
+#: socialize/models.py:91
 msgid "Being study pals"
 msgstr ""
 
-#: socialize/models.py:119
+#: socialize/models.py:92
 msgid "Clubbing this weekend"
 msgstr ""
 
-#: socialize/models.py:121
+#: socialize/models.py:94
 msgid "Flirting"
 msgstr ""
 
-#: socialize/models.py:122
+#: socialize/models.py:95
 msgid "Friendship"
 msgstr ""
 
-#: socialize/models.py:123
+#: socialize/models.py:96
 msgid "Hanging out this weekend"
 msgstr ""
 
-#: socialize/models.py:124
+#: socialize/models.py:97
 msgid "Marriage"
 msgstr ""
 
-#: socialize/models.py:138 socialize/views.py:390
+#: socialize/models.py:111 socialize/views.py:418
 msgid "A little about me"
 msgstr ""
 
-#: socialize/models.py:139 socialize/views.py:391
+#: socialize/models.py:112 socialize/views.py:419
 msgid "My hobbies and interests"
 msgstr ""
 
-#: socialize/models.py:141
+#: socialize/models.py:114
 msgid "Profile image"
 msgstr ""
 
-#: socialize/models.py:149
+#: socialize/models.py:122
 msgid "Birthday"
 msgstr ""
 
-#: socialize/models.py:151
+#: socialize/models.py:124
 msgid ""
 "Please at least enter the correct birth year. <br>Your birth date and age "
 "won't be visible to other users."
 msgstr ""
 
-#: socialize/models.py:158
+#: socialize/models.py:131
 msgid "Enter your study department or speciality"
 msgstr ""
 
-#: socialize/models.py:192
+#: socialize/models.py:165
 msgid "Current relationship"
 msgstr ""
 
-#: socialize/models.py:198
+#: socialize/models.py:171
 msgid "Interested relationship"
 msgstr ""
 
-#: socialize/models.py:204 socialize/views.py:388 users/models.py:133
+#: socialize/models.py:177 socialize/views.py:416 users/models.py:133
 msgid "Gender"
 msgstr ""
 
-#: socialize/models.py:273 socialize/views.py:202
+#: socialize/models.py:245 socialize/views.py:230
 msgid "15 Below"
 msgstr ""
 
-#: socialize/models.py:275 socialize/views.py:203
+#: socialize/models.py:247 socialize/views.py:231
 msgid "16 - 19"
 msgstr ""
 
-#: socialize/models.py:277 socialize/views.py:204
+#: socialize/models.py:249 socialize/views.py:232
 msgid "20 - 25"
 msgstr ""
 
-#: socialize/models.py:279 socialize/views.py:205
+#: socialize/models.py:251 socialize/views.py:233
 msgid "26 - 29"
 msgstr ""
 
-#: socialize/models.py:281 socialize/views.py:206
+#: socialize/models.py:253 socialize/views.py:234
 msgid "30 Above"
 msgstr ""
 
@@ -4040,13 +4103,20 @@ msgid ""
 "\t\t\t\t\t\tA superb graphic designer. He is infact the person who designed "
 "our logo &#10024; .\n"
 "\t\t\t\t\t\t<br>\n"
-"\t\t\t\t\t\tContact him on his \n"
-"\t\t\t\t\t\t<a href=\"#\" target=\"_blank\" class=\"text-decoration-none"
-"\">Facebook page</a>; you're welcome!\n"
+"\t\t\t\t\t\tCheck him out on his \n"
+"\t\t\t\t\t\t<a \n"
+"\t\t\t\t\t\t\thref=\"https://m.facebook.com/Tn-Concept-103761888774787/\" \n"
+"\t\t\t\t\t\t\ttarget=\"_blank\" \n"
+"\t\t\t\t\t\t\tclass=\"text-decoration-none\"\n"
+"\t\t\t\t\t\t>\n"
+"\t\t\t\t\t\t\tFacebook page\n"
+"\t\t\t\t\t\t</a>\n"
+"\t\t\t\t\t\tand don't leave without dropping him a <b>Like</b>. You're "
+"welcome!\n"
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:73
+#: socialize/templates/socialize/camerschools_profile.html:80
 msgid ""
 "\n"
 "\t\t\t\t\t\tA great musician &#9997;. \n"
@@ -4068,7 +4138,7 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:93
+#: socialize/templates/socialize/camerschools_profile.html:100
 msgid ""
 "\n"
 "\t\t\t\t\t\tHe's a tech genius and Youtuber. <br>\n"
@@ -4087,7 +4157,7 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:111
+#: socialize/templates/socialize/camerschools_profile.html:118
 msgid ""
 "\n"
 "\t\t\t\t\t\tA great instrumentalist. He plays the piano, guitar, violin "
@@ -4104,14 +4174,14 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:127
+#: socialize/templates/socialize/camerschools_profile.html:134
 msgid ""
 "\n"
 "\t\t\t\t\tOk, now let's check out some programmers &#127773;\n"
 "\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:134
+#: socialize/templates/socialize/camerschools_profile.html:141
 msgid ""
 "\n"
 "\t\t\t\t\t\tA focused &#127919; <span title=\"Mongo Expressjs Reactjs Nodejs"
@@ -4124,7 +4194,22 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:145
+#: socialize/templates/socialize/camerschools_profile.html:152
+msgid ""
+"\n"
+"\t\t\t\t\t\tThis is the guy to contact whenever you want to develop a "
+"software product.\n"
+"\t\t\t\t\t\tHe's a systems analyst; from systems specification to "
+"architecture to database design,\n"
+"\t\t\t\t\t\the's got you covered! <br>\n"
+"\t\t\t\t\t\t<a href=\"mailto:omerfotso006@gmail.com\" target=\"_blank\" "
+"class=\"text-decoration-none\">\n"
+"\t\t\t\t\t\t\tEmail him\n"
+"\t\t\t\t\t\t</a>.\n"
+"\t\t\t\t\t\t"
+msgstr ""
+
+#: socialize/templates/socialize/camerschools_profile.html:164
 msgid ""
 "\n"
 "\t\t\t\t\t\tAn amazing front-end developer. <br>\n"
@@ -4152,42 +4237,27 @@ msgid ""
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:172
-msgid ""
-"\n"
-"\t\t\t\t\t\tThis is the guy to contact whenever you want to develop a "
-"software product.\n"
-"\t\t\t\t\t\tHe's a systems analyst; from systems specification to "
-"architecture to database design,\n"
-"\t\t\t\t\t\the's got you covered! <br>\n"
-"\t\t\t\t\t\t<a href=\"mailto:omerfotso006@gmail.com\" target=\"_blank\" "
-"class=\"text-decoration-none\">\n"
-"\t\t\t\t\t\t\tEmail him\n"
-"\t\t\t\t\t\t</a>.\n"
-"\t\t\t\t\t\t"
-msgstr ""
-
-#: socialize/templates/socialize/camerschools_profile.html:184
+#: socialize/templates/socialize/camerschools_profile.html:191
 msgid ""
 "\n"
 "\t\t\t\t\t\tAn awesome Reactjs and Vuejs developer. He uses the \n"
 "\t\t\t\t\t\t<span title=\"Mongo Expressjs Reactjs Nodejs\">MERN</span> and \n"
-"\t\t\t\t\t\t<span title=\"Mongo Expressjs Vuejs Nodejs\">MEAN</span> stacks. "
+"\t\t\t\t\t\t<span title=\"Mongo Expressjs Vuejs Nodejs\">MEVN</span> stacks. "
 "<br>\n"
 "\t\t\t\t\t\tHave a look at his\n"
-"\t\t\t\t\t\t<a href=\"https://codewithmarc.com/\" class=\"text-decoration-"
-"none\">\n"
+"\t\t\t\t\t\t<a href=\"https://codewithmarc.com/\" target=\"_blank\" class="
+"\"text-decoration-none\">\n"
 "\t\t\t\t\t\t\tblog\n"
 "\t\t\t\t\t\t</a>\n"
 "\t\t\t\t\t\tand follow him on\n"
-"\t\t\t\t\t\t<a href=\"https://github.com/marcSitze/\" class=\"text-"
-"decoration-none\">\n"
+"\t\t\t\t\t\t<a href=\"https://github.com/marcSitze/\" target=\"_blank\" "
+"class=\"text-decoration-none\">\n"
 "\t\t\t\t\t\t\tGitHub\n"
 "\t\t\t\t\t\t</a>.\n"
 "\t\t\t\t\t\t"
 msgstr ""
 
-#: socialize/templates/socialize/camerschools_profile.html:201
+#: socialize/templates/socialize/camerschools_profile.html:208
 msgid ""
 "\n"
 "\t\t\t\t\t\tHe reads mechanical engineering and also knows C, C++, Python, "
@@ -4234,12 +4304,12 @@ msgid "You haven't created a Social profile; do so by clicking"
 msgstr ""
 
 #: socialize/templates/socialize/socialprofile_filter.html:52
-#: socialize/templates/socialize/socialprofile_list.html:99
+#: socialize/templates/socialize/socialprofile_list.html:101
 msgid "Some Users"
 msgstr ""
 
 #: socialize/templates/socialize/socialprofile_filter.html:63
-#: socialize/templates/socialize/socialprofile_list.html:110
+#: socialize/templates/socialize/socialprofile_list.html:112
 #: users/templates/users/profile/dashboard.html:53
 msgid "point"
 msgstr ""
@@ -4261,20 +4331,21 @@ msgid "Back to Filter"
 msgstr ""
 
 #: socialize/templates/socialize/socialprofile_list.html:41
-#: socialize/templates/socialize/socialprofile_list.html:46
+#: socialize/templates/socialize/socialprofile_list.html:42
+#: socialize/templates/socialize/socialprofile_list.html:48
 msgid "Social profile"
 msgstr ""
 
-#: socialize/templates/socialize/socialprofile_list.html:58
+#: socialize/templates/socialize/socialprofile_list.html:60
 msgid "Age Range"
 msgstr ""
 
-#: socialize/templates/socialize/socialprofile_list.html:74
+#: socialize/templates/socialize/socialprofile_list.html:76
 msgid "Confidential"
 msgstr ""
 
-#: socialize/templates/socialize/socialprofile_list.html:80
-#: socialize/views.py:393
+#: socialize/templates/socialize/socialprofile_list.html:82
+#: socialize/views.py:421
 msgid "Interested in"
 msgstr ""
 
@@ -4308,102 +4379,112 @@ msgstr ""
 msgid "camerschools/profile/"
 msgstr ""
 
-#: socialize/views.py:128
+#: socialize/views.py:133 users/views.py:176 users/views.py:252
+msgid ""
+"Sorry, this is a test account and you are not permitted to modify it. \n"
+"You can logout from this account and create your own account."
+msgstr ""
+
+#: socialize/views.py:156
 msgid "You can only update your own profile"
 msgstr ""
 
-#: socialize/views.py:132
+#: socialize/views.py:160
 msgid "You don't have a social profile "
 msgstr ""
 
-#: socialize/views.py:201
+#: socialize/views.py:229
 msgid "Any Age"
 msgstr ""
 
-#: socialize/views.py:210
+#: socialize/views.py:238
 msgid "A guy"
 msgstr ""
 
-#: socialize/views.py:211
+#: socialize/views.py:239
 msgid "A lady"
 msgstr ""
 
-#: socialize/views.py:215
+#: socialize/views.py:243
 #, fuzzy
 #| msgid "English"
 msgid "English speaking"
 msgstr "Anglais"
 
-#: socialize/views.py:216
+#: socialize/views.py:244
 msgid "French speaking"
 msgstr ""
 
-#: socialize/views.py:225
+#: socialize/views.py:253
 msgid "Search by name:"
 msgstr ""
 
-#: socialize/views.py:231
+#: socialize/views.py:259
 msgid "I'm searching for:"
 msgstr ""
 
-#: socialize/views.py:233 socialize/views.py:240
+#: socialize/views.py:261 socialize/views.py:268
 msgid "Any"
 msgstr ""
 
-#: socialize/views.py:236
+#: socialize/views.py:264
 msgid "Principal language"
 msgstr ""
 
-#: socialize/views.py:243
+#: socialize/views.py:271
 msgid "Between the age of:"
 msgstr ""
 
-#: socialize/views.py:249
+#: socialize/views.py:277
 msgid "All schools"
 msgstr ""
 
-#: socialize/views.py:253
+#: socialize/views.py:281
 msgid "At the level of:"
 msgstr ""
 
-#: socialize/views.py:255
+#: socialize/views.py:283
 msgid "Any level"
 msgstr ""
 
-#: socialize/views.py:258
+#: socialize/views.py:286
 msgid "With special interest in:"
 msgstr ""
 
-#: socialize/views.py:260
+#: socialize/views.py:288
 msgid "Anything"
 msgstr ""
 
-#: socialize/views.py:265
+#: socialize/views.py:293
 msgid "Must have profile image"
 msgstr ""
 
-#: socialize/views.py:267
+#: socialize/views.py:295
 msgid "<br>Most users do not have a profile image"
 msgstr ""
 
-#: socialize/views.py:387 socialize/views.py:390 socialize/views.py:391
+#: socialize/views.py:415 socialize/views.py:418 socialize/views.py:419
 msgid "Not provided"
 msgstr ""
 
-#: socialize/views.py:389
+#: socialize/views.py:417
 msgid "Aged between"
 msgstr ""
 
-#: socialize/views.py:392
+#: socialize/views.py:420
 msgid "Currently"
 msgstr ""
 
-#: socialize/views.py:396
+#: socialize/views.py:424
 msgid "Email"
 msgstr ""
 
-#: socialize/views.py:398
+#: socialize/views.py:426
 msgid "Website"
+msgstr ""
+
+#: socialize/views.py:464
+msgid "You must have a social profile to be able to access this page"
 msgstr ""
 
 #: users/forms.py:48
@@ -4414,16 +4495,16 @@ msgstr ""
 msgid "Email can't be changed"
 msgstr ""
 
-#: users/forms.py:157
+#: users/forms.py:158
 msgid "Phone numbers should be unique."
 msgstr ""
 
-#: users/forms.py:169
+#: users/forms.py:170
 msgid "There is an invalid number in the list."
 msgstr ""
 
-#: users/forms.py:174 users/templates/users/auth/signup.html:181
-#: users/templates/users/edit_profile.html:175
+#: users/forms.py:175 users/templates/users/auth/signup.html:195
+#: users/templates/users/edit_profile.html:197
 msgid "Enter at least one number that supports WhatsApp."
 msgstr ""
 
@@ -4641,7 +4722,7 @@ msgid "Change Password"
 msgstr ""
 
 #: users/templates/users/auth/password_change.html:28
-#: users/templates/users/edit_profile.html:95
+#: users/templates/users/edit_profile.html:101
 msgid "Change password"
 msgstr ""
 
@@ -4713,11 +4794,11 @@ msgid "Follow the link below"
 msgstr ""
 
 #: users/templates/users/auth/password_reset_form.html:9
-#: users/templates/users/auth/password_reset_form.html:25
+#: users/templates/users/auth/password_reset_form.html:21
 msgid "Reset Password"
 msgstr ""
 
-#: users/templates/users/auth/password_reset_form.html:30
+#: users/templates/users/auth/password_reset_form.html:26
 msgid "Reset password"
 msgstr ""
 
@@ -4766,43 +4847,38 @@ msgstr ""
 msgid "Click here to login"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:129
-#: users/templates/users/edit_profile.html:119
+#: users/templates/users/auth/signup.html:156
+#: users/templates/users/edit_profile.html:158
 msgid "Add phone number"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:130
-#: users/templates/users/edit_profile.html:120
-msgid "Remove"
-msgstr ""
-
-#: users/templates/users/auth/signup.html:180
-#: users/templates/users/edit_profile.html:174
+#: users/templates/users/auth/signup.html:194
+#: users/templates/users/edit_profile.html:196
 msgid "Phone numbers may contain only digits and spaces."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:182
+#: users/templates/users/auth/signup.html:196
 msgid ""
 "Password should contain at least 8 characters and should not be entirely "
 "numeric."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:183
+#: users/templates/users/auth/signup.html:197
 msgid "Passwords do not match."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:184
-#: users/templates/users/edit_profile.html:176
+#: users/templates/users/auth/signup.html:198
+#: users/templates/users/edit_profile.html:198
 msgid "Enter a valid username."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:185
-#: users/templates/users/edit_profile.html:177
+#: users/templates/users/auth/signup.html:199
+#: users/templates/users/edit_profile.html:199
 msgid "Enter a valid full name."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:186
-#: users/templates/users/edit_profile.html:178
+#: users/templates/users/auth/signup.html:200
+#: users/templates/users/edit_profile.html:200
 msgid "Form contains some errors, correct them to continue."
 msgstr ""
 
@@ -4812,8 +4888,12 @@ msgid ""
 "WhatsApp. Phone numbers may contain only digits and spaces."
 msgstr ""
 
-#: users/templates/users/edit_profile.html:99
+#: users/templates/users/edit_profile.html:105
 msgid "Save"
+msgstr ""
+
+#: users/templates/users/edit_profile.html:159
+msgid "Remove"
 msgstr ""
 
 #: users/templates/users/profile/bookmarked-profiles.html:8
@@ -5129,67 +5209,96 @@ msgstr ""
 msgid "logout/"
 msgstr ""
 
-#: users/urls.py:47
+#: users/urls.py:55
 msgid "change-password/"
 msgstr ""
 
-#: users/urls.py:55
+#: users/urls.py:63
 msgid "change-password/done/"
 msgstr ""
 
-#: users/urls.py:64
+#: users/urls.py:81
 msgid "reset-password/"
 msgstr ""
 
-#: users/urls.py:74
+#: users/urls.py:91
 msgid "reset-password/email-sent/"
 msgstr ""
 
-#: users/urls.py:82
+#: users/urls.py:99
 msgid "reset-password/confirm/<uidb64>/<token>/"
 msgstr ""
 
-#: users/urls.py:91
+#: users/urls.py:108
 msgid "reset-password/complete/"
 msgstr ""
 
-#: users/urls.py:97
+#: users/urls.py:114
 msgid "<str:username>/edit-profile/"
 msgstr ""
 
-#: users/views.py:70
+#: users/views.py:72
 msgid "Activate your account"
 msgstr ""
 
-#: users/views.py:95
+#: users/views.py:97
 msgid ""
 "Please confirm your email address to complete the registration.You should "
 "receive a confirmation email anytime soon."
 msgstr ""
 
-#: users/views.py:121
+#: users/views.py:123
 msgid "No phone numbers registered."
 msgstr ""
 
-#: users/views.py:141
+#: users/views.py:143
 msgid ""
 "You have successfully confirmed your email. Now you can log into your "
 "account. <br>Login <a href=\"{}\">here</a>."
 msgstr ""
 
-#: users/views.py:149
+#: users/views.py:151
 msgid ""
 "Activation link is invalid. <br>Please <a href=\"{}\">sign up</a> again in "
 "order to get a new link."
 msgstr ""
 
-#: users/views.py:161
+#: users/views.py:163
 msgid "This is not your username. You can only edit your own account."
 msgstr ""
 
-#: users/views.py:187
+#: users/views.py:198
 msgid "You can't change your email address"
 msgstr ""
+
+#: users/views.py:244 users/views.py:263
+msgid ""
+"Sorry, this is a test account and you are not permitted to change its "
+"password. \n"
+"You can logout from this account and create your own account."
+msgstr ""
+
+#: users/views.py:271
+msgid ""
+"Sorry, this email is for the test account and you are not permitted to "
+"modify it. \n"
+"You can logout from this account and create your own account."
+msgstr ""
+
+#~ msgid "Buy/Sell an item"
+#~ msgstr "Articles"
+
+#~ msgid "Buy an item"
+#~ msgstr "Acheter un article"
+
+#, fuzzy
+#~| msgid "Upload a Past Paper"
+#~ msgctxt "nav item dropdown"
+#~ msgid "Upload a past paper"
+#~ msgstr "Ancien Sujets"
+
+#~ msgid "Call Hours: 9am - 5pm (Mon - Fri)"
+#~ msgstr "Heures d'appel : 9h - 17h (Lun - Ven)"
 
 #~ msgid "hitcount/"
 #~ msgstr "hitcount/"

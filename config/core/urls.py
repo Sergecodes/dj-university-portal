@@ -5,7 +5,6 @@ from django.views.generic.base import RedirectView
 from . import views
 from .ajax_views import PhotoUploadView
 
-
 app_name = 'core'
 
 

@@ -14,33 +14,6 @@ from past_papers.models import PastPaper
 User = get_user_model()
 
 
-class SocialProfileManager(models.Manager):
-	def get_site_profile(self):
-		"""Get CamerSchools social profile"""
-		user_account = User.objects.get_site_account()
-
-		try:
-			social_profile = SocialProfile.objects.get(user=user_account)
-		except SocialProfile.DoesNotExist:
-			# if social profile isn't present, create it
-			social_media = SocialMediaFollow.objects.create(
-				twitter_follow='https:twitter.com/...',
-				website_follow='https://www.camerschools.com',
-			)
-
-			social_profile = SocialProfile.objects.create(
-				user=user_account,
-				social_media=social_media,
-				about_me='Nothing about me for now...',
-				hobbies='No hobbies for now',
-				birth_date=timezone.now(),
-				speciality='Computer Science',
-				original_language='en',
-			)
-
-		return social_profile
-
-
 class SocialMediaFollow(models.Model):
 	"""Links to user's social media profiles"""
 	email = NormalizedEmailField(
@@ -217,7 +190,6 @@ class SocialProfile(models.Model):
 	)
 	view_count = models.PositiveIntegerField(default=0)
 
-	objects = SocialProfileManager()
 
 	class Meta:
 		ordering = ['-creation_datetime']

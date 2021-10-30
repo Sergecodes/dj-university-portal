@@ -16,7 +16,7 @@ from core.constants import (
 )
 from core.utils import insert_text_in_photo
 from core.storage_backends import PublicMediaStorage
-from lost_and_found.forms import LostItemPhotoForm
+from lost_or_found.forms import LostItemPhotoForm
 from marketplace.forms import (
 	ItemListingPhotoForm as ItemPhotoForm,
 	AdListingPhotoForm as AdPhotoForm

@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load static %}
 {% load notifications_tags %}
+{% load app_extras %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -17,7 +18,7 @@
 	<link rel="shortcut icon" type="image/x-icon" href="{% static 'icons/favicon.ico' %}">
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/base.min.css' %}">
+	<link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}">
 	{% block extra_css %}
 	{% endblock extra_css %}
 
@@ -129,7 +130,8 @@
 					</li>
 				</ul>
 				{% else %}
-				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0 register-and-login">
+				{# register-and-login class #}
+				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0">
 					<li class="list-inline-item">
 						<a href="{% url 'users:register' %}" class="btn link-light fw-bolder register-button">{% trans 'REGISTER' %}</a>
 					</li>
@@ -154,8 +156,8 @@
 								<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
 							</div>
 							<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
-							<a href="{% url 'users:password-reset' %}" class="link-primary">{% trans 'Forgot Password' %}</a>
-							<hr class="mb-2">
+							<a href="{% url 'users:password-reset' %}" class="link-primary text-decoration-none border-bottom-dotted">{% trans 'Forgot Password' %}</a>
+							<hr class="mb-3">
 							<a href="{% url 'users:login' %}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
 						</form>
 					</li>
@@ -184,8 +186,8 @@
 						</select>
 					<!-- form has no submit button, it's submitted when user clicks on an option; see js -->
 				</form>
-				{# for small screens, note the d-lg-none #}
-				<div class="d-inline-block d-lg-none">
+				{# for "small" screens only, note the d-lg-none #}
+				<div class="d-inline-block d-lg-none w-100 text-end">
 					{% if user.is_authenticated %}
 					<ul class="list-inline">
 						<li class="list-inline-item text-end">
@@ -198,7 +200,7 @@
 								</svg>
 								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 								{% if user.notifications.unread %}
-									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border" style="top:3.2rem;left:4.8rem;">
+									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border" style="top:3.2rem;right:5.5rem;">
 										<span class="visually-hidden">{% trans 'New notifications' %}</span>
 									</span>
 								{% endif %}
@@ -231,8 +233,12 @@
 									</a>
 								</div>
 								<hr class="dropdown-divider">
-								<a href="{% url 'users:profile-dashboard' %}" class="dropdown-item">{% trans "Dashboard" %}</a>
-								<a href="{% url 'users:profile-dashboard' %}" class="dropdown-item">{% trans "View Profile" %}</a>
+								<a href="{% url 'users:profile-dashboard' %}" class="dropdown-item">
+									{% trans "Dashboard" %}
+								</a>
+								<a href="{% url 'users:profile-dashboard' %}" class="dropdown-item">
+									{% trans "View Profile" %}
+								</a>
 								<a href="{% url 'users:edit-profile' username=user.username %}" class="dropdown-item">{% trans "Update Profile" %}</a>
 								<hr class="dropdown-divider">
 								<form action="{% url 'users:logout' %}" method="post">
@@ -243,34 +249,12 @@
 						</li>
 					</ul>
 					{% else %}
-					<ul class="list-inline my-2 register-and-login">
+					<ul class="list-inline my-2 pe-3">
 						<li class="list-inline-item">
 							<a href="{% url 'users:register' %}" class="btn link-light fw-bolder register-button">{% trans 'REGISTER' %}</a>
 						</li>
-						<li class="list-inline-item dropdown ms-2 js-loginDropdown">
-							<button
-								id="loginMenu2"
-								type="button"
-								href="{% url 'users:login' %}"
-								class="btn bg-primary link-light fw-bolder login-button" 
-								data-bs-toggle="dropdown" 
-								aria-expanded="false"
-							>
-								{% trans 'LOGIN' %}
-							</button>
-							<form class="dropdown-menu dropdown-menu-end px-2 dropdown-login-form" method="post" action="{% url 'users:login' %}" aria-labelledby="loginMenu2">
-								{% csrf_token %}
-								<div class="mt-2 mb-3">
-									<input type="email" name="username" class="form-control" placeholder="{% trans 'Email address' %}">
-								</div>
-								<div class="mb-4">
-									<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
-								</div>
-								<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
-								<a href="{% url 'users:password-reset' %}" class="link-primary">{% trans 'Forgot Password' %}</a>
-								<hr class="mb-2">
-								<a href="{% url 'users:login' %}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
-							</form>
+						<li class="list-inline-item dropdown ms-1">
+							<a href="{% url 'users:login' %}" class="btn bg-primary link-light fw-bolder login-button">{% trans 'LOGIN' %}</a>
 						</li>
 					</ul> 
 					{% endif %}
@@ -292,10 +276,10 @@
 								role="button"
 								tabindex="0"
 							>
-								{% trans 'Buy/Sell an item' %}
+								{% trans 'Items for sale' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="buySellItem">
-								<a class="dropdown-item" href="{% url 'marketplace:item-listing-list' %}">{% trans 'Buy an item' %}</a>
+								<a class="dropdown-item" href="{% url 'marketplace:item-listing-list' %}">{% trans 'View/Buy items' %}</a>
 								<a class="dropdown-item" href="{% url 'marketplace:item-listing-create' %}">{% trans 'Sell an item' %}</a>
 							</div>
 						</li>
@@ -308,7 +292,7 @@
 								role="button"
 								tabindex="0"
 							>
-								{% trans 'Post an advert' %}
+								{% trans 'Adverts' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="viewPostAdvert">
 								<a class="dropdown-item" href="{% url 'marketplace:ad-listing-create' %}">{% trans 'Post an advert' %}</a>
@@ -324,7 +308,7 @@
 								role="button"
 								tabindex="0"
 							>
-								{% trans 'Request an item' %}
+								{% trans 'Requested items' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="requestedItems">
 								<a class="dropdown-item" href="{% url 'requested_items:requested-item-create' %}">{% trans 'Request an item' %}</a>
@@ -360,10 +344,10 @@
 								{% trans 'Lost/Found Items' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="lostFoundItems">
-								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-create' %}">{% trans 'Publish a lost item' %}</a>
-								<a class="dropdown-item" href="{% url 'lost_and_found:lost-item-list' %}">{% trans 'View lost items' %}</a>
-								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-create' %}">{% trans 'Publish a found item' %}</a>
-								<a class="dropdown-item" href="{% url 'lost_and_found:found-item-list' %}">{% trans 'View found items' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_or_found:lost-item-create' %}">{% trans 'Publish a lost item' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_or_found:lost-item-list' %}">{% trans 'View lost items' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_or_found:found-item-create' %}">{% trans 'Publish a found item' %}</a>
+								<a class="dropdown-item" href="{% url 'lost_or_found:found-item-list' %}">{% trans 'View found items' %}</a>
 							</div>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
@@ -375,7 +359,7 @@
 								role="button"
 								tabindex="0"
 							>
-								{% trans 'Upload a past paper' context 'nav item dropdown' %}
+								{% trans 'Past Papers' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="pastPapers">
 								<a class="dropdown-item" href="{% url 'past_papers:past-paper-upload' %}">{% trans 'Upload a past paper' context 'dropdown child' %}</a>
@@ -522,12 +506,12 @@
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'lost_and_found:lost-item-create' %}">
+									<a class="nav-link footer__link" href="{% url 'lost_or_found:lost-item-create' %}">
 										{% trans 'Report a lost item' %}
 									</a>
 								</li>
 								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'lost_and_found:found-item-create' %}">
+									<a class="nav-link footer__link" href="{% url 'lost_or_found:found-item-create' %}">
 										{% trans 'Report a found item' %}
 									</a>
 								</li>
@@ -570,15 +554,15 @@
 								</svg>
 							</a>
 						</li>
-						<li class="mb-2">
-							<span class="small d-inline-block">
+						<li>
+							{% comment %} <span class="small d-inline-block">
 								{% trans 'Call Hours: 9am - 5pm (Mon - Fri)' %}
-							</span>
+							</span> {% endcomment %}
 							<span class="small d-block">
 								{% trans 'WhatsApp:' %} +237 6 51 20 98 32
 							</span>
 						</li>
-						<li class="">
+						<li>
 							<span class="small d-inline-block">
 								{% trans 'Email: info@camerschools.com' %}
 							</span>

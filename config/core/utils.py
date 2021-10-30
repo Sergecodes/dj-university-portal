@@ -116,8 +116,8 @@ def get_search_results(keyword_list, category=None):
 	# import models here coz models won't be ready if the imports are placed at the top
 	# since some functions here are used
 	# in models and they need to be called when initializing the model
-	LostItem = apps.get_model('lost_and_found.LostItem')
-	FoundItem = apps.get_model('lost_and_found.FoundItem')
+	LostItem = apps.get_model('lost_or_found.LostItem')
+	FoundItem = apps.get_model('lost_or_found.FoundItem')
 	ItemListing = apps.get_model('marketplace.ItemListing')
 	AdListing = apps.get_model('marketplace.AdListing')
 	AcademicQuestion = apps.get_model('qa_site.AcademicQuestion')
@@ -309,7 +309,7 @@ def get_label(category):
 ## FLAGGING ##
 
 
-## LOST_AND_FOUND ##
+## lost_or_found ##
 
 
 ## MARKETPLACE ##

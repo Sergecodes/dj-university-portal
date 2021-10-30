@@ -13,8 +13,8 @@
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}">
+	<!-- <link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}">
+	<link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}"> -->
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
@@ -328,9 +328,7 @@
 
 
 {% block extra_js %}
-{% if user.is_authenticated and user.id != listing.poster_id %}
-	<script src="{% static 'js/flag.js' %}"></script>
-{% endif %}
+<!-- <script src="{% static 'js/flag.js' %}"></script> -->
 <script>
 	// initialize whatsapp tooltips on the page
 	var tooltipTriggerList = [].slice.call(document.querySelectorAll('.js-whatsapp-tooltip'));

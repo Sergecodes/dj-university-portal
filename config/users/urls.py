@@ -43,9 +43,17 @@ urlpatterns = [
 	# 	views.logout_and_login,
 	# 	name='logout-then-login'
 	# ),
+	# path(
+	# 	_('change-password/'),
+	# 	auth_views.PasswordChangeView.as_view(
+	# 		template_name='users/auth/password_change.html',
+	# 		success_url=reverse_lazy('users:password-change-done')
+	# 	),
+	# 	name='password-change'
+	# ),
 	path(
 		_('change-password/'),
-		auth_views.PasswordChangeView.as_view(
+		views.PasswordChangeView.as_view(
 			template_name='users/auth/password_change.html',
 			success_url=reverse_lazy('users:password-change-done')
 		),
@@ -60,9 +68,18 @@ urlpatterns = [
 	),
 	# note that both authed and unauthed users can access this view. of course! 
 	# a previously authed user might have forgotten his password, same as an unauthed user.
+	# path(
+	# 	_('reset-password/'),
+	# 	auth_views.PasswordResetView.as_view(
+	# 		template_name='users/auth/password_reset_form.html',
+	# 		email_template_name='users/auth/password_reset_email.html',
+	# 		success_url=reverse_lazy('users:password-reset-done')
+	# 	),
+	# 	name='password-reset'
+	# ),
 	path(
 		_('reset-password/'),
-		auth_views.PasswordResetView.as_view(
+		views.PasswordResetView.as_view(
 			template_name='users/auth/password_reset_form.html',
 			email_template_name='users/auth/password_reset_email.html',
 			success_url=reverse_lazy('users:password-reset-done')

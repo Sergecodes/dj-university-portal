@@ -2,8 +2,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.tokens import PasswordResetTokenGenerator 
+from django.contrib.auth.views import (
+	PasswordChangeView as BasePasswordChangeView,
+	PasswordResetView as BasePasswordResetView
+)
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseBadRequest
@@ -16,9 +20,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from core.constants import PHONE_NUMBERS_KEY
+from core.constants import PHONE_NUMBERS_KEY, TEST_ACCOUNT_EMAIL, TEST_ACCOUNT_USERNAME
 from qa_site.models import SchoolAnswer, AcademicAnswer
-from socialize.views import HasSocialProfileMixin
 from users.models import PhoneNumber
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
@@ -165,6 +168,15 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		# trying to edit his own profile...
 		user = self.request.user
 		passed_username = self.kwargs.get('username')
+
+		# prevent modification of test account 
+		# email test@gmail.com and username test-user
+		if passed_username == TEST_ACCOUNT_USERNAME:
+			raise PermissionDenied(_(
+				'Sorry, this is a test account and you are not permitted to modify it. \n'
+				'You can logout from this account and create your own account.'
+			))
+
 		return user.username == passed_username
 
 	def post(self, request, *args, **kwargs):
@@ -223,6 +235,45 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 			instance=self.object
 		)
 		return context
+
+
+class PasswordChangeView(LoginRequiredMixin, BasePasswordChangeView):
+	def get(self, request, *args, **kwargs):
+		if request.user == User.objects.filter(username=TEST_ACCOUNT_USERNAME).first():
+			raise PermissionDenied(_(
+				'Sorry, this is a test account and you are not permitted to change its password. \n'
+				'You can logout from this account and create your own account.'
+			))
+		return super().get(request, *args, **kwargs) 
+
+	def form_valid(self, form):
+		if self.request.user == User.objects.filter(username=TEST_ACCOUNT_USERNAME).first():
+			raise PermissionDenied(_(
+				'Sorry, this is a test account and you are not permitted to modify it. \n'
+				'You can logout from this account and create your own account.'
+			))
+			
+		return super().form_valid(form)
+
+
+class PasswordResetView(LoginRequiredMixin, BasePasswordResetView):
+	def get(self, request, *args, **kwargs):
+		if request.user == User.objects.filter(username=TEST_ACCOUNT_USERNAME).first():
+			raise PermissionDenied(_(
+				'Sorry, this is a test account and you are not permitted to change its password. \n'
+				'You can logout from this account and create your own account.'
+			))
+		return super().get(request, *args, **kwargs) 
+
+	def form_valid(self, form):
+		if self.request.POST.get('email') == TEST_ACCOUNT_EMAIL:
+			raise PermissionDenied(_(
+				'Sorry, this email is for the test account and you are not permitted to modify it. \n'
+				'You can logout from this account and create your own account.'
+			))
+			
+		return super().form_valid(form)
+
 
 
 ### PROFILE TEMPLATES SECTIONS ###
@@ -289,7 +340,7 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 
 
 class LostAndFound(LoginRequiredMixin, TemplateView):
-	template_name = "users/profile/lost-or-found.html"
+	template_name = "users/profile/lost-and-found.html"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -329,8 +380,13 @@ class PastPaper(LoginRequiredMixin, TemplateView):
 		return context
 
 
-class BookmarkedSocialProfiles(LoginRequiredMixin, HasSocialProfileMixin, TemplateView):
+class BookmarkedSocialProfiles(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 	template_name = "users/profile/bookmarked-profiles.html"
+
+	def test_func(self):
+		if self.request.user.has_social_profile:
+			return True
+		return False 
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

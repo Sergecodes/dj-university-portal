@@ -26,6 +26,11 @@ CAMERSCHOOLS_USERNAME = 'CamerSchools'
 CAMERSCHOOLS_EMAIL = 'camerschools@gmail.com'  # professional email of course..
 CAMERSCHOOLS_PASSWORD = 'password'  # TODO this should be complicated as fuck.
 
+TEST_ACCOUNT_EMAIL = 'test@gmail.com'
+TEST_ACCOUNT_USERNAME = 'test-user'
+TEST_ACCOUNT_PASSWORD = 'password'
+
+
 ## SESSION KEYS
 # used in the UserCreateView to save a user's phone numbers in the session
 PHONE_NUMBERS_KEY = 'phone_numbers_list'
@@ -66,7 +71,7 @@ FLAGS_ALLOWED = 1
 IS_FLAGGED_COUNT = FLAGS_ALLOWED + 1
 
 
-### LOST_AND_FOUND APP ###
+### lost_or_found APP ###
 # Changes in points:
 	# post found item: +5 points (you should understand why it doesn't have to be more; 
 	# user might decite to upload his own items to gain more points...)

@@ -28,7 +28,7 @@ academic_question_patterns = [
 		name='academic-question-delete'
 	),
 	path(
-		_('<int:pk>/<slug:slug>/'), 
+		'<int:pk>/<slug:slug>/', 
 		views.AcademicQuestionDetail.as_view(), 
 		name='academic-question-detail'
 	),

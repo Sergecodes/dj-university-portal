@@ -31,7 +31,7 @@
 # - don't show all comments of a post(question or answer) initially. create a button `View comments(12)` that upon clicking, will display the comments of the post. then change to hide comments..which upon clicking again hides the comments. this can surely be done using bootstrap; see example in past papers list view, levels.
 # - if user is authed, on header, change profile icon to his profile image. 
 # - remove duration from listings for now right... perhaps implement in future. yep.
-# - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_and_found models.)
+# - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_or_found models.)
 # - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
 # - show best users on both pc and mobile; display vertically on mobile.
 # - wide site search (for search forms in header and footer)  - add placeholder ("I'm not yet working")..

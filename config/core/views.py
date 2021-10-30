@@ -19,7 +19,7 @@ from core.constants import (
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
 )
 from core.utils import get_search_results, get_label, get_minutes
-from lost_and_found.models import LostItem, FoundItem
+from lost_or_found.models import LostItem, FoundItem
 from marketplace.models import ItemListing, AdListing
 from notifications.models import Notification
 from past_papers.models import PastPaper
@@ -279,6 +279,7 @@ class SiteUsageInfoView(TemplateView):
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
+
 		# points rewarded when user posts something
 		context['post_points'] = 5
 		context['new_user_points'] = INITIAL_POINTS
@@ -320,3 +321,22 @@ class TermsAndConditionsView(TemplateView):
 
 # def absolve_post...
 	# pass
+
+
+## CUSTOM ERROR HANDLER VIEWS
+def page_not_found_view(request, exception):
+	return render(request, 'core/error_templates/404.html', {'exception': exception})
+
+
+def server_error_view(request):
+	return render(request, 'core/error_templates/500.html') 
+
+
+def permission_denied_view(request, exception):
+	return render(request, 'core/error_templates/403.html', {'exception': exception})
+
+
+def bad_request_view(request, exception):
+	return render(request, 'core/error_templates/400.html', {'exception': exception})
+
+

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}">
+	<!-- <link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}"> -->
 {% endblock extra_css %}
 
 {% block institution_searchbox %}
@@ -97,7 +97,7 @@
 							<li class="d-flex p-3 ps-0 ps-lg-auto pb-4 mb-2 post">
 								<div class="flex-shrink-0">
 									<a href="{{ listing.get_absolute_url }}">
-										<img class="py-2 post__img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										<img class="py-2 post-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								</div>
 								<div class="flex-grow-1 ms-3">

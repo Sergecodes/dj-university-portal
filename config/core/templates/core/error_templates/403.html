@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+<title>403 - {% trans 'Permission Denied' %} | CamerSchools</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <h2 class="text-success mb-3">{% trans 'Permission Denied' %}</h2>
+    <p>
+        {% if exception %}
+            {# convert \n received from view to br #}
+            <b style="white-space: pre-line;">{{ exception }}</b>
+        {% else %}
+            <b>{% trans 'You are not permitted to access this page.' %}</b>
+        {% endif %} 
+        <br><br>
+        {% trans 'Use the site navigation links to explore the sections of this site that you can access.' %}
+    </p>
+</div>
+
+{# just to get an empty space #}
+<div class="pb-5 mb-2"></div>
+
+{% endblock content %}
+
+

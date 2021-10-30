@@ -6,6 +6,7 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -16,6 +17,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import DetailView
 from django.views.generic.base import TemplateView
 
+from core.constants import TEST_ACCOUNT_USERNAME
 from core.mixins import IncrementViewCountMixin
 from core.models import Institution
 from core.utils import get_random_profiles, translate_text
@@ -28,6 +30,9 @@ User = get_user_model()
 
 def has_social_profile(user):
 	"""Verify if user has social profile"""
+	if user.is_anonymous:
+		return False
+		
 	return user.has_social_profile
 
 
@@ -35,7 +40,11 @@ class CamerSchoolsProfileView(TemplateView):
 	template_name = 'socialize/camerschools_profile.html'
 
 
-class HasSocialProfileMixin(UserPassesTestMixin):
+class BothHaveSocialProfileMixin(UserPassesTestMixin):
+	"""
+	The user calling this request and the user passed in the url should both have a social profile
+	"""
+
 	login_url = reverse_lazy('socialize:create-profile')
 
 	def handle_no_permission(self):
@@ -117,6 +126,14 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		and user should have a social profile.
 		"""
 		user, passed_username = self.request.user, self.kwargs.get('username')
+
+		# prevent modification of test account
+		if user.username == TEST_ACCOUNT_USERNAME or passed_username == TEST_ACCOUNT_USERNAME:
+			raise PermissionDenied(_(
+				'Sorry, this is a test account and you are not permitted to modify it. \n'
+				'You can logout from this account and create your own account.'
+			))
+
 		if user.username == passed_username and user.has_social_profile:
 			return True
 			
@@ -361,7 +378,7 @@ class SocialProfileFilter(filters.FilterSet):
 
 class SocialProfileDetail(
 		LoginRequiredMixin, 
-		HasSocialProfileMixin, 
+		BothHaveSocialProfileMixin, 
 		IncrementViewCountMixin, 
 		DetailView
 	):
@@ -448,8 +465,9 @@ class SocialProfileList(LoginRequiredMixin, UserPassesTestMixin, FilterView):
 
 	def test_func(self):
 		"""User calling this function should have a social profile"""
-		if not has_social_profile(self.request.user):
-			return False
+		if has_social_profile(self.request.user):
+			return True
+		return False
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)

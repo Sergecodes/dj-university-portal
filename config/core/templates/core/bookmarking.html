@@ -79,7 +79,7 @@
 </span>
 
 <script>
-	{# these variables will be used by the bookmark.js file #}
+	// {# these variables will be used by the bookmark.js file #}
 	{# see stackoverflow.com/q/36689075/how-to-use-django-variable-in-javascript-file #}
 	// get current user's id.. 
 	// if user isn't logged in, user.id will be `None`
@@ -90,4 +90,4 @@
 	var bookmarkText = "{% trans 'Bookmark' %}", bookmarkedText = "{% trans 'Bookmarked' %}";
 	var csrfToken = "{{ csrf_token }}";
 </script>
-<script src="{% static 'minified/js/bookmark.min.js' %}"></script>
+<!-- <script src="{% static 'minified/js/bookmark.min.js' %}"></script> -->

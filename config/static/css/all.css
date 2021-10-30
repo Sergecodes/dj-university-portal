@@ -1,0 +1,997 @@
+/* This stylesheet is a combination of all the others */
+
+/* base.css */
+/** THIS SHEET IS FOR COMMON SITE STYLING AND USERS SECTION */
+
+/*
+* xs --- Extra small devices (portrait phones, < 576px)
+* No media query since this is the default in Bootstrap
+* sm --- Small devices (landscape phones, >= 576px  [576px and up])
+* md --- Medium devices (tablets, >= 768px)
+* lg --- Large devices (desktops, >= 992px)
+* xl --- Extra large devices (large desktops, >= 1200px)
+* xxl -- Extra extra large devices (larger desktops, >=1400px)
+*/
+
+img {
+	max-width: 100%;
+	/* break word in case image alt text is greater than container */
+	/* equivalent to bootstrap 5 class 'text-break',  */
+	word-wrap: break-word;
+	word-break: break-word;
+}
+
+.border-bottom-dotted {
+	border-bottom: dotted;
+}
+
+/** images on listing (list) pages */
+.post-img {
+	width: 110px;
+	height: 110px;
+}
+
+
+/* make bootstrap tooltips flexible, use alongsite data-container="body" */
+.share-tooltip .tooltip-inner {
+	max-width: 100%;
+}
+
+/* button that looks like link */
+/* .button-link {
+	border: none;
+	outline: none;
+	background: none;
+	cursor: pointer;
+	padding: 0;
+	color: #0000EE;
+	text-decoration: underline;
+	font-family: inherit;
+	font-size: inherit;
+} */
+
+.header-top {
+	padding-top: .3rem;
+	padding-bottom: .3rem;
+	background-color: #086a3d;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.logo__img {
+	width: 260px;
+}
+
+.notifier-circle {
+	right: 1px;
+	top: -8px;
+}
+
+.register-button {
+	opacity: 0.95;
+	background-color: #dba339;
+}
+
+.register-button:hover,
+.register-button:focus {
+	opacity: 1;
+}
+
+.login-button {
+	opacity: 0.95;
+	/* background-color: #8a32ca; */
+}
+
+.login-button:hover,
+.login-button:focus {
+	opacity: 1;
+}
+
+.dropdown-login-form {
+	min-width: 20rem;
+}
+
+.header-top__text {
+	color: white;
+}
+
+.nav-menu__link {
+	font-size: 15px;
+	color: white;
+}
+
+.nav-menu__link:focus,
+.nav-menu__link:hover {
+	color: #0e1e0a;  
+}
+
+.nav-menu__link--current,
+.nav-menu__link--current:focus,
+.nav-menu__link--current:hover {
+	color: black;
+}
+
+
+/* style dropdown arrow */
+.nav-menu__link::after {
+	vertical-align: 0.1em;
+}
+
+.lang-select-form {
+	width: 10rem;
+}
+
+/* .lang-select-form--unauthed {
+	
+} */
+
+.lang-select-form--authed {
+	margin-left: 2.5rem;
+}
+
+.lang-select--unauthed {
+	/* text-align: right; */
+	width: 90%;
+}
+
+/* .lang-select--authed {
+
+} */
+
+/* .notifs-and-profile {
+
+} */
+
+
+/* Notifications */
+.notif-item-link {
+	/* no need to set color, it will be inherited */
+	border-bottom: 1px dotted;
+}
+
+/* .register-and-login {
+	justify-content: right;
+} */
+
+.header-notifs-svg {
+	position: relative;
+	top: .4rem;
+	padding-left: 1px;
+}
+
+.header-notifs-link__text {
+	font-size: .72rem;
+}
+
+.header-notifs-link,
+.header-profile-menu,
+.header-notifs-link:hover,
+.header-profile-menu:hover {
+	color: #fff;
+	text-decoration: none;
+	font-size: .65em;
+}
+
+.header-profile-svg {
+	margin-top: 3px;
+	margin-bottom: 1px;
+}
+
+.header-profile-info {
+	white-space: nowrap;
+	text-decoration: none;
+	text-align: center;
+	display: block;
+}
+
+.nav-bar-toggler {
+	border-color: #ffe484;
+	background: none;
+	opacity: 0.8;
+}
+
+.nav-bar-toggler:hover,
+.nav-bar-toggler:focus,
+.nav-bar-toggler:active {
+	box-shadow: none;
+	opacity: 1;
+}
+
+.nav-bar-toggler__icon {
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+.institution-searchbox {
+	background-color: #21935e;
+	border-radius: 5px;
+}
+
+.form-submit-button,
+.institution-search-form__submit-button {
+	font-weight: 600;
+	color: #ffe484;
+	border-color: #ffe484;
+}
+
+.form-submit-button:active,
+.form-submit-button:hover,
+.institution-search-form__submit-button:active,
+.institution-search-form__submit-button:hover {
+	/* color: #2a2730; */
+	color: #ffe484;
+	background-color: #3f996f;
+	border-color: #ffe484;
+}
+
+.section-title {
+	font-size: 1.62rem;
+	border-bottom: 1px solid #198754;
+	/* padding-bottom: 10px; */
+	/* border-bottom: 1px solid #93999F; */
+}
+
+.section-title__text {
+	border-bottom: 2px solid #198754;
+}
+
+
+/** Home page */
+.extra-info-img {
+	width: 140px;
+	height: 100px;
+}
+
+.index-page-list__item {
+	list-style-type: none;
+}
+
+.index-page-img {
+	width: 120px;
+	height: 95px;
+}
+
+
+/* Footer section */
+.footer {
+	color: rgba(0, 0, 0, 0.7);
+}
+
+.footer__subheading {
+	padding-bottom: 3px;
+	border-bottom: 1px solid #505e4c;
+	font-size: 1.7rem;
+	letter-spacing: 0.05rem;
+	color: #88d985;
+	font-weight: bold;
+}
+
+.footer__link {
+	padding-left: 0;
+	padding-bottom: 4px;
+	color: #69bd66;
+	display: inline-block;
+}
+
+/* .footer__link:focus {
+	color: black;
+} */
+
+.footer__link:focus,
+.footer__link:hover {
+	/* color: #444; */
+	/* color: #eee; */
+	color: #69bd66; /* maintain same color */
+	text-decoration: underline;
+}
+
+.footer-channels__svg {
+	vertical-align: -2px;
+	margin-left: 5px;
+}
+
+/** SEARCH PAGES **/
+.search-results-container {
+	width: 75%;
+}
+
+
+/*** USER REGISTRATION & LOGIN PAGES ***/
+/* remove asterisk from required fields when using django-crispyforms */
+/* .asteriskField {
+	display: none;
+} */
+
+/* .user-form {
+	
+} */
+
+.user-form--edit,
+.user-form--signup {
+	width: 75%;
+}
+
+.user-form--login {
+	width: 50%;
+}
+
+.filter-form,
+.filter-form-wrp {
+	background-color: #f6f6f6;
+	/* border: 1px solid #ccc; */
+}
+
+/** PHOTO UPLOAD TEMPLATE */
+.gallery-container {
+    width: 90%;
+}
+
+.photo-wrp__img {
+    width: 130px;
+    height: 70px;
+}
+
+
+/** IMAGES GALLERY IN SOME DETAIL VIEWS(e.g. marketplace, lostitem) */
+.photo-slide__img {
+    cursor: pointer;
+    width: 9rem;
+    height: 5rem;
+    max-width: 100%;
+}
+
+.expanded-img-wrp {
+    width: 95%;
+}
+
+.expanded-img {
+    width: 700px;
+    height: 300px;
+}
+
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	.dropdown:hover .dropdown-menu {
+		display: block;
+		margin-top: 0;
+	}
+
+	.header-notifs-link:hover,
+	.header-profile-menu:hover {
+		filter: drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px);
+	}
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	.user-form--edit,
+	.user-form--signup
+	.search-results-container {
+		width: 100%;  
+	}
+
+	.user-form--login {
+		width: 90%;  
+	}
+
+}
+
+/* flag.css */
+
+.flag-report-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 5rem;
+    left: 0;
+    top: 0;
+    /* width: 80%; */
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+.report-modal-content {
+    position: relative;
+    background-color: #f7f7f7;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 90%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s;
+}
+@-webkit-keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+@keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+.report-modal-close {
+    color: #18121e;
+    float: right;
+    margin-right: 10px;
+    font-size: 2rem;
+    font-weight: bold;
+}
+.report-modal-close:hover,
+.report-modal-close:focus {
+    color: rgb(14, 30, 10);
+    text-decoration: none;
+    cursor: pointer;
+}
+.report-modal-flag-form {
+    padding: 0.1rem 1rem;
+    background-color: #fefefe;
+}
+.report-modal-flag-form form {
+    font-size: 1rem;
+    line-height: 2;
+}
+.report-modal-form-info {
+    padding: 0.1rem 1rem;
+    background-color: #f7f7f7;
+    display: none;
+}
+
+.flag-submit-btn {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    color: #fff;
+    background-color: #E74C3C;
+    border-color: #E74C3C;
+    -webkit-appearance: button;
+}
+.flag-modal-title {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin-bottom: .5rem;
+    font-size: 1.5rem;
+    line-height: inherit;
+    color: inherit;
+    white-space: normal;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+    
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    /* .flag-report-modal {
+        width: 100%;
+    } */
+}
+
+/* lost_or_found.css */
+/** EXTRA CSS FOR THE lost_or_found SITE */
+
+/* Forms (create templates) */
+.founditem-form-container,
+.lostitem-form-container {
+    width: 70%;
+}
+
+.founditem-form,
+.lostitem-form {
+    /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); */
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+/* Listings */
+
+/* .lostitems-search-form-wrp {
+    background-color: #f6f6f6;
+    /* border: 1px solid #ccc; 
+} */
+
+.founditems-search-form,
+.lostitems-search-form {
+    background-color: #f6f6f6;
+}
+
+.founditems-list-container,
+.lostitems-list-container {
+	width: 75%;
+}
+
+.lostitem-item {
+    border-bottom: 1px solid #ddd;
+}
+
+/** Detail */
+.founditem-art,
+.lostitem-art {
+    width: 85%;
+}
+
+.how-found-wrp,
+.how-lost-wrp,
+.bounty-wrp {
+    width: 75%;
+}
+
+.appreciation-msg-wrp {
+    font-size: 0.92rem;
+    width: 75%;
+    display: none;  /* display is initially none */
+}
+
+.claim-msg-wrp,
+.contact-details {
+    display: none;
+}
+
+.number-box-wrp {
+    width: 30%;
+}
+
+.number-box__tel,
+.number-box__whatsapp {
+    cursor: pointer;
+}
+
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+    .lostitem-photo-section {
+        padding-right: 3rem; /* pe-5 */
+    }
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .founditem-form-container,
+    .lostitem-form-container,
+    .founditems-list-container,
+	.lostitems-list-container,
+    .lostitem-art,
+    .appreciation-msg-wrp,
+    .claim-msg-wrp,
+    .how-lost-wrp,
+    .bounty-wrp
+    {
+        width: 100%;
+    }
+
+    .founditem-form,
+	.lostitem-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+    .appreciation-msg-wrp {
+        font-size: 0.92rem;
+        width: 75%;
+    }
+}
+
+/* marketplace.css */
+/** EXTRA CSS FOR THE MARKETPLACE SITE */
+
+/** Listing creation forms (advert and item listings) */
+.listing-form-container {
+    width: 70%;
+}
+
+.listing-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+.gallery-container {
+    width: 90%;
+}
+
+.photo-wrp__img {
+    width: 130px;
+    height: 70px;
+}
+
+/** Item listing detail */
+/* .listing-wrp {
+    flex-direction: column;
+} */
+
+.listing-title {
+    font-variant: small-caps;
+}
+
+.warning-wrp {
+    font-size: 0.92rem;
+    width: 75%;
+}
+
+.number-box-wrp {
+    width: 30%;
+}
+
+.number-box__tel,
+.number-box__whatsapp {
+    cursor: pointer;
+}
+
+.similar-listing__img {
+    width: 10rem;
+    height: 4rem;
+}
+
+.similar-listing__img--ad {
+    /* (width, height) = (80px, 80px) is the pair corresponding to fa-5x on font-awesom icon */
+    width: 80px;
+    height: 80px; 
+}
+
+/** Item listing list */
+.listing-list-container {
+    width: 75%;
+}
+
+.listing-search-form-wrp {
+    background-color: #f6f6f6;
+    border: 1px solid #ccc;
+}
+
+/* .listing-search-form {
+    width: 85%;
+} */
+
+.post {
+    border-bottom: 1px solid #ddd;
+}
+
+/** Listing explain page */
+.listing-descr-img {
+    height: 12rem;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+    .ad-info,
+    .item-info {
+        width: 35%;
+    }
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .listing-search-form,
+    .listing-list-container,
+    .listing-form-container {
+        width: 100%;
+    }
+
+	.listing-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+    .warning-wrp {
+        width: 100%;
+    }
+}
+
+/* past_papers.css */
+/** EXTRA CSS FOR THE PAST_PAPERS SITE */
+
+/** Past paper creation form */
+.pastpaper-form-container,
+.pastpaper-edit-comment-form-container {
+    width: 70%;
+}
+
+.pastpaper-edit-comment-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+
+/** Past papers list */
+.pastpapers-list-container {
+	width: 75%;
+}
+
+/** Past papers detail page */
+.pastpaper-comments {
+    width: 70%;
+}
+
+.pastpaper-comment-form {
+    width: 55%;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .pastpaper-edit-comment-form-container,
+    .pastpaper-form-container {
+        width: 100%;
+    }
+
+    .pastpaper-edit-comment-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+	.pastpapers-list-container {
+		width: 100%;
+	} 
+
+    .pastpaper-comments {
+        width: 100%;
+    }
+
+    .pastpaper-comment-form {
+        width: 100%;
+    }
+
+}
+
+/* qa_site.css */
+/** EXTRA CSS FOR THE QA_SITE */
+
+/* Question creation templates */
+.comment-form-container,
+.answer-form-container,
+.school-question-form-container,
+.academic-question-form-container {
+	width: 75%;
+}
+
+.comment-form,
+.answer-form,
+.school-question-form,
+.academic-question-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+/* Answer and comment edit and deletion templates */
+
+
+/* Ck-editor widgets */
+/* question form widget */
+.django-ckeditor-widget {
+	width: 100%;
+}
+
+/* #cke_addQuestionCommentArea,
+.cke_editor_addQuestionCommentArea {
+	width: 50%;
+} */
+
+
+/* Questions detail view pages */
+.question-header {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.question-header__title {
+	color: #3c4146;
+}
+
+.question-info {
+	font-size: .95rem;
+}
+
+.answers-header__count {
+	color: #3c4146;
+	font-size: 1.4rem;
+}
+
+/** Questions explain page */
+.qstn-descr-img {
+	height: 12rem;
+}
+
+
+
+/*** MEDIA QUERIES ***/
+
+/* lg and above */
+@media (min-width: 992px) {
+	.question-list-art {
+		width: 75%;
+		margin-right: 1.5rem; /* me-4 */
+	} 
+
+	.subjects-list-aside,
+	.schools-list-aside {
+		width: 25%;
+	}
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	/* .question-list-art {
+
+	} */
+
+	.comment-form-container,
+	.answer-form-container,
+	.school-question-form-container,
+	.academic-question-form-container {
+		width: 100%;
+	}
+
+	.comment-form,
+	.answer-form,
+	.school-question-form,
+	.academic-question-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+	/* #cke_addQuestionCommentArea,
+	.cke_editor_addQuestionCommentArea {
+		width: 100%;
+	} */
+
+	/* .question-list-art {
+		width: 100%;
+		margin: 0;
+	} */
+}
+
+/* requested_items.css */
+/** EXTRA CSS FOR THE REQUESTED_ITEMS SITE */
+
+/* Forms (create templates) */
+.requested-item-form-container {
+    width: 70%;
+}
+
+.requested-item-form {
+    /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); */
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+/* Listings */
+.requested-items-list-container {
+    width: 70%;
+}
+
+/* .requested-items-search-form-wrp {
+    background-color: #f6f6f6;
+    /* border: 1px solid #ccc; 
+} */
+
+.requested-items-search-form {
+    background-color: #f6f6f6;
+    /* width: 85%; */
+}
+
+
+.number-box-wrp {
+    width: 30%;
+}
+
+.number-box__tel,
+.number-box__whatsapp {
+    cursor: pointer;
+}
+
+/* .similar-item__img {
+    width: 10rem;
+    height: 4rem;
+} */
+
+.similar-req-item__img {
+    /* (width, height) = (80px, 80px) is the pair corresponding to fa-5x on font-awesome icon */
+    width: 80px;
+    height: 80px; 
+}
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+    .requested-item-info {
+        width: 35%;
+    }
+    /* .requested-item-photo-section {
+        padding-right: 3rem; /* pe-5 
+    } */
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .requested-item-form-container,
+    .requested-items-list-container {
+        width: 100%;
+    }
+
+	.requested-item-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+}
+
+/* socialize.css */
+/** EXTRA CSS FOR THE SOCIALIZE SITE */
+
+/* Creation page */
+.socialize-form-container {
+    width: 75%;
+}
+
+/* listing page */
+.profiles-list-art,
+.profile-filter-art {
+	width: 75%;
+	margin-right: 1.5rem; /* me-4 */
+}
+
+.profiles-list-container {
+    width: 80%;
+}
+
+.profile-item {
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-item__img {
+    width: 10rem;
+    height: 100%;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	.profiles-list-container,
+    .socialize-form-container {
+        width: 100%;
+    }
+	
+	.profiles-list-art,  /** added.. */
+	.profile-filter-art {
+		width: 100%;
+		margin: 0;
+	}
+}
+

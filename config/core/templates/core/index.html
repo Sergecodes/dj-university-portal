@@ -114,7 +114,7 @@
 							<div class="d-flex">
 								<div class="flex-shrink-0">
 									<a href="{{ listing.get_absolute_url }}">
-										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										<img class="p-1 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								</div>
 								<div class="flex-grow-1 small ms-4">
@@ -163,11 +163,11 @@
 								{% if photo %}
 									<a href="{{ listing.get_absolute_url }}">
 										{# alt is sufficient for accessibility #}
-										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										<img class="p-1 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								{% else %}
 									<a href="{{ listing.get_absolute_url }}" class="d-inline-block link-secondary">
-										<i class="far fa-image fa-6x px-4 shadow opacity-50" aria-hidden="true"></i>
+										<i class="far fa-image fa-5x px-3 py-2 shadow opacity-50" aria-hidden="true"></i>
 										<span class="visually-hidden">{% trans 'Advert' %}</span>
 									</a>
 								{% endif %}
@@ -220,11 +220,11 @@
 							<div class="flex-shrink-0">
 								{% if photo %}
 									<a href="{{ requested_item.get_absolute_url }}">
-										<img class="p-1 my-2 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
+										<img class="p-1 shadow index-page-img" src="{{ photo.file.url }}" alt="{{ photo.title }}">
 									</a>
 								{% else %}
 									<a href="{{ requested_item.get_absolute_url }}" class="d-inline-block link-secondary">
-										<i class="far fa-image fa-6x px-4 shadow opacity-50" aria-hidden="true"></i>
+										<i class="far fa-image fa-5x px-3 py-2 shadow opacity-50" aria-hidden="true"></i>
 										<span class="visually-hidden">{% trans 'Item' %}</span>
 									</a>
 								{% endif %}
@@ -328,14 +328,14 @@
 								{% if photo %}
 									<a href="{{ lost_item.get_absolute_url }}">
 										<img 
-											class="p-1 my-2 shadow index-page-img" 
+											class="p-1 shadow index-page-img" 
 											src="{{ photo.file.url }}" 
 											alt="{{ photo.title }}"
 										>
 									</a>
 								{% else %}
 									<a href="{{ lost_item.get_absolute_url }}" class="d-inline-block link-secondary">
-										<i class="far fa-image fa-6x px-4 shadow opacity-50" aria-hidden="true"></i>
+										<i class="far fa-image fa-5x px-3 py-2 shadow opacity-50" aria-hidden="true"></i>
 										<span class="visually-hidden">{% trans 'Advert' %}</span>
 									</a>
 								{% endif %}
@@ -350,7 +350,7 @@
 								<br class="mb-3">
 								<a 
 									class="text-decoration-none" 
-									href="{% url 'lost_and_found:lost-item-list' %}?school={{ lost_item.school_id }}"
+									href="{% url 'lost_or_found:lost-item-list' %}?school={{ lost_item.school_id }}"
 								>
 									{{ lost_item.school }}
 								</a>
@@ -361,10 +361,10 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_and_found:lost-item-list' %}">
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_or_found:lost-item-list' %}">
 				{% trans 'View Lost Items' %}
 			</a>
-			<a class="btn btn-success" href="{% url 'lost_and_found:lost-item-create' %}">
+			<a class="btn btn-success" href="{% url 'lost_or_found:lost-item-create' %}">
 				{% trans 'Publish a lost item' %}
 			</a>
 		</section>
@@ -386,7 +386,7 @@
 						<div class="mt-2">
 							<a 
 								class="text-decoration-none" 
-								href="{% url 'lost_and_found:found-item-list' %}?school={{ found_item.school_id }}"
+								href="{% url 'lost_or_found:found-item-list' %}?school={{ found_item.school_id }}"
 							>
 								({{ found_item.school }})
 							</a>
@@ -397,10 +397,10 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_and_found:found-item-list' %}">
+			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_or_found:found-item-list' %}">
 				{% trans 'View Found Items' %}
 			</a>
-			<a class="btn btn-success" href="{% url 'lost_and_found:found-item-create' %}">
+			<a class="btn btn-success" href="{% url 'lost_or_found:found-item-create' %}">
 				{% trans 'Publish a found item' %}
 			</a>
 		</section>

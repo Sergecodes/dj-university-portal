@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-import os
+from django.urls import reverse_lazy
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +25,11 @@ SECRET_KEY = '!73!8_w-350#rrf(%z@5l5d#i%5v%sjpe%3uf+b9xc3^0zji-@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+	'.localhost', '127.0.0.1', '[::1]', 
+	'camerschools.com', 'www.camerschools.com',
+	'university-portal-u2v6k.ondigitalocean.app'
+]
 AUTH_USER_MODEL = 'users.User'
 SITE_NAME = 'CamerSchools'
 
@@ -50,8 +54,8 @@ INSTALLED_APPS = [
 	'crispy_bootstrap5',
 	'django_extensions',
 	'django_filters',
-	'django_hosts',
-	'debug_toolbar',
+	# 'django_hosts',
+	# 'debug_toolbar',
 	# 'easy_thumbnails',
 	'storages',
 	'taggit',
@@ -59,7 +63,7 @@ INSTALLED_APPS = [
 	# My apps
 	'core',
 	'flagging',  # modified django-flag-app
-	'lost_and_found',
+	'lost_or_found',
 	'marketplace',
 	'notifications',  # modified django-notifications-hq
 	'past_papers',
@@ -70,9 +74,12 @@ INSTALLED_APPS = [
 
 ]
 
+if DEBUG:
+	INSTALLED_APPS.append('debug_toolbar')
+
 MIDDLEWARE = [
-	# 'django_hosts.middleware.HostsRequestMiddleware',  # for django_hosts
 	'django.middleware.security.SecurityMiddleware',
+	# 'django_hosts.middleware.HostsRequestMiddleware',  # for django_hosts
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.locale.LocaleMiddleware',  # for translation
 	'django.middleware.common.CommonMiddleware',
@@ -112,17 +119,30 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+USE_PROD_DB = False
 
-DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME': 'sitedb',
-		'USER': 'sergeman',
-		'PASSWORD': 'notanumber',
-		'HOST': 'localhost',
-		'PORT': '5432',
+if USE_PROD_DB:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'defaultdb',
+			'USER': 'doadmin',
+			'PASSWORD': 'w0Ye4iImpnoUyZis',
+			'HOST': 'db-postgresql-fra1-45768-do-user-10031233-0.b.db.ondigitalocean.com',
+			'PORT': '25060',
+		}
 	}
-}
+else:
+	DATABASES = {
+		'default': {
+			'ENGINE': 'django.db.backends.postgresql_psycopg2',
+			'NAME': 'sitedb',
+			'USER': 'sergeman',
+			'PASSWORD': 'notanumber',
+			'HOST': 'localhost',
+			'PORT': '5432',
+		}
+	}
 
 
 # Password validation
@@ -168,7 +188,7 @@ LOCALE_PATHS = [
 ]
 
 
-LOGIN_URL = '/users/login/'
+LOGIN_URL = reverse_lazy('users:login')
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
@@ -177,6 +197,13 @@ LOGOUT_REDIRECT_URL = '/'
 USE_ZOHO = False
 
 if USE_ZOHO:
+	# emails on 5xx errors will be sent to these emails.
+	ADMINS = [
+		# ('Serge Durand', 'sergedurand205@gmail.com'), 
+		('Serge Durand', 'serge.durand@camerschools.com')
+	]
+	# error messages sent to ADMINS come from this email address
+	SERVER_EMAIL = 'info@camerschools.com'
 	# see https://www.zoho.com/mail/help/zoho-smtp.html
 	EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 	EMAIL_HOST = 'smtppro.zoho.eu'
@@ -238,6 +265,7 @@ if USE_S3:
 	STATIC_LOCATION_ = 'static'
 	STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN_}/{STATIC_LOCATION_}/'
 	STATICFILES_STORAGE = 'core.storage_backends.StaticStorage'
+	STATIC_ROOT = 'static/'
 
 	# s3 public media settings
 	PUBLIC_MEDIA_LOCATION_ = 'media'
@@ -347,8 +375,8 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 
 ### django_hosts ###
-ROOT_HOSTCONF = 'config.hosts'
-DEFAULT_HOST = 'www'
+# ROOT_HOSTCONF = 'config.hosts'
+# DEFAULT_HOST = 'www'
 
 
 ### django-taggit ###
@@ -357,15 +385,9 @@ TAGGIT_CASE_INSENSITIVE = True
 # TAGGIT_STRING_FROM_TAGS = 'core.utils.comma_joiner'
 
 
-### debug_toolbar ###
-INTERNAL_IPS = [
-    '127.0.0.1',
-]
-
-
 ### modeltranslation ###
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
-MODELTRANSLATION_DEBUG = True
+# MODELTRANSLATION_DEBUG = True
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('fr', 'en')
 
 

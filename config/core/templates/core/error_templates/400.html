@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+<title>400 - {% trans 'Bad request'|title %} | CamerSchools</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container mb-5">
+    <h2 class="text-success mb-3">{% trans 'Invalid request'|upper %}</h2>
+    <p>
+        {% blocktrans %}
+        Email us at <strong>info@camerschools.com</strong> for more information
+        {% endblocktrans %}
+    </p>
+</div>
+{# just to get an empty space #}
+<div class="pb-4 mb-5"></div>
+{% endblock content %}
+
+
