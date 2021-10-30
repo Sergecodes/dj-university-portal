@@ -269,7 +269,7 @@ img {
 .footer__link {
 	padding-left: 0;
 	padding-bottom: 4px;
-	color: #69bd66;
+	color: #84ee84;
 	display: inline-block;
 }
 
@@ -279,9 +279,7 @@ img {
 
 .footer__link:focus,
 .footer__link:hover {
-	/* color: #444; */
-	/* color: #eee; */
-	color: #69bd66; /* maintain same color */
+	color: #84ee84; /* maintain same color */
 	text-decoration: underline;
 }
 

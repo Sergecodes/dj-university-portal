@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-30 17:01+0000\n"
+"POT-Creation-Date: 2021-10-30 21:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,11 +100,11 @@ msgstr "Mâle"
 msgid "Female"
 msgstr "Femelle"
 
-#: core/constants.py:63
+#: core/constants.py:60
 msgid "Spam | Exists only to promote a service "
 msgstr "Pourriel | N'existe que pour promouvoir un service "
 
-#: core/constants.py:64
+#: core/constants.py:61
 msgid "Abusive | Intended at promoting hatred"
 msgstr "Abusif | Destiné à promouvoir la haine"
 
@@ -235,14 +235,10 @@ msgid "Home"
 msgstr "Accueil"
 
 #: core/templates/core/base.html:281
-#, fuzzy
-#| msgid "Items for Sale"
 msgid "Items for sale"
 msgstr "Articles à vendre"
 
 #: core/templates/core/base.html:284
-#, fuzzy
-#| msgid "View Items"
 msgid "View/Buy items"
 msgstr "Voir/Acheter les articles"
 
@@ -271,8 +267,6 @@ msgid "All Adverts"
 msgstr "Toutes les annonces"
 
 #: core/templates/core/base.html:313
-#, fuzzy
-#| msgid "Requested Items"
 msgid "Requested items"
 msgstr "Articles demandés"
 
@@ -334,8 +328,6 @@ msgid "Past Papers"
 msgstr "Anciens Sujets"
 
 #: core/templates/core/base.html:367
-#, fuzzy
-#| msgid "Upload a Past Paper"
 msgctxt "dropdown child"
 msgid "Upload a past paper"
 msgstr "Uploader"
@@ -397,8 +389,6 @@ msgid "Explore"
 msgstr "Explorer"
 
 #: core/templates/core/base.html:474
-#, fuzzy
-#| msgid "Create social profile"
 msgid "Our Social Profile"
 msgstr "Notre Profil Social"
 
@@ -416,8 +406,6 @@ msgid "Advertize a product"
 msgstr "Annoncer un produit"
 
 #: core/templates/core/base.html:508
-#, fuzzy
-#| msgid "Upload a Past Paper"
 msgctxt "footer"
 msgid "Upload a past paper"
 msgstr "Uploader un ancien sujet"
@@ -660,13 +648,11 @@ msgstr ""
 
 #: core/templates/core/error_templates/400.html:6
 msgid "Bad request"
-msgstr ""
+msgstr "Mauvaise requête"
 
 #: core/templates/core/error_templates/400.html:14
-#, fuzzy
-#| msgid "Invalid string"
 msgid "Invalid request"
-msgstr "Chaîne non valide"
+msgstr "Requête non valide"
 
 #: core/templates/core/error_templates/400.html:16
 msgid ""
@@ -693,10 +679,8 @@ msgstr ""
 
 #: core/templates/core/error_templates/404.html:6
 #: core/templates/core/error_templates/404.html:14
-#, fuzzy
-#| msgid "How found"
 msgid "Page not found"
-msgstr "Comment trouvé"
+msgstr "Page non trouvée"
 
 #: core/templates/core/error_templates/404.html:16
 msgid ""
@@ -708,10 +692,8 @@ msgid ""
 msgstr ""
 
 #: core/templates/core/error_templates/500.html:6
-#, fuzzy
-#| msgid "error"
 msgid "Error"
-msgstr "erreur"
+msgstr "Erreur"
 
 #: core/templates/core/error_templates/500.html:15
 msgid "An Error Occurred"
@@ -723,7 +705,7 @@ msgid ""
 "\n"
 "            Click <a href=\"mailto:info@camerschools.com?subject=500 "
 "error&body=Hello CamerSchools, the page %(request.build_absolute_uri)s "
-"doesn't load.\">here</a> to email this error to us so we can look into it.\n"
+"doesn't open.\">here</a> to email this error to us so we can look into it.\n"
 "            "
 msgstr ""
 
@@ -1010,11 +992,10 @@ msgstr ""
 "Il y a de nouvelles activités sur certaines publications que vous suivez :"
 
 #: core/templates/core/notifications.html:258
-#, fuzzy
-#| msgid "Notifications on your questions and answers will be displayed here."
 msgid ""
 "Notifications on questions that you are following will be displayed here."
-msgstr "Les notifications sur vos questions et réponses seront affichées ici."
+msgstr ""
+"Les notifications sur les questions que vous suivez seront affichées ici."
 
 #: core/templates/core/pagination.html:10
 msgid "Previous"
@@ -1046,7 +1027,7 @@ msgstr ""
 " \"Une erreur s'est produite, essayez d'actualiser la page puis réessayez.\" "
 
 #: core/templates/core/privacy_policy.html:5
-#: users/templates/users/auth/signup.html:98
+#: users/templates/users/auth/signup.html:103
 msgid "Privacy Policy"
 msgstr "Politique de Confidentialité"
 
@@ -2089,8 +2070,8 @@ msgstr "Oui, supprimer"
 #: requested_items/templates/requested_items/requested_item_update.html:41
 #: socialize/templates/socialize/socialprofile_form.html:49
 #: socialize/templates/socialize/socialprofile_update_form.html:48
-#: users/templates/users/auth/signup.html:125
-#: users/templates/users/edit_profile.html:121
+#: users/templates/users/auth/signup.html:130
+#: users/templates/users/edit_profile.html:125
 msgid ""
 "There are unsaved changes on this page which will be discarded if you leave."
 msgstr ""
@@ -2242,8 +2223,6 @@ msgstr "Contacter"
 #: marketplace/templates/marketplace/itemlisting_detail.html:274
 #: requested_items/templates/requested_items/requested_item_detail.html:218
 #: requested_items/templates/requested_items/requested_item_detail.html:219
-#, fuzzy
-#| msgid "Works with WhatsApp"
 msgid "Contact via WhatsApp"
 msgstr "Contacter par WhatsApp"
 
@@ -2681,8 +2660,6 @@ msgid "Similar adverts in"
 msgstr "Annonces similaires à"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:286
-#, fuzzy
-#| msgid "Similar adverts in"
 msgid "Similar adverts"
 msgstr "Annonces similaires"
 
@@ -3044,11 +3021,9 @@ msgstr ""
 
 #: past_papers/templates/past_papers/pastpaper_detail.html:36
 #: past_papers/templates/past_papers/pastpaper_list.html:46
-#, fuzzy
-#| msgid "Upload a Past Paper"
 msgctxt "link"
 msgid "Upload a past paper"
-msgstr "Téléverser un ancien sujet"
+msgstr "Uploader un ancien sujet"
 
 #: past_papers/templates/past_papers/pastpaper_detail.html:40
 msgid "Uploaded on"
@@ -3455,11 +3430,8 @@ msgstr ""
 #: qa_site/templates/qa_site/academicquestion_detail.html:114
 #: qa_site/templates/qa_site/schoolquestion_detail.html:97
 #: qa_site/templates/qa_site/schoolquestion_detail.html:113
-#, fuzzy
-#| msgid "There are new activities on some posts you are following:"
 msgid "to see the questions you are following"
-msgstr ""
-"Il y a de nouvelles activités sur certaines publications que vous suivez :"
+msgstr "pour voir les questions que vous suivez"
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:108
 #: qa_site/templates/qa_site/schoolquestion_detail.html:107
@@ -4406,14 +4378,12 @@ msgid "A lady"
 msgstr ""
 
 #: socialize/views.py:243
-#, fuzzy
-#| msgid "English"
-msgid "English speaking"
-msgstr "Anglais"
+msgid "English speaker"
+msgstr "Anglophone"
 
 #: socialize/views.py:244
-msgid "French speaking"
-msgstr ""
+msgid "French speaker"
+msgstr "Francophone"
 
 #: socialize/views.py:253
 msgid "Search by name:"
@@ -4503,66 +4473,66 @@ msgstr ""
 msgid "There is an invalid number in the list."
 msgstr ""
 
-#: users/forms.py:175 users/templates/users/auth/signup.html:195
-#: users/templates/users/edit_profile.html:197
+#: users/forms.py:175 users/templates/users/auth/signup.html:200
+#: users/templates/users/edit_profile.html:201
 msgid "Enter at least one number that supports WhatsApp."
 msgstr ""
 
-#: users/managers.py:55
+#: users/managers.py:54
 msgid "The email must be set"
 msgstr ""
 
-#: users/managers.py:57
+#: users/managers.py:56
 msgid "The username must be set"
 msgstr ""
 
-#: users/managers.py:59
+#: users/managers.py:58
 msgid "The password must be set"
 msgstr ""
 
-#: users/managers.py:61
+#: users/managers.py:60
 msgid "The full name must be set"
 msgstr ""
 
-#: users/managers.py:63
+#: users/managers.py:62
 msgid "The gender must be set"
 msgstr ""
 
-#: users/managers.py:65
+#: users/managers.py:64
 msgid "The first language must be set"
 msgstr ""
 
-#: users/managers.py:110
+#: users/managers.py:109
 msgid "Superuser must have is_staff=True."
 msgstr ""
 
-#: users/managers.py:112
+#: users/managers.py:111
 msgid "Superuser must have is_mod=True."
 msgstr ""
 
-#: users/managers.py:114
+#: users/managers.py:113
 msgid "Superuser must have is_superuser=True."
 msgstr ""
 
-#: users/managers.py:165
+#: users/managers.py:163
 msgid ""
 "You have been deducted {} points because many users considered your post "
 "inappropriate. Avoid posting such posts. If any of your posts is reported "
 "again, your account will be deactivated without further notice."
 msgstr ""
 
-#: users/managers.py:175
+#: users/managers.py:173
 msgid ""
 "You have been deducted {} points because many users considered your post "
 "inappropriate. Avoid posting such posts. If you continue, your account could "
 "be deactivated."
 msgstr ""
 
-#: users/managers.py:209
+#: users/managers.py:190
 msgid "Click here to view information on how to use this website."
 msgstr ""
 
-#: users/managers.py:219
+#: users/managers.py:200
 msgid "Welcome to CamerSchools. Click here to view our social profile"
 msgstr ""
 
@@ -4722,7 +4692,7 @@ msgid "Change Password"
 msgstr ""
 
 #: users/templates/users/auth/password_change.html:28
-#: users/templates/users/edit_profile.html:101
+#: users/templates/users/edit_profile.html:105
 msgid "Change password"
 msgstr ""
 
@@ -4803,7 +4773,7 @@ msgid "Reset password"
 msgstr ""
 
 #: users/templates/users/auth/signup.html:8
-#: users/templates/users/auth/signup.html:103
+#: users/templates/users/auth/signup.html:108
 msgid "Sign up"
 msgstr ""
 
@@ -4812,7 +4782,7 @@ msgid "Create your CamerSchools Account"
 msgstr ""
 
 #: users/templates/users/auth/signup.html:38
-#: users/templates/users/edit_profile.html:41
+#: users/templates/users/edit_profile.html:45
 msgid "Phone number(s)"
 msgstr ""
 
@@ -4827,72 +4797,72 @@ msgid ""
 "Your phone number(s) won't be shown to other users without your permission."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:92
+#: users/templates/users/auth/signup.html:97
 msgid "By signing up, you agree to the"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:94
+#: users/templates/users/auth/signup.html:99
 msgid "Terms of Service"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:96
+#: users/templates/users/auth/signup.html:101
 msgid "and"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:107
+#: users/templates/users/auth/signup.html:112
 msgid "If you already have an account, "
 msgstr ""
 
-#: users/templates/users/auth/signup.html:108
+#: users/templates/users/auth/signup.html:113
 msgid "Click here to login"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:156
-#: users/templates/users/edit_profile.html:158
+#: users/templates/users/auth/signup.html:161
+#: users/templates/users/edit_profile.html:162
 msgid "Add phone number"
 msgstr ""
 
-#: users/templates/users/auth/signup.html:194
-#: users/templates/users/edit_profile.html:196
+#: users/templates/users/auth/signup.html:199
+#: users/templates/users/edit_profile.html:200
 msgid "Phone numbers may contain only digits and spaces."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:196
+#: users/templates/users/auth/signup.html:201
 msgid ""
 "Password should contain at least 8 characters and should not be entirely "
 "numeric."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:197
+#: users/templates/users/auth/signup.html:202
 msgid "Passwords do not match."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:198
-#: users/templates/users/edit_profile.html:198
+#: users/templates/users/auth/signup.html:203
+#: users/templates/users/edit_profile.html:202
 msgid "Enter a valid username."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:199
-#: users/templates/users/edit_profile.html:199
+#: users/templates/users/auth/signup.html:204
+#: users/templates/users/edit_profile.html:203
 msgid "Enter a valid full name."
 msgstr ""
 
-#: users/templates/users/auth/signup.html:200
-#: users/templates/users/edit_profile.html:200
+#: users/templates/users/auth/signup.html:205
+#: users/templates/users/edit_profile.html:204
 msgid "Form contains some errors, correct them to continue."
 msgstr ""
 
-#: users/templates/users/edit_profile.html:45
+#: users/templates/users/edit_profile.html:49
 msgid ""
 "Enter at least one phone number. At least one phone number should support "
 "WhatsApp. Phone numbers may contain only digits and spaces."
 msgstr ""
 
-#: users/templates/users/edit_profile.html:105
+#: users/templates/users/edit_profile.html:109
 msgid "Save"
 msgstr ""
 
-#: users/templates/users/edit_profile.html:159
+#: users/templates/users/edit_profile.html:163
 msgid "Remove"
 msgstr ""
 
@@ -5076,10 +5046,8 @@ msgid "You have not bookmarked any academic question yet."
 msgstr ""
 
 #: users/templates/users/profile/qa-site.html:84
-#, fuzzy
-#| msgid "Academic Questions"
 msgid "Following Academic Questions"
-msgstr "Questions Académiques"
+msgstr "Questions Académiques Suivies"
 
 #: users/templates/users/profile/qa-site.html:98
 msgid "You are not following any academic question."
@@ -5106,10 +5074,8 @@ msgid "You have not bookmarked any school-based question yet."
 msgstr ""
 
 #: users/templates/users/profile/qa-site.html:163
-#, fuzzy
-#| msgid "Following Posts"
 msgid "Following School Questions"
-msgstr "Publications Suivies"
+msgstr "Questions Scolaires Suivies"
 
 #: users/templates/users/profile/qa-site.html:177
 msgid "You are not following any school-based question."
@@ -5284,24 +5250,3 @@ msgid ""
 "modify it. \n"
 "You can logout from this account and create your own account."
 msgstr ""
-
-#~ msgid "Buy/Sell an item"
-#~ msgstr "Articles"
-
-#~ msgid "Buy an item"
-#~ msgstr "Acheter un article"
-
-#, fuzzy
-#~| msgid "Upload a Past Paper"
-#~ msgctxt "nav item dropdown"
-#~ msgid "Upload a past paper"
-#~ msgstr "Ancien Sujets"
-
-#~ msgid "Call Hours: 9am - 5pm (Mon - Fri)"
-#~ msgstr "Heures d'appel : 9h - 17h (Lun - Ven)"
-
-#~ msgid "hitcount/"
-#~ msgstr "hitcount/"
-
-#~ msgid "Group"
-#~ msgstr "Groupe"

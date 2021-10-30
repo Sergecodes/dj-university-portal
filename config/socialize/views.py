@@ -240,8 +240,8 @@ class SocialProfileFilter(filters.FilterSet):
 	)
 
 	LANGUAGE_CHOICES = (
-		('en', _('English speaking')),
-		('fr', _('French speaking'))
+		('en', _('English speaker')),
+		('fr', _('French speaker'))
 	)
 
 	# get interested relations (do not include `not interested`.)
@@ -361,7 +361,7 @@ class SocialProfileFilter(filters.FilterSet):
 
 	def filter_interest(self, queryset, name, value):
 		# if no value was passed (if user is filtering by 'Anything')
-		# exclude users that set this field to 'Not interested'. (val = 'none')
+		# exclude users that set this field to 'Not interested'. (field val = 'none')
 		# even if 'none' is passed, exclude these users.
 		# see model SocialProfile.INTERESTED_RELATIONSHIPS
 		if not value or value == 'none':

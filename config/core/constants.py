@@ -22,12 +22,9 @@ GENDERS = (
 )
 
 
-CAMERSCHOOLS_USERNAME = 'CamerSchools'
-CAMERSCHOOLS_EMAIL = 'camerschools@gmail.com'  # professional email of course..
-CAMERSCHOOLS_PASSWORD = 'password'  # TODO this should be complicated as fuck.
-
 TEST_ACCOUNT_EMAIL = 'test@gmail.com'
 TEST_ACCOUNT_USERNAME = 'test-user'
+TEST_ACCOUNT_FULL_NAME = 'Test Account'
 TEST_ACCOUNT_PASSWORD = 'password'
 
 

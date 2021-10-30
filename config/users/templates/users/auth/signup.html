@@ -44,48 +44,51 @@
 			</small>
 			
 			<!-- Formset for entering phone number -->
-			<table id="phoneNumbers" class="table mb-4 js-phoneNumbersTable">
-				{% for form in formset.forms %}
-					{% if forloop.first %}
-					<thead>
-						<tr>
+			<div class="table-responsive">
+				<table id="phoneNumbers" class="table table-hover js-phoneNumbersTable">
+					{% for form in formset.forms %}
+						{% if forloop.first %}
+						<thead>
+							<tr>
+								{% for field in form.visible_fields %}
+									{% comment %} {% if field.name != 'DELETE' %} {% endcomment %}
+										<th scope="col">
+											{{ field.label }}
+										</th>
+									{% comment %} {% endif %} {% endcomment %}
+								{% endfor %}
+							</tr>
+						</thead>
+						{% endif %}
+
+						{# print errors #}
+						{% if forloop.first %}
+							<br>
+							{% comment %} 
+								The errors are displayed as a ul with class name "errorlist". 
+								Added custom styles via jquery..
+							{% endcomment %}
+							{{ formset.non_form_errors }}
+						{% endif %}
+
+						{# each tr is a form in formset.forms #}
+						<tr class="formset_row">
 							{% for field in form.visible_fields %}
-								<th scope="col">
-									{{ field.label }}
-								</th>
+									<td>
+										{# Include the hidden fields in the form #}
+										{% if forloop.first %}
+											{% for hidden in form.hidden_fields %}
+												{{ hidden }}
+											{% endfor %}
+										{% endif %}
+										{{ field|as_crispy_field }}
+									</td>
 							{% endfor %}
 						</tr>
-					</thead>
-					{% endif %}
-
-					{# print errors #}
-					{% if forloop.first %}
-						<br>
-						{% comment %} 
-							The errors are displayed as a ul with class name "errorlist". 
-							Added custom styles via jquery..
-						{% endcomment %}
-						{{ formset.non_form_errors }}
-					{% endif %}
-
-					{# each tr is a form in formset.forms #}
-					<tr class="formset_row">
-						{% for field in form.visible_fields %}
-							<td>
-								{# Include the hidden fields in the form #}
-								{% if forloop.first %}
-									{% for hidden in form.hidden_fields %}
-										{{ hidden }}
-									{% endfor %}
-								{% endif %}
-
-								{{ field|as_crispy_field }}
-							</td>
-						{% endfor %}
-					</tr>
-				{% endfor %}
-				{{ formset.management_form }}
-			</table>
+					{% endfor %}
+					{{ formset.management_form }}
+				</table>
+			</div>
 
 			<p class="text-secondary mb-4">
 				{% trans 'By signing up, you agree to the' %}

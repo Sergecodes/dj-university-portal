@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
 	IS_BAD_USER_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
-	CAMERSCHOOLS_EMAIL, CAMERSCHOOLS_USERNAME, CAMERSCHOOLS_PASSWORD
 )
 from core.utils import parse_email, parse_full_name
 from notifications.models import Notification
@@ -139,7 +138,6 @@ class UserManager(BaseUserManager, Manager):
 		# if his points == IS_BAD_USER_POINTS(1)
 		# deactivate his account. 
 		if user_points == IS_BAD_USER_POINTS:
-			# TODO include this in list of website rules.
 			user.deactivate()
 			return
 		
@@ -177,23 +175,6 @@ class UserManager(BaseUserManager, Manager):
 				target=flagged_post,
 				category=Notification.FLAG
 			)
-
-	def get_site_account(self):
-		"""Get CamerSchools user account"""
-		User = self.model
-
-		account = User.objects.get_or_create(
-			username=CAMERSCHOOLS_USERNAME,
-			defaults={
-				'email': CAMERSCHOOLS_EMAIL,
-				'password': CAMERSCHOOLS_PASSWORD,
-				'full_name': 'Camer Schools',
-				'first_language': 'en',
-				'site_points': 1000
-			}
-		)[0]
-
-		return account
 
 	def notify_new_user(self, user):
 		"""

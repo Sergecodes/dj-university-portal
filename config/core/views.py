@@ -324,19 +324,21 @@ class TermsAndConditionsView(TemplateView):
 
 
 ## CUSTOM ERROR HANDLER VIEWS
-def page_not_found_view(request, exception):
-	return render(request, 'core/error_templates/404.html', {'exception': exception})
+# def page_not_found_view(request, exception):
+# 	return render(request, 'core/error_templates/404.html', {'exception': exception})
 
 
-def server_error_view(request):
-	return render(request, 'core/error_templates/500.html') 
+# def server_error_view(request):
+# 	# error occurred on server, so perhaps request could not be inserted in template
+# 	# hence pass it as context
+# 	return render(request, 'core/error_templates/500.html', {'request', request}) 
 
 
-def permission_denied_view(request, exception):
-	return render(request, 'core/error_templates/403.html', {'exception': exception})
+# def permission_denied_view(request, exception):
+# 	return render(request, 'core/error_templates/403.html', {'exception': exception})
 
 
-def bad_request_view(request, exception):
-	return render(request, 'core/error_templates/400.html', {'exception': exception})
+# def bad_request_view(request, exception):
+# 	return render(request, 'core/error_templates/400.html', {'exception': exception})
 
 

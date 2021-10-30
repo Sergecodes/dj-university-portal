@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -125,7 +126,7 @@ if USE_PROD_DB:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': 'defaultdb',
+			'NAME': 'camerschools-demo-db',
 			'USER': 'doadmin',
 			'PASSWORD': 'w0Ye4iImpnoUyZis',
 			'HOST': 'db-postgresql-fra1-45768-do-user-10031233-0.b.db.ondigitalocean.com',
@@ -177,10 +178,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-gettext = lambda s: s
 LANGUAGES = (
-	('en', gettext('English')),
-	('fr', gettext('French')),
+	('en', _('English')),
+	('fr', _('French')),
 )
 
 LOCALE_PATHS = [
@@ -200,7 +200,8 @@ if USE_ZOHO:
 	# emails on 5xx errors will be sent to these emails.
 	ADMINS = [
 		# ('Serge Durand', 'sergedurand205@gmail.com'), 
-		('Serge Durand', 'serge.durand@camerschools.com')
+		('Serge Durand', 'serge.durand@camerschools.com'),
+		
 	]
 	# error messages sent to ADMINS come from this email address
 	SERVER_EMAIL = 'info@camerschools.com'
