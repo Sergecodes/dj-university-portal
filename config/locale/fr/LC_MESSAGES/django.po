@@ -156,8 +156,8 @@ msgstr "Entrez vos mots-clés de recherche"
 
 #: core/templates/core/base.html:51 core/templates/core/base.html:395
 #: core/templates/core/base.html:396 core/templates/core/base.html:450
-#: lost_or_found/templates/lost_and_found/founditem_list.html:53
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:54
+#: lost_or_found/templates/lost_or_found/founditem_list.html:53
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:54
 #: marketplace/templates/marketplace/adlisting_list.html:56
 #: marketplace/templates/marketplace/itemlisting_list.html:56
 #: past_papers/templates/past_papers/pastpaper_list.html:70
@@ -301,7 +301,7 @@ msgid "Lost/Found Items"
 msgstr "Objets Perdus/Trouvés"
 
 #: core/templates/core/base.html:349 core/templates/core/index.html:368
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:35
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:35
 msgid "Publish a lost item"
 msgstr "Publier un objet perdu"
 
@@ -412,15 +412,15 @@ msgstr "Uploader un ancien sujet"
 
 #: core/templates/core/base.html:513
 #: core/templates/core/site_usage_info.html:143
-#: lost_or_found/templates/lost_and_found/lostitem_create.html:9
-#: lost_or_found/templates/lost_and_found/lostitem_create.html:25
+#: lost_or_found/templates/lost_or_found/lostitem_create.html:9
+#: lost_or_found/templates/lost_or_found/lostitem_create.html:25
 msgid "Report a lost item"
 msgstr "Signaler un objet perdu"
 
 #: core/templates/core/base.html:518
 #: core/templates/core/site_usage_info.html:146
-#: lost_or_found/templates/lost_and_found/founditem_create.html:9
-#: lost_or_found/templates/lost_and_found/founditem_create.html:25
+#: lost_or_found/templates/lost_or_found/founditem_create.html:9
+#: lost_or_found/templates/lost_or_found/founditem_create.html:25
 msgid "Report a found item"
 msgstr "Signaler un objet trouvé"
 
@@ -844,7 +844,7 @@ msgid "Requested Items"
 msgstr "Articles Demandés"
 
 #: core/templates/core/index.html:228
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:74
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:74
 #: requested_items/templates/requested_items/requested_item_list.html:77
 msgid "Item"
 msgstr "Article"
@@ -878,7 +878,7 @@ msgid "Lost Items"
 msgstr "Objets perdus"
 
 #: core/templates/core/index.html:358 core/templates/core/index.html:394
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:101
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:101
 #: users/templates/users/profile/lost-and-found.html:106
 #: users/templates/users/profile/marketplace.html:65
 #: users/templates/users/profile/marketplace.html:111
@@ -1572,8 +1572,8 @@ msgid "LOGIN_URL is not defined in the settings"
 msgstr "LOGIN_URL n'est pas défini dans les paramètres"
 
 #: core/templatetags/app_extras.py:130
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:95
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:116
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:95
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:116
 #: marketplace/templates/marketplace/adlisting_detail.html:175
 #: marketplace/templates/marketplace/itemlisting_detail.html:183
 #: past_papers/templates/past_papers/pastpaper_detail.html:105
@@ -1767,8 +1767,8 @@ msgstr ""
 
 #: flagging/templates/flag/flag_form.html:21
 #: flagging/templates/flag/flag_form.html:33
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:120
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:141
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:120
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:141
 #: marketplace/templates/marketplace/adlisting_detail.html:200
 #: marketplace/templates/marketplace/itemlisting_detail.html:208
 #: past_papers/templates/past_papers/pastpaper_detail.html:130
@@ -1783,10 +1783,10 @@ msgstr "Retirer le signalement"
 
 #: flagging/templates/flag/flag_form.html:22
 #: flagging/templates/flag/flag_form.html:33
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:110
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:122
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:131
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:143
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:110
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:122
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:131
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:143
 #: marketplace/templates/marketplace/adlisting_detail.html:190
 #: marketplace/templates/marketplace/adlisting_detail.html:202
 #: marketplace/templates/marketplace/itemlisting_detail.html:198
@@ -1955,8 +1955,8 @@ msgid "Explain how you found the item"
 msgstr "Expliquez comment vous avez trouvé l'objet"
 
 #: lost_or_found/models.py:30
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:37
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:37
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:37
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:37
 #: lost_or_found/views.py:129 lost_or_found/views.py:312
 #: marketplace/models.py:222 marketplace/models.py:302
 #: marketplace/templates/marketplace/adlisting_detail.html:107
@@ -2024,14 +2024,14 @@ msgstr ""
 "que vous êtes en possession de la récompense. <br> Ceci est facultatif mais "
 "peut être utilisé comme motivation."
 
-#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:7
-#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:7
+#: lost_or_found/templates/lost_or_found/founditem_confirm_delete.html:7
+#: lost_or_found/templates/lost_or_found/lostitem_confirm_delete.html:7
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:7
 msgid "Delete item"
 msgstr "Supprimer l'objet"
 
-#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:15
-#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:15
+#: lost_or_found/templates/lost_or_found/founditem_confirm_delete.html:15
+#: lost_or_found/templates/lost_or_found/lostitem_confirm_delete.html:15
 #: marketplace/templates/marketplace/adlisting_confirm_delete.html:21
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:21
 #: past_papers/templates/past_papers/pastpaper_confirm_delete.html:14
@@ -2039,8 +2039,8 @@ msgstr "Supprimer l'objet"
 msgid "Are you sure you want to delete"
 msgstr "Etes-vous sûr que vous voulez supprimer"
 
-#: lost_or_found/templates/lost_and_found/founditem_confirm_delete.html:16
-#: lost_or_found/templates/lost_and_found/lostitem_confirm_delete.html:16
+#: lost_or_found/templates/lost_or_found/founditem_confirm_delete.html:16
+#: lost_or_found/templates/lost_or_found/lostitem_confirm_delete.html:16
 #: marketplace/templates/marketplace/adlisting_confirm_delete.html:22
 #: marketplace/templates/marketplace/itemlisting_confirm_delete.html:22
 #: past_papers/templates/past_papers/comment_confirm_delete.html:21
@@ -2053,10 +2053,10 @@ msgstr "Etes-vous sûr que vous voulez supprimer"
 msgid "Yes, delete"
 msgstr "Oui, supprimer"
 
-#: lost_or_found/templates/lost_and_found/founditem_create.html:41
-#: lost_or_found/templates/lost_and_found/founditem_update.html:40
-#: lost_or_found/templates/lost_and_found/lostitem_create.html:41
-#: lost_or_found/templates/lost_and_found/lostitem_update.html:38
+#: lost_or_found/templates/lost_or_found/founditem_create.html:41
+#: lost_or_found/templates/lost_or_found/founditem_update.html:40
+#: lost_or_found/templates/lost_or_found/lostitem_create.html:41
+#: lost_or_found/templates/lost_or_found/lostitem_update.html:38
 #: marketplace/templates/marketplace/adlisting_create.html:40
 #: marketplace/templates/marketplace/adlisting_update.html:41
 #: marketplace/templates/marketplace/itemlisting_create.html:43
@@ -2078,15 +2078,15 @@ msgstr ""
 "Il y a des modifications non enregistrées sur cette page qui seront "
 "supprimées si vous quittez."
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:12
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:29
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:12
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:29
 msgid "Found"
 msgstr "Trouvé"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:45
-#: lost_or_found/templates/lost_and_found/founditem_list.html:96
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:40
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:94
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:45
+#: lost_or_found/templates/lost_or_found/founditem_list.html:96
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:40
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:94
 #: marketplace/templates/marketplace/adlisting_list.html:130
 #: marketplace/templates/marketplace/itemlisting_list.html:123
 #: past_papers/templates/past_papers/pastpaper_list.html:109
@@ -2095,10 +2095,10 @@ msgstr "Trouvé"
 msgid "view"
 msgstr "vue"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:47
-#: lost_or_found/templates/lost_and_found/founditem_list.html:98
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:42
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:96
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:47
+#: lost_or_found/templates/lost_or_found/founditem_list.html:98
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:42
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:96
 #: marketplace/templates/marketplace/adlisting_list.html:132
 #: marketplace/templates/marketplace/itemlisting_list.html:125
 #: past_papers/templates/past_papers/pastpaper_list.html:111
@@ -2107,8 +2107,8 @@ msgstr "vue"
 msgid "Number of views"
 msgstr "Nombre de vuew"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:54
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:48
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:54
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:48
 #: notifications/models.py:21
 #: users/templates/users/profile/lost-and-found.html:39
 #: users/templates/users/profile/lost-and-found.html:60
@@ -2116,8 +2116,8 @@ msgstr "Nombre de vuew"
 msgid "Reported"
 msgstr "Signalé"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:58
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:52
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:58
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:52
 #: marketplace/templates/marketplace/adlisting_detail.html:127
 #: marketplace/templates/marketplace/itemlisting_detail.html:136
 #: qa_site/templates/qa_site/academicquestion_detail.html:151
@@ -2126,10 +2126,10 @@ msgstr "Signalé"
 msgid "By"
 msgstr "Par"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:68
-#: lost_or_found/templates/lost_and_found/founditem_list.html:91
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:62
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:111
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:68
+#: lost_or_found/templates/lost_or_found/founditem_list.html:91
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:62
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:111
 #: marketplace/templates/marketplace/adlisting_detail.html:138
 #: marketplace/templates/marketplace/adlisting_list.html:154
 #: marketplace/templates/marketplace/itemlisting_detail.html:147
@@ -2150,18 +2150,18 @@ msgstr "Par"
 msgid " User doesn't have a social profile "
 msgstr " L'utilisateur n'a pas de profil social "
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:75
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:88
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:75
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:88
 msgid "Where"
 msgstr "Où"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:81
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:94
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:81
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:94
 msgid "How"
 msgstr "Comment"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:100
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:121
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:100
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:121
 #: marketplace/templates/marketplace/adlisting_detail.html:180
 #: marketplace/templates/marketplace/itemlisting_detail.html:188
 #: past_papers/templates/past_papers/pastpaper_detail.html:110
@@ -2169,8 +2169,8 @@ msgstr "Comment"
 msgid "Share a link to this post"
 msgstr "Partager un lien vers cette publication"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:137
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:158
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:137
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:158
 #: marketplace/templates/marketplace/adlisting_detail.html:217
 #: marketplace/templates/marketplace/itemlisting_detail.html:225
 #: requested_items/templates/requested_items/requested_item_detail.html:183
@@ -2178,8 +2178,8 @@ msgstr "Partager un lien vers cette publication"
 msgid "Edit post"
 msgstr "Modifier la publication"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:145
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:166
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:145
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:166
 #: marketplace/templates/marketplace/adlisting_detail.html:225
 #: marketplace/templates/marketplace/itemlisting_detail.html:233
 #: past_papers/templates/past_papers/pastpaper_detail.html:146
@@ -2188,11 +2188,11 @@ msgstr "Modifier la publication"
 msgid "Delete post"
 msgstr "Supprimer la publication"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:155
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:155
 msgid "Claim item"
 msgstr "Réclamer l'objet"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:158
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:158
 msgid ""
 "\n"
 "\t\t\t\tWe hope this item really belongs to you. <br>\n"
@@ -2205,18 +2205,18 @@ msgstr ""
 "coordonnées ci-dessous.\n"
 "\t\t\t"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:166
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:184
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:166
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:184
 #: marketplace/templates/marketplace/adlisting_detail.html:248
 #: marketplace/templates/marketplace/itemlisting_detail.html:256
 #: requested_items/templates/requested_items/requested_item_detail.html:201
 msgid "Contact"
 msgstr "Contacter"
 
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:185
-#: lost_or_found/templates/lost_and_found/founditem_detail.html:186
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:201
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:202
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:185
+#: lost_or_found/templates/lost_or_found/founditem_detail.html:186
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:201
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:202
 #: marketplace/templates/marketplace/adlisting_detail.html:265
 #: marketplace/templates/marketplace/adlisting_detail.html:266
 #: marketplace/templates/marketplace/itemlisting_detail.html:273
@@ -2226,15 +2226,15 @@ msgstr "Contacter"
 msgid "Contact via WhatsApp"
 msgstr "Contacter par WhatsApp"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:12
+#: lost_or_found/templates/lost_or_found/founditem_list.html:12
 msgid "Reported Found Items"
 msgstr "Objets Trouvés Signalés"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:24
+#: lost_or_found/templates/lost_or_found/founditem_list.html:24
 msgid "Items Found"
 msgstr "Objets Trouvés"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:28
+#: lost_or_found/templates/lost_or_found/founditem_list.html:28
 msgid ""
 "\n"
 "\t\t\t\tStatistics say nearly 3,300 items are lost per year. \n"
@@ -2249,12 +2249,12 @@ msgstr ""
 "\t\t\t\tPubliez les objets que vous avez trouvés ici.\n"
 "\t\t\t\t"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:35
+#: lost_or_found/templates/lost_or_found/founditem_list.html:35
 msgid "Publish an item you found"
 msgstr "Publier un objet que vous avez trouvé"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:40
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:41
+#: lost_or_found/templates/lost_or_found/founditem_list.html:40
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:41
 #: marketplace/templates/marketplace/adlisting_list.html:40
 #: marketplace/templates/marketplace/itemlisting_list.html:40
 #: past_papers/templates/past_papers/pastpaper_list.html:51
@@ -2265,33 +2265,33 @@ msgstr "Publier un objet que vous avez trouvé"
 msgid "Filter"
 msgstr "Filtrer"
 
-#: lost_or_found/templates/lost_and_found/founditem_list.html:82
+#: lost_or_found/templates/lost_or_found/founditem_list.html:82
 msgid "Published by"
 msgstr "Publié par"
 
-#: lost_or_found/templates/lost_and_found/founditem_update.html:8
-#: lost_or_found/templates/lost_and_found/founditem_update.html:24
+#: lost_or_found/templates/lost_or_found/founditem_update.html:8
+#: lost_or_found/templates/lost_or_found/founditem_update.html:24
 msgid "Edit found item"
 msgstr "Modifier l'objet trouvé"
 
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:12
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:29
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:12
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:29
 msgid "Lost"
 msgstr "Perdu"
 
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:100
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:100
 msgid "Bounty on item"
 msgstr "Récompense sur l'objet"
 
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:175
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:175
 msgid "Refund item"
 msgstr "Remettre l'objet"
 
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:177
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:177
 msgid "Props to you for deciding to refund this item!"
 msgstr "Merci à vous d'avoir décidé de remettre cet objet !"
 
-#: lost_or_found/templates/lost_and_found/lostitem_detail.html:179
+#: lost_or_found/templates/lost_or_found/lostitem_detail.html:179
 msgid ""
 "Thank you for deciding to refund this item to its owner. Contact the owner "
 "using the details below."
@@ -2299,15 +2299,15 @@ msgstr ""
 "Merci d'avoir décidé de remettre cet objet à son propriétaire. Contacter le "
 "propriétaire en utilisant les détails ci-dessous."
 
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:12
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:12
 msgid "Reported Lost Items"
 msgstr "Objets Perdus Signalés"
 
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:24
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:24
 msgid "Items Lost"
 msgstr "Objets Perdus"
 
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:28
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:28
 msgid ""
 "\n"
 "\t\t\t\tA high percentage of missing items are in good hands.\n"
@@ -2321,7 +2321,7 @@ msgstr ""
 "\t\t\t\tPubliez les objets que vous avez perdus ici.\n"
 "\t\t\t\t"
 
-#: lost_or_found/templates/lost_and_found/lostitem_list.html:102
+#: lost_or_found/templates/lost_or_found/lostitem_list.html:102
 #: marketplace/templates/marketplace/adlisting_list.html:145
 #: marketplace/templates/marketplace/itemlisting_list.html:131
 #: past_papers/templates/past_papers/pastpaper_detail.html:42
@@ -2329,8 +2329,8 @@ msgstr ""
 msgid "by"
 msgstr "par"
 
-#: lost_or_found/templates/lost_and_found/lostitem_update.html:8
-#: lost_or_found/templates/lost_and_found/lostitem_update.html:22
+#: lost_or_found/templates/lost_or_found/lostitem_update.html:8
+#: lost_or_found/templates/lost_or_found/lostitem_update.html:22
 msgid "Edit lost item"
 msgstr "Modifier l'objet perdu"
 
