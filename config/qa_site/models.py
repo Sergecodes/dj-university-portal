@@ -27,6 +27,12 @@ class Comment(models.Model):
 	content = RichTextField(_('Content'), config_name='add_comment')
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
 	users_mentioned = models.ManyToManyField(
 		User,
 		related_name='+',
@@ -406,7 +412,7 @@ class TaggedAcademicQuestion(TaggedItemBase):
 
 
 class AcademicQuestion(Question):
-	title = models.CharField(_('Title'), max_length=150)  
+	title = models.CharField(_('Title'), max_length=150, unique=True)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
 	content = RichTextUploadingField(_('Content'), config_name='add_question', blank=True)
 	slug = models.SlugField(max_length=250)
@@ -486,7 +492,8 @@ class Subject(models.Model):
 		if not self.id:
 			self.slug = slugify(self.name)
 
-		self.name = (self.name).title  
+		# title case string
+		self.name = self.name.title()
 		super().save(*args, **kwargs)
 
 	def __str__(self):

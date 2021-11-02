@@ -367,7 +367,7 @@ img {
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
 	.user-form--edit,
-	.user-form--signup
+	.user-form--signup,
 	.search-results-container {
 		width: 100%;  
 	}

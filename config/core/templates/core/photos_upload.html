@@ -20,6 +20,23 @@ we need to inherit from the base template...
 {% endblock %}
 
 {% block content %}
+
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				{% trans 'You are not logged in.' %} 
+				<p class="text-dark mt-1 mb-0">
+					{% trans 'Click' %} 
+					<a href="{% url 'users:login' %}" target="_blank">
+						{% trans 'here' %}
+					</a> 
+					{% trans 'to login to your account' %} 
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+
 	<div class="mt-2 mb-4 gallery-container">
 		{# button to trigger click event on input type=file button (.js-file-upload button) #}
 		<button type="button" class="d-block btn btn-secondary js-upload-photos">
@@ -47,10 +64,12 @@ we need to inherit from the base template...
 		<div class="row m-auto js-gallery">
 			{% for photo_info in initial_photos %}
 			<div class="col-4 col-lg-3 my-2 photo-wrp js-photo-wrp">
+				{# also encode encrypted filename as safe-url so that signs such as + sign get correctly parsed(by querydict) in backend #}
+				{# see stackoverflow.com/q/66167067/querydict-in-django #}
 				<img 
 					src="{{ photo_info.url }}"
 					class="photo-wrp__img"
-					data-filename="{{ photo_info.filename }}"
+					data-filename="{{ photo_info.filename|urlencode }}"
 				>
 				<button  
 					type="button"
@@ -126,6 +145,23 @@ we need to inherit from the base template...
 		dataType: 'json',
 		sequentialUploads: true,  /* send and get the files one by one. if this is set to false, each upload resets the django session variable that stores photos apparently  */
 		start: function (e) {  
+			// user should be authenticated
+			/* 
+				in reality, this will never be the case: say user loads this page.
+				if user isn't authenticated, he will first be redirected by the parent template.
+				if he is authenticated, he will have an id. let's assume user logs out on another
+				tab. if he comes back to this tab and tries to upload a photo, this test will fail and
+				the photo upload process will begin. However, he will be blocked by the backend verification.
+				We'll just allow this verification here lol
+			*/
+			var userId = "{{ user.id }}";
+			if (userId == "None") {
+				// NOTE: the js file (base.min.js) should also be included.
+				// its already included in the base template ...
+				displayLoginRequiredToast();
+				return false;
+			}
+
 			// show modal when uploading process starts
 			$modalProgress.first().modal("show");
 		},
@@ -142,33 +178,20 @@ we need to inherit from the base template...
 		done: function (e, data) {
 			// data received from backend is stored in "data.result"
 			var result = data.result;
+
+			if (result.is_anonymous) {
+				// javascript file should be present !
+				displayLoginRequiredToast();
+				return false;
+			}
 			
 			if (result.is_valid) {
-				// "<tr><td><a href='" + data.result.url + "'>" + data.result.name + "</a></td></tr>"
-				/*
 				$gallery.append(
 					"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
 						<img \
 							src='" + result.url + "' \
 							class='photo-wrp__img' \
-							alt='" + result.title + "' \
-							data-id='" + result.id + "' \
-							data-filename='" + result.filename + "' \
-						> \
-						<button  \
-							type='button' \
-							class='btn-close js-remove-photo' \
-							aria-label='" + "{% trans 'Delete' %}" + "' \
-						></button> \
-					</div>"
-				);
-				*/
-				$gallery.append(
-					"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
-						<img \
-							src='" + result.url + "' \
-							class='photo-wrp__img' \
-							data-filename='" + result.filename + "' \
+							data-filename='" + encodeURIComponent(result.filename) + "' \
 						> \
 						<button  \
 							type='button' \
@@ -194,7 +217,7 @@ we need to inherit from the base template...
 		// [0] is used to get the dom element from the jQuery object
 		var photoFileName = $photo[0].dataset['filename'];
 		
-		var errorMessage = {% blocktrans %} "An error occurred, try refreshing the page then try again." {% endblocktrans %};
+		var errorMessage = {% blocktrans %} "An error occurred, try refreshing the page then try again. If it persists, contact us." {% endblocktrans %};
 
 		// call ajax to delete photo from backend
 		$.ajax({
@@ -203,6 +226,14 @@ we need to inherit from the base template...
 			dataType: 'json',
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+
+				// user should be authenticated
+				// see explanation above in file upload...
+				var userId = "{{ user.id }}";
+				if (userId == "None") {
+					displayLoginRequiredToast();
+					return false;
+				}
 			},
 			success: function(result) {
 				if (result.deleted) {
@@ -212,7 +243,12 @@ we need to inherit from the base template...
 				}
 			},
 			error: function() {
-				alert(errorMessage);
+				if (result.is_anonymous) {
+					displayLoginRequiredToast();
+					return false;
+				} else {
+					alert(errorMessage);
+				}
 			}
 		});
 	});

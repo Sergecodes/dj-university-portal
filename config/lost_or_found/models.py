@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.template.defaultfilters import capfirst
+from django.template.defaultfilters import capfirst, truncatewords
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -17,7 +17,8 @@ class FoundItem(Post):
 	item_found = models.CharField(
 		_('Item found'), 
 		max_length=100, 
-		help_text=_('What have you found?')
+		help_text=_('What have you found?'),
+		unique=truncatewords
 	)
 	area_found = models.CharField(
 		_('Area found'), 
@@ -67,7 +68,12 @@ class FoundItem(Post):
 
 
 class LostItem(Post):
-	item_lost = models.CharField(_('Item lost'), max_length=100, help_text=_('What have you lost?'))
+	item_lost = models.CharField(
+		_('Item lost'), 
+		max_length=100, 
+		help_text=_('What have you lost?'),
+		unique=True
+	)
 	item_description = models.TextField(
 		_('Item description'), 
 		help_text=_('Describe the lost item stating its important aspects.')

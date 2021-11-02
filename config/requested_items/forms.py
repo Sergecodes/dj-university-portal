@@ -63,7 +63,7 @@ class RequestedItemForm(forms.ModelForm):
 				PhotoFormLayout(extra_context={
 					'form_for': 'requested_item', 
 					'upload_help_text': _("Upload maximum 3 photos of your requested item. Allow this empty if you do not have any photos."),
-					'photos': initial_photos
+					'initial_photos': initial_photos
 				}),  
                 'price_at_hand'
 			),

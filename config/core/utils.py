@@ -73,8 +73,9 @@ def actual_filename(photo):
 
 
 def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
-	"""Insert text on image"""
+	"""Insert text on image and save"""
 	img = Image.open(photo)
+	
 	w, h = img.size
 
 	# call draw method to insert 2D graphics in an image
@@ -88,7 +89,7 @@ def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 
 	img_editable.text((x_pos, y_pos), text, (254, 192, 14), font=IMAGE_FONT)
 
-	## convert PIL image to django-compatible file object:
+	## convert PIL image to django-compatible file object and save file as png
 	# img.show()
 	img_io = BytesIO()
 	img.save(img_io, format='PNG')
@@ -96,7 +97,11 @@ def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 	# create a new django file-like object that can be used
 	img_file = ContentFile(img_io.getvalue())
 	# this name will be in the form 'ad_photos/filename.png'
-	saved_file_name = storage.save(save_dir + storage.get_valid_name(photo.name), img_file)
+	
+	# change extension of file..
+	valid_name = storage.get_valid_name(photo.name)
+	new_name = valid_name.replace(valid_name.split('.')[1], 'png')
+	saved_file_name = storage.save(save_dir + storage.get_valid_name(new_name), img_file)
 	
 	return saved_file_name
 
@@ -212,20 +217,70 @@ def get_search_results(keyword_list, category=None):
 	results = SEARCH_RESULTS[category]
 	return (results, results.count())
 
+'''
+class CustomFPDF(FPDF):
+	"""
+	Override FPDF to enable getting jpg files over network
+	"""
 
-def generate_past_papers_pdf(file_names, gen_file_name, gen_files_dir='past_papers'):
+	def _parsejpg(self, filename):
+		import struct
+		from urllib.request import urlopen
+		from fpdf.py3k import exception
+
+		# also see FPDF's _parsepng method(the starting)...
+		try:
+			if filename.startswith("http://") or filename.startswith("https://"):
+				f = urlopen(filename)
+			else:
+				f=open(filename,'rb')
+			if(not f):
+				self.error("Can't open image file: "+filename)
+			print(f)
+			while True:
+				markerHigh, markerLow = struct.unpack('BB', f.read(2))
+				print(markerHigh, markerLow)
+				if markerHigh != 0xFF or markerLow < 0xC0:
+					raise SyntaxError('No JPEG marker found')
+				elif markerLow == 0xDA: # SOS
+					raise SyntaxError('No JPEG SOF marker found')
+				elif (markerLow == 0xC8 or # JPG
+					  (markerLow >= 0xD0 and markerLow <= 0xD9) or # RSTx
+					  (markerLow >= 0xF0 and markerLow <= 0xFD)): # JPGx
+					pass
+				else:
+					dataSize, = struct.unpack('>H', f.read(2))
+					data = f.read(dataSize - 2) if dataSize > 2 else ''
+					if ((markerLow >= 0xC0 and markerLow <= 0xC3) or # SOF0 - SOF3
+						(markerLow >= 0xC5 and markerLow <= 0xC7) or # SOF4 - SOF7
+						(markerLow >= 0xC9 and markerLow <= 0xCB) or # SOF9 - SOF11
+						(markerLow >= 0xCD and markerLow <= 0xCF)): # SOF13 - SOF15
+						bpc, height, width, layers = struct.unpack_from('>BHHB', data)
+						colspace = 'DeviceRGB' if layers == 3 else ('DeviceCMYK' if layers == 4 else 'DeviceGray')
+						break
+		except Exception:
+			self.error('Missing or incorrect image file: %s. error: %s' % (filename, str(exception())))
+
+		# Read whole file from the start
+		f.seek(0)
+		data = f.read()
+		print(data)
+		f.close()
+		return {'w':width,'h':height,'cs':colspace,'bpc':bpc,'f':'DCTDecode','data':data}	
+'''
+
+def generate_past_papers_pdf(file_names):
 	"""
 	Generate a pdf containing images in file_names and return a django File object 
 	pointing to the pdf. \n
 	`file_names` is a list(or sequence) of the names of the files in s3 bucket; 
 	generally obtained from the session. \n
-	`gen_file_name` name(without extension) of output file \n
-	`gen_files_dir` is the folder in s3 bucket(after storage backend prefis) 
-	where generated files should be stored
 	"""
 	
 	pdf = FPDF()
 	image_urls = [storage.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + file) for file in file_names]
+
+	# all files are stored as png so convert any 
 	for url in image_urls:
 		pdf.add_page()
 		# w=210, h=297 is the standard for A4 sized pdfs

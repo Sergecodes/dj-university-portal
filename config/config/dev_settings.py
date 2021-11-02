@@ -203,8 +203,7 @@ if USE_ZOHO:
 		('Serge Durand', 'serge.durand@camerschools.com'),
 		
 	]
-	# error messages sent to ADMINS come from this email address
-	SERVER_EMAIL = 'info@camerschools.com'
+	
 	# see https://www.zoho.com/mail/help/zoho-smtp.html
 	EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 	EMAIL_HOST = 'smtppro.zoho.eu'
@@ -214,6 +213,9 @@ if USE_ZOHO:
 	EMAIL_USE_TLS = True
 	EMAIL_USE_SSL = False
 	DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+	# error messages sent to ADMINS come from this email address
+	# apparently, no other email address works.
+	SERVER_EMAIL = EMAIL_HOST_USER 
 
 	## ALWAYS USE TLS !! google search
 	# SSL refers to Secure Sockets Layer whereas TLS refers to Transport Layer Security.

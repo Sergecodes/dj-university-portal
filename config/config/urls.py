@@ -49,7 +49,7 @@ urlpatterns += i18n_patterns(
 # custom error pages
 # (see https://docs.djangoproject.com/en/3.2/topics/http/views/#customizing-error-views)
 # handler404 = 'core.views.page_not_found_view'
-# handler500 = 'core.views.server_error_view'
+handler500 = 'core.views.server_error_view'
 # handler403 = 'core.views.permission_denied_view'
 # handler400 = 'core.views.bad_request_view'
 

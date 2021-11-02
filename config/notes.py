@@ -3,6 +3,7 @@
 
 
 # freeprivacypolicy.com  (cool)
+# - for watermark, if text(Camerschools.com) is too long (if image is not wide enough to contain text), insert either just Camerschools or logo..
 # - redirect to next url when user is editing phone numbers (in listings, requested items, etc..)
 # - add possibility to disconnect social profile
 #  - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 

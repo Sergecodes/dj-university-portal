@@ -66,6 +66,13 @@ class Comment(models.Model):
 		related_name='comments',
 		related_query_name='comment'
 	)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 
@@ -142,7 +149,7 @@ class PastPaper(models.Model):
 	
 	level = models.CharField(_('Level'), max_length=5, choices=LEVELS)
 	type = models.CharField(_('Speciality'), max_length=5, choices=TYPES, default='GEN')
-	title = models.CharField(_('Title'), max_length=100)
+	title = models.CharField(_('Title'), max_length=100, unique=True)
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper

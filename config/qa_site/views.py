@@ -125,7 +125,7 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 			answer_form = AcademicAnswerForm(POST)
 			if answer_form.is_valid():
 				answer = answer_form.save(commit=False)
-				added_result = user.add_answer(question, answer)
+				added_result = user.add_answer(question, answer, 'academic')
 
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
@@ -570,7 +570,7 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			answer_form = SchoolAnswerForm(POST)
 			if answer_form.is_valid():
 				answer = answer_form.save(commit=False)
-				added_result = user.add_answer(question, answer)
+				added_result = user.add_answer(question, answer, 'school-based')
 
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
@@ -632,7 +632,9 @@ class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
 		# if comment was modified, save it.
 		# print(form.changed_data)
 		if 'content' in form.changed_data:
-			form.save()
+			comment = form.save(commit=False)
+			comment.update_language = get_language()
+			comment.save()
 
 		return redirect(self.get_success_url())
 

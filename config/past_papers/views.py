@@ -1,5 +1,4 @@
 import django_filters as filters
-import os
 from django_filters.views import FilterView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -32,7 +31,7 @@ from .mixins import (
 	can_delete_paper, CanDeletePastPaperMixin, 
 	CanDeletePastPaperCommentMixin, CanEditPastPaperCommentMixin,
 )
-from .models import PastPaper, PastPaperPhoto, Comment
+from .models import PastPaper, Comment
 
 
 class PastPaperCreate(LoginRequiredMixin, CreateView):
@@ -54,7 +53,9 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		# these validations isn't done in the form's clean 
 		# coz we won't have access to the request object to get the session
 		file = request.FILES.get('file')
-
+		print(file, bool(file))
+		print(photos_list, bool(photos_list))
+		
 		if file and photos_list:
 			form.add_error(
 				None, 
@@ -83,7 +84,8 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		
 		if photos_list:
 			# generate past paper from photos
-			byte_str = generate_past_papers_pdf(photos_list, slugify(past_paper.title))
+			# byte_str = generate_past_papers_pdf(photos_list, slugify(past_paper.title))
+			byte_str = generate_past_papers_pdf(photos_list)
 			storage = PublicMediaStorage()
 			filename = slugify(past_paper.title)
 
@@ -119,6 +121,7 @@ class PastPaperDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			comment = comment_form.save(commit=False)
 			comment.past_paper = past_paper
 			comment.poster = request.user
+			comment.original_language = get_language()
 			comment.save()
 
 		return redirect(past_paper.get_absolute_url())
@@ -229,7 +232,9 @@ class PastPaperCommentUpdate(GetObjectMixin, CanEditPastPaperCommentMixin, Updat
 
 	def form_valid(self, form):
 		if 'content' in form.changed_data:
-			form.save()
+			comment = form.save(commit=False)
+			comment.update_language = get_language()
+			comment.save()
 			
 		return redirect(self.get_success_url())
 

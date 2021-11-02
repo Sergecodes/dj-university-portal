@@ -16,12 +16,13 @@
         </h3>
 		<p>
             {% blocktrans %}
-            Click <a href="mailto:info@camerschools.com?subject=500 error&body=Hello CamerSchools, the page {{ request.build_absolute_uri }} doesn't open.">here</a> to email this error to us so we can look into it.
+            Click <a href="mailto:info@camerschools.com?subject=500 error&body=Hello CamerSchools, the page {{ url }} doesn't open.">here</a> to email this page's link to us so we can look into it.
             {% endblocktrans %}
         </p>
 	</div>
     {# just to get an empty space #}
     <div class="pb-4 mb-5"></div>
 {% endblock %}
+
 
 

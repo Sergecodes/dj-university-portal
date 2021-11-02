@@ -25,14 +25,16 @@ class RequestedItem(Post):
 	item_requested = models.CharField(
 		_('Item requested'), 
 		max_length=100, 
-		help_text=_('What item do you need?')
+		help_text=_('What item do you need?'),
+		unique=True
 	)
 	item_description = models.TextField(
 		_('Item description'), 
 		help_text=_(
 			'Describe the item you are in need of, stating its important aspects. <br>'
 			'You may allow this field empty.'
-		)
+		),
+		blank=True
 	)
 	price_at_hand = models.CharField(
 		_('Price at hand'),
@@ -71,7 +73,7 @@ class RequestedItem(Post):
 	def save(self, *args, **kwargs):
 		if not self.id:
 			self.slug = slugify(self.item_requested)
-		self.title = capfirst(self.title)
+		self.item_requested = capfirst(self.item_requested)
 		super().save(*args, **kwargs)
 
 	def get_absolute_url(self, with_slug=True):

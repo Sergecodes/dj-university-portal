@@ -2,6 +2,7 @@ import cryptocode
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from django.template.defaultfilters import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
@@ -42,7 +43,7 @@ FORM_AND_UPLOAD_DIR = {
 }
 
 
-class PhotoUploadView(LoginRequiredMixin, View):
+class PhotoUploadView(View):
 	# this isn't even required, if a method not defined in this class is used (eg. GET)
 	# the request will fail.
 	# also, these methods must be in lowercase apparently.
@@ -53,6 +54,18 @@ class PhotoUploadView(LoginRequiredMixin, View):
 		Called when a photo is uploaded. Checks for maximum number of photos are done where necessary.
 		However, for minimum number of photos, checks will be done in the respective form's post method.
 		"""
+
+		# since it's an ajax view, if user isn't logged in, he will be redirected
+		# but page won't be reloaded
+		# so return json response if user is anonymous..
+		if request.user.is_anonymous:
+			return JsonResponse({
+					'is_valid': False, 
+					# 'error': _('User is not authenticated'), 
+					'is_anonymous': True
+				},
+				# status=403  # Forbidden
+			)
 
 		if form_for == 'item_listing':
 			form = ItemPhotoForm(request.POST, request.FILES)
@@ -110,6 +123,10 @@ class PhotoUploadView(LoginRequiredMixin, View):
 				'is_valid': True, 
 				'url': storage.url(saved_photo_name),
 				# encrypt photo name before sending!
+				# also, encode url too to correctly parse signs such as plus and space that
+				# could be in the cipher text. (see stackoverflow.com/q/66167067/querydict-in-django )
+				## for some reason, urlencode(ciphertext) doesn't seem to work;
+				# the encoding will be done using JS' encodeURIComponent on client side.
 				'filename': cryptocode.encrypt(photo_session_name, SECRET_KEY)
 			}
 
@@ -125,11 +142,21 @@ class PhotoUploadView(LoginRequiredMixin, View):
 
 	def delete(self, request):
 		"""Called when a photo is deleted. Removes photo from list of photos."""
+		
+		if request.user.is_anonymous:
+			return JsonResponse({
+					'deleted': False, 
+					# 'error': _('User is not authenticated'), 
+					'is_anonymous': True
+				},
+				status=403  # Forbidden
+			)
+		
 		encoded_photo_name = request.GET.get('photo_filename')
 		form_for = request.GET.get('form_for')
 
 		# in normal circumstances, this shouldn't be the case
-		if not (encoded_photo_name and form_for):
+		if not encoded_photo_name and not form_for:
 			return JsonResponse(
 				{'deleted': False, 'error': _('Invalid GET params')},
 				status=400  # BadRequest

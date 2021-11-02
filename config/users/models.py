@@ -234,7 +234,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		question_poster = question.poster
 		
 		answerers_id = []
-		for answer in question.answers:
+		for answer in question.answers.all():
 			answerers_id.append(answer.poster_id)
 
 		# if user has already exceeded limit for number of answers to this question
@@ -249,7 +249,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		## TRANSLATION 
 		# get current language and language to translate to
-		trans_lang = 'fr' if get_language() == 'en' else 'en'
+		current_lang = get_language()
+		trans_lang = 'fr' if current_lang == 'en' else 'en'
 		# print('answer is', answer.content)
 
 		translated_content = translate_text(answer.content, trans_lang)['translatedText']
@@ -257,6 +258,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		answer.poster = self
 		answer.question = question
+		answer.original_language = current_lang
 		answer.save()
 
 		# update user's number of points if answerer is not question poster
@@ -295,6 +297,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# this must be the case coz the comment doesn't yet have a question.
 		comment.poster = self
 		comment.question = question
+		comment.original_language = get_language()
 		comment.save()
 
 		# notify question poster and users that are following this question
@@ -320,6 +323,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# this must be the case coz the comment doesn't yet have a question.
 		comment.poster = self
 		comment.answer = answer
+		comment.original_language = get_language()
 		comment.save()
 
 		question = answer.question

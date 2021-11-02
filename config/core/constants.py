@@ -2,7 +2,6 @@
 File contains constants that will be used through out site.
 """
 from datetime import timedelta
-from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
@@ -25,7 +24,7 @@ GENDERS = (
 TEST_ACCOUNT_EMAIL = 'test@gmail.com'
 TEST_ACCOUNT_USERNAME = 'test-user'
 TEST_ACCOUNT_FULL_NAME = 'Test Account'
-TEST_ACCOUNT_PASSWORD = 'password'
+TEST_ACCOUNT_PASSWORD = 'a random password'
 
 
 ## SESSION KEYS

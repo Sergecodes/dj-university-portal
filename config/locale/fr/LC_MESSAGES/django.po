@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-30 21:04+0000\n"
+"POT-Creation-Date: 2021-11-02 03:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,48 +68,48 @@ msgstr "socialiser/"
 msgid "users/"
 msgstr "utilisateurs/"
 
-#: core/ajax_views.py:68
+#: core/ajax_views.py:81
 msgid "Unsupported form"
 msgstr "Formulaire non pris en charge"
 
-#: core/ajax_views.py:76 core/ajax_views.py:83 core/ajax_views.py:90
+#: core/ajax_views.py:89 core/ajax_views.py:96 core/ajax_views.py:103
 msgid "Maximum number of photos attained"
 msgstr "Nombre maximum de photos atteint"
 
-#: core/ajax_views.py:120
+#: core/ajax_views.py:137
 msgid "Invalid file, upload a valid image."
 msgstr "Fichier non valide, téléchargez une image valide."
 
-#: core/ajax_views.py:134
+#: core/ajax_views.py:161
 msgid "Invalid GET params"
 msgstr "Paramètres GET non valides"
 
-#: core/ajax_views.py:148
+#: core/ajax_views.py:175
 msgid "Invalid string"
 msgstr "Chaîne non valide"
 
-#: core/ajax_views.py:159
+#: core/ajax_views.py:186
 msgid "Photo is not in list."
 msgstr "La photo n'est pas dans la liste"
 
-#: core/constants.py:20 socialize/models.py:229
+#: core/constants.py:19 socialize/models.py:229
 msgid "Male"
 msgstr "Mâle"
 
-#: core/constants.py:21 socialize/models.py:229
+#: core/constants.py:20 socialize/models.py:229
 msgid "Female"
 msgstr "Femelle"
 
-#: core/constants.py:60
+#: core/constants.py:59
 msgid "Spam | Exists only to promote a service "
 msgstr "Pourriel | N'existe que pour promouvoir un service "
 
-#: core/constants.py:61
+#: core/constants.py:60
 msgid "Abusive | Intended at promoting hatred"
 msgstr "Abusif | Destiné à promouvoir la haine"
 
 #: core/models.py:13 marketplace/models.py:18 marketplace/models.py:30
-#: marketplace/models.py:48 qa_site/models.py:385 qa_site/models.py:480
+#: marketplace/models.py:48 qa_site/models.py:391 qa_site/models.py:486
 msgid "Name"
 msgstr "Nom"
 
@@ -248,7 +248,7 @@ msgid "Sell an item"
 msgstr "Vendre un article"
 
 #: core/templates/core/base.html:297 core/templates/core/search_results.html:27
-#: core/templates/core/site_usage_info.html:36 core/utils.py:288
+#: core/templates/core/site_usage_info.html:36 core/utils.py:343
 #: marketplace/templates/marketplace/adlisting_list.html:12
 #: marketplace/templates/marketplace/adlisting_list.html:25
 #: marketplace/templates/marketplace/adlisting_list.html:82
@@ -284,7 +284,7 @@ msgstr "Tous les articles demandés"
 msgid "Ask a question"
 msgstr "Poser une question"
 
-#: core/templates/core/base.html:332 qa_site/models.py:455
+#: core/templates/core/base.html:332 qa_site/models.py:461
 msgid "Academic Question"
 msgstr "Question Académique"
 
@@ -319,7 +319,7 @@ msgstr "Voir les objets trouvés"
 
 #: core/templates/core/base.html:364
 #: core/templates/core/search_results.html:137
-#: core/templates/core/site_usage_info.html:82 core/utils.py:294
+#: core/templates/core/site_usage_info.html:82 core/utils.py:349
 #: past_papers/templates/past_papers/pastpaper_list.html:10
 #: past_papers/templates/past_papers/pastpaper_list.html:22
 #: users/templates/users/profile/past-papers.html:25
@@ -473,6 +473,7 @@ msgid "You must login to bookmark a post."
 msgstr "Vous devez vous connecter pour marquer une publication."
 
 #: core/templates/core/bookmarking.html:14
+#: core/templates/core/photos_upload.html:29
 #: marketplace/templates/marketplace/adlisting_detail.html:30
 #: marketplace/templates/marketplace/itemlisting_detail.html:31
 #: qa_site/templates/qa_site/academicquestion_detail.html:64
@@ -495,6 +496,7 @@ msgstr "Cliquez"
 
 #: core/templates/core/bookmarking.html:16
 #: core/templates/core/bookmarking.html:20
+#: core/templates/core/photos_upload.html:31
 #: marketplace/templates/marketplace/adlisting_detail.html:32
 #: marketplace/templates/marketplace/adlisting_detail.html:36
 #: marketplace/templates/marketplace/itemlisting_detail.html:33
@@ -543,6 +545,7 @@ msgstr "pour vous inscrire si vous n'avez pas encore de compte."
 #: core/templates/core/bookmarking.html:58
 #: core/templates/core/edit_phone_numbers.html:11
 #: core/templates/core/edit_phone_numbers.html:19
+#: core/templates/core/photos_upload.html:36
 #: core/templates/core/social_share_tooltip.html:12
 #: core/templates/core/social_share_tooltip.html:21
 #: marketplace/templates/marketplace/adlisting_detail.html:41
@@ -646,69 +649,6 @@ msgstr ""
 "toutes les informations que vous avez déjà entré.\n"
 "\t\t\t"
 
-#: core/templates/core/error_templates/400.html:6
-msgid "Bad request"
-msgstr "Mauvaise requête"
-
-#: core/templates/core/error_templates/400.html:14
-msgid "Invalid request"
-msgstr "Requête non valide"
-
-#: core/templates/core/error_templates/400.html:16
-msgid ""
-"\n"
-"        Email us at <strong>info@camerschools.com</strong> for more "
-"information\n"
-"        "
-msgstr ""
-
-#: core/templates/core/error_templates/403.html:6
-#: core/templates/core/error_templates/403.html:14
-msgid "Permission Denied"
-msgstr ""
-
-#: core/templates/core/error_templates/403.html:20
-msgid "You are not permitted to access this page."
-msgstr ""
-
-#: core/templates/core/error_templates/403.html:23
-msgid ""
-"Use the site navigation links to explore the sections of this site that you "
-"can access."
-msgstr ""
-
-#: core/templates/core/error_templates/404.html:6
-#: core/templates/core/error_templates/404.html:14
-msgid "Page not found"
-msgstr "Page non trouvée"
-
-#: core/templates/core/error_templates/404.html:16
-msgid ""
-"\n"
-"        Check that you typed the address correctly, go back to your previous "
-"page \n"
-"        or try using our site search to find something specific.\n"
-"        "
-msgstr ""
-
-#: core/templates/core/error_templates/500.html:6
-msgid "Error"
-msgstr "Erreur"
-
-#: core/templates/core/error_templates/500.html:15
-msgid "An Error Occurred"
-msgstr ""
-
-#: core/templates/core/error_templates/500.html:18
-#, python-format
-msgid ""
-"\n"
-"            Click <a href=\"mailto:info@camerschools.com?subject=500 "
-"error&body=Hello CamerSchools, the page %(request.build_absolute_uri)s "
-"doesn't open.\">here</a> to email this error to us so we can look into it.\n"
-"            "
-msgstr ""
-
 #: core/templates/core/index.html:19
 msgid "Questions"
 msgstr "Questions"
@@ -718,7 +658,7 @@ msgid "Academic questions"
 msgstr "Questions académiques"
 
 #: core/templates/core/index.html:36 core/templates/core/search_results.html:71
-#: core/utils.py:302 qa_site/models.py:456
+#: core/utils.py:357 qa_site/models.py:462
 #: qa_site/templates/qa_site/academicquestion_list.html:12
 #: qa_site/templates/qa_site/academicquestion_list.html:24
 #: qa_site/templates/qa_site/questions_explain.html:24
@@ -774,7 +714,7 @@ msgid "School-based questions"
 msgstr "Questions scolaires"
 
 #: core/templates/core/index.html:70 core/templates/core/search_results.html:93
-#: core/utils.py:300 qa_site/templates/qa_site/questions_explain.html:43
+#: core/utils.py:355 qa_site/templates/qa_site/questions_explain.html:43
 #: qa_site/templates/qa_site/schoolquestion_list.html:10
 #: qa_site/templates/qa_site/schoolquestion_list.html:22
 msgid "School-Based Questions"
@@ -835,7 +775,7 @@ msgstr "Publier une Annonce"
 
 #: core/templates/core/index.html:214
 #: core/templates/core/search_results.html:115
-#: core/templates/core/site_usage_info.html:46 core/utils.py:292
+#: core/templates/core/site_usage_info.html:46 core/utils.py:347
 #: requested_items/templates/requested_items/requested_item_list.html:12
 #: users/templates/users/profile/requested-items.html:25
 #: users/templates/users/profile/requested-items.html:31
@@ -873,7 +813,7 @@ msgstr "Uploader un Ancien Sujet"
 
 #: core/templates/core/index.html:321
 #: core/templates/core/search_results.html:182
-#: core/templates/core/site_usage_info.html:68 core/utils.py:296
+#: core/templates/core/site_usage_info.html:68 core/utils.py:351
 msgid "Lost Items"
 msgstr "Objets perdus"
 
@@ -891,7 +831,7 @@ msgstr "Voir les Objets Perdus"
 
 #: core/templates/core/index.html:375
 #: core/templates/core/search_results.html:160
-#: core/templates/core/site_usage_info.html:71 core/utils.py:298
+#: core/templates/core/site_usage_info.html:71 core/utils.py:353
 msgid "Found Items"
 msgstr "Objets"
 
@@ -934,9 +874,8 @@ msgstr "Marquer comme lu"
 #: core/templates/core/notifications.html:103
 #: core/templates/core/notifications.html:202
 #: core/templates/core/notifications.html:250
-#: core/templates/core/photos_upload.html:58
-#: core/templates/core/photos_upload.html:161
-#: core/templates/core/photos_upload.html:176
+#: core/templates/core/photos_upload.html:77
+#: core/templates/core/photos_upload.html:199
 #: qa_site/templates/qa_site/academicquestion_detail.html:380
 #: qa_site/templates/qa_site/schoolquestion_detail.html:364
 msgid "Delete"
@@ -1010,21 +949,30 @@ msgid "Next"
 msgstr "Suivante"
 
 #: core/templates/core/photos_upload.html:27
+msgid "You are not logged in."
+msgstr ""
+
+#: core/templates/core/photos_upload.html:33
+msgid "to login to your account"
+msgstr "pour vous connecter à votre compte"
+
+#: core/templates/core/photos_upload.html:44
 msgid "Upload photos"
 msgstr "Télécharger des photos"
 
-#: core/templates/core/photos_upload.html:79
+#: core/templates/core/photos_upload.html:98
 msgid "Uploading"
 msgstr "Téléchargement"
 
-#: core/templates/core/photos_upload.html:111
+#: core/templates/core/photos_upload.html:130
 msgid "You can also drag photos and drop them here."
 msgstr "Vous pouvez également faire glisser des photos et les déposer ici."
 
-#: core/templates/core/photos_upload.html:197
-msgid " \"An error occurred, try refreshing the page then try again.\" "
+#: core/templates/core/photos_upload.html:220
+msgid ""
+" \"An error occurred, try refreshing the page then try again. If it "
+"persists, contact us.\" "
 msgstr ""
-" \"Une erreur s'est produite, essayez d'actualiser la page puis réessayez.\" "
 
 #: core/templates/core/privacy_policy.html:5
 #: users/templates/users/auth/signup.html:103
@@ -1046,7 +994,7 @@ msgstr "Aucun résultat de recherche pour"
 msgid "View All Results"
 msgstr "Voir Tous les Résultats"
 
-#: core/templates/core/search_results.html:49 core/utils.py:290
+#: core/templates/core/search_results.html:49 core/utils.py:345
 #: marketplace/templates/marketplace/itemlisting_list.html:25
 msgid "Items for Sale"
 msgstr "Articles à Vendre"
@@ -1245,14 +1193,14 @@ msgstr ""
 "\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:130
-#, python-format
 msgid ""
 "\n"
-"\t\t\t\t\t\t\tYou get <b>%(post_points)s points</b> when you:\n"
+"\t\t\t\t\t\t\tYou get <b>%(post_points)s points</b> when you do any of the "
+"following:\n"
 "\t\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t\t\t\tVous obtenez <b>%(post_points)s points</b> lorsque vous :\n"
+"\t\t\t\t\t\t\tVous obtenez <b>%(post_points)s points</b> lorsque vous faites l'un des suivants:\n"
 "\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:134
@@ -1646,7 +1594,7 @@ msgstr "Saisissez au maximum %(max_tags)d tags ; vous avez entré %(number)d."
 msgid "Commas and quotes are not permitted."
 msgstr "Les virgules et les guillemets ne sont pas autorisés."
 
-#: core/views.py:255
+#: core/views.py:258
 msgid "Invalid category"
 msgstr "Catégorie invalide"
 
@@ -1837,7 +1785,7 @@ msgstr "Le contenu a été supprimé avec succès."
 
 #: lost_or_found/ajax_views.py:28 lost_or_found/ajax_views.py:49
 #: marketplace/ajax_views.py:34 marketplace/ajax_views.py:55
-#: past_papers/views.py:263 qa_site/ajax_views.py:459 qa_site/ajax_views.py:480
+#: past_papers/views.py:268 qa_site/ajax_views.py:459 qa_site/ajax_views.py:480
 #: qa_site/ajax_views.py:505 qa_site/ajax_views.py:530
 #: requested_items/views.py:319 socialize/views.py:508
 msgid "Invalid action"
@@ -1938,31 +1886,31 @@ msgstr "Objet trouvé"
 msgid "What have you found?"
 msgstr "Qu'avez-vous trouvé ?"
 
-#: lost_or_found/models.py:23
+#: lost_or_found/models.py:24
 msgid "Area found"
 msgstr "Endroit trouvé"
 
-#: lost_or_found/models.py:25
+#: lost_or_found/models.py:26
 msgid "Where did you find the item?"
 msgstr "Où avez-vous trouvé l'objet ?"
 
-#: lost_or_found/models.py:27
+#: lost_or_found/models.py:28
 msgid "How found"
 msgstr "Comment trouvé"
 
-#: lost_or_found/models.py:27
+#: lost_or_found/models.py:28
 msgid "Explain how you found the item"
 msgstr "Expliquez comment vous avez trouvé l'objet"
 
-#: lost_or_found/models.py:30
+#: lost_or_found/models.py:31
 #: lost_or_found/templates/lost_or_found/founditem_detail.html:37
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:37
 #: lost_or_found/views.py:129 lost_or_found/views.py:312
-#: marketplace/models.py:222 marketplace/models.py:302
+#: marketplace/models.py:223 marketplace/models.py:303
 #: marketplace/templates/marketplace/adlisting_detail.html:107
 #: marketplace/templates/marketplace/itemlisting_detail.html:102
-#: marketplace/views.py:348 marketplace/views.py:619 past_papers/models.py:169
-#: past_papers/views.py:177 qa_site/views.py:498 requested_items/models.py:45
+#: marketplace/views.py:348 marketplace/views.py:619 past_papers/models.py:176
+#: past_papers/views.py:180 qa_site/views.py:498 requested_items/models.py:47
 #: requested_items/templates/requested_items/requested_item_detail.html:73
 #: requested_items/views.py:217 socialize/models.py:149
 #: socialize/templates/socialize/socialprofile_list.html:68
@@ -1970,35 +1918,35 @@ msgstr "Expliquez comment vous avez trouvé l'objet"
 msgid "School"
 msgstr "Établissement"
 
-#: lost_or_found/models.py:70
+#: lost_or_found/models.py:72
 msgid "Item lost"
 msgstr "Objet perdu"
 
-#: lost_or_found/models.py:70
+#: lost_or_found/models.py:74
 msgid "What have you lost?"
 msgstr "Qu'avez-vous trouvé ?"
 
-#: lost_or_found/models.py:72 requested_items/models.py:31
+#: lost_or_found/models.py:78 requested_items/models.py:32
 msgid "Item description"
 msgstr "Description de l'objet"
 
-#: lost_or_found/models.py:73
+#: lost_or_found/models.py:79
 msgid "Describe the lost item stating its important aspects."
 msgstr "Décrivez l'objet perdu en indiquant ses aspects importants."
 
-#: lost_or_found/models.py:76
+#: lost_or_found/models.py:82
 msgid "Area lost"
 msgstr "Endroit perdu"
 
-#: lost_or_found/models.py:78
+#: lost_or_found/models.py:84
 msgid "Where do you think you lost the item?"
 msgstr "Où pensez-vous avoir perdu l'objet ?"
 
-#: lost_or_found/models.py:81
+#: lost_or_found/models.py:87
 msgid "How lost"
 msgstr "Comment perdu"
 
-#: lost_or_found/models.py:83
+#: lost_or_found/models.py:89
 msgid ""
 "Explain how you think you lost the item, stating areas you passed across or "
 "visited"
@@ -2006,15 +1954,15 @@ msgstr ""
 "Expliquez comment vous pensez avoir perdu l'objet, en indiquant les endroits "
 "que vous avez traversés ou visités"
 
-#: lost_or_found/models.py:86
+#: lost_or_found/models.py:92
 msgid "Good day, "
 msgstr "Bonjour, "
 
-#: lost_or_found/models.py:89
+#: lost_or_found/models.py:95
 msgid "Bounty"
 msgstr "Récompense"
 
-#: lost_or_found/models.py:93
+#: lost_or_found/models.py:99
 msgid ""
 "Award/bounty given to the person who will return the item. Make sure that "
 "you are in possession of the award. <br> This is optional but can be used as "
@@ -2367,7 +2315,7 @@ msgid "found-items/"
 msgstr "objets-trouvés/"
 
 #: lost_or_found/views.py:118 lost_or_found/views.py:302
-#: marketplace/views.py:609 past_papers/views.py:167 qa_site/views.py:290
+#: marketplace/views.py:609 past_papers/views.py:170 qa_site/views.py:290
 #: qa_site/views.py:488 requested_items/views.py:207
 msgid "Keywords"
 msgstr "Mots clés"
@@ -2390,7 +2338,7 @@ msgstr ""
 "exactement ce que votre \t\t\tarticle est. <br> Incluez les mots que les "
 "acheteurs utiliseront pour rechercher votre article"
 
-#: marketplace/forms.py:68 marketplace/models.py:247
+#: marketplace/forms.py:68 marketplace/models.py:248
 msgid "Select the condition of the item you're listing."
 msgstr "Sélectionnez l'état de l'article que vous mettez en vente."
 
@@ -2465,7 +2413,7 @@ msgstr "Publier l'annonce"
 msgid "You can delete only listings that were posted by you."
 msgstr "Vous ne pouvez supprimer que les annonces que vous avez publiées."
 
-#: marketplace/models.py:180 past_papers/models.py:145 qa_site/models.py:409
+#: marketplace/models.py:180 past_papers/models.py:152 qa_site/models.py:415
 msgid "Title"
 msgstr "Titre"
 
@@ -2477,12 +2425,12 @@ msgstr ""
 "Un titre descriptif aide les acheteurs à trouver votre article. <br> "
 "Indiquez exactement ce que votre annonce est."
 
-#: marketplace/models.py:185
+#: marketplace/models.py:186
 #: requested_items/templates/requested_items/requested_item_detail.html:125
 msgid "Description"
 msgstr "Description"
 
-#: marketplace/models.py:186
+#: marketplace/models.py:187
 msgid ""
 "Describe the your post and provide complete and accurate details. Use a "
 "clear and concise format."
@@ -2490,19 +2438,19 @@ msgstr ""
 "Décrivez votre message et fournissez des détails complets et précis. "
 "Utilisez un format clair et concis."
 
-#: marketplace/models.py:208
+#: marketplace/models.py:209
 msgid "New"
 msgstr "Neuf"
 
-#: marketplace/models.py:209
+#: marketplace/models.py:210
 msgid "Used"
 msgstr "Utilisé"
 
-#: marketplace/models.py:210
+#: marketplace/models.py:211
 msgid "Defective(some parts are not working)"
 msgstr "Défectueux (certaines pièces ne fonctionnent pas)"
 
-#: marketplace/models.py:229 marketplace/models.py:289
+#: marketplace/models.py:230 marketplace/models.py:290
 #: marketplace/templates/marketplace/adlisting_detail.html:117
 #: marketplace/templates/marketplace/itemlisting_detail.html:123
 #: marketplace/views.py:349 marketplace/views.py:620
@@ -2512,20 +2460,20 @@ msgstr "Défectueux (certaines pièces ne fonctionnent pas)"
 msgid "Category"
 msgstr "Catégorie"
 
-#: marketplace/models.py:236
+#: marketplace/models.py:237
 msgid "Sub category"
 msgstr "Sous-catégorie"
 
-#: marketplace/models.py:243
+#: marketplace/models.py:244
 msgid "Condition"
 msgstr "État"
 
-#: marketplace/models.py:250
+#: marketplace/models.py:251
 #: marketplace/templates/marketplace/itemlisting_create.html:21
 msgid "Condition description"
 msgstr "Description de l'état"
 
-#: marketplace/models.py:251
+#: marketplace/models.py:252
 msgid ""
 "Provide details about the condition of a non brand-new item, including any "
 "defects or flaws, so that buyers know exactly what to expect."
@@ -2533,12 +2481,12 @@ msgstr ""
 "Fournir des détails sur l'état d'un article non neuf, y compris tout défaut, "
 "afin que les acheteurs sachent exactement à quoi s'attendre."
 
-#: marketplace/models.py:256
+#: marketplace/models.py:257
 #: marketplace/templates/marketplace/itemlisting_detail.html:96
 msgid "Price"
 msgstr "Prix"
 
-#: marketplace/models.py:257
+#: marketplace/models.py:258
 msgid ""
 "Figures and spaces only, no commas or dots. <br> Enter <b>0</b> for free "
 "products or services."
@@ -2546,12 +2494,12 @@ msgstr ""
 "Chiffres et espace(s) uniquement, pas de virgules ni de points. <br> Entrez "
 "<b>0</b> pour les produits gratuits ou services."
 
-#: marketplace/models.py:295
+#: marketplace/models.py:296
 #: marketplace/templates/marketplace/adlisting_detail.html:96
 msgid "Pricing"
 msgstr "Coût"
 
-#: marketplace/models.py:296
+#: marketplace/models.py:297
 msgid ""
 "Allow this field empty for free products and services or if the pricing is "
 "in the advert description."
@@ -2559,7 +2507,7 @@ msgstr ""
 "Laissez ce champ vide pour les produits gratuits et services ou si le coût "
 "est dans la description de l'annonce."
 
-#: marketplace/models.py:307
+#: marketplace/models.py:308
 msgid ""
 "Allow this field empty if this advert does not concern a particular school."
 msgstr ""
@@ -2840,7 +2788,7 @@ msgstr ""
 msgid "Item keywords"
 msgstr ""
 
-#: notifications/models.py:16 past_papers/models.py:139
+#: notifications/models.py:16 past_papers/models.py:146
 msgid "General"
 msgstr ""
 
@@ -2935,44 +2883,44 @@ msgstr ""
 msgid "You can't delete comments that are more than {} minutes old."
 msgstr ""
 
-#: past_papers/models.py:56 qa_site/models.py:27 qa_site/models.py:411
+#: past_papers/models.py:56 qa_site/models.py:27 qa_site/models.py:417
 msgid "Content"
 msgstr ""
 
-#: past_papers/models.py:129
+#: past_papers/models.py:136
 msgid "Master's"
 msgstr ""
 
-#: past_papers/models.py:130
+#: past_papers/models.py:137
 msgid "Doctorate"
 msgstr ""
 
-#: past_papers/models.py:138
+#: past_papers/models.py:145
 msgid "Commercial"
 msgstr ""
 
-#: past_papers/models.py:140
+#: past_papers/models.py:147
 msgid "Technical"
 msgstr ""
 
-#: past_papers/models.py:143 past_papers/views.py:179 socialize/models.py:106
+#: past_papers/models.py:150 past_papers/views.py:182 socialize/models.py:106
 #: socialize/templates/socialize/socialprofile_list.html:74
 #: socialize/views.py:413
 msgid "Level"
 msgstr ""
 
-#: past_papers/models.py:144 socialize/models.py:129
+#: past_papers/models.py:151 socialize/models.py:129
 #: socialize/templates/socialize/socialprofile_list.html:64
 #: socialize/views.py:414
 msgid "Speciality"
 msgstr ""
 
-#: past_papers/models.py:178 past_papers/views.py:178 qa_site/models.py:416
+#: past_papers/models.py:185 past_papers/views.py:181 qa_site/models.py:422
 #: qa_site/views.py:301
 msgid "Subject"
 msgstr ""
 
-#: past_papers/models.py:188
+#: past_papers/models.py:195
 msgid "Written date"
 msgstr ""
 
@@ -3105,11 +3053,11 @@ msgstr ""
 msgid "comments/"
 msgstr ""
 
-#: past_papers/views.py:61
+#: past_papers/views.py:62
 msgid "Either upload a file or photo(s), not both."
 msgstr ""
 
-#: past_papers/views.py:65
+#: past_papers/views.py:66
 msgid "Upload a file or photo(s)"
 msgstr ""
 
@@ -3314,75 +3262,75 @@ msgid ""
 "future users."
 msgstr ""
 
-#: qa_site/models.py:96
+#: qa_site/models.py:102
 msgid "School Question Comment"
 msgstr ""
 
-#: qa_site/models.py:97
+#: qa_site/models.py:103
 msgid "School Question Comments"
 msgstr ""
 
-#: qa_site/models.py:121
+#: qa_site/models.py:127
 msgid "Academic Question Comment"
 msgstr ""
 
-#: qa_site/models.py:122
+#: qa_site/models.py:128
 msgid "Academic Question Comments"
 msgstr ""
 
-#: qa_site/models.py:146
+#: qa_site/models.py:152
 msgid "School Answer Comment"
 msgstr ""
 
-#: qa_site/models.py:147
+#: qa_site/models.py:153
 msgid "School Answer Comments"
 msgstr ""
 
-#: qa_site/models.py:171
+#: qa_site/models.py:177
 msgid "Academic Answer Comment"
 msgstr ""
 
-#: qa_site/models.py:172
+#: qa_site/models.py:178
 msgid "Academic Answer Comments"
 msgstr ""
 
-#: qa_site/models.py:240
+#: qa_site/models.py:246
 msgid "School Question Answer"
 msgstr ""
 
-#: qa_site/models.py:241
+#: qa_site/models.py:247
 msgid "School Question Answers"
 msgstr ""
 
-#: qa_site/models.py:271
+#: qa_site/models.py:277
 msgid "Academic Question Answer"
 msgstr ""
 
-#: qa_site/models.py:272
+#: qa_site/models.py:278
 msgid "Academic Question Answers"
 msgstr ""
 
-#: qa_site/models.py:363
+#: qa_site/models.py:369
 msgid "School Question"
 msgstr ""
 
-#: qa_site/models.py:364
+#: qa_site/models.py:370
 msgid "School Questions"
 msgstr ""
 
-#: qa_site/models.py:389
+#: qa_site/models.py:395
 msgid "Academic Question Tag"
 msgstr ""
 
-#: qa_site/models.py:390
+#: qa_site/models.py:396
 msgid "Academic Question Tags"
 msgstr ""
 
-#: qa_site/models.py:413 qa_site/views.py:291
+#: qa_site/models.py:419 qa_site/views.py:291
 msgid "Tags"
 msgstr ""
 
-#: qa_site/models.py:421
+#: qa_site/models.py:427
 msgid "Allow this field empty if your subject is not present."
 msgstr ""
 
@@ -3779,8 +3727,8 @@ msgstr ""
 msgid "school-based-questions/answer-comments/"
 msgstr ""
 
-#: qa_site/views.py:281 qa_site/views.py:476 qa_site/views.py:701
-#: qa_site/views.py:732
+#: qa_site/views.py:281 qa_site/views.py:476 qa_site/views.py:703
+#: qa_site/views.py:734
 msgid "There was an activity on the question"
 msgstr ""
 
@@ -3814,22 +3762,22 @@ msgstr ""
 msgid "What item do you need?"
 msgstr ""
 
-#: requested_items/models.py:33
+#: requested_items/models.py:34
 msgid ""
 "Describe the item you are in need of, stating its important aspects. <br>You "
 "may allow this field empty."
 msgstr ""
 
-#: requested_items/models.py:38
+#: requested_items/models.py:40
 msgid "Price at hand"
 msgstr ""
 
-#: requested_items/models.py:41
+#: requested_items/models.py:43
 msgid ""
 "How much are you willing to pay for the item? You may allow this field empty."
 msgstr ""
 
-#: requested_items/models.py:51
+#: requested_items/models.py:53
 msgid ""
 "Allow this field empty if you are willing to go to another area to buy the "
 "item, not in your school."
@@ -4103,7 +4051,7 @@ msgid ""
 "\t\t\t\t\t\t</a>\n"
 "\t\t\t\t\t\tand do listen to his tracks &#128076;.<br>\n"
 "\t\t\t\t\t\t<a href=\"https://instagram.com/therealberka?utm_medium=copy_link"
-"\">\n"
+"\" target=\"_blank\">\n"
 "\t\t\t\t\t\t\tAdd him up\n"
 "\t\t\t\t\t\t</a> \n"
 "\t\t\t\t\t\ton Instagram &#128591;\n"
@@ -4457,6 +4405,67 @@ msgstr ""
 msgid "You must have a social profile to be able to access this page"
 msgstr ""
 
+#: templates/400.html:6
+msgid "Bad request"
+msgstr "Mauvaise requête"
+
+#: templates/400.html:14
+msgid "Invalid request"
+msgstr "Requête non valide"
+
+#: templates/400.html:16
+msgid ""
+"\n"
+"        Email us at <strong>info@camerschools.com</strong> for more "
+"information\n"
+"        "
+msgstr ""
+
+#: templates/403.html:6 templates/403.html:14
+msgid "Permission Denied"
+msgstr ""
+
+#: templates/403.html:20
+msgid "You are not permitted to access this page."
+msgstr ""
+
+#: templates/403.html:23
+msgid ""
+"Use the site navigation links to explore the sections of this site that you "
+"can access."
+msgstr ""
+
+#: templates/404.html:6 templates/404.html:14
+msgid "Page not found"
+msgstr "Page non trouvée"
+
+#: templates/404.html:16
+msgid ""
+"\n"
+"        Check that you typed the address correctly, go back to your previous "
+"page \n"
+"        or try using our site search to find something specific.\n"
+"        "
+msgstr ""
+
+#: templates/500.html:6
+msgid "Error"
+msgstr "Erreur"
+
+#: templates/500.html:15
+msgid "An Error Occurred"
+msgstr ""
+
+#: templates/500.html:18
+#, python-format
+msgid ""
+"\n"
+"            Click <a href=\"mailto:info@camerschools.com?subject=500 "
+"error&body=Hello CamerSchools, the page %(url)s doesn't open.\">here</a> to "
+"email this page's link to us so we can look into it.\n"
+"            "
+msgstr ""
+
 #: users/forms.py:48
 msgid "You won't be able to change your email."
 msgstr ""
@@ -4621,44 +4630,44 @@ msgstr ""
 msgid "You can have at most {} answers per question."
 msgstr ""
 
-#: users/models.py:276
+#: users/models.py:278
 msgid "answered your question"
 msgstr ""
 
-#: users/models.py:284 users/models.py:312
+#: users/models.py:286 users/models.py:315
 msgid "performed an activity under the question"
 msgstr ""
 
-#: users/models.py:304
+#: users/models.py:307
 msgid "commented on your question"
 msgstr ""
 
-#: users/models.py:331
+#: users/models.py:335
 msgid "commented on an answer to your question"
 msgstr ""
 
-#: users/models.py:338
+#: users/models.py:342
 msgid "commented on your answer to the question"
 msgstr ""
 
-#: users/models.py:348
+#: users/models.py:352
 msgid "performed an activity under an answer to the question"
 msgstr ""
 
-#: users/models.py:360
+#: users/models.py:364
 msgid "You can't add a dislike to your own question."
 msgstr ""
 
-#: users/models.py:370 users/models.py:412
+#: users/models.py:374 users/models.py:416
 msgid ""
 "You need at least <strong>{} points</strong> to be able to add a dislike."
 msgstr ""
 
-#: users/models.py:375 users/models.py:417
+#: users/models.py:379 users/models.py:421
 msgid "You need at least {} points to be able to add a dislike."
 msgstr ""
 
-#: users/models.py:402
+#: users/models.py:406
 msgid "You can't add a dislike to your own answer."
 msgstr ""
 
