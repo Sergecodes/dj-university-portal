@@ -167,7 +167,7 @@ class AbstractNotification(models.Model):
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
     verb = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True)
 
     target_content_type = models.ForeignKey(
         ContentType,
@@ -176,12 +176,12 @@ class AbstractNotification(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
-    target_object_id = models.CharField(max_length=255, blank=True, null=True)
+    target_object_id = models.CharField(max_length=255, blank=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
                                                    related_name='notify_action_object', on_delete=models.CASCADE)
-    action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
+    action_object_object_id = models.CharField(max_length=255, blank=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')
 
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
@@ -248,12 +248,12 @@ def notify_handler(verb, **kwargs):
         for opt in ('target', 'action_object')
     ]
     public = bool(kwargs.pop('public', True))
-    description = kwargs.pop('description', None)
+    description = kwargs.pop('description', '')
     timestamp = kwargs.pop('timestamp', timezone.now())
     level = kwargs.pop('level', Notification.LEVELS.info)
     ## added fields
     category = kwargs.pop('category', Notification.GENERAL)
-    follow_url = kwargs.pop('follow_url', None)
+    follow_url = kwargs.pop('follow_url', '')
     absolved = kwargs.pop('absolved', None)
 
     # Check if User or Group

@@ -24,7 +24,6 @@ User = get_user_model()
 class Comment(models.Model):
 	flags = GenericRelation(Flag)
 	posted_datetime = models.DateTimeField(auto_now_add=True)
-	content = RichTextField(_('Content'), config_name='add_comment')
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
 	update_language = models.CharField(
@@ -79,6 +78,7 @@ class Comment(models.Model):
 
 
 class SchoolQuestionComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_school_comment')
 	question = models.ForeignKey(
 		'SchoolQuestion',
 		on_delete=models.CASCADE,
@@ -104,6 +104,7 @@ class SchoolQuestionComment(Comment):
 
 
 class AcademicQuestionComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_academic_comment')
 	question = models.ForeignKey(
 		'AcademicQuestion',
 		on_delete=models.CASCADE,
@@ -129,6 +130,7 @@ class AcademicQuestionComment(Comment):
 
 
 class SchoolAnswerComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_school_comment')
 	answer = models.ForeignKey(
 		'SchoolAnswer',
 		on_delete=models.CASCADE,
@@ -154,6 +156,7 @@ class SchoolAnswerComment(Comment):
 
 
 class AcademicAnswerComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_academic_comment')
 	answer = models.ForeignKey(
 		'AcademicAnswer',
 		on_delete=models.CASCADE,
@@ -180,7 +183,6 @@ class AcademicAnswerComment(Comment):
 
 class Answer(models.Model):
 	flags = GenericRelation(Flag)
-	content = RichTextUploadingField(config_name='add_answer')
 	posted_datetime = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
 	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
@@ -217,6 +219,7 @@ class Answer(models.Model):
 
 
 class SchoolAnswer(Answer):
+	content = RichTextUploadingField(config_name='add_school_answer')
 	question = models.ForeignKey(
 		'SchoolQuestion',
 		on_delete=models.CASCADE,
@@ -248,6 +251,7 @@ class SchoolAnswer(Answer):
 
 
 class AcademicAnswer(Answer):
+	content = RichTextUploadingField(config_name='add_academic_answer')
 	question = models.ForeignKey(
 		'AcademicQuestion',
 		on_delete=models.CASCADE,
@@ -324,7 +328,7 @@ class SchoolQuestion(Question):
 	# so instead of creating a title field, 
 	# in which case some users will optionally and rarely fill the content field,
 	# just use a one-size-fits-all content field.
-	content = RichTextUploadingField(config_name='add_question')
+	content = RichTextUploadingField(config_name='add_school_question')
 	school = models.ForeignKey(
 		Institution,
 		on_delete=models.CASCADE,
@@ -414,7 +418,7 @@ class TaggedAcademicQuestion(TaggedItemBase):
 class AcademicQuestion(Question):
 	title = models.CharField(_('Title'), max_length=150, unique=True)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
-	content = RichTextUploadingField(_('Content'), config_name='add_question', blank=True)
+	content = RichTextUploadingField(_('Content'), config_name='add_academic_question', blank=True)
 	slug = models.SlugField(max_length=250)
 	tags = TaggableManager(verbose_name=_('Tags'), through=TaggedAcademicQuestion)
 	subject = models.ForeignKey(

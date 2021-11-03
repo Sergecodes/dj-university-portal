@@ -49,7 +49,8 @@ def should_redirect(object, test_slug):
 	"""
 	Verify if an object should be redirected or not.
 	Object is redirected if its slug is incorrect(not same as stored slug)
-	Ex: user requests for item/3/incorrect-slug  => item/3/correct-slug
+	Ex: user requests for item/3/incorrect-slug  => item/3/correct-slug.
+	This will enable showing(redirecting to) the correct id and slug in the url.
 	"""
 
 	if not hasattr(object, 'slug'):
@@ -217,57 +218,6 @@ def get_search_results(keyword_list, category=None):
 	results = SEARCH_RESULTS[category]
 	return (results, results.count())
 
-'''
-class CustomFPDF(FPDF):
-	"""
-	Override FPDF to enable getting jpg files over network
-	"""
-
-	def _parsejpg(self, filename):
-		import struct
-		from urllib.request import urlopen
-		from fpdf.py3k import exception
-
-		# also see FPDF's _parsepng method(the starting)...
-		try:
-			if filename.startswith("http://") or filename.startswith("https://"):
-				f = urlopen(filename)
-			else:
-				f=open(filename,'rb')
-			if(not f):
-				self.error("Can't open image file: "+filename)
-			print(f)
-			while True:
-				markerHigh, markerLow = struct.unpack('BB', f.read(2))
-				print(markerHigh, markerLow)
-				if markerHigh != 0xFF or markerLow < 0xC0:
-					raise SyntaxError('No JPEG marker found')
-				elif markerLow == 0xDA: # SOS
-					raise SyntaxError('No JPEG SOF marker found')
-				elif (markerLow == 0xC8 or # JPG
-					  (markerLow >= 0xD0 and markerLow <= 0xD9) or # RSTx
-					  (markerLow >= 0xF0 and markerLow <= 0xFD)): # JPGx
-					pass
-				else:
-					dataSize, = struct.unpack('>H', f.read(2))
-					data = f.read(dataSize - 2) if dataSize > 2 else ''
-					if ((markerLow >= 0xC0 and markerLow <= 0xC3) or # SOF0 - SOF3
-						(markerLow >= 0xC5 and markerLow <= 0xC7) or # SOF4 - SOF7
-						(markerLow >= 0xC9 and markerLow <= 0xCB) or # SOF9 - SOF11
-						(markerLow >= 0xCD and markerLow <= 0xCF)): # SOF13 - SOF15
-						bpc, height, width, layers = struct.unpack_from('>BHHB', data)
-						colspace = 'DeviceRGB' if layers == 3 else ('DeviceCMYK' if layers == 4 else 'DeviceGray')
-						break
-		except Exception:
-			self.error('Missing or incorrect image file: %s. error: %s' % (filename, str(exception())))
-
-		# Read whole file from the start
-		f.seek(0)
-		data = f.read()
-		print(data)
-		f.close()
-		return {'w':width,'h':height,'cs':colspace,'bpc':bpc,'f':'DCTDecode','data':data}	
-'''
 
 def generate_past_papers_pdf(file_names):
 	"""

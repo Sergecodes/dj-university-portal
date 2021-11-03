@@ -59,7 +59,7 @@
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
-			{% trans 'You must login before adding a post.' %} 
+			{% trans 'You need to be logged in to perform this operation.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
 				<a href="{% url 'users:login' %}" target="_blank">
@@ -259,7 +259,7 @@
 							</a>
 						{% else %}
 							<span class="link-danger js-flagHelper" role="button">
-								{% if has_flagged %} 
+								{% if user|has_flagged:question %} 
 									{% trans 'Remove flag' %}
 								{% else %} 
 									{% trans 'Report post' %} 
@@ -445,7 +445,7 @@
 						</div>
 						{% endwith %}
 						
-						<div class="mt-3 mb-4 answer-reaction">
+						<div class="mt-3 mb-3 answer-reaction">
 							<div class="d-inline mx-2 answer-reaction-upvote">
 								<a 
 									role="button" 
@@ -486,6 +486,7 @@
 							</div>
 							<!-- flag area -->
 							<!-- this is the flag parent wrapper -->
+							{% if user.id != answer.poster_id %}
 							<span class="ms-3">
 								{% if user.is_anonymous %}
 									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
@@ -496,7 +497,7 @@
 									</a>
 								{% else %}
 									<span class="link-danger js-flagHelper" role="button">
-										{% if has_flagged %} 
+										{% if user|has_flagged:answer %} 
 											{% trans 'Remove flag' %}
 										{% else %} 
 											{% trans 'Report post' %} 
@@ -505,7 +506,30 @@
 									{% render_flag_form answer user request %}
 								{% endif %}
 							</span>
+							{% endif %}
 						</div>	
+
+						<!-- edit and delete area -->
+						{% if user|can_edit_answer:answer or user|can_delete_answer:answer %}
+							<div class="mb-4">
+								{% if user|can_edit_answer:answer %}
+									<div class="d-inline mx-2">
+										<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-answer-update' pk=answer.pk %}">
+											<i class="fas fa-edit me-1" aria-hidden="true"></i>
+											{% trans 'Edit answer' %}
+										</a>
+									</div>
+								{% endif %}
+								{% if user|can_delete_answer:answer %}
+									<div class="d-inline mx-2">
+										<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-answer-delete' pk=answer.pk %}">
+											<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+											{% trans 'Delete answer' %}
+										</a>
+									</div>
+								{% endif %}
+							</div>
+						{% endif %}
 
 						{# answer comments here #}
 						<div class="px-3 answer-comments">
@@ -537,14 +561,38 @@
 											{% endif %}
 										</a>
 										<!-- flag form -->
-										{% if user.is_anonymous %}
-											<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
-												<span>
-													{% include "flag/flag_icon.html" %}
-												</span>
-											</a>
-										{% else %}
-											{% render_flag_form comment user request display_title=True %}
+										{% if user != comment_poster %}
+											{% if user.is_anonymous %}
+												<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
+													<span>
+														{% include "flag/flag_icon.html" %}
+													</span>
+												</a>
+											{% else %}
+												{% render_flag_form comment user request display_title=True %}
+											{% endif %}
+										{% endif %}
+										
+										{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
+										{% if user.is_authenticated %}
+											<!-- edit icon button -->
+											{% if user|can_edit_comment:comment %}
+												{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
+												<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-answer-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
+												>
+													<i class="far fa-edit" aria-hidden="true"></i>
+													<span class="visually-hidden">{% trans 'Edit' %}</span>
+												</a>
+											{% endif %}
+
+											<!-- delete icon button -->
+											{% if user|can_delete_comment:comment %}
+												<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-answer-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
+												>
+													<i class="fas fa-trash-alt" aria-hidden="true"></i>
+													<span class="visually-hidden">{% trans 'Delete' %}</span>
+												</a>
+											{% endif %}
 										{% endif %}
 									</div>
 									<div class="ms-3 js-comment-wrp">
@@ -672,14 +720,26 @@
 		// $('.js-flag-report-icon').first().click();
 	});
 
+	// set unique id on ckeditor instances
+	{# this function needs to be in the base.js file lol #}
+	function uid() {
+		return "id" + Math.random().toString(16).slice(2);
+	}
+
+	var $ansCommentEditors = $('.js-answerComment');
+	for (var i = 0; i < $ansCommentEditors.length; i++) {
+		var editor = $ansCommentEditors[i];
+		editor.setAttribute('id', uid());
+	}
+
 
 	// possible thread types are {question, answer, question-comment, answer-comment}
 	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
 
 	/* get current user's id.. */
-	// if user isn't logged in, user.id will be `None`
-	var userId = "{{ user.id }}", userPoints = {{ user.site_points }};
+	// if user isn't logged in, user.id and userPoints will be "None"
+	var userId = "{{ user.id }}", userPoints = "{{ user.site_points }}";
 	var requiredDownvotePoints = {{ required_downvote_points }};
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
@@ -732,55 +792,6 @@
 		$this.hide();
 		var $form = $this.next();
 		$form.removeClass('d-none');
-
-		{% comment %}
-			if ($this.hasClass('js-add-question-comment')) {
-				// if the add question comment button is clicked
-				// the generated textarea will have id addQuestionCommentArea. 
-				// see backend.
-				$('#addQuestionCommentArea').ckeditor({
-					toolbar: 'Custom',
-					toolbar_Custom: [
-						['Bold', 'Italic', 'Link', 'CodeSnippet'], 
-					],
-					// width: '50%',
-					// width: isMobile ? '100%' : '50%',
-					extraPlugins: 'codesnippet'
-				});
-				
-			} else if ($this.hasClass('js-add-answer-comment')) {
-				// if an add answer comment button is clicked
-				var $textArea = $form.find('textarea').first();
-				// console.log($textArea);
-				// we can't use CKEDITOR.replace since it expects an element with a unique id, 
-				// but we may have multiple answers hence multiple comment buttons...
-				$textArea.ckeditor({
-					toolbar: 'Custom',
-					toolbar_Custom: [
-						['Bold', 'Italic', 'Link', 'CodeSnippet'],
-					],
-					// width: '50%',
-					// width: isMobile ? '100%' : '50%',
-					extraPlugins: 'codesnippet'
-				});
-
-			} else if ($this.hasClass('js-add-answer')) {
-				/*
-				$('#addAnswerArea').ckeditor({
-					toolbar: 'Custom',
-					toolbar_Custom: [
-						['Bold', 'Italic'],
-						['Link', 'Blockquote', 'Image'],
-						['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-						['Undo', 'Redo'],
-						['Maximize', 'Preview']
-					],
-					tabSpaces: 4,
-					// width: isMobile ? '100%' : '75%',
-				});
-				*/
-			}
-		{% endcomment %}
 	});
 
 	/* UPVOTES */
@@ -935,7 +946,9 @@
 			var voteAction = 'vote';
 
 			// user should have number of points required
-			if (userPoints < requiredDownvotePoints) {
+			// the isNumeric func is in the js file
+			console.log(isNumeric(userPoints));
+			if (isNumeric(userPoints) && userPoints < requiredDownvotePoints) {
 				var toastMsg = {% blocktrans %} "You need at least <strong>{{ required_downvote_points }} points</strong> to be able to add a dislike." {% endblocktrans %};
 				displayCustomErrorToast(toastMsg);
 				return false;

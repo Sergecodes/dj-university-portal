@@ -70,19 +70,20 @@
 		</section>
 
 		{# file viewer #}
-		<section class="mb-5">
-			<!-- <iframe 
-				src="https://docs.google.com/gview?url={{ past_paper.file.url }}&embedded=true" 
-				style="width:600px; height: 500px;" 
-				frameborder="0"
-			>
-			</iframe> -->
-
+		<section class="mb-5 text-center">
 			<object 
 				data="{{ past_paper.file.url }}" 
+				{% comment %} data="https://docs.google.com/gview?embedded=true&url={{ past_paper.file.url }}" {% endcomment %}
 				type="application/pdf" 
-				width="90%" 
-				height="500px">
+				width="100%" 
+				height="450px"
+			>
+				<p>
+					{% blocktrans %}
+					Your web browser doesn't have a PDF plugin. <br>
+					Instead, you can <a href="{{ file.url }}">click here</a> to download the PDF file.
+					{% endblocktrans %}
+				</p>
 			</object>
 		</section>
 
@@ -209,7 +210,7 @@
 								{% endif %}
 
 								<!-- edit and delete area -->
-								{% if user|can_edit_comment:comment %}
+								{% if user|can_edit_past_paper_comment:comment %}
 									<div class="d-inline me-2">
 										<a 
 											class="text-decoration-none link-danger" 
@@ -220,7 +221,7 @@
 										</a>
 									</div>
 								{% endif %}
-								{% if user|can_delete_comment:comment %}
+								{% if user|can_delete_past_paper_comment:comment %}
 									<div class="d-inline">
 										<a class="text-decoration-none link-danger" href="{% url 'past_papers:past-paper-comment-delete' pk=comment.pk %}">
 											<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>

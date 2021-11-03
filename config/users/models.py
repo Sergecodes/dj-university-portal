@@ -225,7 +225,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return 0
 
 	## QA_SITE APP
-	def add_answer(self, question, answer, question_type):
+	def add_answer(self, question, new_answer, question_type):
 		"""Add answer to question."""
 		# question_type can be 'academic' or 'school-based'
 		# note that answer hasn't yet been saved, it's just an Answer() instance.
@@ -234,6 +234,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 		question_poster = question.poster
 		
 		answerers_id = []
+		# don't use the same 'answer' parameter in this loop.
+		# for loop scope..
 		for answer in question.answers.all():
 			answerers_id.append(answer.poster_id)
 
@@ -251,15 +253,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 		# get current language and language to translate to
 		current_lang = get_language()
 		trans_lang = 'fr' if current_lang == 'en' else 'en'
-		# print('answer is', answer.content)
 
-		translated_content = translate_text(answer.content, trans_lang)['translatedText']
-		setattr(answer, f'content_{trans_lang}', translated_content)
+		translated_content = translate_text(new_answer.content, trans_lang)['translatedText']
+		setattr(new_answer, f'content_{trans_lang}', translated_content)
 
-		answer.poster = self
-		answer.question = question
-		answer.original_language = current_lang
-		answer.save()
+		new_answer.poster = self
+		new_answer.question = question
+		new_answer.original_language = current_lang
+		new_answer.save()
 
 		# update user's number of points if answerer is not question poster
 		if question_poster != self:
@@ -290,15 +291,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		return (True, '')
 
-	def add_question_comment(self, question, comment):
+	def add_question_comment(self, question, new_comment):
 		"""Add comment to question."""
 		# question_type can be 'academic' or 'school-based'
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
-		comment.poster = self
-		comment.question = question
-		comment.original_language = get_language()
-		comment.save()
+		new_comment.poster = self
+		new_comment.question = question
+		new_comment.original_language = get_language()
+		new_comment.save()
 
 		# notify question poster and users that are following this question
 		notify.send(
@@ -317,14 +318,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 				category=Notification.FOLLOWING
 			)
 	
-	def add_answer_comment(self, answer, comment):
+	def add_answer_comment(self, answer, new_comment):
 		"""Add comment to answer."""
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
-		comment.poster = self
-		comment.answer = answer
-		comment.original_language = get_language()
-		comment.save()
+		new_comment.poster = self
+		new_comment.answer = answer
+		new_comment.original_language = get_language()
+		new_comment.save()
 
 		question = answer.question
 

@@ -146,7 +146,7 @@ class LostItem(Post):
 class LostItemPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	# title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, blank=True) 
 	file = models.ImageField(storage=PublicMediaStorage(), upload_to=LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	lost_item = models.ForeignKey(

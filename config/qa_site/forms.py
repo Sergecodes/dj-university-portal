@@ -1,9 +1,7 @@
-import uuid
 from taggit.forms import TagField
 from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import MAX_TAGS_PER_QUESTION
@@ -27,8 +25,14 @@ class CustomTagField(TagField):
 
 
 class AcademicQuestionForm(forms.ModelForm):
+	# use ckeditor widget due to server upload image functionality. 
+	# server upload doesn't work with dynamically created instances via js.
 	content = forms.CharField(
-		widget=CKEditorUploadingWidget(config_name='add_question'),
+		widget=CKEditorUploadingWidget(
+			config_name='add_academic_question',
+			# id is required so that ck-editor instances be unique
+			attrs={'id': 'addQuestionWidget'}
+		),
 		help_text=_("Include all the information someone would need to answer your question"),
 		label=_('Body'),
 		required=False
@@ -59,7 +63,10 @@ class AcademicAnswerForm(forms.ModelForm):
 	content = forms.CharField(
 		# use ckeditor widget due to server upload image functionality. 
 		# server upload doesn't work with dynamically created instances via js.
-		widget=CKEditorUploadingWidget(config_name='add_answer'),
+		widget=CKEditorUploadingWidget(
+			config_name='add_academic_answer',
+			attrs={'id': 'addAnswerWidget'}
+		),
 		label=_('Your Answer'),
 		required=True
 	)
@@ -72,12 +79,13 @@ class AcademicAnswerForm(forms.ModelForm):
 class AcademicQuestionCommentForm(forms.ModelForm):
 	content = forms.CharField(
 		widget= CKEditorWidget(
-			config_name='add_comment', 
-			attrs={
-				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				# set unique id for ckeditor widget
-				'id': 'addQuestionCommentArea'		
-			}
+			config_name='add_academic_comment', 
+			# attrs={
+			# 	'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+			# 	# # set unique id for ckeditor widget 
+			# 	# # this id ain't even required.
+			# 	# 'id': 'addQuestionCommentArea'		
+			# }
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
@@ -92,12 +100,11 @@ class AcademicQuestionCommentForm(forms.ModelForm):
 class AcademicAnswerCommentForm(forms.ModelForm):
 	content = forms.CharField(
 		widget= CKEditorWidget(
-			config_name='add_comment', 
+			config_name='add_academic_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				# there may be many answers on a page, hence many answer forms. 
-				# so generate unique id for ckeditor widget of each form
-				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
+				# use this class
+				'class': 'js-answerComment'
 			}
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
@@ -116,7 +123,10 @@ class SchoolQuestionForm(forms.ModelForm):
 		empty_label=None,
 	)
 	content = forms.CharField(
-		widget= CKEditorUploadingWidget(config_name='add_question'),
+		widget= CKEditorUploadingWidget(
+			config_name='add_school_question',
+			attrs={'id': 'addQuestionWidget'}
+		),
 		help_text=_("Include all the information someone would need to answer your question"),
 		label=_('Body'),
 		required=True
@@ -129,9 +139,10 @@ class SchoolQuestionForm(forms.ModelForm):
 
 class SchoolAnswerForm(forms.ModelForm):
 	content = forms.CharField(
-		# use ckeditor widget due to server upload image functionality. 
-		# server upload doesn't work with dynamically created instances via js.
-		widget=CKEditorUploadingWidget(config_name='add_answer'),
+		widget=CKEditorUploadingWidget(
+			config_name='add_school_answer',
+			attrs={'id': 'addAnswerWidget'}
+		),
 		label=_('Your Answer'),
 		required=True
 	)
@@ -145,11 +156,11 @@ class SchoolQuestionCommentForm(forms.ModelForm):
 	# a ckeditor will be generated from this on the frontent
 	content = forms.CharField(
 		widget= CKEditorWidget(
-			config_name='add_comment', 
-			attrs={
-				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				'id': 'addQuestionComentArea'
-			}
+			config_name='add_school_comment', 
+			# attrs={
+			# 	'placeholder': _('Use comments to ask for more information or suggest improvements.'),
+			# 	'id': 'addQuestionComentArea'
+			# }
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
@@ -164,11 +175,10 @@ class SchoolQuestionCommentForm(forms.ModelForm):
 class SchoolAnswerCommentForm(forms.ModelForm):
 	content = forms.CharField(
 		widget= CKEditorWidget(
-			config_name='add_comment', 
+			config_name='add_school_comment', 
 			attrs={
 				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				# there may be many answers on a page, hence many answer forms. so generate unique id for ckeditor widget of each form
-				'id': 'answerComment-' + str(uuid.uuid4()).split('-')[0]
+				'class': 'js-answerComment' 
 			}
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),

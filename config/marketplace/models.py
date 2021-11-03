@@ -59,7 +59,7 @@ class ItemCategory(models.Model):
 class ItemListingPhoto(models.Model):
 	# name of photo on disk (name without extension)
 	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	# title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, blank=True) 
 	file = models.ImageField(storage=PublicMediaStorage(), upload_to=LISTING_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
@@ -113,7 +113,7 @@ class ItemListingPhoto(models.Model):
 
 
 class AdListingPhoto(models.Model):
-	# title = models.CharField(max_length=60, null=True, blank=True) 
+	# title = models.CharField(max_length=60, blank=True) 
 	file = models.ImageField(storage=PublicMediaStorage(), upload_to=AD_PHOTOS_UPLOAD_DIR)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	ad_listing = models.ForeignKey(
@@ -250,7 +250,7 @@ class ItemListing(ListingPost):
 	condition_description = models.TextField(
 		_('Condition description'),
 		help_text=_('Provide details about the condition of a non brand-new item, including any defects or flaws, so that buyers know exactly what to expect.'),
-		null=True, blank=True
+		blank=True
 	)
 	# in form, field will be displayed as charfield. this is to enable entering of spaces..
 	price = models.PositiveIntegerField(

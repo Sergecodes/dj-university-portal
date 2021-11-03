@@ -4,7 +4,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.template.defaultfilters import stringfilter
+# from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
 from core.utils import parse_phone_number, is_mobile
@@ -27,8 +27,9 @@ register.filter(User.can_edit_answer)
 register.filter(User.can_delete_answer)
 
 ## register past_papers editing and deleting methods..
-register.filter(can_edit_comment)
-register.filter(can_delete_comment)
+# set a name for the filter so it doesn't clash with the User/qa_site methods
+register.filter('can_edit_past_paper_comment', can_edit_comment)
+register.filter('can_delete_past_paper_comment', can_delete_comment)
 
 
 @register.filter

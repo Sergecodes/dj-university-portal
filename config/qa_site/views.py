@@ -3,9 +3,9 @@ from django_filters.views import FilterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import F, Q
 from django.db.models.query import Prefetch
-from django.http.response import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
@@ -130,11 +130,11 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
 				if not added_result[0]:
-					return HttpResponseForbidden(added_result[1])
+					raise PermissionDenied(added_result[1])
 
 		# redirect to get request. (SEE Post/Redirect/Get)
 		# instead of simply returning to get (return get(self,...))
-		return redirect(question.get_absolute_url())
+		return redirect(question)
 	
 	def get(self, request, *args, **kwargs):
 		if should_redirect(object := self.get_object(), kwargs.get('slug')):
@@ -150,8 +150,9 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 
 		# initialize comment and answer forms
 		qstn_comment_form = AcademicQuestionCommentForm()
-		ans_comment_form = AcademicAnswerCommentForm()
 		answer_form = AcademicAnswerForm()
+		ans_comment_form = AcademicAnswerCommentForm()
+
 		context['qstn_comment_form'] = qstn_comment_form
 		context['ans_comment_form'] = ans_comment_form
 		context['answer_form'] = answer_form
@@ -563,7 +564,7 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			comment_form = SchoolAnswerCommentForm(POST)
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
-				answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
+				answer = get_object_or_404(SchoolAnswer, id=POST.get('answer_id'))
 				user.add_answer_comment(answer, comment)
 
 		elif 'add_answer' in POST:
@@ -575,7 +576,7 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 				# if answer wasn't added 
 				# (if user has attained number of answers limit)
 				if not added_result[0]:
-					return HttpResponseForbidden(added_result[1])
+					raise PermissionDenied(added_result[1])
 
 		return redirect(question)
 

@@ -67,7 +67,15 @@ class FlagInstanceManager(models.Manager):
         """Create a FlagInstance"""
         # user shouldn't be able to flag his post
         # get poster_id not poster.id so as to minimize query
-        if flag.content_object.poster_id == user.id:
+        # SocialProfile can't be flagged
+        # so let's prevent it from been flagged by ensuring the content_object
+        # has a `poster_id`
+        content_object = flag.content_object
+
+        if not hasattr(content_object, 'poster_id'):
+            return {'created': False, 'msg': _("This object doesn't have a poster_id")}
+
+        if content_object.poster_id == user.id:
             # print("You can't flag your post")
             return {'created': False, 'msg': _("You can't flag your own post.")}
 

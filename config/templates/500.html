@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block title %}
-<title>{% trans 'Error' %}</title>
+<title>{% trans 'Oops!' %}</title>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -12,11 +12,12 @@
 {% block content %}
 	<div class="container mb-5">
 		<h3 class="text-success mb-3">
-            {% trans 'An Error Occurred' %}
+            {% trans "Oops!" %}
         </h3>
 		<p>
             {% blocktrans %}
-            Click <a href="mailto:info@camerschools.com?subject=500 error&body=Hello CamerSchools, the page {{ url }} doesn't open.">here</a> to email this page's link to us so we can look into it.
+            There's an issue with this page that we're currently working on and we'll soon be done. <br>
+            In the mean time you can navigate the other parts of the site.
             {% endblocktrans %}
         </p>
 	</div>

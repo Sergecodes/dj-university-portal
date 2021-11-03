@@ -191,7 +191,7 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 			requested_item.photos.add(photo, bulk=False)  
 
 		# remove photos list from session 
-		session.pop(user.username + REQUESTED_ITEM_SUFFIX)
+		session.pop(user.username + REQUESTED_ITEM_SUFFIX, [])
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.

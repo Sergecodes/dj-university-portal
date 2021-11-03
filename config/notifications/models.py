@@ -23,7 +23,8 @@ class Notification(AbstractNotification):
 
     category = models.CharField(choices=CATEGORIES, default='G', max_length=2)
     # url to go to; useful for general notifications
-    follow_url = models.URLField(blank=True, null=True)
+    # no null=True needed since this inherits from the CharField
+    follow_url = models.URLField(blank=True)
     # used in REPORTED notifications to check whether a post(flag) has been absolved or not
     # as said in the docs, "the default value of BooleanField is None when Field.default isn't defined."
     # we set null=True so it is nullable, to account for notifcations that don't use this field.

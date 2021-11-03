@@ -6,6 +6,7 @@
 # - for watermark, if text(Camerschools.com) is too long (if image is not wide enough to contain text), insert either just Camerschools or logo..
 # - redirect to next url when user is editing phone numbers (in listings, requested items, etc..)
 # - add possibility to disconnect social profile
+# - redirect user back to question detail page after he logs in... eg. if user want to like a question, he is displayed the login modal. on clicking that modal, instead of taking him to a new tab, redirect him to the question page after successful login.
 #  - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
 # - enable translation for question tags, past paper comments(change model and translation.py too) and comments in qa_site
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)

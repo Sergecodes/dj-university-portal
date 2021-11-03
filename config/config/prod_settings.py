@@ -320,7 +320,8 @@ CKEDITOR_CONFIGS = {
 		'width': 'auto'  
 		# 'uiColor': '#ff3333',
 	},
-	'add_question': {
+	
+	'add_academic_question': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			# 'EqnEditor' is from CodeCogs, it needs the eqneditor plugin
@@ -342,7 +343,21 @@ CKEDITOR_CONFIGS = {
 		'extraPlugins': 'codesnippet',
 		# 'uiColor': '#ff3333',
 	},
-	'add_answer': {
+	# no CodeSnippet for school-based stuffs
+	'add_school_question': {
+		'toolbar': 'Custom',
+		'toolbar_Custom': [
+			['Bold', 'Italic', ],
+			['Link', 'Blockquote', 'Image', ],
+			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
+			['Undo', 'Redo'],
+			['Maximize', 'Preview']
+		],
+		'tabSpaces': 4,
+		'width': 'auto',
+	},
+	'add_academic_answer': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			['Bold', 'Italic', ],
@@ -357,15 +372,34 @@ CKEDITOR_CONFIGS = {
 		'extraPlugins': 'codesnippet',
 		# 'uiColor': '#ff3333',
 	},
-	'add_comment': {
+	'add_school_answer': {
+		'toolbar': 'Custom',
+		'toolbar_Custom': [
+			['Bold', 'Italic', ],
+			['Link', 'Blockquote', 'Image', ],
+			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+			# ['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
+			['Undo', 'Redo'],
+			['Maximize', 'Preview']
+		],
+		'tabSpaces': 4,
+		'width': 'auto',
+	},
+	'add_academic_comment': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			# ['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'],
 			['Bold', 'Italic', 'Link', 'CodeSnippet'],
 		],
 		'extraPlugins': 'codesnippet',
-		# 'width': '200',
-		# 'height': '250'
+		'width': 'auto',
+	},
+	'add_school_comment': {
+		'toolbar': 'Custom',
+		'toolbar_Custom': [
+			['Bold', 'Italic', 'Link', ],
+		],
+		'width': 'auto',
 	},
 
 }

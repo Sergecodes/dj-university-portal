@@ -130,7 +130,7 @@ class FlagInstance(models.Model):
     user = models.ForeignKey(User, related_name='flags_by', on_delete=models.CASCADE)
     date_flagged = models.DateTimeField(auto_now_add=True)
     reason = models.SmallIntegerField(choices=REASON, default=reason_values[0])
-    info = models.TextField(null=True, blank=True)
+    info = models.TextField(blank=True)
 
     objects = FlagInstanceManager()
 

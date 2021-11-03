@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-02 03:52+0000\n"
+"POT-Creation-Date: 2021-11-03 08:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,7 +109,7 @@ msgid "Abusive | Intended at promoting hatred"
 msgstr "Abusif | Destiné à promouvoir la haine"
 
 #: core/models.py:13 marketplace/models.py:18 marketplace/models.py:30
-#: marketplace/models.py:48 qa_site/models.py:391 qa_site/models.py:486
+#: marketplace/models.py:48 qa_site/models.py:395 qa_site/models.py:490
 msgid "Name"
 msgstr "Nom"
 
@@ -248,7 +248,7 @@ msgid "Sell an item"
 msgstr "Vendre un article"
 
 #: core/templates/core/base.html:297 core/templates/core/search_results.html:27
-#: core/templates/core/site_usage_info.html:36 core/utils.py:343
+#: core/templates/core/site_usage_info.html:36 core/utils.py:293
 #: marketplace/templates/marketplace/adlisting_list.html:12
 #: marketplace/templates/marketplace/adlisting_list.html:25
 #: marketplace/templates/marketplace/adlisting_list.html:82
@@ -284,7 +284,7 @@ msgstr "Tous les articles demandés"
 msgid "Ask a question"
 msgstr "Poser une question"
 
-#: core/templates/core/base.html:332 qa_site/models.py:461
+#: core/templates/core/base.html:332 qa_site/models.py:465
 msgid "Academic Question"
 msgstr "Question Académique"
 
@@ -319,7 +319,7 @@ msgstr "Voir les objets trouvés"
 
 #: core/templates/core/base.html:364
 #: core/templates/core/search_results.html:137
-#: core/templates/core/site_usage_info.html:82 core/utils.py:349
+#: core/templates/core/site_usage_info.html:82 core/utils.py:299
 #: past_papers/templates/past_papers/pastpaper_list.html:10
 #: past_papers/templates/past_papers/pastpaper_list.html:22
 #: users/templates/users/profile/past-papers.html:25
@@ -658,7 +658,7 @@ msgid "Academic questions"
 msgstr "Questions académiques"
 
 #: core/templates/core/index.html:36 core/templates/core/search_results.html:71
-#: core/utils.py:357 qa_site/models.py:462
+#: core/utils.py:307 qa_site/models.py:466
 #: qa_site/templates/qa_site/academicquestion_list.html:12
 #: qa_site/templates/qa_site/academicquestion_list.html:24
 #: qa_site/templates/qa_site/questions_explain.html:24
@@ -684,7 +684,7 @@ msgid "Ask a Question"
 msgstr "Poser une Question"
 
 #: core/templates/core/index.html:51 core/templates/core/index.html:88
-#: qa_site/templates/qa_site/academicquestion_detail.html:640
+#: qa_site/templates/qa_site/academicquestion_detail.html:688
 #: qa_site/templates/qa_site/academicquestion_list.html:79
 #: qa_site/templates/qa_site/schoolquestion_list.html:74
 #: users/templates/users/profile/qa-site.html:43
@@ -703,7 +703,7 @@ msgid "Asked"
 msgstr "Posée"
 
 #: core/templates/core/index.html:55 core/templates/core/index.html:92
-#: qa_site/templates/qa_site/academicquestion_detail.html:647
+#: qa_site/templates/qa_site/academicquestion_detail.html:695
 #: users/templates/users/profile/qa-site.html:47
 #: users/templates/users/profile/qa-site.html:126
 msgid "Answer this"
@@ -714,7 +714,7 @@ msgid "School-based questions"
 msgstr "Questions scolaires"
 
 #: core/templates/core/index.html:70 core/templates/core/search_results.html:93
-#: core/utils.py:355 qa_site/templates/qa_site/questions_explain.html:43
+#: core/utils.py:305 qa_site/templates/qa_site/questions_explain.html:43
 #: qa_site/templates/qa_site/schoolquestion_list.html:10
 #: qa_site/templates/qa_site/schoolquestion_list.html:22
 msgid "School-Based Questions"
@@ -735,7 +735,7 @@ msgstr "Derniers articles"
 #: marketplace/templates/marketplace/adlisting_list.html:143
 #: marketplace/templates/marketplace/itemlisting_detail.html:132
 #: marketplace/templates/marketplace/itemlisting_list.html:130
-#: requested_items/templates/requested_items/requested_item_detail.html:89
+#: requested_items/templates/requested_items/requested_item_detail.html:61
 #: requested_items/templates/requested_items/requested_item_list.html:101
 #: users/templates/users/profile/marketplace.html:40
 #: users/templates/users/profile/marketplace.html:88
@@ -775,7 +775,7 @@ msgstr "Publier une Annonce"
 
 #: core/templates/core/index.html:214
 #: core/templates/core/search_results.html:115
-#: core/templates/core/site_usage_info.html:46 core/utils.py:347
+#: core/templates/core/site_usage_info.html:46 core/utils.py:297
 #: requested_items/templates/requested_items/requested_item_list.html:12
 #: users/templates/users/profile/requested-items.html:25
 #: users/templates/users/profile/requested-items.html:31
@@ -813,7 +813,7 @@ msgstr "Uploader un Ancien Sujet"
 
 #: core/templates/core/index.html:321
 #: core/templates/core/search_results.html:182
-#: core/templates/core/site_usage_info.html:68 core/utils.py:351
+#: core/templates/core/site_usage_info.html:68 core/utils.py:301
 msgid "Lost Items"
 msgstr "Objets perdus"
 
@@ -831,7 +831,7 @@ msgstr "Voir les Objets Perdus"
 
 #: core/templates/core/index.html:375
 #: core/templates/core/search_results.html:160
-#: core/templates/core/site_usage_info.html:71 core/utils.py:353
+#: core/templates/core/site_usage_info.html:71 core/utils.py:303
 msgid "Found Items"
 msgstr "Objets"
 
@@ -877,7 +877,9 @@ msgstr "Marquer comme lu"
 #: core/templates/core/photos_upload.html:77
 #: core/templates/core/photos_upload.html:199
 #: qa_site/templates/qa_site/academicquestion_detail.html:380
+#: qa_site/templates/qa_site/academicquestion_detail.html:594
 #: qa_site/templates/qa_site/schoolquestion_detail.html:364
+#: qa_site/templates/qa_site/schoolquestion_detail.html:578
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -994,7 +996,7 @@ msgstr "Aucun résultat de recherche pour"
 msgid "View All Results"
 msgstr "Voir Tous les Résultats"
 
-#: core/templates/core/search_results.html:49 core/utils.py:345
+#: core/templates/core/search_results.html:49 core/utils.py:295
 #: marketplace/templates/marketplace/itemlisting_list.html:25
 msgid "Items for Sale"
 msgstr "Articles à Vendre"
@@ -1193,6 +1195,7 @@ msgstr ""
 "\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:130
+#, python-format
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou get <b>%(post_points)s points</b> when you do any of the "
@@ -1200,7 +1203,8 @@ msgid ""
 "\t\t\t\t\t\t\t"
 msgstr ""
 "\n"
-"\t\t\t\t\t\t\tVous obtenez <b>%(post_points)s points</b> lorsque vous faites l'un des suivants:\n"
+"\t\t\t\t\t\t\tVous obtenez <b>%(post_points)s points</b> lorsque vous faites "
+"l'un des suivants:\n"
 "\t\t\t\t\t\t\t"
 
 #: core/templates/core/site_usage_info.html:134
@@ -1515,17 +1519,17 @@ msgstr ""
 msgid "Terms and Conditions"
 msgstr "Termes et Conditions"
 
-#: core/templatetags/app_extras.py:118
+#: core/templatetags/app_extras.py:119
 msgid "LOGIN_URL is not defined in the settings"
 msgstr "LOGIN_URL n'est pas défini dans les paramètres"
 
-#: core/templatetags/app_extras.py:130
+#: core/templatetags/app_extras.py:131
 #: lost_or_found/templates/lost_or_found/founditem_detail.html:95
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:116
 #: marketplace/templates/marketplace/adlisting_detail.html:175
 #: marketplace/templates/marketplace/itemlisting_detail.html:183
-#: past_papers/templates/past_papers/pastpaper_detail.html:105
-#: requested_items/templates/requested_items/requested_item_detail.html:141
+#: past_papers/templates/past_papers/pastpaper_detail.html:107
+#: requested_items/templates/requested_items/requested_item_detail.html:101
 msgid "Add this post to your favourites. (click again to undo)"
 msgstr ""
 "Ajoutez cette publication à vos favoris. (cliquez à nouveau pour annuler)"
@@ -1611,16 +1615,20 @@ msgstr "%(reason)s est un motif invalide"
 msgid "Please supply some information as the reason for flagging"
 msgstr "Veuillez fournir quelques informations comme raison du signalement"
 
-#: flagging/managers.py:72
+#: flagging/managers.py:76
+msgid "This object doesn't have a poster_id"
+msgstr ""
+
+#: flagging/managers.py:80
 msgid "You can't flag your own post."
 msgstr "Vous ne pouvez pas signaler votre propre publication."
 
-#: flagging/managers.py:81
+#: flagging/managers.py:89
 #, python-format
 msgid "This content has already been flagged by the user (%(user)s)"
 msgstr "Ce contenu a déjà été signalé par l'utilisateur (%(user)s)"
 
-#: flagging/managers.py:94
+#: flagging/managers.py:102
 #, python-format
 msgid "This content has not been flagged by the user (%(user)s)"
 msgstr "Ce contenu n'a pas été signalé par l'utilisateur (%(user)s)"
@@ -1699,13 +1707,13 @@ msgid ""
 "by many users."
 msgstr ""
 "Un de vos publications a été supprimé car elle était considérée "
-"inappropriéepar de nombreux utilisateurs."
+"inappropriée par de nombreux utilisateurs."
 
 #: flagging/signals.py:91
 msgid "Can delete flagged content"
 msgstr "Peut supprimer le contenu signalé"
 
-#: flagging/templates/flag/flag_form.html:20
+#: flagging/templates/flag/flag_form.html:12
 msgid ""
 "The report request could not be processed. Please refresh the page and try "
 "again."
@@ -1713,24 +1721,24 @@ msgstr ""
 "Le signalement n'a pas pu être traité. Veuillez actualiser la page et "
 "essayer de nouveau."
 
-#: flagging/templates/flag/flag_form.html:21
-#: flagging/templates/flag/flag_form.html:33
+#: flagging/templates/flag/flag_form.html:13
+#: flagging/templates/flag/flag_form.html:25
 #: lost_or_found/templates/lost_or_found/founditem_detail.html:120
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:141
 #: marketplace/templates/marketplace/adlisting_detail.html:200
 #: marketplace/templates/marketplace/itemlisting_detail.html:208
-#: past_papers/templates/past_papers/pastpaper_detail.html:130
-#: past_papers/templates/past_papers/pastpaper_detail.html:201
+#: past_papers/templates/past_papers/pastpaper_detail.html:132
+#: past_papers/templates/past_papers/pastpaper_detail.html:203
 #: qa_site/templates/qa_site/academicquestion_detail.html:263
-#: qa_site/templates/qa_site/academicquestion_detail.html:501
+#: qa_site/templates/qa_site/academicquestion_detail.html:502
 #: qa_site/templates/qa_site/schoolquestion_detail.html:244
-#: qa_site/templates/qa_site/schoolquestion_detail.html:485
-#: requested_items/templates/requested_items/requested_item_detail.html:166
+#: qa_site/templates/qa_site/schoolquestion_detail.html:486
+#: requested_items/templates/requested_items/requested_item_detail.html:120
 msgid "Remove flag"
 msgstr "Retirer le signalement"
 
-#: flagging/templates/flag/flag_form.html:22
-#: flagging/templates/flag/flag_form.html:33
+#: flagging/templates/flag/flag_form.html:14
+#: flagging/templates/flag/flag_form.html:25
 #: lost_or_found/templates/lost_or_found/founditem_detail.html:110
 #: lost_or_found/templates/lost_or_found/founditem_detail.html:122
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:131
@@ -1739,36 +1747,36 @@ msgstr "Retirer le signalement"
 #: marketplace/templates/marketplace/adlisting_detail.html:202
 #: marketplace/templates/marketplace/itemlisting_detail.html:198
 #: marketplace/templates/marketplace/itemlisting_detail.html:210
-#: past_papers/templates/past_papers/pastpaper_detail.html:120
-#: past_papers/templates/past_papers/pastpaper_detail.html:132
-#: past_papers/templates/past_papers/pastpaper_detail.html:191
-#: past_papers/templates/past_papers/pastpaper_detail.html:203
+#: past_papers/templates/past_papers/pastpaper_detail.html:122
+#: past_papers/templates/past_papers/pastpaper_detail.html:134
+#: past_papers/templates/past_papers/pastpaper_detail.html:193
+#: past_papers/templates/past_papers/pastpaper_detail.html:205
 #: qa_site/templates/qa_site/academicquestion_detail.html:255
 #: qa_site/templates/qa_site/academicquestion_detail.html:265
 #: qa_site/templates/qa_site/academicquestion_detail.html:353
-#: qa_site/templates/qa_site/academicquestion_detail.html:493
-#: qa_site/templates/qa_site/academicquestion_detail.html:503
-#: qa_site/templates/qa_site/academicquestion_detail.html:542
+#: qa_site/templates/qa_site/academicquestion_detail.html:494
+#: qa_site/templates/qa_site/academicquestion_detail.html:504
+#: qa_site/templates/qa_site/academicquestion_detail.html:567
 #: qa_site/templates/qa_site/schoolquestion_detail.html:236
 #: qa_site/templates/qa_site/schoolquestion_detail.html:246
 #: qa_site/templates/qa_site/schoolquestion_detail.html:337
-#: qa_site/templates/qa_site/schoolquestion_detail.html:477
-#: qa_site/templates/qa_site/schoolquestion_detail.html:487
-#: qa_site/templates/qa_site/schoolquestion_detail.html:526
-#: requested_items/templates/requested_items/requested_item_detail.html:156
-#: requested_items/templates/requested_items/requested_item_detail.html:168
+#: qa_site/templates/qa_site/schoolquestion_detail.html:478
+#: qa_site/templates/qa_site/schoolquestion_detail.html:488
+#: qa_site/templates/qa_site/schoolquestion_detail.html:551
+#: requested_items/templates/requested_items/requested_item_detail.html:113
+#: requested_items/templates/requested_items/requested_item_detail.html:122
 msgid "Report post"
 msgstr "Signaler la publication"
 
-#: flagging/templates/flag/flag_form.html:43
+#: flagging/templates/flag/flag_form.html:35
 msgid "Report this post"
 msgstr "Signaler cette publication"
 
-#: flagging/templates/flag/flag_form.html:63
+#: flagging/templates/flag/flag_form.html:55
 msgid "Submit"
 msgstr "Soumettre"
 
-#: flagging/templates/flag/flag_form.html:74
+#: flagging/templates/flag/flag_form.html:66
 msgid "flag"
 msgstr "signalement"
 
@@ -1910,8 +1918,8 @@ msgstr "Expliquez comment vous avez trouvé l'objet"
 #: marketplace/templates/marketplace/adlisting_detail.html:107
 #: marketplace/templates/marketplace/itemlisting_detail.html:102
 #: marketplace/views.py:348 marketplace/views.py:619 past_papers/models.py:176
-#: past_papers/views.py:180 qa_site/views.py:498 requested_items/models.py:47
-#: requested_items/templates/requested_items/requested_item_detail.html:73
+#: past_papers/views.py:180 qa_site/views.py:499 requested_items/models.py:47
+#: requested_items/templates/requested_items/requested_item_detail.html:48
 #: requested_items/views.py:217 socialize/models.py:149
 #: socialize/templates/socialize/socialprofile_list.html:68
 #: socialize/views.py:415
@@ -2070,7 +2078,7 @@ msgstr "Signalé"
 #: marketplace/templates/marketplace/itemlisting_detail.html:136
 #: qa_site/templates/qa_site/academicquestion_detail.html:151
 #: qa_site/templates/qa_site/schoolquestion_detail.html:139
-#: requested_items/templates/requested_items/requested_item_detail.html:93
+#: requested_items/templates/requested_items/requested_item_detail.html:65
 msgid "By"
 msgstr "Par"
 
@@ -2083,17 +2091,17 @@ msgstr "Par"
 #: marketplace/templates/marketplace/itemlisting_detail.html:147
 #: marketplace/templates/marketplace/itemlisting_list.html:140
 #: past_papers/templates/past_papers/pastpaper_detail.html:52
-#: past_papers/templates/past_papers/pastpaper_detail.html:175
+#: past_papers/templates/past_papers/pastpaper_detail.html:177
 #: past_papers/templates/past_papers/pastpaper_list.html:126
 #: qa_site/templates/qa_site/academicquestion_detail.html:161
 #: qa_site/templates/qa_site/academicquestion_detail.html:400
-#: qa_site/templates/qa_site/academicquestion_detail.html:565
+#: qa_site/templates/qa_site/academicquestion_detail.html:613
 #: qa_site/templates/qa_site/academicquestion_list.html:130
 #: qa_site/templates/qa_site/schoolquestion_detail.html:148
 #: qa_site/templates/qa_site/schoolquestion_detail.html:385
-#: qa_site/templates/qa_site/schoolquestion_detail.html:549
+#: qa_site/templates/qa_site/schoolquestion_detail.html:597
 #: qa_site/templates/qa_site/schoolquestion_list.html:107
-#: requested_items/templates/requested_items/requested_item_detail.html:104
+#: requested_items/templates/requested_items/requested_item_detail.html:71
 #: requested_items/templates/requested_items/requested_item_list.html:111
 msgid " User doesn't have a social profile "
 msgstr " L'utilisateur n'a pas de profil social "
@@ -2112,8 +2120,8 @@ msgstr "Comment"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:121
 #: marketplace/templates/marketplace/adlisting_detail.html:180
 #: marketplace/templates/marketplace/itemlisting_detail.html:188
-#: past_papers/templates/past_papers/pastpaper_detail.html:110
-#: requested_items/templates/requested_items/requested_item_detail.html:146
+#: past_papers/templates/past_papers/pastpaper_detail.html:112
+#: requested_items/templates/requested_items/requested_item_detail.html:106
 msgid "Share a link to this post"
 msgstr "Partager un lien vers cette publication"
 
@@ -2121,7 +2129,7 @@ msgstr "Partager un lien vers cette publication"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:158
 #: marketplace/templates/marketplace/adlisting_detail.html:217
 #: marketplace/templates/marketplace/itemlisting_detail.html:225
-#: requested_items/templates/requested_items/requested_item_detail.html:183
+#: requested_items/templates/requested_items/requested_item_detail.html:133
 #: requested_items/templates/requested_items/requested_item_update.html:9
 msgid "Edit post"
 msgstr "Modifier la publication"
@@ -2130,8 +2138,8 @@ msgstr "Modifier la publication"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:166
 #: marketplace/templates/marketplace/adlisting_detail.html:225
 #: marketplace/templates/marketplace/itemlisting_detail.html:233
-#: past_papers/templates/past_papers/pastpaper_detail.html:146
-#: requested_items/templates/requested_items/requested_item_detail.html:191
+#: past_papers/templates/past_papers/pastpaper_detail.html:148
+#: requested_items/templates/requested_items/requested_item_detail.html:139
 #: requested_items/templates/requested_items/requesteditem_confirm_delete.html:7
 msgid "Delete post"
 msgstr "Supprimer la publication"
@@ -2157,7 +2165,7 @@ msgstr ""
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:184
 #: marketplace/templates/marketplace/adlisting_detail.html:248
 #: marketplace/templates/marketplace/itemlisting_detail.html:256
-#: requested_items/templates/requested_items/requested_item_detail.html:201
+#: requested_items/templates/requested_items/requested_item_detail.html:149
 msgid "Contact"
 msgstr "Contacter"
 
@@ -2169,8 +2177,7 @@ msgstr "Contacter"
 #: marketplace/templates/marketplace/adlisting_detail.html:266
 #: marketplace/templates/marketplace/itemlisting_detail.html:273
 #: marketplace/templates/marketplace/itemlisting_detail.html:274
-#: requested_items/templates/requested_items/requested_item_detail.html:218
-#: requested_items/templates/requested_items/requested_item_detail.html:219
+#: requested_items/templates/requested_items/requested_item_detail.html:157
 msgid "Contact via WhatsApp"
 msgstr "Contacter par WhatsApp"
 
@@ -2315,8 +2322,8 @@ msgid "found-items/"
 msgstr "objets-trouvés/"
 
 #: lost_or_found/views.py:118 lost_or_found/views.py:302
-#: marketplace/views.py:609 past_papers/views.py:170 qa_site/views.py:290
-#: qa_site/views.py:488 requested_items/views.py:207
+#: marketplace/views.py:609 past_papers/views.py:170 qa_site/views.py:291
+#: qa_site/views.py:489 requested_items/views.py:207
 msgid "Keywords"
 msgstr "Mots clés"
 
@@ -2413,7 +2420,7 @@ msgstr "Publier l'annonce"
 msgid "You can delete only listings that were posted by you."
 msgstr "Vous ne pouvez supprimer que les annonces que vous avez publiées."
 
-#: marketplace/models.py:180 past_papers/models.py:152 qa_site/models.py:415
+#: marketplace/models.py:180 past_papers/models.py:152 qa_site/models.py:419
 msgid "Title"
 msgstr "Titre"
 
@@ -2426,7 +2433,7 @@ msgstr ""
 "Indiquez exactement ce que votre annonce est."
 
 #: marketplace/models.py:186
-#: requested_items/templates/requested_items/requested_item_detail.html:125
+#: requested_items/templates/requested_items/requested_item_detail.html:90
 msgid "Description"
 msgstr "Description"
 
@@ -2455,7 +2462,7 @@ msgstr "Défectueux (certaines pièces ne fonctionnent pas)"
 #: marketplace/templates/marketplace/itemlisting_detail.html:123
 #: marketplace/views.py:349 marketplace/views.py:620
 #: requested_items/models.py:20
-#: requested_items/templates/requested_items/requested_item_detail.html:83
+#: requested_items/templates/requested_items/requested_item_detail.html:55
 #: requested_items/views.py:218
 msgid "Category"
 msgstr "Catégorie"
@@ -2525,8 +2532,6 @@ msgstr "Annoncer quelque chose"
 
 #: marketplace/templates/marketplace/adlisting_detail.html:28
 #: marketplace/templates/marketplace/itemlisting_detail.html:29
-#: qa_site/templates/qa_site/academicquestion_detail.html:62
-#: qa_site/templates/qa_site/schoolquestion_detail.html:52
 msgid "You must login before adding a post."
 msgstr "Vous devez vous connecter avant de poster."
 
@@ -2543,7 +2548,7 @@ msgstr "Informations sur l'annonce"
 #: past_papers/templates/past_papers/pastpaper_detail.html:63
 #: qa_site/templates/qa_site/academicquestion_detail.html:170
 #: qa_site/templates/qa_site/schoolquestion_detail.html:157
-#: requested_items/templates/requested_items/requested_item_detail.html:112
+#: requested_items/templates/requested_items/requested_item_detail.html:77
 #: requested_items/templates/requested_items/requested_item_list.html:117
 msgid "Views"
 msgstr "Vues"
@@ -2699,7 +2704,7 @@ msgid "for sale"
 msgstr ""
 
 #: marketplace/templates/marketplace/itemlisting_detail.html:93
-#: requested_items/templates/requested_items/requested_item_detail.html:64
+#: requested_items/templates/requested_items/requested_item_detail.html:39
 msgid "Item Info"
 msgstr ""
 
@@ -2883,7 +2888,8 @@ msgstr ""
 msgid "You can't delete comments that are more than {} minutes old."
 msgstr ""
 
-#: past_papers/models.py:56 qa_site/models.py:27 qa_site/models.py:417
+#: past_papers/models.py:56 qa_site/models.py:81 qa_site/models.py:107
+#: qa_site/models.py:133 qa_site/models.py:159 qa_site/models.py:421
 msgid "Content"
 msgstr ""
 
@@ -2915,8 +2921,8 @@ msgstr ""
 msgid "Speciality"
 msgstr ""
 
-#: past_papers/models.py:185 past_papers/views.py:181 qa_site/models.py:422
-#: qa_site/views.py:301
+#: past_papers/models.py:185 past_papers/views.py:181 qa_site/models.py:426
+#: qa_site/views.py:302
 msgid "Subject"
 msgstr ""
 
@@ -2925,10 +2931,12 @@ msgid "Written date"
 msgstr ""
 
 #: past_papers/templates/past_papers/comment_confirm_delete.html:6
-#: past_papers/templates/past_papers/pastpaper_detail.html:227
+#: past_papers/templates/past_papers/pastpaper_detail.html:229
 #: qa_site/templates/qa_site/academicquestion_detail.html:377
+#: qa_site/templates/qa_site/academicquestion_detail.html:591
 #: qa_site/templates/qa_site/misc/comment_confirm_delete.html:7
 #: qa_site/templates/qa_site/schoolquestion_detail.html:361
+#: qa_site/templates/qa_site/schoolquestion_detail.html:575
 msgid "Delete comment"
 msgstr ""
 
@@ -2938,10 +2946,12 @@ msgid "Are you sure you want to delete this comment"
 msgstr ""
 
 #: past_papers/templates/past_papers/comment_edit.html:8
-#: past_papers/templates/past_papers/pastpaper_detail.html:219
+#: past_papers/templates/past_papers/pastpaper_detail.html:221
 #: qa_site/templates/qa_site/academicquestion_detail.html:368
+#: qa_site/templates/qa_site/academicquestion_detail.html:582
 #: qa_site/templates/qa_site/misc/comment_edit.html:8
 #: qa_site/templates/qa_site/schoolquestion_detail.html:352
+#: qa_site/templates/qa_site/schoolquestion_detail.html:566
 msgid "Edit comment"
 msgstr ""
 
@@ -2977,11 +2987,21 @@ msgstr "Uploader un ancien sujet"
 msgid "Uploaded on"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:92
+#: past_papers/templates/past_papers/pastpaper_detail.html:83
+#, python-format
+msgid ""
+"\n"
+"\t\t\t\t\tYour web browser doesn't have a PDF plugin. <br>\n"
+"\t\t\t\t\tInstead, you can <a href=\"%(file.url)s\">click here</a> to "
+"download the PDF file.\n"
+"\t\t\t\t\t"
+msgstr ""
+
+#: past_papers/templates/past_papers/pastpaper_detail.html:94
 msgid "Download file"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:156
+#: past_papers/templates/past_papers/pastpaper_detail.html:158
 #, python-format
 msgid ""
 "\n"
@@ -2996,19 +3016,19 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:245
+#: past_papers/templates/past_papers/pastpaper_detail.html:247
 msgid "Leave a comment"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:252
+#: past_papers/templates/past_papers/pastpaper_detail.html:254
 #: qa_site/templates/qa_site/academicquestion_detail.html:424
-#: qa_site/templates/qa_site/academicquestion_detail.html:587
+#: qa_site/templates/qa_site/academicquestion_detail.html:635
 #: qa_site/templates/qa_site/schoolquestion_detail.html:409
-#: qa_site/templates/qa_site/schoolquestion_detail.html:571
+#: qa_site/templates/qa_site/schoolquestion_detail.html:619
 msgid "Add comment"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:260
+#: past_papers/templates/past_papers/pastpaper_detail.html:262
 #, python-format
 msgid ""
 "\n"
@@ -3144,46 +3164,45 @@ msgstr ""
 msgid "You can't follow your own question"
 msgstr ""
 
-#: qa_site/forms.py:32 qa_site/forms.py:120
+#: qa_site/forms.py:36 qa_site/forms.py:130
 msgid "Include all the information someone would need to answer your question"
 msgstr ""
 
-#: qa_site/forms.py:33 qa_site/forms.py:121
+#: qa_site/forms.py:37 qa_site/forms.py:131
 msgid "Body"
 msgstr ""
 
-#: qa_site/forms.py:42
+#: qa_site/forms.py:46
 msgid "Be specific and imagine you're asking a question to another person"
 msgstr ""
 
-#: qa_site/forms.py:44
+#: qa_site/forms.py:48
 msgid ""
 "Enter a space-separated list of at most {} tags. <br>Do not enter comma(',') "
 "or quotes(', \")."
 msgstr ""
 
-#: qa_site/forms.py:50
+#: qa_site/forms.py:54
 msgid "Ex. How to transform a 3D vector to a 2D vector"
 msgstr ""
 
-#: qa_site/forms.py:53
+#: qa_site/forms.py:57
 msgid "Ex: tag1 tag2 tag3"
 msgstr ""
 
-#: qa_site/forms.py:63 qa_site/forms.py:135
+#: qa_site/forms.py:70 qa_site/forms.py:146
 msgid "Your Answer"
 msgstr ""
 
-#: qa_site/forms.py:77 qa_site/forms.py:97 qa_site/forms.py:150
-#: qa_site/forms.py:169
-msgid "Use comments to ask for more information or suggest improvements."
-msgstr ""
-
-#: qa_site/forms.py:82 qa_site/forms.py:103 qa_site/forms.py:154
-#: qa_site/forms.py:174
+#: qa_site/forms.py:90 qa_site/forms.py:110 qa_site/forms.py:165
+#: qa_site/forms.py:184
 msgid ""
 "Comments are used to ask for clarification or to point out problems in the "
 "post."
+msgstr ""
+
+#: qa_site/forms.py:105 qa_site/forms.py:180
+msgid "Use comments to ask for more information or suggest improvements."
 msgstr ""
 
 #: qa_site/mixins.py:24
@@ -3270,67 +3289,67 @@ msgstr ""
 msgid "School Question Comments"
 msgstr ""
 
-#: qa_site/models.py:127
+#: qa_site/models.py:128
 msgid "Academic Question Comment"
 msgstr ""
 
-#: qa_site/models.py:128
+#: qa_site/models.py:129
 msgid "Academic Question Comments"
 msgstr ""
 
-#: qa_site/models.py:152
+#: qa_site/models.py:154
 msgid "School Answer Comment"
 msgstr ""
 
-#: qa_site/models.py:153
+#: qa_site/models.py:155
 msgid "School Answer Comments"
 msgstr ""
 
-#: qa_site/models.py:177
+#: qa_site/models.py:180
 msgid "Academic Answer Comment"
 msgstr ""
 
-#: qa_site/models.py:178
+#: qa_site/models.py:181
 msgid "Academic Answer Comments"
 msgstr ""
 
-#: qa_site/models.py:246
+#: qa_site/models.py:249
 msgid "School Question Answer"
 msgstr ""
 
-#: qa_site/models.py:247
+#: qa_site/models.py:250
 msgid "School Question Answers"
 msgstr ""
 
-#: qa_site/models.py:277
+#: qa_site/models.py:281
 msgid "Academic Question Answer"
 msgstr ""
 
-#: qa_site/models.py:278
+#: qa_site/models.py:282
 msgid "Academic Question Answers"
 msgstr ""
 
-#: qa_site/models.py:369
+#: qa_site/models.py:373
 msgid "School Question"
 msgstr ""
 
-#: qa_site/models.py:370
+#: qa_site/models.py:374
 msgid "School Questions"
 msgstr ""
 
-#: qa_site/models.py:395
+#: qa_site/models.py:399
 msgid "Academic Question Tag"
 msgstr ""
 
-#: qa_site/models.py:396
+#: qa_site/models.py:400
 msgid "Academic Question Tags"
 msgstr ""
 
-#: qa_site/models.py:419 qa_site/views.py:291
+#: qa_site/models.py:423 qa_site/views.py:292
 msgid "Tags"
 msgstr ""
 
-#: qa_site/models.py:427
+#: qa_site/models.py:431
 msgid "Allow this field empty if your subject is not present."
 msgstr ""
 
@@ -3363,6 +3382,11 @@ msgstr ""
 #: qa_site/templates/qa_site/academicquestion_detail.html:54
 #: qa_site/templates/qa_site/schoolquestion_detail.html:71
 msgid "You can't vote for your own post"
+msgstr ""
+
+#: qa_site/templates/qa_site/academicquestion_detail.html:62
+#: qa_site/templates/qa_site/schoolquestion_detail.html:52
+msgid "You need to be logged in to perform this operation."
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:93
@@ -3403,26 +3427,26 @@ msgstr ""
 #: qa_site/templates/qa_site/academicquestion_detail.html:210
 #: qa_site/templates/qa_site/academicquestion_detail.html:343
 #: qa_site/templates/qa_site/academicquestion_detail.html:461
-#: qa_site/templates/qa_site/academicquestion_detail.html:534
-#: qa_site/templates/qa_site/academicquestion_detail.html:882
+#: qa_site/templates/qa_site/academicquestion_detail.html:558
+#: qa_site/templates/qa_site/academicquestion_detail.html:892
 #: qa_site/templates/qa_site/schoolquestion_detail.html:189
 #: qa_site/templates/qa_site/schoolquestion_detail.html:327
 #: qa_site/templates/qa_site/schoolquestion_detail.html:445
-#: qa_site/templates/qa_site/schoolquestion_detail.html:518
-#: qa_site/templates/qa_site/schoolquestion_detail.html:813
+#: qa_site/templates/qa_site/schoolquestion_detail.html:542
+#: qa_site/templates/qa_site/schoolquestion_detail.html:876
 msgid "Liked"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:213
 #: qa_site/templates/qa_site/academicquestion_detail.html:346
 #: qa_site/templates/qa_site/academicquestion_detail.html:464
-#: qa_site/templates/qa_site/academicquestion_detail.html:537
-#: qa_site/templates/qa_site/academicquestion_detail.html:836
+#: qa_site/templates/qa_site/academicquestion_detail.html:561
+#: qa_site/templates/qa_site/academicquestion_detail.html:846
 #: qa_site/templates/qa_site/schoolquestion_detail.html:192
 #: qa_site/templates/qa_site/schoolquestion_detail.html:330
 #: qa_site/templates/qa_site/schoolquestion_detail.html:448
-#: qa_site/templates/qa_site/schoolquestion_detail.html:521
-#: qa_site/templates/qa_site/schoolquestion_detail.html:767
+#: qa_site/templates/qa_site/schoolquestion_detail.html:545
+#: qa_site/templates/qa_site/schoolquestion_detail.html:830
 msgid "Like"
 msgstr ""
 
@@ -3434,19 +3458,19 @@ msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:229
 #: qa_site/templates/qa_site/academicquestion_detail.html:480
-#: qa_site/templates/qa_site/academicquestion_detail.html:966
+#: qa_site/templates/qa_site/academicquestion_detail.html:978
 #: qa_site/templates/qa_site/schoolquestion_detail.html:209
 #: qa_site/templates/qa_site/schoolquestion_detail.html:464
-#: qa_site/templates/qa_site/schoolquestion_detail.html:895
+#: qa_site/templates/qa_site/schoolquestion_detail.html:959
 msgid "Disliked"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:232
 #: qa_site/templates/qa_site/academicquestion_detail.html:483
-#: qa_site/templates/qa_site/academicquestion_detail.html:928
+#: qa_site/templates/qa_site/academicquestion_detail.html:938
 #: qa_site/templates/qa_site/schoolquestion_detail.html:212
 #: qa_site/templates/qa_site/schoolquestion_detail.html:467
-#: qa_site/templates/qa_site/schoolquestion_detail.html:857
+#: qa_site/templates/qa_site/schoolquestion_detail.html:920
 msgid "Dislike"
 msgstr ""
 
@@ -3487,37 +3511,39 @@ msgid "Click here"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:339
-#: qa_site/templates/qa_site/academicquestion_detail.html:530
+#: qa_site/templates/qa_site/academicquestion_detail.html:554
 #: qa_site/templates/qa_site/schoolquestion_detail.html:323
-#: qa_site/templates/qa_site/schoolquestion_detail.html:514
+#: qa_site/templates/qa_site/schoolquestion_detail.html:538
 msgid "This comment adds something useful to the post"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:371
+#: qa_site/templates/qa_site/academicquestion_detail.html:585
 #: qa_site/templates/qa_site/schoolquestion_detail.html:355
+#: qa_site/templates/qa_site/schoolquestion_detail.html:569
 msgid "Edit"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:394
-#: qa_site/templates/qa_site/academicquestion_detail.html:559
+#: qa_site/templates/qa_site/academicquestion_detail.html:607
 #: qa_site/templates/qa_site/schoolquestion_detail.html:379
-#: qa_site/templates/qa_site/schoolquestion_detail.html:543
+#: qa_site/templates/qa_site/schoolquestion_detail.html:591
 msgid "This is the user who asked the question"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:414
-#: qa_site/templates/qa_site/academicquestion_detail.html:576
+#: qa_site/templates/qa_site/academicquestion_detail.html:624
 #: qa_site/templates/qa_site/schoolquestion_detail.html:399
-#: qa_site/templates/qa_site/schoolquestion_detail.html:560
+#: qa_site/templates/qa_site/schoolquestion_detail.html:608
 msgid ""
 "Use comments to ask for more information or suggest improvements. Avoid "
 "answering questions in comments"
 msgstr ""
 
 #: qa_site/templates/qa_site/academicquestion_detail.html:416
-#: qa_site/templates/qa_site/academicquestion_detail.html:578
+#: qa_site/templates/qa_site/academicquestion_detail.html:626
 #: qa_site/templates/qa_site/schoolquestion_detail.html:401
-#: qa_site/templates/qa_site/schoolquestion_detail.html:562
+#: qa_site/templates/qa_site/schoolquestion_detail.html:610
 msgid "Add a comment"
 msgstr ""
 
@@ -3536,22 +3562,34 @@ msgstr ""
 msgid "Vote this answer DOWN if it is not useful. (click again to undo)"
 msgstr ""
 
-#: qa_site/templates/qa_site/academicquestion_detail.html:598
-#: qa_site/templates/qa_site/schoolquestion_detail.html:581
+#: qa_site/templates/qa_site/academicquestion_detail.html:520
+#: qa_site/templates/qa_site/misc/answer_edit.html:8
+#: qa_site/templates/qa_site/schoolquestion_detail.html:504
+msgid "Edit answer"
+msgstr ""
+
+#: qa_site/templates/qa_site/academicquestion_detail.html:528
+#: qa_site/templates/qa_site/misc/answer_confirm_delete.html:7
+#: qa_site/templates/qa_site/schoolquestion_detail.html:512
+msgid "Delete answer"
+msgstr ""
+
+#: qa_site/templates/qa_site/academicquestion_detail.html:646
+#: qa_site/templates/qa_site/schoolquestion_detail.html:629
 msgid "Answer this question"
 msgstr ""
 
-#: qa_site/templates/qa_site/academicquestion_detail.html:608
-#: qa_site/templates/qa_site/schoolquestion_detail.html:589
+#: qa_site/templates/qa_site/academicquestion_detail.html:656
+#: qa_site/templates/qa_site/schoolquestion_detail.html:637
 msgid "Post Answer"
 msgstr ""
 
-#: qa_site/templates/qa_site/academicquestion_detail.html:620
+#: qa_site/templates/qa_site/academicquestion_detail.html:668
 msgid "Related Questions"
 msgstr ""
 
-#: qa_site/templates/qa_site/academicquestion_detail.html:942
-#: qa_site/templates/qa_site/schoolquestion_detail.html:871
+#: qa_site/templates/qa_site/academicquestion_detail.html:954
+#: qa_site/templates/qa_site/schoolquestion_detail.html:935
 #, python-format
 msgid ""
 " \"You need at least <strong>%(required_downvote_points)s points</strong> to "
@@ -3615,16 +3653,8 @@ msgstr ""
 msgid "Update question"
 msgstr ""
 
-#: qa_site/templates/qa_site/misc/answer_confirm_delete.html:7
-msgid "Delete answer"
-msgstr ""
-
 #: qa_site/templates/qa_site/misc/answer_confirm_delete.html:22
 msgid "Are you sure you want to delete this answer"
-msgstr ""
-
-#: qa_site/templates/qa_site/misc/answer_edit.html:8
-msgid "Edit answer"
 msgstr ""
 
 #: qa_site/templates/qa_site/misc/answer_edit.html:22
@@ -3727,8 +3757,8 @@ msgstr ""
 msgid "school-based-questions/answer-comments/"
 msgstr ""
 
-#: qa_site/views.py:281 qa_site/views.py:476 qa_site/views.py:703
-#: qa_site/views.py:734
+#: qa_site/views.py:282 qa_site/views.py:477 qa_site/views.py:704
+#: qa_site/views.py:735
 msgid "There was an activity on the question"
 msgstr ""
 
@@ -3783,24 +3813,19 @@ msgid ""
 "item, not in your school."
 msgstr ""
 
-#: requested_items/templates/requested_items/requested_item_detail.html:13
-#: requested_items/templates/requested_items/requested_item_detail.html:32
-msgid "Looking for"
-msgstr ""
-
-#: requested_items/templates/requested_items/requested_item_detail.html:67
+#: requested_items/templates/requested_items/requested_item_detail.html:42
 msgid "Proposed price"
 msgstr ""
 
-#: requested_items/templates/requested_items/requested_item_detail.html:78
+#: requested_items/templates/requested_items/requested_item_detail.html:51
 msgid "Anywhere"
 msgstr ""
 
-#: requested_items/templates/requested_items/requested_item_detail.html:236
+#: requested_items/templates/requested_items/requested_item_detail.html:171
 msgid "Similar requested items in"
 msgstr ""
 
-#: requested_items/templates/requested_items/requested_item_detail.html:244
+#: requested_items/templates/requested_items/requested_item_detail.html:174
 msgid "Similar items"
 msgstr ""
 
@@ -4431,8 +4456,8 @@ msgstr ""
 
 #: templates/403.html:23
 msgid ""
-"Use the site navigation links to explore the sections of this site that you "
-"can access."
+"You can use the site's navigation links to explore the areas of this site "
+"that you can access."
 msgstr ""
 
 #: templates/404.html:6 templates/404.html:14
@@ -4448,21 +4473,16 @@ msgid ""
 "        "
 msgstr ""
 
-#: templates/500.html:6
-msgid "Error"
-msgstr "Erreur"
-
-#: templates/500.html:15
-msgid "An Error Occurred"
+#: templates/500.html:6 templates/500.html:15
+msgid "Oops!"
 msgstr ""
 
 #: templates/500.html:18
-#, python-format
 msgid ""
 "\n"
-"            Click <a href=\"mailto:info@camerschools.com?subject=500 "
-"error&body=Hello CamerSchools, the page %(url)s doesn't open.\">here</a> to "
-"email this page's link to us so we can look into it.\n"
+"            There's an issue with this page that we're currently working on "
+"and we'll soon be done. <br>\n"
+"            In the mean time you can navigate the other parts of the site.\n"
 "            "
 msgstr ""
 
@@ -4626,48 +4646,48 @@ msgstr ""
 msgid "Date/time joined"
 msgstr ""
 
-#: users/models.py:245
+#: users/models.py:247
 msgid "You can have at most {} answers per question."
 msgstr ""
 
-#: users/models.py:278
+#: users/models.py:279
 msgid "answered your question"
 msgstr ""
 
-#: users/models.py:286 users/models.py:315
+#: users/models.py:287 users/models.py:316
 msgid "performed an activity under the question"
 msgstr ""
 
-#: users/models.py:307
+#: users/models.py:308
 msgid "commented on your question"
 msgstr ""
 
-#: users/models.py:335
+#: users/models.py:336
 msgid "commented on an answer to your question"
 msgstr ""
 
-#: users/models.py:342
+#: users/models.py:343
 msgid "commented on your answer to the question"
 msgstr ""
 
-#: users/models.py:352
+#: users/models.py:353
 msgid "performed an activity under an answer to the question"
 msgstr ""
 
-#: users/models.py:364
+#: users/models.py:365
 msgid "You can't add a dislike to your own question."
 msgstr ""
 
-#: users/models.py:374 users/models.py:416
+#: users/models.py:375 users/models.py:417
 msgid ""
 "You need at least <strong>{} points</strong> to be able to add a dislike."
 msgstr ""
 
-#: users/models.py:379 users/models.py:421
+#: users/models.py:380 users/models.py:422
 msgid "You need at least {} points to be able to add a dislike."
 msgstr ""
 
-#: users/models.py:406
+#: users/models.py:407
 msgid "You can't add a dislike to your own answer."
 msgstr ""
 
@@ -5259,3 +5279,6 @@ msgid ""
 "modify it. \n"
 "You can logout from this account and create your own account."
 msgstr ""
+
+#~ msgid "Error"
+#~ msgstr "Erreur"
