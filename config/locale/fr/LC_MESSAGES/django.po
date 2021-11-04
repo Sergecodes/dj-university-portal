@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-04 09:43+0000\n"
+"POT-Creation-Date: 2021-11-04 20:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,7 +77,6 @@ msgid "Maximum number of photos attained"
 msgstr "Nombre maximum de photos atteint"
 
 #: core/ajax_views.py:137
-#| msgid "Invalid file, upload a valid image."
 msgid "Invalid file, upload a valid image(PNG or JPEG)."
 msgstr "Fichier non valide, téléchargez une image valide(PNG ou JPEG)."
 
@@ -138,7 +137,7 @@ msgstr "Langue dans laquelle la dernière mise à jour a été effectuée"
 msgid "Contact numbers"
 msgstr "Numéros de contact"
 
-#: core/models.py:57 core/templates/core/base.html:162 socialize/models.py:20
+#: core/models.py:57 core/templates/core/base.html:164 socialize/models.py:20
 #: users/forms.py:45 users/forms.py:94 users/models.py:88
 msgid "Email address"
 msgstr "Adresse e-mail"
@@ -147,16 +146,16 @@ msgstr "Adresse e-mail"
 msgid "Email address to contact; enter a valid email."
 msgstr "Adresse e-mail à contacter ; entrez une adresse email valide."
 
-#: core/templates/core/base.html:56
+#: core/templates/core/base.html:58
 msgid "Enter your search keywords here..."
 msgstr "Entrez vos mots-clés de recherche ici..."
 
-#: core/templates/core/base.html:57
+#: core/templates/core/base.html:59
 msgid "Enter your search keywords"
 msgstr "Entrez vos mots-clés de recherche"
 
-#: core/templates/core/base.html:58 core/templates/core/base.html:402
-#: core/templates/core/base.html:403 core/templates/core/base.html:457
+#: core/templates/core/base.html:60 core/templates/core/base.html:404
+#: core/templates/core/base.html:405 core/templates/core/base.html:459
 #: lost_or_found/templates/lost_or_found/founditem_list.html:53
 #: lost_or_found/templates/lost_or_found/lostitem_list.html:54
 #: marketplace/templates/marketplace/adlisting_list.html:56
@@ -169,86 +168,86 @@ msgstr "Entrez vos mots-clés de recherche"
 msgid "Search"
 msgstr "Rechercher"
 
-#: core/templates/core/base.html:89 core/templates/core/base.html:210
+#: core/templates/core/base.html:91 core/templates/core/base.html:212
 #: core/templates/core/notifications.html:22
 msgid "Notifications"
 msgstr "Notifications"
 
-#: core/templates/core/base.html:92 core/templates/core/base.html:213
+#: core/templates/core/base.html:94 core/templates/core/base.html:215
 msgid "New notifications"
 msgstr "Nouvelles notifications"
 
-#: core/templates/core/base.html:116 core/templates/core/base.html:233
+#: core/templates/core/base.html:118 core/templates/core/base.html:235
 msgid "My Account"
 msgstr "Mon Compte"
 
-#: core/templates/core/base.html:128 core/templates/core/base.html:246
+#: core/templates/core/base.html:130 core/templates/core/base.html:248
 #: users/templates/users/profile/dashboard.html:47
 #: users/templates/users/profile/tab-section.html:19
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: core/templates/core/base.html:129 core/templates/core/base.html:249
+#: core/templates/core/base.html:131 core/templates/core/base.html:251
 msgid "View Profile"
 msgstr "Voir mon profil"
 
-#: core/templates/core/base.html:130 core/templates/core/base.html:251
+#: core/templates/core/base.html:132 core/templates/core/base.html:253
 #: socialize/templates/socialize/socialprofile_update_form.html:33
 #: users/templates/users/edit_profile.html:8
 #: users/templates/users/edit_profile.html:28
 msgid "Update Profile"
 msgstr "Mettre à jour mon profil"
 
-#: core/templates/core/base.html:135 core/templates/core/base.html:137
-#: core/templates/core/base.html:255
+#: core/templates/core/base.html:137 core/templates/core/base.html:139
+#: core/templates/core/base.html:257
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: core/templates/core/base.html:145 core/templates/core/base.html:263
+#: core/templates/core/base.html:147 core/templates/core/base.html:265
 msgid "REGISTER"
 msgstr "S'INSCRIRE"
 
-#: core/templates/core/base.html:156 core/templates/core/base.html:167
-#: core/templates/core/base.html:266 users/templates/users/auth/login.html:22
+#: core/templates/core/base.html:158 core/templates/core/base.html:169
+#: core/templates/core/base.html:268 users/templates/users/auth/login.html:22
 msgid "LOGIN"
 msgstr "Connexion"
 
-#: core/templates/core/base.html:165
+#: core/templates/core/base.html:167
 msgid "Password"
 msgstr "Mot de passe"
 
-#: core/templates/core/base.html:168
+#: core/templates/core/base.html:170
 msgid "Forgot Password"
 msgstr "Mot de passe oublié"
 
-#: core/templates/core/base.html:170
+#: core/templates/core/base.html:172
 msgid "Open login form on new page"
 msgstr "Ouvrir sur une nouvelle page"
 
-#: core/templates/core/base.html:179
+#: core/templates/core/base.html:181
 #: users/templates/users/profile/tab-section.html:5
 msgid "Toggle navigation"
 msgstr "Basculer la navigation"
 
-#: core/templates/core/base.html:276 core/templates/core/base.html:476
+#: core/templates/core/base.html:278 core/templates/core/base.html:478
 #: core/templates/core/index.html:9
 msgid "Home"
 msgstr "Accueil"
 
-#: core/templates/core/base.html:288
+#: core/templates/core/base.html:290
 msgid "Items for sale"
 msgstr "Articles à vendre"
 
-#: core/templates/core/base.html:291
+#: core/templates/core/base.html:293
 msgid "View/Buy items"
 msgstr "Voir/Acheter les articles"
 
-#: core/templates/core/base.html:292 core/templates/core/base.html:491
+#: core/templates/core/base.html:294 core/templates/core/base.html:493
 #: marketplace/templates/marketplace/itemlisting_list.html:34
 msgid "Sell an item"
 msgstr "Vendre un article"
 
-#: core/templates/core/base.html:304 core/templates/core/search_results.html:27
+#: core/templates/core/base.html:306 core/templates/core/search_results.html:27
 #: core/templates/core/site_usage_info.html:36 core/utils.py:293
 #: marketplace/templates/marketplace/adlisting_list.html:12
 #: marketplace/templates/marketplace/adlisting_list.html:25
@@ -258,67 +257,67 @@ msgstr "Vendre un article"
 msgid "Adverts"
 msgstr "Annonces"
 
-#: core/templates/core/base.html:307
+#: core/templates/core/base.html:309
 #: marketplace/templates/marketplace/adlisting_list.html:34
 msgid "Post an advert"
 msgstr "Publier une annonce"
 
-#: core/templates/core/base.html:308
+#: core/templates/core/base.html:310
 msgid "All Adverts"
 msgstr "Toutes les annonces"
 
-#: core/templates/core/base.html:320
+#: core/templates/core/base.html:322
 msgid "Requested items"
 msgstr "Articles demandés"
 
-#: core/templates/core/base.html:323 core/templates/core/index.html:259
+#: core/templates/core/base.html:325 core/templates/core/index.html:259
 #: requested_items/templates/requested_items/requested_item_create.html:8
 #: requested_items/templates/requested_items/requested_item_list.html:35
 msgid "Request an item"
 msgstr "Demander un article"
 
-#: core/templates/core/base.html:324
+#: core/templates/core/base.html:326
 msgid "All requested items"
 msgstr "Tous les articles demandés"
 
-#: core/templates/core/base.html:336 core/templates/core/base.html:496
+#: core/templates/core/base.html:338 core/templates/core/base.html:498
 msgid "Ask a question"
 msgstr "Poser une question"
 
-#: core/templates/core/base.html:339 qa_site/models.py:465
+#: core/templates/core/base.html:341 qa_site/models.py:465
 msgid "Academic Question"
 msgstr "Question Académique"
 
-#: core/templates/core/base.html:340
+#: core/templates/core/base.html:342
 msgid "School-Based Question"
 msgstr "Question Scolaire"
 
-#: core/templates/core/base.html:341 core/templates/core/index.html:98
+#: core/templates/core/base.html:343 core/templates/core/index.html:98
 msgid "All Questions"
 msgstr "Toutes les Questions"
 
-#: core/templates/core/base.html:353
+#: core/templates/core/base.html:355
 msgid "Lost/Found Items"
 msgstr "Objets Perdus/Trouvés"
 
-#: core/templates/core/base.html:356 core/templates/core/index.html:368
+#: core/templates/core/base.html:358 core/templates/core/index.html:368
 #: lost_or_found/templates/lost_or_found/lostitem_list.html:35
 msgid "Publish a lost item"
 msgstr "Publier un objet perdu"
 
-#: core/templates/core/base.html:357
+#: core/templates/core/base.html:359
 msgid "View lost items"
 msgstr "Voir les objets perdus"
 
-#: core/templates/core/base.html:358 core/templates/core/index.html:404
+#: core/templates/core/base.html:360 core/templates/core/index.html:404
 msgid "Publish a found item"
 msgstr "Publier un objet trouvé"
 
-#: core/templates/core/base.html:359
+#: core/templates/core/base.html:361
 msgid "View found items"
 msgstr "Voir les objets trouvés"
 
-#: core/templates/core/base.html:371
+#: core/templates/core/base.html:373
 #: core/templates/core/search_results.html:137
 #: core/templates/core/site_usage_info.html:82 core/utils.py:299
 #: past_papers/templates/past_papers/pastpaper_list.html:10
@@ -328,37 +327,37 @@ msgstr "Voir les objets trouvés"
 msgid "Past Papers"
 msgstr "Anciens Sujets"
 
-#: core/templates/core/base.html:374
+#: core/templates/core/base.html:376
 msgctxt "dropdown child"
 msgid "Upload a past paper"
 msgstr "Uploader"
 
-#: core/templates/core/base.html:375
+#: core/templates/core/base.html:377
 msgid "Past papers"
 msgstr "Anciens sujets"
 
-#: core/templates/core/base.html:387 core/templates/core/base.html:530
+#: core/templates/core/base.html:389 core/templates/core/base.html:532
 #: core/templates/core/site_usage_info.html:94
 msgid "Socialize"
 msgstr "Socialiser"
 
-#: core/templates/core/base.html:391
+#: core/templates/core/base.html:393
 msgid "Create social profile"
 msgstr "Créer mon profil social"
 
-#: core/templates/core/base.html:393
+#: core/templates/core/base.html:395
 msgid "Find a pal"
 msgstr "Trouver un pote"
 
-#: core/templates/core/base.html:395
+#: core/templates/core/base.html:397
 msgid "View social profile"
 msgstr "Voir mon profil social"
 
-#: core/templates/core/base.html:396
+#: core/templates/core/base.html:398
 msgid "Update social profile"
 msgstr "Mettre à jour mon profil social"
 
-#: core/templates/core/base.html:444
+#: core/templates/core/base.html:446
 msgid ""
 "\n"
 "\t\t\t\t\t\tOn camerschools.com, you can ask questions, request items you "
@@ -377,91 +376,91 @@ msgstr ""
 "universitaire.\n"
 "\t\t\t\t\t\t"
 
-#: core/templates/core/base.html:456
+#: core/templates/core/base.html:458
 msgid "Search..."
 msgstr "Rechercher..."
 
-#: core/templates/core/base.html:462
+#: core/templates/core/base.html:464
 msgid "SEARCH"
 msgstr "RECHERCHER"
 
-#: core/templates/core/base.html:470
+#: core/templates/core/base.html:472
 msgid "Explore"
 msgstr "Explorer"
 
-#: core/templates/core/base.html:481
+#: core/templates/core/base.html:483
 msgid "Our Social Profile"
 msgstr "Notre Profil Social"
 
-#: core/templates/core/base.html:486
+#: core/templates/core/base.html:488
 msgid "Website Usage Info"
 msgstr "Utilisation du site"
 
-#: core/templates/core/base.html:501
+#: core/templates/core/base.html:503
 #: requested_items/templates/requested_items/requested_item_create.html:23
 msgid "Request an Item"
 msgstr "Demander un article"
 
-#: core/templates/core/base.html:510
+#: core/templates/core/base.html:512
 msgid "Advertize a product"
 msgstr "Annoncer un produit"
 
-#: core/templates/core/base.html:515
+#: core/templates/core/base.html:517
 msgctxt "footer"
 msgid "Upload a past paper"
 msgstr "Uploader un ancien sujet"
 
-#: core/templates/core/base.html:520
+#: core/templates/core/base.html:522
 #: core/templates/core/site_usage_info.html:143
 #: lost_or_found/templates/lost_or_found/lostitem_create.html:9
 #: lost_or_found/templates/lost_or_found/lostitem_create.html:22
 msgid "Report a lost item"
 msgstr "Signaler un objet perdu"
 
-#: core/templates/core/base.html:525
+#: core/templates/core/base.html:527
 #: core/templates/core/site_usage_info.html:146
 #: lost_or_found/templates/lost_or_found/founditem_create.html:9
 #: lost_or_found/templates/lost_or_found/founditem_create.html:25
 msgid "Report a found item"
 msgstr "Signaler un objet trouvé"
 
-#: core/templates/core/base.html:544
+#: core/templates/core/base.html:546
 msgid "Channels"
 msgstr "Connecter"
 
-#: core/templates/core/base.html:548
+#: core/templates/core/base.html:550
 msgid "Facebook"
 msgstr "Facebook"
 
-#: core/templates/core/base.html:559
+#: core/templates/core/base.html:561
 msgid "Twitter"
 msgstr "Twitter"
 
-#: core/templates/core/base.html:574
+#: core/templates/core/base.html:576
 msgid "WhatsApp:"
 msgstr "WhatsApp"
 
-#: core/templates/core/base.html:579
+#: core/templates/core/base.html:581
 msgid "Email: info@camerschools.com"
 msgstr "Email : info@camerschools.com"
 
-#: core/templates/core/base.html:585
+#: core/templates/core/base.html:587
 msgid "Legal"
 msgstr "Légal"
 
-#: core/templates/core/base.html:589
+#: core/templates/core/base.html:591
 msgid "Terms"
 msgstr "Termes"
 
-#: core/templates/core/base.html:594
+#: core/templates/core/base.html:596
 msgid "Privacy"
 msgstr "Confidentialité"
 
-#: core/templates/core/base.html:599
+#: core/templates/core/base.html:601
 msgid "Copyright"
 msgstr "Droits d'auteur"
 
-#: core/templates/core/base.html:604
+#: core/templates/core/base.html:606
 msgid ""
 "All Names, Acronyms and Trademarks displayed on this website are those of "
 "their respective owners."
@@ -1529,7 +1528,7 @@ msgstr "LOGIN_URL n'est pas défini dans les paramètres"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:112
 #: marketplace/templates/marketplace/adlisting_detail.html:175
 #: marketplace/templates/marketplace/itemlisting_detail.html:183
-#: past_papers/templates/past_papers/pastpaper_detail.html:106
+#: past_papers/templates/past_papers/pastpaper_detail.html:105
 #: requested_items/templates/requested_items/requested_item_detail.html:129
 msgid "Add this post to your favourites. (click again to undo)"
 msgstr ""
@@ -1728,8 +1727,8 @@ msgstr ""
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:137
 #: marketplace/templates/marketplace/adlisting_detail.html:200
 #: marketplace/templates/marketplace/itemlisting_detail.html:208
-#: past_papers/templates/past_papers/pastpaper_detail.html:131
-#: past_papers/templates/past_papers/pastpaper_detail.html:202
+#: past_papers/templates/past_papers/pastpaper_detail.html:130
+#: past_papers/templates/past_papers/pastpaper_detail.html:201
 #: qa_site/templates/qa_site/academicquestion_detail.html:263
 #: qa_site/templates/qa_site/academicquestion_detail.html:502
 #: qa_site/templates/qa_site/schoolquestion_detail.html:244
@@ -1748,10 +1747,10 @@ msgstr "Retirer le signalement"
 #: marketplace/templates/marketplace/adlisting_detail.html:202
 #: marketplace/templates/marketplace/itemlisting_detail.html:198
 #: marketplace/templates/marketplace/itemlisting_detail.html:210
-#: past_papers/templates/past_papers/pastpaper_detail.html:121
-#: past_papers/templates/past_papers/pastpaper_detail.html:133
-#: past_papers/templates/past_papers/pastpaper_detail.html:192
-#: past_papers/templates/past_papers/pastpaper_detail.html:204
+#: past_papers/templates/past_papers/pastpaper_detail.html:120
+#: past_papers/templates/past_papers/pastpaper_detail.html:132
+#: past_papers/templates/past_papers/pastpaper_detail.html:191
+#: past_papers/templates/past_papers/pastpaper_detail.html:203
 #: qa_site/templates/qa_site/academicquestion_detail.html:255
 #: qa_site/templates/qa_site/academicquestion_detail.html:265
 #: qa_site/templates/qa_site/academicquestion_detail.html:353
@@ -1836,7 +1835,6 @@ msgid "Update"
 msgstr ""
 
 #: lost_or_found/forms.py:80 lost_or_found/forms.py:160
-#| msgid "Report a lost item"
 msgid "Report item"
 msgstr "Signaler l'objet"
 
@@ -2098,7 +2096,7 @@ msgstr "Par"
 #: marketplace/templates/marketplace/itemlisting_detail.html:147
 #: marketplace/templates/marketplace/itemlisting_list.html:140
 #: past_papers/templates/past_papers/pastpaper_detail.html:47
-#: past_papers/templates/past_papers/pastpaper_detail.html:176
+#: past_papers/templates/past_papers/pastpaper_detail.html:175
 #: past_papers/templates/past_papers/pastpaper_list.html:126
 #: qa_site/templates/qa_site/academicquestion_detail.html:161
 #: qa_site/templates/qa_site/academicquestion_detail.html:400
@@ -2127,7 +2125,7 @@ msgstr "Comment"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:117
 #: marketplace/templates/marketplace/adlisting_detail.html:180
 #: marketplace/templates/marketplace/itemlisting_detail.html:188
-#: past_papers/templates/past_papers/pastpaper_detail.html:111
+#: past_papers/templates/past_papers/pastpaper_detail.html:110
 #: requested_items/templates/requested_items/requested_item_detail.html:133
 msgid "Share a link to this post"
 msgstr "Partager un lien vers cette publication"
@@ -2145,7 +2143,7 @@ msgstr "Modifier la publication"
 #: lost_or_found/templates/lost_or_found/lostitem_detail.html:162
 #: marketplace/templates/marketplace/adlisting_detail.html:225
 #: marketplace/templates/marketplace/itemlisting_detail.html:233
-#: past_papers/templates/past_papers/pastpaper_detail.html:147
+#: past_papers/templates/past_papers/pastpaper_detail.html:146
 #: requested_items/templates/requested_items/requested_item_detail.html:176
 #: requested_items/templates/requested_items/requesteditem_confirm_delete.html:7
 msgid "Delete post"
@@ -2938,7 +2936,7 @@ msgid "Written date"
 msgstr ""
 
 #: past_papers/templates/past_papers/comment_confirm_delete.html:6
-#: past_papers/templates/past_papers/pastpaper_detail.html:228
+#: past_papers/templates/past_papers/pastpaper_detail.html:227
 #: qa_site/templates/qa_site/academicquestion_detail.html:377
 #: qa_site/templates/qa_site/academicquestion_detail.html:591
 #: qa_site/templates/qa_site/misc/comment_confirm_delete.html:7
@@ -2953,7 +2951,7 @@ msgid "Are you sure you want to delete this comment"
 msgstr ""
 
 #: past_papers/templates/past_papers/comment_edit.html:8
-#: past_papers/templates/past_papers/pastpaper_detail.html:220
+#: past_papers/templates/past_papers/pastpaper_detail.html:219
 #: qa_site/templates/qa_site/academicquestion_detail.html:368
 #: qa_site/templates/qa_site/academicquestion_detail.html:582
 #: qa_site/templates/qa_site/misc/comment_edit.html:8
@@ -2995,21 +2993,19 @@ msgid "Uploaded on"
 msgstr ""
 
 #: past_papers/templates/past_papers/pastpaper_detail.html:79
-#, python-format
 msgid ""
 "\n"
 "\t\t\t\t\tYour web browser doesn't have a PDF plugin. <br>\n"
-"\t\t\t\t\t<a href=\"https://docs.google.com/gview?url=%(past_paper.file.url)s"
-"\" target=\"_blank\">click here</a> &nbsp;\n"
-"\t\t\t\t\tto open the file in a new tab.\n"
+"\t\t                        Instead, you can download the file by clicking "
+"the Download button below. \n"
 "\t\t\t\t\t"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:93
+#: past_papers/templates/past_papers/pastpaper_detail.html:92
 msgid "Download file"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:157
+#: past_papers/templates/past_papers/pastpaper_detail.html:156
 #, python-format
 msgid ""
 "\n"
@@ -3024,11 +3020,11 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:246
+#: past_papers/templates/past_papers/pastpaper_detail.html:245
 msgid "Leave a comment"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:253
+#: past_papers/templates/past_papers/pastpaper_detail.html:252
 #: qa_site/templates/qa_site/academicquestion_detail.html:424
 #: qa_site/templates/qa_site/academicquestion_detail.html:635
 #: qa_site/templates/qa_site/schoolquestion_detail.html:409
@@ -3036,7 +3032,7 @@ msgstr ""
 msgid "Add comment"
 msgstr ""
 
-#: past_papers/templates/past_papers/pastpaper_detail.html:261
+#: past_papers/templates/past_papers/pastpaper_detail.html:260
 #, python-format
 msgid ""
 "\n"

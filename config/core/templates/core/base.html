@@ -28,6 +28,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 	{# bootstrap file is before body end #}
 	{% comment %} <script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script> {% endcomment %}
+	{# apparently, if this file is at the body bottom, some stuffs like the share tooltip malfunction #}
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 	{% block extra_script_pre %}
 	{% endblock extra_script_pre %}
 </head>
@@ -603,7 +605,6 @@
 	</footer>
 	{% endblock %}
 	
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script>
 	{% block extra_js %}
 	{% endblock %}
