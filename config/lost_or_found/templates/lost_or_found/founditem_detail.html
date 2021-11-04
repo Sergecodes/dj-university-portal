@@ -12,10 +12,6 @@
 	<title>{% trans 'Found' %} {{ found_item.item_found }} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}"> -->
-	<!-- <link rel="stylesheet" href="{% static 'minified/css/lost_or_found.min.css' %}"> -->
-{% endblock extra_css %}
 
 {% block institution_searchbox %}
 {% endblock %}
@@ -150,16 +146,18 @@
 			{% endif %}
 		</div>	
 
-		<!-- don't separate these 3 elements, dependency in js. -->
-		<button class="btn btn-warning mb-3 w-25 js-claim-item-btn">
-			{% trans 'Claim item' %}
-		</button>
-		<p class="alert alert-warning pb-3 mb-4 claim-msg-wrp" role="alert">
-			{% blocktrans %}
-				We hope this item really belongs to you. <br>
-				If it belongs to you, contact the poster using the details below.
-			{% endblocktrans %}
-		</p>	
+		{% if user.id != found_item.poster_id %}
+			<!-- don't separate these 3 elements, dependency in js. -->
+			<button class="btn btn-warning mb-3 w-25 js-claim-item-btn">
+				{% trans 'Claim item' %}
+			</button>
+			<p class="alert alert-warning pb-3 mb-4 claim-msg-wrp" role="alert">
+				{% blocktrans %}
+					We hope this item really belongs to you. <br>
+					If it belongs to you, contact the poster using the details below.
+				{% endblocktrans %}
+			</p>	
+		{% endif %}
 
 		<!-- contact details -->
 		<section class="contact-details">
@@ -207,14 +205,16 @@
 		return new bootstrap.Tooltip(tooltipTriggerEl);
 	});
 
-	var $claimBtn = $('.js-claim-item-btn').first();
-	$claimBtn.click(function() {
-		var $this = $(this);
-		var $claimMsgBlock = $this.next();
-		$claimMsgBlock.show();
-		$claimMsgBlock.next().show();
-		$this.hide();
-	});
+	{% if user.id != found_item.poster_id %}
+		var $claimBtn = $('.js-claim-item-btn').first();
+		$claimBtn.click(function() {
+			var $this = $(this);
+			var $claimMsgBlock = $this.next();
+			$claimMsgBlock.show();
+			$claimMsgBlock.next().show();
+			$this.hide();
+		});
+	{% endif %}
 
 	/* FLAG FORM */
 	// trigger click on flag-report-icon when flag helper is clicked

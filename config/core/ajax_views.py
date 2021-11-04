@@ -64,7 +64,7 @@ class PhotoUploadView(View):
 					# 'error': _('User is not authenticated'), 
 					'is_anonymous': True
 				},
-				# status=403  # Forbidden
+				# status=401  # Unauthorized, anonymous user
 			)
 
 		if form_for == 'item_listing':
@@ -134,7 +134,7 @@ class PhotoUploadView(View):
 		else:
 			data = {
 				'is_valid': False, 
-				'error': _('Invalid file, upload a valid image.')
+				'error': _('Invalid file, upload a valid image(PNG or JPEG).')
 			}
 
 		return JsonResponse(data)
@@ -149,7 +149,7 @@ class PhotoUploadView(View):
 					# 'error': _('User is not authenticated'), 
 					'is_anonymous': True
 				},
-				status=403  # Forbidden
+				status=401  # Unauthorized(Anonymous User)
 			)
 		
 		encoded_photo_name = request.GET.get('photo_filename')

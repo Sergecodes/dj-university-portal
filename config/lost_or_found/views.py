@@ -156,6 +156,7 @@ class FoundItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs = super().get_form_kwargs(**kwargs)
 		form_kwargs['user'] = self.request.user
+		form_kwargs['update'] = True
 		return form_kwargs
 
 	def form_valid(self, form):
@@ -235,6 +236,7 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 
 		form_kwargs['user'] = user
 		form_kwargs['initial_photos'] = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
+		
 		return form_kwargs
 
 	def form_valid(self, form):
@@ -380,9 +382,8 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 		# when form is initially displayed, get photos from lost_item
 		# otherwise(after form invalid) get photos from session.
 		if self.request.method == 'GET':
-			lost_item_photos = lost_item.photos.all()
 			# store photos in session
-			photos_list = [photo.actual_filename for photo in lost_item_photos]
+			photos_list = [photo.actual_filename for photo in lost_item.photos.all()]
 
 			# recall that photos are optional for lost items
 			# so only update session if there are photos
@@ -390,10 +391,10 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 				session[user.username + LOST_ITEM_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + LOST_ITEM_SUFFIX, [])
-			lost_item_photos = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = lost_item_photos
+		form_kwargs['update'] = True
+		form_kwargs['initial_photos'] = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
 	def form_valid(self, form):

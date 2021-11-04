@@ -44,7 +44,7 @@ class FoundItemForm(forms.ModelForm):
 		}
 
 	def __init__(self, *args, **kwargs):
-		user = kwargs.pop('user')
+		user, update = kwargs.pop('user'), kwargs.pop('update', False)
 		super().__init__(*args, **kwargs)
 
 		# email used for notifications concerning listing is user's email by default.
@@ -72,8 +72,12 @@ class FoundItemForm(forms.ModelForm):
 					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</a>"
 			),
-			Submit('submit', _('Publish item'), css_class='d-block'),
 		)
+
+		if update:
+			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block"))
+		else:
+			self.helper.add_input(Submit('submit', _('Report item'), css_class="d-block"))
 
 
 class LostItemForm(forms.ModelForm):
@@ -102,6 +106,7 @@ class LostItemForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
+		update = kwargs.pop('update', False)
 		super().__init__(*args, **kwargs)
 
 		# email used for notifications concerning listing is user's email by default.
@@ -147,7 +152,11 @@ class LostItemForm(forms.ModelForm):
 					)) +
 				"</p>"
 			),
-			Submit('submit', _('Publish item'), css_class='d-block'),
 		)
+
+		if update:
+			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block"))
+		else:
+			self.helper.add_input(Submit('submit', _('Report item'), css_class="d-block"))
 
 

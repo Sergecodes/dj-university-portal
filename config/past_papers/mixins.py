@@ -11,16 +11,22 @@ from core.constants import (
 def can_delete_paper(user, past_paper):
 	"""Verify if user is permitted to delete past_paper"""
 	# ensure, user calling this view is authed
+	if user.is_anonymous:
+		return False
 	return user.can_delete_past_paper(past_paper)
 
 
 def can_edit_comment(user, comment):
 	"""Verify if user can edit a comment under a past paper"""
+	if user.is_anonymous:
+		return False
 	return user.can_edit_past_paper_comment(comment)
 
 
 def can_delete_comment(user, comment):
 	"""Verify if user can delete a comment under a past paper"""
+	if user.is_anonymous:
+		return False
 	return user.can_delete_past_paper_comment(comment)
 
 

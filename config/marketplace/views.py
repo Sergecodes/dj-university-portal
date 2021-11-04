@@ -157,20 +157,14 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		# when form is initially displayed, get photos from listing
 		# otherwise(after form invalid) get photos from session.
 		if self.request.method == 'GET':
-			listing_photos = listing.photos.all()
 			# store photos in session
-			photos_list = [photo.actual_filename for photo in listing_photos]
+			photos_list = [photo.actual_filename for photo in listing.photos.all()]
 			session[user.username + ITEM_LISTING_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)
-			listing_photos = get_photos(
-				ItemListingPhoto, 
-				photos_list, 
-				LISTING_PHOTOS_UPLOAD_DIR
-			)
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = listing_photos
+		form_kwargs['initial_photos'] = get_photos(photos_list, LISTING_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
 
@@ -294,24 +288,21 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		listing = self.object
 		listing_photos = listing.photos.all()
 		
-		similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-			school=listing.school,
-			# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
-			sub_category__name=getattr(listing.sub_category, 'name', '')
-		).exclude(id=listing.id).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
-		
 		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
 		sub_category_name = getattr(listing.sub_category, 'name', '')
 		if sub_category_name:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				school=listing.school,
 				sub_category__name=sub_category_name
-			).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
+			).only('title', 'price', 'posted_datetime')
 		else:
 			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
 				school=listing.school
-			).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
-
+			).only('title', 'price', 'posted_datetime')
+		
+		# exclude current object from list of similar objects and slice queryset
+		# note that we can filter queryset after slice has been taken
+		similar_listings = similar_listings.exclude(id=listing.id)[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -468,9 +459,8 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		# when form is initially displayed, get photos from listing
 		# otherwise(after form invalid) get photos from session.
 		if self.request.method == 'GET':
-			listing_photos = listing.photos.all()
 			# store photos in session
-			photos_list = [photo.actual_filename for photo in listing_photos]
+			photos_list = [photo.actual_filename for photo in listing.photos.all()]
 
 			# recall that photos are optional for adverts
 			# so only update session if there are photos
@@ -478,10 +468,9 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 				session[user.username + AD_LISTING_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + AD_LISTING_SUFFIX, [])
-			listing_photos = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = listing_photos
+		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
 

@@ -23,7 +23,9 @@ def can_delete_item(user, item):
 		return True
 
 	# if item is flagged moderator can delete it.
-	if user.is_mod and Flag.objects.is_flagged(item):
+	# AnonymousUser has no attr is_mod
+	# apparently, the LoginRequiredMixin doesn't work since test_func is overriden
+	if user.is_authenticated and user.is_mod and Flag.objects.is_flagged(item):
 		return True
 
 	return False

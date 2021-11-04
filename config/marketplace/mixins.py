@@ -24,7 +24,8 @@ def can_delete_listing(user, listing):
 		return True
 
 	# if listing is flagged moderator can delete it.
-	if user.is_mod and Flag.objects.is_flagged(listing):
+	# AnonymousUser has no attr is_mod
+	if user.is_authenticated and user.is_mod and Flag.objects.is_flagged(listing):
 		return True
 	
 	return False

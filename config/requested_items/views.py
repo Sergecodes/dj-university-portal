@@ -110,9 +110,8 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 		# when form is initially displayed, get photos from item
 		# otherwise(after form invalid) get photos from session.
 		if self.request.method == 'GET':
-			item_photos = item.photos.all()
 			# store photos in session
-			photos_list = [photo.actual_filename for photo in item_photos]
+			photos_list = [photo.actual_filename for photo in item.photos.all()]
 
 			# recall that photos are optional for adverts
 			# so only update session if there are photos
@@ -120,10 +119,9 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 				session[user.username + REQUESTED_ITEM_SUFFIX] = photos_list
 		else:
 			photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
-			item_photos = get_photos( photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
-
+		
 		form_kwargs['user'] = user
-		form_kwargs['initial_photos'] = item_photos
+		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
 

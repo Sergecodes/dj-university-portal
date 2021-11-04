@@ -262,6 +262,10 @@ if USE_S3:
 	# AWS_S3_FILE_OVERWRITE = False
 	AWS_S3_CUSTOM_DOMAIN_ = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 	AWS_S3_OBJECT_PARAMETERS = {
+		# use a high value so that files are cached for long (6months=2628000)
+		# however, updates on files won't work ... and file name  should be changed after updates..
+		# for now, set it to 1 day(86400secs)
+		# 1month = 2.628e+6 (2628000secs)
 		'CacheControl': 'max-age=86400'
 	}
 	# s3 static settings

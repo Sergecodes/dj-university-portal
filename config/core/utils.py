@@ -266,7 +266,7 @@ def get_photos(photos_name_list, dir):
 	if not photos_name_list:
 		# print('No photos in list')
 		return []
-	
+
 	photos_info = []
 	for photo_name in photos_name_list:
 		# prints the path of the file eg. (ad_photos/filename.jpg)

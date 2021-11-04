@@ -18,11 +18,6 @@
 	</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/past_papers.min.css' %}"> -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -73,16 +68,19 @@
 		<section class="mb-5 text-center">
 			<object 
 				data="{{ past_paper.file.url }}" 
-				{% comment %} data="https://docs.google.com/gview?embedded=true&url={{ past_paper.file.url }}" {% endcomment %}
 				type="application/pdf" 
 				width="100%" 
 				height="450px"
 			>
+
+				{% comment %} For files displayed on same page, use embedded=true  data="https://docs.google.com/gview?embedded=true&url={{ past_paper.file.url }}" {% endcomment %}
 				<p>
 					{% blocktrans %}
 					Your web browser doesn't have a PDF plugin. <br>
-					Instead, you can <a href="{{ file.url }}">click here</a> to download the PDF file.
+					<a href="https://docs.google.com/gview?url={{ past_paper.file.url }}" target="_blank">click here</a> &nbsp;
+					to open the file in a new tab.
 					{% endblocktrans %}
+					{% comment %} Instead, you can <a href="{{ file.url }}" download>click here</a> to download the PDF file. {% endcomment %}
 				</p>
 			</object>
 		</section>

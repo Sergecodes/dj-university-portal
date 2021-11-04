@@ -3,6 +3,7 @@
 
 
 # freeprivacypolicy.com  (cool)
+# - editing and creating a new item(that supports photos) pollutes the photos. (since session uses same key for updates and creations) (i don't think it's a big problem lol)
 # - for watermark, if text(Camerschools.com) is too long (if image is not wide enough to contain text), insert either just Camerschools or logo..
 # - redirect to next url when user is editing phone numbers (in listings, requested items, etc..)
 # - add possibility to disconnect social profile
