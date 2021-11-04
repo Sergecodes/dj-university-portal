@@ -77,8 +77,8 @@
 				<p>
 					{% blocktrans %}
 					Your web browser doesn't have a PDF plugin. <br>
-					<a href="https://docs.google.com/gview?url={{ past_paper.file.url }}" target="_blank">click here</a> &nbsp;
-					to open the file in a new tab.
+		                        <a href="{{ past_paper.file.url }}" download>Click here</a> 
+					to download the file instead.
 					{% endblocktrans %}
 					{% comment %} Instead, you can <a href="{{ file.url }}" download>click here</a> to download the PDF file. {% endcomment %}
 				</p>
