@@ -256,7 +256,7 @@ class PasswordChangeView(LoginRequiredMixin, BasePasswordChangeView):
 		return super().form_valid(form)
 
 
-class PasswordResetView(LoginRequiredMixin, BasePasswordResetView):
+class PasswordResetView(BasePasswordResetView):
 	def get(self, request, *args, **kwargs):
 		if request.user == User.objects.filter(username=TEST_ACCOUNT_USERNAME).first():
 			raise PermissionDenied(_(
