@@ -1,21 +1,15 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+# from easy_thumbnails.widgets import ImageClearableFileInput
 
 from core.forms import PhotoFormLayout
-from core.models import Institution
-from qa_site.models import Subject
+from core.utils import PhotoUploadMixin
 from .models import PastPaper, PastPaperPhoto, Comment
 
 
-class PastPaperPhotoForm(forms.ModelForm):
-	file = forms.FileField(
-		widget=forms.ClearableFileInput(attrs={'multiple': True}), 
-		help_text=_('These photos will be converted to a PDF file.')
-	)
-
+class PastPaperPhotoForm(forms.ModelForm, PhotoUploadMixin):
 	class Meta:
 		model = PastPaperPhoto
 		fields = ('file', )
@@ -50,12 +44,6 @@ class PastPaperForm(forms.ModelForm):
 		required=False,
 		help_text=_('Pdf file of the past paper. Leave it empty if you will upload photos instead.')
 	)
-	# this field will be used with the PastPaperPhotoForm 
-	# photos = forms.ImageField(
-	# 	widget=forms.FileInput(attrs={'multiple': True}),
-	# 	required=False,
-	# 	help_text=_('Hold down "Control", or "Command" on a Mac, to select more than one. <br> Leave it empty if you have uploaded a file instead.')
-	# )
 	
 	class Meta:
 		model = PastPaper

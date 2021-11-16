@@ -8,6 +8,7 @@ we need to inherit from the base template...
 
 {% load static %} 
 {% load i18n %} 
+{% load thumbnail %}
 {% load app_extras %}
 
 {% block head %}
@@ -27,7 +28,7 @@ we need to inherit from the base template...
 				{% trans 'You are not logged in.' %} 
 				<p class="text-dark mt-1 mb-0">
 					{% trans 'Click' %} 
-					<a href="{% url 'users:login' %}" target="_blank">
+					<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
 						{% trans 'here' %}
 					</a> 
 					{% trans 'to login to your account' %} 
@@ -54,6 +55,7 @@ we need to inherit from the base template...
 			class="js-file-upload" 
 			type="file" 
 			name="file"
+			accept="image/png, image/jpeg"
 			style="display: none;" 
 			data-url="{% url 'core:photo-upload' form_for=form_for %}"
 			data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'

@@ -54,10 +54,9 @@ def mark_post_notifs_as_read(request, category, obj_id, app_name, model_name):
 	)
 	post_category_notifs.mark_all_as_read()
 	
-	_next = request.GET.get('next')
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
 
-	if _next:
-		return redirect(_next)
 	return redirect('notifications:unread')
 
 
@@ -68,10 +67,9 @@ def mark_all_post_notifs_as_read(request, category):
 	)
 	category_notifs.mark_all_as_read()
 	
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
@@ -86,10 +84,9 @@ def delete_post_notifs(request, category, obj_id, app_name, model_name):
 	)
 	post_category_notifs.delete()
 	
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
@@ -101,10 +98,9 @@ def delete_all_post_notifs(request, category):
 	)
 	category_notifs.delete()
 	
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
@@ -112,10 +108,9 @@ def delete_all_post_notifs(request, category):
 @login_required
 def mark_category_as_read(request, category):
 	request.user.notifications.filter(category=category).mark_all_as_read()
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
@@ -123,20 +118,18 @@ def mark_category_as_read(request, category):
 @login_required
 def delete_category_notifs(request, category):
 	request.user.notifications.filter(category=category).delete()
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
 @login_required
 def mark_all_as_read(request):
 	request.user.notifications.mark_all_as_read()
-	_next = request.GET.get('next')
-
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+		
 	return redirect('notifications:unread')
 
 
@@ -145,9 +138,8 @@ def mark_as_read(request, id):
 	notification = get_object_or_404(Notification, recipient=request.user, id=id)
 	notification.mark_as_read()
 
-	_next = request.GET.get('next')
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
 
 	return redirect('notifications:unread')
 
@@ -157,9 +149,8 @@ def mark_as_unread(request, id):
 	notification = get_object_or_404(Notification, recipient=request.user, id=id)
 	notification.mark_as_unread()
 
-	_next = request.GET.get('next')
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
 
 	return redirect('notifications:unread')
 
@@ -175,9 +166,8 @@ def delete(request, id):
 	else:
 		notification.delete()
 
-	_next = request.GET.get('next')
-	if _next:
-		return redirect(_next)
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
 
 	return redirect('notifications:all')
 

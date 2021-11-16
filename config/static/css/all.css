@@ -25,6 +25,43 @@ img {
 	border-bottom: dotted;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* remove default styling from button */
+.no-style-button {
+    border: none;
+    background: none;
+}
+
+/* change default bootstrap blue glow */
+.form-control:focus,
+.form-select:focus {
+    border-color: #198754; /* equivalent to rgb(25, 135, 84) */
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(25, 135, 84, 0.6);
+}
+
+.form-check-input:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 .25rem rgba(25, 135, 84, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* change color(fill) of small round circle; %23198754 => #198754(bootstrap success) */
+.form-switch .form-check-input:focus {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23198754'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+
 /** images on listing (list) pages */
 .post-img {
 	width: 110px;
@@ -32,23 +69,16 @@ img {
 }
 
 
-/* make bootstrap tooltips flexible, use alongsite data-container="body" */
+/* style bootstrap tooltips  */
 .share-tooltip .tooltip-inner {
-	max-width: 100%;
+	max-width: 100%; /* use alongside data-container="body" */
+    background-color: #444;
 }
 
-/* button that looks like link */
-/* .button-link {
-	border: none;
-	outline: none;
-	background: none;
-	cursor: pointer;
-	padding: 0;
-	color: #0000EE;
-	text-decoration: underline;
-	font-family: inherit;
-	font-size: inherit;
-} */
+.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #444;
+}
+
 
 .header-top {
 	padding-top: .3rem;
@@ -61,8 +91,19 @@ img {
 
 .logo__img {
 	width: 260px;
+    height: 72px;
 }
 
+.lang-switcher--selected {
+    border: 2px groove #16b76c;
+}
+
+.lang-switcher__img {
+    height: 25px;
+}
+
+/* desktop mode notifier circle */
+/* remember, mobile sets the attribute on the style object */
 .notifier-circle {
 	right: 1px;
 	top: -8px;
@@ -118,31 +159,6 @@ img {
 	vertical-align: 0.1em;
 }
 
-.lang-select-form {
-	width: 10rem;
-}
-
-/* .lang-select-form--unauthed {
-	
-} */
-
-.lang-select-form--authed {
-	margin-left: 2.5rem;
-}
-
-.lang-select--unauthed {
-	/* text-align: right; */
-	width: 90%;
-}
-
-/* .lang-select--authed {
-
-} */
-
-/* .notifs-and-profile {
-
-} */
-
 
 /* Notifications */
 .notif-item-link {
@@ -150,18 +166,10 @@ img {
 	border-bottom: 1px dotted;
 }
 
-/* .register-and-login {
-	justify-content: right;
-} */
-
 .header-notifs-svg {
 	position: relative;
 	top: .4rem;
 	padding-left: 1px;
-}
-
-.header-notifs-link__text {
-	font-size: .72rem;
 }
 
 .header-notifs-link,
@@ -218,7 +226,6 @@ img {
 .form-submit-button:hover,
 .institution-search-form__submit-button:active,
 .institution-search-form__submit-button:hover {
-	/* color: #2a2730; */
 	color: #ffe484;
 	background-color: #3f996f;
 	border-color: #ffe484;
@@ -227,8 +234,6 @@ img {
 .section-title {
 	font-size: 1.62rem;
 	border-bottom: 1px solid #198754;
-	/* padding-bottom: 10px; */
-	/* border-bottom: 1px solid #93999F; */
 }
 
 .section-title__text {
@@ -272,10 +277,6 @@ img {
 	color: #84ee84;
 	display: inline-block;
 }
-
-/* .footer__link:focus {
-	color: black;
-} */
 
 .footer__link:focus,
 .footer__link:hover {
@@ -378,8 +379,8 @@ img {
 
 }
 
-/* flag.css */
 
+/* flag.css */
 .flag-report-modal {
     display: none;
     position: fixed;
@@ -387,7 +388,6 @@ img {
     padding-top: 5rem;
     left: 0;
     top: 0;
-    /* width: 80%; */
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
@@ -491,15 +491,10 @@ img {
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
-    /* .flag-report-modal {
-        width: 100%;
-    } */
+    
 }
 
 /* lost_or_found.css */
-/** EXTRA CSS FOR THE lost_or_found SITE */
-
-/* Forms (create templates) */
 .founditem-form-container,
 .lostitem-form-container {
     width: 70%;
@@ -510,13 +505,6 @@ img {
     /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); */
     padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
 }
-
-/* Listings */
-
-/* .lostitems-search-form-wrp {
-    background-color: #f6f6f6;
-    /* border: 1px solid #ccc; 
-} */
 
 .founditems-search-form,
 .lostitems-search-form {
@@ -603,9 +591,6 @@ img {
 }
 
 /* marketplace.css */
-/** EXTRA CSS FOR THE MARKETPLACE SITE */
-
-/** Listing creation forms (advert and item listings) */
 .listing-form-container {
     width: 70%;
 }
@@ -622,11 +607,6 @@ img {
     width: 130px;
     height: 70px;
 }
-
-/** Item listing detail */
-/* .listing-wrp {
-    flex-direction: column;
-} */
 
 .listing-title {
     font-variant: small-caps;
@@ -667,10 +647,6 @@ img {
     border: 1px solid #ccc;
 }
 
-/* .listing-search-form {
-    width: 85%;
-} */
-
 .post {
     border-bottom: 1px solid #ddd;
 }
@@ -709,9 +685,6 @@ img {
 }
 
 /* past_papers.css */
-/** EXTRA CSS FOR THE PAST_PAPERS SITE */
-
-/** Past paper creation form */
 .pastpaper-form-container,
 .pastpaper-edit-comment-form-container {
     width: 70%;
@@ -764,9 +737,7 @@ img {
 
 }
 
-/* qa_site.css */
-/** EXTRA CSS FOR THE QA_SITE */
-
+/** qa_site.css */
 /* Question creation templates */
 .comment-form-container,
 .answer-form-container,
@@ -782,20 +753,11 @@ img {
     padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
 }
 
-/* Answer and comment edit and deletion templates */
-
-
 /* Ck-editor widgets */
 /* question form widget */
 .django-ckeditor-widget {
 	width: 100%;
 }
-
-/* #cke_addQuestionCommentArea,
-.cke_editor_addQuestionCommentArea {
-	width: 50%;
-} */
-
 
 /* Questions detail view pages */
 .question-header {
@@ -822,7 +784,6 @@ img {
 }
 
 
-
 /*** MEDIA QUERIES ***/
 
 /* lg and above */
@@ -840,10 +801,6 @@ img {
 
 /* xs, sm, md. (lg is from >= 992px) */
 @media (max-width: 991.98px) {
-	/* .question-list-art {
-
-	} */
-
 	.comment-form-container,
 	.answer-form-container,
 	.school-question-form-container,
@@ -858,28 +815,14 @@ img {
         padding-left: 1rem; /* ps-3 */
         padding-right: 1rem; 
     }
-
-	/* #cke_addQuestionCommentArea,
-	.cke_editor_addQuestionCommentArea {
-		width: 100%;
-	} */
-
-	/* .question-list-art {
-		width: 100%;
-		margin: 0;
-	} */
 }
 
 /* requested_items.css */
-/** EXTRA CSS FOR THE REQUESTED_ITEMS SITE */
-
-/* Forms (create templates) */
 .requested-item-form-container {
     width: 70%;
 }
 
 .requested-item-form {
-    /* box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); */
     padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
 }
 
@@ -888,14 +831,8 @@ img {
     width: 70%;
 }
 
-/* .requested-items-search-form-wrp {
-    background-color: #f6f6f6;
-    /* border: 1px solid #ccc; 
-} */
-
 .requested-items-search-form {
     background-color: #f6f6f6;
-    /* width: 85%; */
 }
 
 
@@ -907,11 +844,6 @@ img {
 .number-box__whatsapp {
     cursor: pointer;
 }
-
-/* .similar-item__img {
-    width: 10rem;
-    height: 4rem;
-} */
 
 .similar-req-item__img {
     /* (width, height) = (80px, 80px) is the pair corresponding to fa-5x on font-awesome icon */
@@ -925,9 +857,6 @@ img {
     .requested-item-info {
         width: 35%;
     }
-    /* .requested-item-photo-section {
-        padding-right: 3rem; /* pe-5 
-    } */
 }
 
 /* xs, sm, md. (lg is from >= 992px) */
@@ -945,14 +874,10 @@ img {
 }
 
 /* socialize.css */
-/** EXTRA CSS FOR THE SOCIALIZE SITE */
-
-/* Creation page */
 .socialize-form-container {
     width: 75%;
 }
 
-/* listing page */
 .profiles-list-art,
 .profile-filter-art {
 	width: 75%;
@@ -987,7 +912,7 @@ img {
         width: 100%;
     }
 	
-	.profiles-list-art,  /** added.. */
+	.profiles-list-art, 
 	.profile-filter-art {
 		width: 100%;
 		margin: 0;

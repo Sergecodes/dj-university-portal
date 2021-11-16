@@ -8,11 +8,11 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
-from core.utils import get_edit_numbers_url
+from core.utils import get_edit_profile_url, PhotoUploadMixin
 from .models import RequestedItem, RequestedItemPhoto
 
 
-class RequestedItemPhotoForm(forms.ModelForm):
+class RequestedItemPhotoForm(forms.ModelForm, PhotoUploadMixin):
 	class Meta:
 		model = RequestedItemPhoto
 		fields = ('file', )
@@ -73,17 +73,17 @@ class RequestedItemForm(forms.ModelForm):
 			),
 			HTML(" \
 				<a \
-					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
-					href=" + get_edit_numbers_url(user) + '>'
+					class='btn btn-outline link-success opacity-75 d-inline-block mb-4 pt-0' \
+					href=" + get_edit_profile_url(user) + '?next={{ request.get_full_path }}#phoneSection>'
 					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</a>"
 			),
 		)
 
 		if update:
-			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block"))
+			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block btn-success"))
 		else:
-			self.helper.add_input(Submit('submit', _('Post'), css_class="d-block"))
+			self.helper.add_input(Submit('submit', _('Post'), css_class="d-block btn-success"))
 
 
 

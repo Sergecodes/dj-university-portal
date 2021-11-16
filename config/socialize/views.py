@@ -3,10 +3,12 @@ import django_filters as filters
 from datetime import timedelta, timezone
 from django import forms
 from django_filters.views import FilterView
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -14,10 +16,10 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View 
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import DetailView
+from django.views.generic import DetailView, DeleteView
 from django.views.generic.base import TemplateView
 
-from core.constants import TEST_ACCOUNT_USERNAME
+from core.constants import TEST_ACCOUNT_USERNAME, CREATE_SOCIAL_PROFILE_POINTS_CHANGE
 from core.mixins import IncrementViewCountMixin
 from core.models import Institution
 from core.utils import get_random_profiles, translate_text
@@ -80,25 +82,26 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 		if social_profile_form.is_valid() and social_media_form.is_valid():
 			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
+			current_lang = get_language()
 
 			## TRANSLATION
-			# get current language and language to translate to
-			current_lang = get_language()
-			trans_lang = 'fr' if current_lang == 'en' else 'en'
+			if settings.ENABLE_GOOGLE_TRANSLATE:
+				# get language to translate to
+				trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-			translatable_fields = ['speciality', 'about_me', 'hobbies', ]
-			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+				translatable_fields = ['speciality', 'about_me', 'hobbies', ]
+				translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+				
+				# fields that need to be translated. (see translation.py)
+				# omit slug because google corrects the slug to appropriate string b4 translating.
+				# see demo in google translate .
+				field_values = [getattr(social_profile, field) for field in translatable_fields]
+				trans_results = translate_text(field_values, trans_lang)
 			
-			# fields that need to be translated. (see translation.py)
-			# omit slug because google corrects the slug to appropriate string b4 translating.
-			# see demo in google translate .
-			field_values = [getattr(social_profile, field) for field in translatable_fields]
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(social_profile, trans_field, result_dict['translatedText'])
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(social_profile, trans_field, result_dict['translatedText'])
 
 			social_profile.user = request.user
 			social_profile.social_media = social_media
@@ -179,38 +182,38 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 		if social_profile_form.is_valid() and social_media_form.is_valid():
 			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
+			current_lang = get_language()
 
 			## TRANSLATION
-			changed_data = social_profile_form.changed_data
+			if settings.ENABLE_GOOGLE_TRANSLATE:
+				changed_data = social_profile_form.changed_data
 
-			# get fields that are translatable(permitted to be translated)
-			permitted_fields = ['speciality', 'about_me', 'hobbies', ]
+				# get fields that are translatable(permitted to be translated)
+				permitted_fields = ['speciality', 'about_me', 'hobbies', ]
 
-			updated_fields = [
-				field for field in changed_data if \
-				not field.endswith('_en') and not field.endswith('_fr')
-			]
-			desired_fields = [field for field in updated_fields if field in permitted_fields]
+				updated_fields = [
+					field for field in changed_data \
+					if not field.endswith('_en') and not field.endswith('_fr')
+				]
+				desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-			current_lang = get_language()
-			trans_lang = 'fr' if current_lang == 'en' else 'en'
+				trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-			# get and translated values that need to be translated
-			field_values = [getattr(social_profile, field) for field in desired_fields]
+				# get and translated values that need to be translated
+				field_values = [getattr(social_profile, field) for field in desired_fields]
 
-			if field_values:
-				trans_results = translate_text(field_values, trans_lang)
-				
-				# get fields that need to be set after translation
-				translate_fields = [field + '_' + trans_lang for field in desired_fields]
+				if field_values:
+					trans_results = translate_text(field_values, trans_lang)
+					
+					# get fields that need to be set after translation
+					translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-				# each dict in trans_results contains keys: 
-				# `input`, `translatedText`, `detectedSourceLanguage`
-				for trans_field, result_dict in zip(translate_fields, trans_results):
-					setattr(social_profile, trans_field, result_dict['translatedText'])
+					# each dict in trans_results contains keys: 
+					# `input`, `translatedText`, `detectedSourceLanguage`
+					for trans_field, result_dict in zip(translate_fields, trans_results):
+						setattr(social_profile, trans_field, result_dict['translatedText'])
 
-				social_profile.update_language = current_lang
-
+			social_profile.update_language = current_lang
 			social_profile.social_media = social_media
 			social_profile.save()
 			
@@ -405,9 +408,10 @@ class SocialProfileDetail(
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		profile = self.object
+		profile, current_user = self.object, self.request.user
 		social_media = profile.social_media
 
+		context['can_delete'] = current_user.is_staff or current_user.social_profile == self.object
 		context['profile_user'] = profile.user
 		context['profile_info'] = {
 			_('Level'): profile.get_level_display(),
@@ -431,6 +435,67 @@ class SocialProfileDetail(
 		}
 		
 		return context
+
+
+class SocialProfileDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+	model = SocialProfile
+	success_url = '/'
+
+	def get_object(self):
+		# don't use request.user 
+		# since moderator or staff could be the ones calling this view.
+		if not hasattr(self, '_object'):
+			# this will lead to a 404 only if staff initiates the view.
+			# see test_func
+			self._object = get_object_or_404(SocialProfile, user__username=self.kwargs.get('username'))
+			
+		return self._object
+
+	def test_func(self):
+		"""
+		Restrict access to only staff and users whose username is the current username 
+		and this user should have a social profile.
+		"""
+		user, passed_username = self.request.user, self.kwargs.get('username')
+
+		if user.is_staff:
+			return True
+
+		if user.username == passed_username and user.has_social_profile:
+			return True
+			
+		return False
+
+	def get_permission_denied_message(self):
+		user, passed_username = self.request.user, self.kwargs.get('username')
+		if user.username != passed_username:
+			return _('You cannot delete this social profile, it does not belong to you.')
+
+		# if username is user's but he doesn't have a social profile
+		if not user.has_social_profile:
+			return _("You do not have a social profile.")
+			
+		return super().get_permission_denied_message()
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['object'] = self.get_object()
+		context['connect_profile_points'] = CREATE_SOCIAL_PROFILE_POINTS_CHANGE
+
+		return context
+
+	def delete(self, request, *args, **kwargs):
+		# deduct previously added points for connecting profile before deleting
+		
+		# don't use request.user 
+		# since staff could be the one calling this view.
+		social_profile = self.get_object()
+		user = social_profile.user
+		user.site_points = F('site_points') - CREATE_SOCIAL_PROFILE_POINTS_CHANGE
+		user.save(update_fields=['site_points'])
+
+		social_profile.delete()
+		return redirect(self.success_url)
 
 
 @user_passes_test(

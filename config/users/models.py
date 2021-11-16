@@ -249,13 +249,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 				)
 			)
 
-		## TRANSLATION 
-		# get current language and language to translate to
 		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		translated_content = translate_text(new_answer.content, trans_lang)['translatedText']
-		setattr(new_answer, f'content_{trans_lang}', translated_content)
+		## TRANSLATION
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
+			translated_content = translate_text(new_answer.content, trans_lang)['translatedText']
+			setattr(new_answer, f'content_{trans_lang}', translated_content)
 
 		new_answer.poster = self
 		new_answer.question = question

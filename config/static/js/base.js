@@ -6,7 +6,8 @@ var MIN_PASSWORD_LENGTH = 8;
 var MIN_LISTING_PHOTOS = 3;
 
 var $window = $(window);
-// if you calculate the $window.width() here, you might face FOUC warnings(if this script comes before body) ..
+// if you calculate the $window.width() here, 
+// you might face FOUC warnings(if this script comes before body) ..
 // so instead, create a global variable lastWidth and reference it later.
 // var lastWidth = $window.width();
 var lastWidth;
@@ -85,7 +86,6 @@ function headerAccountInfoHoverOrClick(event) {
 
 
 function headerAccountInfoMouseLeave() {
-	// var dropdownMenu = $(this).children('.dropdown-menu-end');
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
 	dropdownMenu.removeClass("show");
 	dropdownMenu.hide();
@@ -123,6 +123,14 @@ function loginDropdownMouseLeave() {
  */
 function isNumeric(val) {
 	return /^\d+$/.test(val);
+}
+
+
+/** 
+ * Generate a random id 
+ * Used in the academic and school detail pages for ckeditor instances */
+function uid() {
+	return "id" + Math.random().toString(16).slice(2);
 }
 
 
@@ -172,9 +180,12 @@ function signupAndEditSubmit(e) {
 	var usernameOkay = false, fullNameOkay = false;
 	var phoneNumOkay = false, passwordOkay = false;
 
-	// edit profile form has no password fields so just assume its password is okay.
-	if (form.name == 'edit-profile-form') {
-		passwordOkay = true;
+	/* Full name validation here */
+	var fullName = form.full_name.value;
+	if (!validateFullName(fullName)) {
+		$container.append("<p>" + data.fullNameError + "</p>");
+	} else {
+		fullNameOkay = true;
 	}
 
 	/* Username validation here */
@@ -185,20 +196,12 @@ function signupAndEditSubmit(e) {
 		usernameOkay = true;
 	}
 
-	/* Full name validation here */
-	var fullName = form.full_name.value;
-	if (!validateFullName(fullName)) {
-		$container.append("<p>" + data.fullNameError + "</p>");
-	} else {
-		fullNameOkay = true;
-	}
-	
-
 	/* Password validation here  */
-	// prevent validation in edit form since it doesn't contain any password field
-	if (form.name != 'edit-profile-form') {
+	// edit profile form has no password fields so just say its password is okay.
+	if (form.name == 'edit-profile-form') {
+		passwordOkay = true;
+	} else {
 		var password = form.password1.value;
-		var passwordConfirm = form.password2.value;
 	
 		// verify password length and whether password is not entirely numeric
 		if (password.length < MIN_PASSWORD_LENGTH || isNumeric(password)) {
@@ -206,19 +209,11 @@ function signupAndEditSubmit(e) {
 		} else {
 			passwordOkay = true;
 		}
-	
-		// note: do not set passwordOkay = true in case the passwords match. 
-		// this may be wrong since the previous validation might have had errors..
-		// same for other validations such as phone number..
-		if (password !== passwordConfirm) {
-			passwordOkay = false;
-			$container.append("<p>" + data.passwordMatchError + "</p>");
-		} 
 	}
 
 	/* Phone number validation here */
 	// validate that numbers are valid(may contain only digits and spaces, no other characters.)
-	var $numberInputs = $("tbody .numberinput");
+	var $numberInputs = $("tbody .js-number");
 	var numbers = [];
 	// $numberInputs.each(function(index) {
 	// 	var number = this.value;
@@ -226,10 +221,9 @@ function signupAndEditSubmit(e) {
 	// 	numbers.push(number.replace(/\s/g, ''));
 	// });
 
-	$numberInputs.each(function(index) {
-		var number = this.value;
-		numbers.push(number);
-	})
+	$numberInputs.each(function() {
+		numbers.push(this.value);
+	});
 
 	// test if phone numbers are valid
 	phoneNumOkay = true;
@@ -237,12 +231,12 @@ function signupAndEditSubmit(e) {
 		if(!hasOnlySpacesAndDigits(numbers[i])) {  
 			phoneNumOkay = false;
 			$container.append("<p>" + data.phoneNumError + "</p>");
-			// if there is any invalid number, break loop
+			// if there is any invalid number, break out of loop
 			break;
 		}
 	}
 
-	// validate if at least one number supports WhatsApp
+	/* validate that at least one number supports WhatsApp */
 	var $checkboxes = $("tbody .checkboxinput");
 	var can_whatsapp_list = [];
 	$checkboxes.each(function() {
@@ -267,6 +261,7 @@ function signupAndEditSubmit(e) {
 	// add alert styles if there were any errors
 	if (!phoneNumOkay || !passwordOkay || !fullNameOkay || !usernameOkay) {
 		e.preventDefault();
+
 		$container.addClass('alert alert-danger');
 		alert(data.alertContent);
 
@@ -604,10 +599,10 @@ $(document).ready(function() {
 	init();
 	lastWidth = $window.width();
 
-	var $languageSelect = $(".js-languageSelect");
-	$languageSelect.on('change', function() {
-		$(this).closest('form').submit();
-	});
+	// var $languageSelect = $(".js-languageSelect");
+	// $languageSelect.on('change', function() {
+	// 	$(this).closest('form').submit();
+	// });
 
 });
 

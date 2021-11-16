@@ -14,11 +14,12 @@
 {% block content %}
 <div class="container-lg mb-5">
 	<div class="d-flex justify-content-center">
+		{# modify form submit event if this form's name attribute is changed #}
 		<form 
+			name="edit-profile-form"
 			class="shadow rounded p-4 user-form user-form--edit" 
 			action="{% url 'users:edit-profile' username=user.username %}" 
 			method="post"
-			name="edit-profile-form"
 		>
 			{% csrf_token %}
 
@@ -30,13 +31,9 @@
 			<div class="js-errors" role="alert"></div>
 		
 			{{ form|crispy }}
-			
-			<!-- use this hidden field to also submit email, 
-				email isn't submitted because it's disabled. 
-				it is placed below the form so as to override the email field 
-				(since they have the same "name" attribute) 
-			-->
-			<input type="hidden" name="email" value="" class="js-dummyEmail">
+
+			<!-- add next url to form-->
+			<input type="hidden" name="next" value="{{ request.GET.next }}">
 
 			<!-- to get to this section from other pages (such as contact number edit) -->
 			<a href="#" id="phoneSection"></a>
@@ -51,17 +48,17 @@
 
 			<!-- Formset for entering phone number -->
 			<div class="table-responsive">
-				<table id="phoneNumbers" class="table table-hover js-phoneNumbersTable">
+				<table id="phoneNumbers" class="table js-phoneNumbersTable">
+
+					{% comment %} {{ formset.non_form_errors }} {% endcomment %}
 					{% for form in formset.forms %}
 						{% if forloop.first %}
 						<thead>
 							<tr>
 								{% for field in form.visible_fields %}
-									{% comment %} {% if field.name != 'DELETE' %} {% endcomment %}
-										<th scope="col">
-											{{ field.label }}
-										</th>
-									{% comment %} {% endif %} {% endcomment %}
+									<th scope="col">
+										{{ field.label }}
+									</th>
 								{% endfor %}
 							</tr>
 						</thead>
@@ -80,15 +77,15 @@
 						{# each tr is a form in formset.forms #}
 						<tr class="formset_row">
 							{% for field in form.visible_fields %}
-									<td>
-										{# Include the hidden fields in the form #}
-										{% if forloop.first %}
-											{% for hidden in form.hidden_fields %}
-												{{ hidden }}
-											{% endfor %}
-										{% endif %}
-										{{ field|as_crispy_field }}
-									</td>
+								<td>
+									{# Include the hidden fields in the form #}
+									{% if forloop.first %}
+										{% for hidden in form.hidden_fields %}
+											{{ hidden }}
+										{% endfor %}
+									{% endif %}
+									{{ field|as_crispy_field }}
+								</td>
 							{% endfor %}
 						</tr>
 					{% endfor %}
@@ -122,39 +119,11 @@
 		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
 	});
 
-	/* Arrange formset table */
-	var $formsetTable = $('.js-phoneNumbersTable').first();
-
-	var $numberDivs = $formsetTable.find('.js-number').parent();
-	var $operatorDivs = $formsetTable.find('.js-operator').parent();
-	$numberDivs.css('width', '12rem');
-	$operatorDivs.css('width', '7rem');
-
-	// hide "Remove" button from the first phone number since user must have at least one number
-	$('.delete-row').first().hide();
-	
-	// remove labels from crispy fields in table
-	$formsetTable.find('label').hide();
-
-	// set all phone number input fields to required
-	$formsetTable.find('.js-number').each(function(index) {
-		var $this = $(this);
-		if ($this.is(":visible")) {
-			$this.attr('required', '');
-		}
-	});
-
-	// style formset errorlist
-	var $errlist = $('ul.errorlist');
-	$errlist.addClass('list-group');   // add bootstrap class
-	$errlist.children('li').addClass('list-group-item list-group-item-danger');
-
-	// email field isn't submitted to form since it's a disabled field
-	// set value of the hidden email field to the real email field that won't be submitted
-	var $dummyEmail = $('input.js-dummyEmail');
+	// insert user email in input box
 	var $realEmail = $("input[type='email']").first();
-	$dummyEmail.val($realEmail.val());
+	$realEmail.val("{{ user.email }}");
 
+	/* Arrange formset table */
 	$('.formset_row').formset({
 		addText: "{% trans 'Add phone number' %}",
 		// deleteText: "{% trans 'Remove' %}",
@@ -167,14 +136,14 @@
 			// do this to re-remove the button from the first form
 			$('.delete-row').first().hide();
 
-			// remove labels from newly added form fields
-			$newForm.find('label').hide();
-
 			// style operator div as above
 			$newForm.find('.js-operator').parent().css('width', '7rem');
 
+			// remove labels from newly added form fields
+			$newForm.find('label').hide();
+
 			// set its phone number input field to required
-			$newForm.find('.js-number').each(function(index) {
+			$newForm.find('.js-number').each(function() {
 				var $this = $(this);
 				if ($this.is(":visible")) {
 					$this.attr('required', '');
@@ -190,6 +159,32 @@
 		},
 	});
 
+	var $formsetTable = $('.js-phoneNumbersTable').first();
+
+	var $numberDivs = $formsetTable.find('.js-number').parent();
+	var $operatorDivs = $formsetTable.find('.js-operator').parent();
+	$numberDivs.css('width', '12rem');
+	$operatorDivs.css('width', '7rem');
+
+	// hide "Remove" button from the first phone number 
+	// since user must have at least one number
+	$('.delete-row').first().hide();
+	
+	// remove labels from crispy fields in table
+	$formsetTable.find('label').hide();
+
+	// set all phone number input fields to required
+	$formsetTable.find('.js-number').each(function() {
+		var $this = $(this);
+		if ($this.is(":visible")) {
+			$this.attr('required', '');
+		}
+	});
+
+	// style formset errorlist
+	var $errlist = $('ul.errorlist');
+	$errlist.addClass('list-group');   // add bootstrap class
+	$errlist.children('li').addClass('list-group-item list-group-item-danger');
 
 	// attach event to edit form
 	var $form = $("[name='edit-profile-form']");

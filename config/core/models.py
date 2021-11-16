@@ -4,7 +4,9 @@ from django.core.validators import validate_email
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.model_fields import NormalizedEmailField
+from core.constants import IMAGE_HOLDER_UPLOAD_DIR
+from core.model_fields import DynamicStorageImageField, NormalizedEmailField
+from core.utils import PhotoModelMixin
 from flagging.models import Flag
 
 
@@ -77,4 +79,14 @@ class Post(models.Model):
 	# def is_outdated(self):
 	# 	"""Returns whether a post is outdated(has expired)"""
 	# 	return self.expiry_datetime < timezone.now()
+
+
+class ImageHolder(models.Model, PhotoModelMixin):
+	"""Permit storing an image in storage to a model object."""
+	# see https://stackoverflow.com/a/12917845/  
+	# (answer to question programmatically saving image to Django ImageField)
+	
+	# this upload_to directory is useless, since this model is used with files that
+	# have already been saved...
+	file = DynamicStorageImageField(upload_to=IMAGE_HOLDER_UPLOAD_DIR)
 

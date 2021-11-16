@@ -10,10 +10,6 @@
 	<title>{% trans 'Past Papers' %} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" href="{% static 'minified/css/past_papers.min.css' %}">  -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -34,12 +30,13 @@
 						{% trans 'Levels' %}
 					</button>
 					<div class="dropdown-menu ps-3 pt-3" aria-labelledby="levelsMenuButton">
-					<p>{% trans 'The codes for the levels are as follows: ' %}</p>
-					<ul class="row">
-						{% for entry in levels %}
-							<li class="col-lg-2 mx-lg-1 mb-2">{{ entry.0 }} - {{ entry.1 }}</li>
-						{% endfor %}
-					</ul>
+						<p>{% trans 'The codes for the levels are as follows: ' %}</p>
+						<ul class="row">
+							{% for entry in levels %}
+								<li class="col-lg-2 mx-lg-1 mb-2">{{ entry.0 }} - {{ entry.1 }}</li>
+							{% endfor %}
+						</ul>
+					</div>
 				</div>
 			</p>
 			<a href="{% url 'past_papers:past-paper-upload' %}" class="btn btn-warning mb-3">

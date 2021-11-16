@@ -19,6 +19,11 @@ urlpatterns = [
         name='view-profile'
     ),
     path(
+        _('<str:username>/delete-profile/'), 
+        views.SocialProfileDelete.as_view(), 
+        name='delete-profile'
+    ),
+    path(
         _('<str:username>/update-social-profile/'), 
         views.SocialProfileUpdate.as_view(), 
         name='update-profile'

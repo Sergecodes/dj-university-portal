@@ -1,16 +1,19 @@
 from ckeditor.fields import RichTextField
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.template.defaultfilters import capfirst
 from django.urls import reverse
-from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
 from core.models import Post, Institution
-from core.storage_backends import PublicMediaStorage
+from core.utils import PhotoModelMixin
 
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
 
 
@@ -56,11 +59,12 @@ class ItemCategory(models.Model):
 		verbose_name_plural = 'Item Categories'
 
 
-class ItemListingPhoto(models.Model):
-	# name of photo on disk (name without extension)
-	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	# title = models.CharField(max_length=60, blank=True) 
-	file = models.ImageField(storage=PublicMediaStorage(), upload_to=LISTING_PHOTOS_UPLOAD_DIR)
+class ItemListingPhoto(models.Model, PhotoModelMixin):
+	# file = DynamicStorageImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIR)
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE, 
+		upload_to=LISTING_PHOTOS_UPLOAD_DIR
+	)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	
 	# many item_listing_photos can belong to one item_listing...
@@ -70,51 +74,36 @@ class ItemListingPhoto(models.Model):
 		related_name='photos',
 		related_query_name='photo',
 		null=True, blank=True  
-		# in reality, each photo should belong to a listing. null is set here because when uploading a photo, there was no way to link the saved photo to an unsaved(yet) listing instance. thus we save the photo first without a listing instance, then save the listing, then link the photo to the listing. thus in our db, we should always have a photo linked to an item listing.
-
-		# To prevent the event of a user uploading photos but not submitting a listing: 
-		# attach window.onunload event to page. if user clicks on submit button, we save a cookie ('clickedSubmit'). if he leaves page without clicking submit button(if there's no such cookie), send ajax request to server to delete photos that have been uploaded(can do so using session in backend..). Ultimately remove cookie.
-		#  the above will probably be unneccessary and will probably cause some server load. it should be done only if storage space is a concern.
 	)
+	# in reality, each photo should belong to a listing. 
+	# null is set here because when uploading a photo, 
+	# there was no way to link the saved photo to an unsaved(yet) listing instance. 
+	# thus we save the photo first without a listing instance, then save the listing, 
+	# then link the photo to the listing. 
+	# thus in our db, we should always have a photo linked to an item listing.
 
+	# To prevent the event of a user uploading photos but not submitting a listing: 
+	# attach window.onunload event to page. if user clicks on submit button, 
+	# we save a cookie ('clickedSubmit'). if he leaves page without clicking submit button
+	# (if there's no such cookie), send ajax request to server to delete photos 
+	# that have been uploaded(can do so using session in backend..). Ultimately remove cookie.
+	#  the above will probably be unneccessary and will probably cause some server load. 
+	# it should be done only if storage space is a concern.
+	
 	def __str__(self):
 		return self.actual_filename
-
-	@cached_property
-	def actual_filename(self):
-		"""
-		Get file name of file with extension (not relative path from MEDIA_URL).
-		If files have the same name, Django automatically appends a unique string to each file before storing.
-		This property(function) returns the name of a file (on disk) with its extension.
-		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-		"""
-		import os
-
-		return os.path.basename(self.file.name)
-
-	@cached_property
-	def title(self):
-		return self.actual_filename.split('.')[0]
-
-	# def save(self, *args, **kwargs):
-	# 	# first save and store file in storage 
-	# 	super().save(*args, **kwargs)
-
-	# 	# set title of file if it hasn't yet been saved
-	# 	if not self.title:
-	# 		self.title = self.actual_filename.split('.')[0]
-	# 		self.save(update_fields=['title'])
-			
-	# 	return self
-
+		
 	class Meta:
 		verbose_name = 'Item Listing Photo'
 		verbose_name_plural = 'Item Listing Photos'
 
 
-class AdListingPhoto(models.Model):
-	# title = models.CharField(max_length=60, blank=True) 
-	file = models.ImageField(storage=PublicMediaStorage(), upload_to=AD_PHOTOS_UPLOAD_DIR)
+class AdListingPhoto(models.Model, PhotoModelMixin):
+	# file = DynamicStorageImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE, 
+		upload_to=AD_PHOTOS_UPLOAD_DIR
+	)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	ad_listing = models.ForeignKey(
 		'AdListing',
@@ -124,27 +113,11 @@ class AdListingPhoto(models.Model):
 		null=True, blank=True  # same reason as above
 	)
 
-	class Meta:
-		verbose_name_plural = 'Ad Listing Photos'
-
 	def __str__(self):
 		return self.actual_filename
 
-	@cached_property
-	def actual_filename(self):
-		"""
-		Get file name of file with extension (not relative path from MEDIA_URL).
-		If files have the same name, Django automatically appends a unique string to each file before storing.
-		This property(function) returns the name of a file (on disk) with its extension.
-		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-		"""
-		import os
-
-		return os.path.basename(self.file.name)
-
-	@cached_property
-	def title(self):
-		return self.actual_filename.split('.')[0]
+	class Meta:
+		verbose_name_plural = 'Ad Listing Photos'
 
 
 class ListingPost(Post):

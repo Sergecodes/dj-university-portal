@@ -138,7 +138,7 @@
 				<div class="d-inline ms-2">
 					{% if user.is_anonymous %} 
 						{% get_login_url as login_url %}
-						<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+						<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
 							{% trans 'Report post' %}
 							<span>{% include "flag/flag_icon.html" %}</span>
 						</a> 

@@ -1,16 +1,19 @@
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import capfirst
 from django.urls import reverse
-from django.utils.functional import cached_property
 from django.utils.text import slugify
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
-from core.storage_backends import PublicMediaStorage
 from core.models import Post, Institution
+from core.utils import PhotoModelMixin
 from marketplace.models import ItemCategory
 
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
 
 
@@ -88,11 +91,11 @@ class RequestedItem(Post):
 		]
 
 
-class RequestedItemPhoto(models.Model):
-	# name of photo on disk (name without extension)
-	# this field will actually never be blank. it is blank because we first need to save the file on disk before it's value will be known
-	# title = models.CharField(max_length=60, blank=True) 
-	file = models.ImageField(storage=PublicMediaStorage(), upload_to=REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
+class RequestedItemPhoto(models.Model, PhotoModelMixin):
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE,
+		upload_to=REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
+	)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 	requested_item = models.ForeignKey(
 		RequestedItem,
@@ -103,24 +106,7 @@ class RequestedItemPhoto(models.Model):
 	)
 
 	def __str__(self):
-		return self.file.name  
-
-	@cached_property
-	def actual_filename(self):
-		"""
-		Get file name of file with extension (not relative path from MEDIA_URL).
-		If files have the same name, Django automatically appends a unique string to each file before storing.
-		This property(function) returns the name of a file (on disk) with its extension.
-		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-		"""
-		import os
-
-		return os.path.basename(self.file.name)
-
-	@cached_property
-	def title(self):
-		return self.actual_filename.split('.')[0]
-
+		return self.actual_filename
 
 	class Meta:
 		verbose_name = 'Requested Item Photo'

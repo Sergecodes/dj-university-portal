@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 ## CORE ##
+VALID_IMAGE_FILETYPES = ['PNG', 'JPEG']
 EXTERNAL_LINK_SVG = ' \
 	<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class=""> \
 		<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill=""> \
@@ -45,6 +46,8 @@ PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
 PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
 REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
 PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
+IMAGE_HOLDER_UPLOAD_DIR = 'temporal_photos/'
+
 
 ## FLAGGING app ##
 # this will be used to identify a bad user(user with some flagged posts)

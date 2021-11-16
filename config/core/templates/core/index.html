@@ -180,7 +180,7 @@
 									{{ listing.title|truncatechars:35 }}
 								</a>
 								<br class="mb-3">
-								{% if listing.school %}
+								{% if listing.school_id %}
 									<a 
 										class="text-decoration-none" 
 										href="{% url 'marketplace:ad-listing-list' %}?school_id={{ listing.school_id }}"
@@ -237,7 +237,7 @@
 									{{ requested_item.item_requested|truncatechars:35 }}
 								</a>
 								<br class="mb-3">
-								{% if requested_item.school %}
+								{% if requested_item.school_id %}
 									<a 
 										class="text-decoration-none" 
 										href="{% url 'requested_items:requested-item-list' %}?school_id={{ requested_item.school_id }}"
@@ -285,11 +285,11 @@
 							</a>
 							<a 
 								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
-								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject }}"
+								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
 							>
 								{{ past_paper.subject }}
 							</a>
-							{% if past_paper.school %}
+							{% if past_paper.school_id %}
 								<a 
 									class="small text-decoration-none" 
 									href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}"

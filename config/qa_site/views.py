@@ -1,5 +1,6 @@
 import django_filters as filters
 from django_filters.views import FilterView
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -55,33 +56,34 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		self.object = form.save(commit=False)
 		question, poster = self.object, self.request.user
+		current_lang = get_language()
 
 		## TRANSLATION (successfully translate before saving any object.)
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		translatable_fields = ['title', 'content', ]
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
-		
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
-		field_values = [getattr(question, field) for field in translatable_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(question, trans_field, result_dict['translatedText'])
+			translatable_fields = ['title', 'content', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(question, field) for field in translatable_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(question, trans_field, result_dict['translatedText'])
 
-		# if object was saved in say english, slug_en will be set but not slug_fr. 
-		# so get the slug in the other language
-		# also, at this point, these attributes will be set(translated)
-		if trans_lang == 'fr':
-			question.slug_fr = slugify(question.title_fr)
-		elif trans_lang == 'en':
-			question.slug_en = slugify(question.title_en)
+			# if object was saved in say english, slug_en will be set but not slug_fr. 
+			# so get the slug in the other language
+			# also, at this point, these attributes will be set(translated)
+			if trans_lang == 'fr':
+				question.slug_fr = slugify(question.title_fr)
+			elif trans_lang == 'en':
+				question.slug_en = slugify(question.title_en)
 
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
@@ -215,8 +217,8 @@ class AcademicQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView)
 		# recall that when user asks a question, he is given some points.
 		# remove those points now since he is deleting the question
 		# he should be told in frontend
-		
 		question = self.get_object()
+
 		# don't use request.user 
 		# since moderator or staff could be the ones calling this view.
 		# rather use question.poster
@@ -236,38 +238,38 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	def form_valid(self, form):
 		question = form.save(commit=False)
 		followers = question.followers.all()
+		current_lang = get_language()
 
 		## TRANSLATION
-		changed_data = form.changed_data
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			changed_data = form.changed_data
 
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = ['title', 'content', ]
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['title', 'content', ]
 
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
+			updated_fields = [
+				field for field in changed_data if \
+				not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(question, field) for field in desired_fields]
-		
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
+			# get and translated values that need to be translated
+			field_values = [getattr(question, field) for field in desired_fields]
 			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(question, trans_field, result_dict['translatedText'])
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(question, trans_field, result_dict['translatedText'])
 
-			question.update_language = current_lang
-
+		question.update_language = current_lang
 		question.save()
 
 		if 'tags' in changed_data:
@@ -370,25 +372,26 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 		self.object = form.save(commit=False)
 		school_question, poster = self.object, self.request.user
 		school_question.school = form.cleaned_data['school']
+		current_lang = get_language()
 
 		## TRANSLATION
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		translatable_fields = ['content', ]
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
-		
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
-		field_values = [getattr(school_question, field) for field in translatable_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(school_question, trans_field, result_dict['translatedText'])
+			translatable_fields = ['content', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(school_question, field) for field in translatable_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(school_question, trans_field, result_dict['translatedText'])
 
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
@@ -435,38 +438,38 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	def form_valid(self, form):
 		school_question = form.save(commit=False)
 		followers = school_question.followers.all()
+		current_lang = get_language()
 
 		## TRANSLATION
-		changed_data = form.changed_data
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			changed_data = form.changed_data
 
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = ['content', ]
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['content', ]
 
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
+			updated_fields = [
+				field for field in changed_data if \
+				not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(school_question, field) for field in desired_fields]
+			# get and translated values that need to be translated
+			field_values = [getattr(school_question, field) for field in desired_fields]
 		
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(school_question, trans_field, result_dict['translatedText'])
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(school_question, trans_field, result_dict['translatedText'])
 
-			school_question.update_language = current_lang
-
+		school_question.update_language = current_lang
 		school_question.save()
 
 		# notify users that are following this question
@@ -686,13 +689,15 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 		question = answer.question
 
 		if 'content' in form.changed_data:
-			## TRANSLATION
-			# get current language and language to translate to
 			current_lang = get_language()
-			trans_lang = 'fr' if current_lang == 'en' else 'en'
-			translated_content = translate_text(answer.content, trans_lang)['translatedText']
 
-			setattr(answer, f'content_{trans_lang}', translated_content)
+			## TRANSLATION
+			if settings.ENABLE_GOOGLE_TRANSLATE:
+				# get language to translate to
+				trans_lang = 'fr' if current_lang == 'en' else 'en'
+				translated_content = translate_text(answer.content, trans_lang)['translatedText']
+				setattr(answer, f'content_{trans_lang}', translated_content)
+
 			answer.update_language = current_lang
 			answer.save()
 

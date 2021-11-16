@@ -18,11 +18,11 @@
 			<h2 class="text-center mb-4 text-success">{% trans 'Login' %}</h2>
 			{{ form|crispy }}
 
-			<button type="submit" class="w-100 mt-1 mb-4 py-2 btn btn-success login-form__button">
+			<button type="submit" class="w-100 mt-2 mb-4 py-2 btn btn-success login-form__button">
 				{% trans 'LOGIN' %}
 			</button>
 			{# pass "next" url parameter to the view #}
-			<input type="hidden" name="next" value={{ next }}>
+			<input type="hidden" name="next" value="{{ next }}">
 
 			<p class="mt-1 mb-3">
 				<a href="{% url 'users:password-reset' %}" class="text-decoration-none">
@@ -32,9 +32,12 @@
 
 			<p class="mb-1">
 				{% trans "Don't have an account?" %}
+				{# no next param for sign up. #}
+				{# coz user will be sent a confirmation email ... #}
 				<a href="{% url 'users:register' %}">{% trans 'Create an account' %}</a>
 			</p>
 		</form>
 	</div>
 </div>
 {% endblock content %}
+

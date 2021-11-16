@@ -11,14 +11,14 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from core.models import Institution
-from core.utils import get_edit_numbers_url
+from core.utils import get_edit_profile_url, PhotoUploadMixin
 from .models import (
 	ItemListing, AdListing, ItemSubCategory,
 	ItemCategory, ItemListingPhoto, AdListingPhoto
 )
 
 
-class ItemListingPhotoForm(forms.ModelForm):
+class ItemListingPhotoForm(forms.ModelForm, PhotoUploadMixin):
 	class Meta:
 		model = ItemListingPhoto
 		fields = ('file', )
@@ -125,8 +125,8 @@ class ItemListingForm(forms.ModelForm):
 			# remove modal since unload listener is used...
 			HTML(" \
 				<a \
-					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
-					href=" + get_edit_numbers_url(user) + '>'
+					class='btn btn-outline link-success opacity-75 d-inline-block mb-4 pt-0' \
+					href=" + get_edit_profile_url(user) + '?next={{ request.get_full_path }}#phoneSection>'
 					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</a>"
 			),
@@ -136,9 +136,9 @@ class ItemListingForm(forms.ModelForm):
 
 		# if i insert the submit button via the html template, it will be out of the form.
 		if update:
-			self.helper.add_input(Submit('submit', _('Update item'), css_class="btn-lg d-block"))
+			self.helper.add_input(Submit('submit', _('Update item'), css_class="d-block btn-lg btn-success"))
 		else:
-			self.helper.add_input(Submit('submit', _('Post item'), css_class="btn-lg d-block"))
+			self.helper.add_input(Submit('submit', _('Post item'), css_class="d-block btn-lg btn-success"))
 
 	def clean_price(self):
 		"""Price should contain only spaces and digits. """
@@ -158,7 +158,7 @@ class ItemListingForm(forms.ModelForm):
 			return int(price)
 
 
-class AdListingPhotoForm(forms.ModelForm):
+class AdListingPhotoForm(forms.ModelForm, PhotoUploadMixin):
 	class Meta:
 		model = AdListingPhoto
 		fields = ('file', )
@@ -227,14 +227,14 @@ class AdListingForm(forms.ModelForm):
 			),
 			HTML(" \
 				<a \
-					class='btn btn-outline link-primary d-inline-block mb-4 pt-0' \
-					href=" + get_edit_numbers_url(user) + '>'
+					class='btn btn-outline link-success opacity-75 d-inline-block mb-4 pt-0' \
+					href=" + get_edit_profile_url(user) + '?next={{ request.get_full_path }}#phoneSection>'
 					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
 				"</a>"
 			),
 		)
 		if update:
-			self.helper.add_input(Submit('submit', _('Update advert'), css_class="btn-lg d-block"))
+			self.helper.add_input(Submit('submit', _('Update advert'), css_class="d-block btn-lg btn-success"))
 		else:
-			self.helper.add_input(Submit('submit', _('Post advert'), css_class="btn-lg d-block"))
+			self.helper.add_input(Submit('submit', _('Post advert'), css_class="d-block btn-lg btn-success"))
 

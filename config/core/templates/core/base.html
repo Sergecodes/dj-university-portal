@@ -3,10 +3,10 @@
 {% load notifications_tags %}
 {% load app_extras %}
 
-<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
-	
 {% block head %}
 <head>
 	{% block title %}
@@ -16,20 +16,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
 	<link rel="shortcut icon" type="image/x-icon" href="{% static 'icons/favicon.ico' %}">
-	{% comment %} <link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}"> {% endcomment %}
+	<!-- <link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}"> -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}">
+	<link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}"> 
+	<!-- <link rel="stylesheet" href="{% static 'css/all.css' %}"> -->
 	{% block extra_css %}
 	{% endblock extra_css %}
 
-	{% comment %} <script type="text/javascript" src="{% static 'js/jquery-3.5.1.min.js' %}"></script> {% endcomment %}
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-	{# bootstrap file is before body end #}
-	{% comment %} <script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script> {% endcomment %}
-	{# apparently, if this file is at the body bottom, some stuffs like the share tooltip malfunction #}
+	{# apparently, if the bootstrap js file is at the body bottom, some stuffs like the share tooltip in concerned files malfunction #}
+	<!-- <script type="text/javascript" src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>  -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
 	{% block extra_script_pre %}
 	{% endblock extra_script_pre %}
 </head>
@@ -41,7 +42,7 @@
 	{% block header %}
 	<header class="mb-4">
 		<div class="bg-gradient header-top">
-			<div class="container-fluid row align-items-center px-4">
+			<div class="container-fluid row align-items-center pe-lg-0">
 				<div class="text-center col-lg-3">
 					<a class="d-inline-block" href="{% url 'core:home' %}">
 						<img src="{% static 'images/yellow-logo.png' %}" class="logo__img" alt="CamerSchools home">
@@ -57,22 +58,30 @@
 						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
 					</form>
 				</div>
-				
-				<!-- Form to select language (desktop view) -->
-				<form action="{% url 'set_language' %}" method="post" class="d-none d-lg-block pe-0 lang-select-form {% if not user.is_authenticated %} lang-select-form--unauthed {% else %} lang-select-form--authed  {% endif %}">
-					{% csrf_token %}
-					<input name="next" type="hidden" value="{{ redirect_to }}">
-					<select name="language" class="form-select js-languageSelect {% if not user.is_authenticated %} form-select-sm lang-select--unauthed {% else %}  {% endif %}">
-							{% comment %} {% get_current_language as LANGUAGE_CODE %} {% endcomment %}
-							{% get_available_languages as LANGUAGES %}
-							{% get_language_info_list for LANGUAGES as languages %}
-							{% for language in languages %}
-								<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
-								</option>
-							{% endfor %}
-						</select>
-					<!-- form has no submit button, it's submitted when user clicks on an option; see js -->
-				</form>
+
+				<!-- Language select section area(desktop) -->
+				{# ensure the links work after modifying i18n-related settings. see comments under stackoverflow.com/q/18392405/issue-trying-to-change-language-from-django-template#comment81836795_18393243 #}
+				<div class="d-none d-lg-inline-block col-lg-auto ps-3">
+					<form action="{% url 'set_language' %}" method="post">
+						{% csrf_token %}
+						{# if english is the current language display England flag in span #}
+						{% if LANGUAGE_CODE == 'en' %}
+							<span class="d-inline-block me-1 lang-switcher lang-switcher--selected" title="{% trans 'English' %}">
+								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
+							</span>
+							<button type="submit" name="language" value="fr" class="me-1 no-style-button lang-switcher" title="{% trans 'French' %}">
+								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+							</button>
+						{% elif LANGUAGE_CODE == 'fr' %}
+							<button name="language" value="en" type="submit" class="me-1 no-style-button lang-switcher" title="{% trans 'English' %}">
+								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
+							</button>
+							<span class="d-inline-block me-1 lang-switcher--selected lang-switcher" title="{% trans 'French' %}">
+								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+							</span>
+						{% endif %}
+					</form>
+				</div>
 
 				{% if user.is_authenticated %}
 				<ul class="d-none d-lg-block col-lg-2 m-0 pe-0 text-center list-inline">
@@ -135,6 +144,7 @@
 						</div>
 					</li>
 				</ul>
+				
 				{% else %}
 				{# register-and-login class #}
 				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0">
@@ -145,14 +155,14 @@
 						<button
 							id="loginMenu"
 							type="button"
-							href="{% url 'users:login' %}"
+							href="{% url 'users:login' %}?next={{ request.get_full_path }}"
 							class="btn bg-primary link-light fw-bolder login-button" 
 							data-bs-toggle="dropdown" 
 							aria-expanded="false"
 						>
 							{% trans 'LOGIN' %}
 						</button>
-						<form class="dropdown-menu dropdown-menu-end px-2 dropdown-login-form" method="post" action="{% url 'users:login' %}" aria-labelledby="loginMenu">
+						<form class="dropdown-menu dropdown-menu-end px-2 dropdown-login-form" method="post" action="{% url 'users:login' %}?next={{ request.get_full_path }}" aria-labelledby="loginMenu">
 							{% csrf_token %}
 							<div class="mt-2 mb-3">
 								{# set the name attribute to "username" since Django uses the same name in it's login form #}
@@ -161,10 +171,10 @@
 							<div class="mb-4">
 								<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
 							</div>
-							<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary bg-gradient">{% trans 'LOGIN' %}</button>
+							<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-primary">{% trans 'LOGIN' %}</button>
 							<a href="{% url 'users:password-reset' %}" class="link-primary text-decoration-none border-bottom-dotted">{% trans 'Forgot Password' %}</a>
 							<hr class="mb-3">
-							<a href="{% url 'users:login' %}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
+							<a href="{% url 'users:login' %}?next={{ request.get_full_path }}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
 						</form>
 					</li>
 				</ul>
@@ -178,24 +188,47 @@
 				</button>
 
 				<!-- Language, notifs & profile section for mobile users -->
+				{# look up about what happens when you set left or right margin on flex-item #}
+				<div class="d-inline-block d-lg-none ps-4 pe-2 ms-auto">
+					<form action="{% url 'set_language' %}" method="post">
+						{% csrf_token %}
+						{# if english is the current language display England flag in span #}
+						{% if LANGUAGE_CODE == 'en' %}
+							<span class="d-inline-block me-1 lang-switcher lang-switcher--selected" title="{% trans 'English' %}">
+								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
+							</span>
+							<button type="submit" name="language" value="fr" class="me-1 no-style-button lang-switcher" title="{% trans 'French' %}">
+								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+							</button>
+						{% elif LANGUAGE_CODE == 'fr' %}
+							<button name="language" value="en" type="submit" class="me-1 no-style-button lang-switcher" title="{% trans 'English' %}">
+								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
+							</button>
+							<span class="d-inline-block me-1 lang-switcher--selected lang-switcher" title="{% trans 'French' %}">
+								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+							</span>
+						{% endif %}
+					</form>
+				</div>
+
+				{% comment %} 
 				<!-- Form to select language (mobile view) -->
 				<form action="{% url 'set_language' %}" method="post" class="d-lg-none col-md-3 ms-md-5 col-7 pe-0 {% if not user.is_authenticated %} lang-select-form--unauthed {% endif %}">
 					{% csrf_token %}
-					<input name="next" type="hidden" value="{{ redirect_to }}">
 					<select name="language" class="form-select form-select-sm js-languageSelect {% if not user.is_authenticated %} lang-select--unauthed {% else %} {% endif %}">
-							{% get_available_languages as LANGUAGES %}
-							{% get_language_info_list for LANGUAGES as languages %}
-							{% for language in languages %}
-								<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
-								</option>
-							{% endfor %}
-						</select>
-					<!-- form has no submit button, it's submitted when user clicks on an option; see js -->
-				</form>
-				{# for "small" screens only, note the d-lg-none #}
-				<div class="d-inline-block d-lg-none w-100 text-end">
+						{% get_available_languages as LANGUAGES %}
+						{% get_language_info_list for LANGUAGES as languages %}
+						{% for language in languages %}
+							<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
+							</option>
+						{% endfor %}
+					</select>
+				</form> 
+				{% endcomment %}
+				
+				<div class="d-inline-block d-lg-none text-end ms-auto ps-4 pe-2">
 					{% if user.is_authenticated %}
-					<ul class="list-inline">
+					<ul class="list-inline mb-1">
 						<li class="list-inline-item text-end">
 							<a href="{{ notifs_url }}" class="header-notifs-link">
 								<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
@@ -206,7 +239,7 @@
 								</svg>
 								<span class="d-block header-notifs-link__text {% if '/my-notifications/' in request.path or '/mes-notifications/' in request.path %} link-dark fw-bold {% else %} link-light {% endif %}">{% trans 'Notifications' %}</span>
 								{% if user.notifications.unread %}
-									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border" style="top:3.2rem;right:5.5rem;">
+									<span class="position-absolute translate-middle p-1 rounded-circle bg-warning border" style="top:.8rem; right:6.1rem;">
 										<span class="visually-hidden">{% trans 'New notifications' %}</span>
 									</span>
 								{% endif %}
@@ -255,16 +288,17 @@
 						</li>
 					</ul>
 					{% else %}
-					<ul class="list-inline my-2 pe-3">
+					<ul class="list-inline my-2">
 						<li class="list-inline-item">
-							<a href="{% url 'users:register' %}" class="btn link-light fw-bolder register-button">{% trans 'REGISTER' %}</a>
+							<a href="{% url 'users:register' %}" class="btn btn-sm link-light fw-bolder register-button">{% trans 'REGISTER' %}</a>
 						</li>
-						<li class="list-inline-item dropdown ms-1">
-							<a href="{% url 'users:login' %}" class="btn bg-primary link-light fw-bolder login-button">{% trans 'LOGIN' %}</a>
+						<li class="list-inline-item">
+							<a href="{% url 'users:login' %}?next={{ request.get_full_path }}" class="btn btn-sm bg-primary link-light fw-bolder login-button">{% trans 'LOGIN' %}</a>
 						</li>
 					</ul> 
 					{% endif %}
 				</div>
+
 				<div class="collapse navbar-collapse" id="navbarContent">
 					<ul class="navbar-nav nav-fill w-100 mb-2 mb-lg-0 align-items-center nav-menu" role="navigation">
 						<li class="nav-item my-1">
@@ -606,6 +640,7 @@
 	{% endblock %}
 	
 	<script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script>
+	<!-- <script type="text/javascript" src="{% static 'js/base.js' %}"></script> -->
 	{% block extra_js %}
 	{% endblock %}
 </body>

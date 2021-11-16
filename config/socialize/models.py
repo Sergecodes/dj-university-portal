@@ -3,14 +3,16 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
-from core.storage_backends import PublicMediaStorage
 from core.model_fields import NormalizedEmailField
 from core.models import Institution
 from past_papers.models import PastPaper
 
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
 
 
@@ -110,9 +112,9 @@ class SocialProfile(models.Model):
 	)
 	about_me = models.TextField(_('A little about me'), blank=True)
 	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
-	profile_image = models.ImageField(
+	profile_image = ThumbnailerImageField(
 		_('Profile image'),
-		storage=PublicMediaStorage(),
+		thumbnail_storage=STORAGE, 
 		upload_to=PROFILE_IMAGE_UPLOAD_DIR, 
 		# no null=True needed, since this translates to a char field 
 		# and char fields don't need it..

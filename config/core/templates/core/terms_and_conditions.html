@@ -6,7 +6,8 @@
 {% endblock %}
 
 {% block content %}
-<article class="container-lg border mb-5">
+<article class="container-lg mb-5 px-1">
+    <div class="border p-2">
     <h2 class="my-2"><strong>Terms and Conditions</strong></h2>
 
 <p>Welcome to CamerSchools!</p>
@@ -106,7 +107,7 @@
 
 <h3><strong>Your Privacy</strong></h3>
 
-<p>Please read Privacy Policy</p>
+<p>Please read our <a href="{% url 'core:privacy-policy' %}" target="_blank" class="text-decoration-none">Privacy Policy</a></p>
 
 <h3><strong>Reservation of Rights</strong></h3>
 
@@ -134,5 +135,6 @@
 <p>THIS SERVICE MAY CONTAIN TRANSLATIONS POWERED BY GOOGLE. GOOGLE DISCLAIMS ALL WARRANTIES RELATED TO THE TRANSLATIONS, EXPRESS OR IMPLIED, INCLUDING ANY WARRANTIES OF ACCURACY, RELIABILITY, AND ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</p>
 
 <p>As long as the website and the information and services on this website are provided free of charge, we will not be liable for any loss or damage of any nature.</p>
+</div>
 </article>
 {% endblock %}

@@ -1,6 +1,7 @@
 import django_filters as filters
 import os
 from django_filters.views import FilterView
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -85,33 +86,34 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
 		listing = self.object
+		current_lang = get_language()
 
 		## TRANSLATION
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		translatable_fields = ['title', 'description', 'condition_description', ]
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
-		
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
-		field_values = [getattr(listing, field) for field in translatable_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(listing, trans_field, result_dict['translatedText'])
+			translatable_fields = ['title', 'description', 'condition_description', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(listing, field) for field in translatable_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(listing, trans_field, result_dict['translatedText'])
 
-		# if object was saved in say english, slug_en will be set but not slug_fr. 
-		# so get the slug in the other language
-		# also, at this point, these attributes will be set(translated)
-		if trans_lang == 'fr':
-			listing.slug_fr = slugify(listing.title_fr)
-		elif trans_lang == 'en':
-			listing.slug_en = slugify(listing.title_en)
+			# if object was saved in say english, slug_en will be set but not slug_fr. 
+			# so get the slug in the other language
+			# also, at this point, these attributes will be set(translated)
+			if trans_lang == 'fr':
+				listing.slug_fr = slugify(listing.title_fr)
+			elif trans_lang == 'en':
+				listing.slug_en = slugify(listing.title_en)
 
 		listing.poster = user
 		listing.original_language = current_lang
@@ -173,7 +175,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		# when overriding post method.
 		self.object = self.get_object()
 		form = self.get_form()
-		session, username = request.session. request.user.username
+		session, username = request.session, request.user.username
 
 		# validate minimum number of photos 
 		# no need to validate max number since the photo upload ajax view already does that
@@ -201,38 +203,38 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user
 		listing = form.save(commit=False)
+		current_lang = get_language()
 
 		## TRANSLATION
-		changed_data = form.changed_data
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			changed_data = form.changed_data
 
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = ['title', 'description', 'condition_description', ]
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['title', 'description', 'condition_description', ]
 
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
+			updated_fields = [
+				field for field in changed_data if \
+				not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(listing, field) for field in desired_fields]
+			# get and translated values that need to be translated
+			field_values = [getattr(listing, field) for field in desired_fields]
 
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(listing, trans_field, result_dict['translatedText'])
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(listing, trans_field, result_dict['translatedText'])
 
-			listing.update_language = current_lang
-
+		listing.update_language = current_lang
 		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)
@@ -391,33 +393,34 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
 		listing = self.object
+		current_lang = get_language()
 
 		## TRANSLATION
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		translatable_fields = ['title', 'description', 'pricing', ]
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
-		
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
-		field_values = [getattr(listing, field) for field in translatable_fields]
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(listing, trans_field, result_dict['translatedText'])
+			translatable_fields = ['title', 'description', 'pricing', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(listing, field) for field in translatable_fields]
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(listing, trans_field, result_dict['translatedText'])
 
-		# if object was saved in say english, slug_en will be set but not slug_fr. 
-		# so get the slug in the other language
-		# also, at this point, these attributes will be set(translated)
-		if trans_lang == 'fr':
-			listing.slug_fr = slugify(listing.title_fr)
-		elif trans_lang == 'en':
-			listing.slug_en = slugify(listing.title_en)
+			# if object was saved in say english, slug_en will be set but not slug_fr. 
+			# so get the slug in the other language
+			# also, at this point, these attributes will be set(translated)
+			if trans_lang == 'fr':
+				listing.slug_fr = slugify(listing.title_fr)
+			elif trans_lang == 'en':
+				listing.slug_en = slugify(listing.title_en)
 
 		listing.poster = user
 		listing.original_language = current_lang
@@ -478,36 +481,35 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		session, user = self.request.session, self.request.user
 		listing = form.save(commit=False)
 		changed_data = form.changed_data
-
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = ['title', 'description', 'pricing', ]
-
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
-
-		## TRANSLATION
 		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(listing, field) for field in desired_fields]
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['title', 'description', 'pricing', ]
 
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			updated_fields = [
+				field for field in changed_data \
+				if not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(listing, trans_field, result_dict['translatedText'])
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-			listing.update_language = current_lang
-			
+			# get and translated values that need to be translated
+			field_values = [getattr(listing, field) for field in desired_fields]
+
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(listing, trans_field, result_dict['translatedText'])
+
+		listing.update_language = current_lang	
 		listing.save()
 		
 		## add phone numbers to listing(phone_numbers is a queryset)

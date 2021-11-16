@@ -9,8 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 from core.utils import parse_phone_number, is_mobile
 from past_papers.mixins import can_edit_comment, can_delete_comment
-# i imported the User module directly; this was to ensure that the User methods will work.
-# and identified by the code editor; xD
+# i imported the User module directly; this was to ensure that 
+# the User methods will be highlighted by the code editor; xD
 # just allow it as it is.
 from users.models import User
 
@@ -141,6 +141,7 @@ def render_bookmark_template(
 	
 	return {
 		'user': context['user'],
+		'request': context['request'],
 		'object_id': object.user_id if object_model == SocialProfile else object.id,
 		'bookmarkers': bookmarkers,
 		'num_bookmarkers': bookmarkers.count(),

@@ -1,6 +1,7 @@
 import django_filters as filters
 import os
 from django_filters.views import FilterView
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import redirect
@@ -49,34 +50,35 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 
 
 		## TRANSLATION
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get current language and language to translate to
+			current_lang = get_language()
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# if item was saved in english ('en') => trans_lang = 'fr'
-		translatable_fields = ['item_found', 'area_found', 'how_found', ]
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			# if item was saved in english ('en') => trans_lang = 'fr'
+			translatable_fields = ['item_found', 'area_found', 'how_found', ]
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
 
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
-		field_values = [getattr(found_item, field) for field in translatable_fields]
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
+			field_values = [getattr(found_item, field) for field in translatable_fields]
 
-		# translate fields
-		trans_results = translate_text(field_values, trans_lang)
-		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(found_item, trans_field, result_dict['translatedText'])
+			# translate fields
+			trans_results = translate_text(field_values, trans_lang)
+			
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(found_item, trans_field, result_dict['translatedText'])
 
-		# if object was saved in say english, slug_en will be set but not slug_fr. 
-		# so get the slug in the other language
-		# also, at this point, these attributes will be set(translated)
-		if trans_lang == 'fr':
-			found_item.slug_fr = slugify(found_item.item_found_fr)
-		elif trans_lang == 'en':
-			found_item.slug_en = slugify(found_item.item_found_en)
+			# if object was saved in say english, slug_en will be set but not slug_fr. 
+			# so get the slug in the other language
+			# also, at this point, these attributes will be set(translated)
+			if trans_lang == 'fr':
+				found_item.slug_fr = slugify(found_item.item_found_fr)
+			elif trans_lang == 'en':
+				found_item.slug_en = slugify(found_item.item_found_en)
 
 		found_item.poster = self.request.user
 		found_item.original_language = current_lang
@@ -161,49 +163,49 @@ class FoundItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 
 	def form_valid(self, form):
 		found_item = form.save(commit=False)
-		changed_data = form.changed_data
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = ['item_found', 'area_found', 'how_found']
-
-		# this will also # print translatable fields that haven't changed.
-		# the difference is that only the fields trans version will be # printed
-		# eg. if in an english form we change only 'item_found',
-		# we'll get "item_found, item_found_en, how_found_en, area_found_en"
-		# thus the fields that have changed are those not ending with a lang suffix.
-		## NOTE with this implementation, no programmer-defined model field 
-		# should end with '_en' or '_fr'.
-		# fields like m2m and foreign key fields will be gotten. eg. contact_numbers.
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		
-		# fields like m2m and foreign key fields will be gotten. eg. contact_numbers.
-		# in the above code block. so get only fields that are permitted...
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
-		# # print(changed_data, desired_fields)
-
-		## TRANSLATION
 		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(found_item, field) for field in desired_fields]
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			changed_data = form.changed_data
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = ['item_found', 'area_found', 'how_found']
 
-		# if the are values here that need to be translated
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			# this will also print translatable fields that haven't changed.
+			# the difference is that only the fields trans version will be printed
+			# eg. if in an english form we change only 'item_found',
+			# we'll get "item_found, item_found_en, how_found_en, area_found_en"
+			# thus the fields that have changed are those not ending with a lang suffix.
+			## NOTE with this implementation, no programmer-defined model field 
+			# should end with '_en' or '_fr'.
+			# fields like m2m and foreign key fields will be gotten. eg. contact_numbers.
+			updated_fields = [
+				field for field in changed_data \
+				if not field.endswith('_en') and not field.endswith('_fr')
+			]
+		
+			# fields like m2m and foreign key fields will be gotten. eg. contact_numbers.
+			# in the above code block. so get only fields that are permitted...
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
+			# # print(changed_data, desired_fields)
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(found_item, trans_field, result_dict['translatedText'])
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-			found_item.update_language = current_lang
+			# get and translated values that need to be translated
+			field_values = [getattr(found_item, field) for field in desired_fields]
 
+			# if the are values here that need to be translated
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(found_item, trans_field, result_dict['translatedText'])
+
+		found_item.update_language = current_lang
 		found_item.save()
 		
 		## add phone numbers to found_item(phone_numbers is a queryset)
@@ -244,35 +246,36 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 		session, username = self.request.session, user.username
 		self.object = form.save(commit=False)
 		lost_item = self.object
+		current_lang = get_language()
 
 		## TRANSLATION
-		# get current language and language to translate to
-		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# fields that need to be translated. (see translation.py)
-		# ommit slug because google corrects the slug to appropriate string b4 translating.
-		# see demo in google translate .
+			# fields that need to be translated. (see translation.py)
+			# ommit slug because google corrects the slug to appropriate string b4 translating.
+			# see demo in google translate .
 
-		translatable_fields = ['item_lost', 'area_lost', 'how_lost', 'bounty', 'item_description']
-		translate_fields = [field + '_' + trans_lang for field in translatable_fields]
-		field_values = [getattr(lost_item, field) for field in translatable_fields]
+			translatable_fields = ['item_lost', 'area_lost', 'how_lost', 'bounty', 'item_description']
+			translate_fields = [field + '_' + trans_lang for field in translatable_fields]
+			field_values = [getattr(lost_item, field) for field in translatable_fields]
 
-		# translate fields
-		trans_results = translate_text(field_values, trans_lang)
+			# translate fields
+			trans_results = translate_text(field_values, trans_lang)
 		
-		# each dict in trans_results contains keys: 
-		# `input`, `translatedText`, `detectedSourceLanguage`
-		for trans_field, result_dict in zip(translate_fields, trans_results):
-			setattr(lost_item, trans_field, result_dict['translatedText'])
+			# each dict in trans_results contains keys: 
+			# `input`, `translatedText`, `detectedSourceLanguage`
+			for trans_field, result_dict in zip(translate_fields, trans_results):
+				setattr(lost_item, trans_field, result_dict['translatedText'])
 
-		# if object was saved in say english, slug_en will be set but not slug_fr. 
-		# so get the slug in the other language
-		# also, at this point, these attributes will be set(translated)
-		if trans_lang == 'fr':
-			lost_item.slug_fr = slugify(lost_item.item_lost_fr)
-		elif trans_lang == 'en':
-			lost_item.slug_en = slugify(lost_item.item_lost_en)
+			# if object was saved in say english, slug_en will be set but not slug_fr. 
+			# so get the slug in the other language
+			# also, at this point, these attributes will be set(translated)
+			if trans_lang == 'fr':
+				lost_item.slug_fr = slugify(lost_item.item_lost_fr)
+			elif trans_lang == 'en':
+				lost_item.slug_en = slugify(lost_item.item_lost_en)
 
 		lost_item.poster = user
 		lost_item.original_language = current_lang
@@ -401,38 +404,37 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 		session, user = self.request.session, self.request.user
 		lost_item = form.save(commit=False)
 		changed_data = form.changed_data
-
-		# get fields that are translatable(permitted to be translated)
-		permitted_fields = [
-			'item_lost', 'area_lost', 'how_lost', 'bounty', 'item_description'
-		]
-
-		updated_fields = [
-			field for field in changed_data if \
-			not field.endswith('_en') and not field.endswith('_fr')
-		]
-		desired_fields = [field for field in updated_fields if field in permitted_fields]
-
-		## TRANSLATION
 		current_lang = get_language()
-		trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-		# get and translated values that need to be translated
-		field_values = [getattr(lost_item, field) for field in desired_fields]
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get fields that are translatable(permitted to be translated)
+			permitted_fields = [
+				'item_lost', 'area_lost', 'how_lost', 'bounty', 'item_description'
+			]
 
-		if field_values:
-			trans_results = translate_text(field_values, trans_lang)
-			
-			# get fields that need to be set after translation
-			translate_fields = [field + '_' + trans_lang for field in desired_fields]
+			updated_fields = [
+				field for field in changed_data if \
+				not field.endswith('_en') and not field.endswith('_fr')
+			]
+			desired_fields = [field for field in updated_fields if field in permitted_fields]
 
-			# each dict in trans_results contains keys: 
-			# `input`, `translatedText`, `detectedSourceLanguage`
-			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(lost_item, trans_field, result_dict['translatedText'])
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
-			lost_item.update_language = current_lang
-			
+			# get and translated values that need to be translated
+			field_values = [getattr(lost_item, field) for field in desired_fields]
+
+			if field_values:
+				trans_results = translate_text(field_values, trans_lang)
+				
+				# get fields that need to be set after translation
+				translate_fields = [field + '_' + trans_lang for field in desired_fields]
+
+				# each dict in trans_results contains keys: 
+				# `input`, `translatedText`, `detectedSourceLanguage`
+				for trans_field, result_dict in zip(translate_fields, trans_results):
+					setattr(lost_item, trans_field, result_dict['translatedText'])
+
+		lost_item.update_language = current_lang	
 		lost_item.save()
 		
 		## add phone numbers to lost_item(phone_numbers is a queryset)

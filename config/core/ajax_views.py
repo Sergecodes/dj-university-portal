@@ -1,10 +1,11 @@
 import cryptocode
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from django.template.defaultfilters import urlencode
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views import View
+from easy_thumbnails.files import get_thumbnailer
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
 from core.constants import (
 	MAX_LOST_ITEM_PHOTOS, PAST_PAPER_SUFFIX,
@@ -16,7 +17,6 @@ from core.constants import (
 	PAST_PAPERS_PHOTOS_UPLOAD_DIR, 
 )
 from core.utils import insert_text_in_photo
-from core.storage_backends import PublicMediaStorage
 from lost_or_found.forms import LostItemPhotoForm
 from marketplace.forms import (
 	ItemListingPhotoForm as ItemPhotoForm,
@@ -25,7 +25,8 @@ from marketplace.forms import (
 from past_papers.forms import PastPaperPhotoForm
 from requested_items.forms import RequestedItemPhotoForm
 
-
+USE_S3 = settings.USE_S3
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 SECRET_KEY = settings.SECRET_KEY
 FORM_AND_SUFFIX = {
 	'item_listing': ITEM_LISTING_SUFFIX,
@@ -110,19 +111,32 @@ class PhotoUploadView(View):
 			# insert site url as watermark on photo
 			# this name is a path to the file. eg. ad_photos/filename.png
 			# all files uploaded will be in a directory.
-			saved_photo_name = insert_text_in_photo(file, FORM_AND_UPLOAD_DIR[form_for]) 
+			image_obj, saved_photo_name = insert_text_in_photo(file, FORM_AND_UPLOAD_DIR[form_for]) 
 
-			# convert name to valid storage name and store in session
-			storage = PublicMediaStorage()
-			# this name will be in the form 'filename.jpg'
-			photo_session_name = saved_photo_name.split('/')[1]
+			if form_for == 'past_paper':
+				thumb_url = thumbnail_url(image_obj.file, 'past_paper_thumb') 
+			else:
+				thumb_url = thumbnail_url(image_obj.file, 'thumb')
+
+			## as of now, uploading a single file(photo) causes 3 requests to the storage.
+			# inserting text in image causes 2(or 1?). 
+			# the original file is saved after the text in inserted
+			# before the thumbnail is generated and saved.
+			# TODO find a way to generate the thumbnail without saving the original file in storage;
+			# perhaps a byte string? does easy_thumbnails support this....
+
+			photo_session_name = thumb_url.split('/')[-1]
 			user_photos_list.append(photo_session_name)
 			session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 			
 			data = {
 				'is_valid': True, 
-				'url': storage.url(saved_photo_name),
-				# encrypt photo name before sending!
+				# 'url': STORAGE.url(saved_photo_name),
+				# use thumbnail of file to minimize request latency
+				# if user initially uploads say 3mb file, thats much. so use thumbnail instead.
+				'url': thumb_url,
+
+				# encrypt photo name before sending! why though ?!
 				# also, encode url too to correctly parse signs such as plus and space that
 				# could be in the cipher text. (see stackoverflow.com/q/66167067/querydict-in-django )
 				## for some reason, urlencode(ciphertext) doesn't seem to work;
@@ -138,7 +152,6 @@ class PhotoUploadView(View):
 			}
 
 		return JsonResponse(data)
-
 
 	def delete(self, request):
 		"""Called when a photo is deleted. Removes photo from list of photos."""
@@ -188,9 +201,9 @@ class PhotoUploadView(View):
 			)
 
 		# delete file from storage and remove its entry from session
-		storage = PublicMediaStorage()
-		storage.delete(decoded_photo_name)
+		STORAGE.delete(decoded_photo_name)
 		del user_photos_list[photo_index]
 		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 
 		return JsonResponse({'deleted': True})
+

@@ -1,13 +1,17 @@
 # I either give an order or my point of view. I don't give advices. - Draco
 # Don't get that twisted
 
+** TO DO:
+- host on Python Anywhere. hence will need to install MySql and ensure it still works locally
+
 
 # freeprivacypolicy.com  (cool)
+# - in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
+# - get thumbnail of past paper pdf file. can easy_thumbnails do this... 
+# - validate uploaded past paper file type
+# - count number of downloads for past paper(download_count field) .. ajax on download button click
 # - editing and creating a new item(that supports photos) pollutes the photos. (since session uses same key for updates and creations) (i don't think it's a big problem lol)
 # - for watermark, if text(Camerschools.com) is too long (if image is not wide enough to contain text), insert either just Camerschools or logo..
-# - redirect to next url when user is editing phone numbers (in listings, requested items, etc..)
-# - add possibility to disconnect social profile
-# - redirect user back to question detail page after he logs in... eg. if user want to like a question, he is displayed the login modal. on clicking that modal, instead of taking him to a new tab, redirect him to the question page after successful login.
 #  - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
 # - enable translation for question tags, past paper comments(change model and translation.py too) and comments in qa_site
 # - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
@@ -20,14 +24,12 @@
 # - use ajax for username select ... 
 # - on dashboard page, hide site points/or amount made and display only on click
 # - username mentions in comments (questions)
-# - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected..
-# - display view count on social profile page. should only profile owner be able to see ?
+# - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 # - display "some users" aside on mobile too.
-# - in institution checkbox, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
+# - in institution select menu, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
+# - student's projects app. do this one before actual launching..
 # section of site where users can ask site related questions
 # - after 24hrs, votes can't be recalled.
-# count number of downloads for past paper .. ajax on download button click
-# - remove confirm password field, implement show password checkbox
 # - change the flag alert div to a toast. (create custom info toast...)
 # - add repost(relist) button near posts older than x days.
 # - num of characters limit control, ckeditor, comments, questions, etc..
@@ -37,18 +39,14 @@
 # - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_or_found models.)
 # - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.
 # - show best users on both pc and mobile; display vertically on mobile.
-# - wide site search (for search forms in header and footer)  - add placeholder ("I'm not yet working")..
-# - before(above) each create view, create a sort of bootstrap alert that explains users the use ...; 
-# - add reset photos button incase .........
+
 # - vip post(payment), birth day wish (pple with similar birthdays...); more points for answers to vip questions 
 # - remove empty p tags from ck editor submitted texts.
-# - footer. check out font awesome's footer on mobile., ilost.co's footer too
 # - try to set default for slug field in admin 
 # - checkout bootstrap form validation (especially for ckeditor fields.) - .invalid-feedback, etc..
 # -show loading icon during ajax request -django
 # - make the element a[name='top'] have a class and attach an event to it so it should be usable  through out the site
 # - create some examples (e.g. example of a good question with title body etc..) so students will have an idea of how to create theirs.
-# - all create forms should have shadows. and other forms normal borders
 # - show help videos; e.g. how to add an image in ckedifor widget
 # - add 'draft your question advice' like stackoverflow in question creation form... ?
 # - add sorting by price and date  in item listing page like jumia and myschool
@@ -65,7 +63,6 @@
 
 # - test with codecov(codecoverage)
 https://stackoverflow.com/questions/21941503/django-delete-unused-media-files
-easy_thumbnails, pillow
 jquery validation plugin..
 
 # - eventually students projects. support for ranking too
@@ -142,3 +139,5 @@ class UserActivity(models.Model):
 	# from django.utils.timezone import localtime, now
 	remove all entries where entry.datetime.date() < timezone.now().date
 '''
+
+

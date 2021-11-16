@@ -14,8 +14,6 @@
 {% endblock %}
 
 {% block extra_css %}
-	<!-- <link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/qa_site.min.css' %}"> -->
 	<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
 {% endblock %}
 
@@ -62,7 +60,7 @@
 			{% trans 'You need to be logged in to perform this operation.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}" target="_blank">
+				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
 					{% trans 'here' %}
 				</a> 
 				{% trans 'to login to your account or' %} 
@@ -251,7 +249,7 @@
 				{% if user != question_poster %}
 					<div class="d-inline ms-2">
 						{% if user.is_anonymous %}
-							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+							<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
 								{% trans 'Report post' %}
 								<span>
 									{% include "flag/flag_icon.html" %}
@@ -350,7 +348,7 @@
 							<!-- flag form -->
 							{% if user != comment_poster %}
 								{% if user.is_anonymous %}
-									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
+									<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
 										<span>
 											{% include "flag/flag_icon.html" %}
 										</span>
@@ -489,7 +487,7 @@
 							{% if user.id != answer.poster_id %}
 							<span class="ms-3">
 								{% if user.is_anonymous %}
-									<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+									<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
 										{% trans 'Report post' %}
 										<span>
 											{% include "flag/flag_icon.html" %}
@@ -563,7 +561,7 @@
 										<!-- flag form -->
 										{% if user != comment_poster %}
 											{% if user.is_anonymous %}
-												<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
+												<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
 													<span>
 														{% include "flag/flag_icon.html" %}
 													</span>
@@ -721,17 +719,11 @@
 	});
 
 	// set unique id on ckeditor instances
-	{# this function needs to be in the base.js file lol #}
-	function uid() {
-		return "id" + Math.random().toString(16).slice(2);
-	}
-
 	var $ansCommentEditors = $('.js-answerComment');
 	for (var i = 0; i < $ansCommentEditors.length; i++) {
 		var editor = $ansCommentEditors[i];
 		editor.setAttribute('id', uid());
 	}
-
 
 	// possible thread types are {question, answer, question-comment, answer-comment}
 	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];

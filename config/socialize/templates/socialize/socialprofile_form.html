@@ -27,6 +27,7 @@
 		{% crispy profile_form %}
 		{% crispy media_form %}
 
+		<input type="hidden" name="next" value="{{ request.GET.next }}">
 		<button type="submit" class="btn btn-success mb-3">
 			{% trans 'Create Profile' %}
 		</button>

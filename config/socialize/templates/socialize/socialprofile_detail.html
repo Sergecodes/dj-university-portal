@@ -27,6 +27,21 @@
 					<i class="far fa-user fa-5x shadow p-2"></i>
 				{% endif %}
 			</div>
+
+			{# view count #}
+			{% if object.user == user %}
+				<span class="fw-bold text-secondary">
+					{% trans 'Profile views' %}: &nbsp; {{ object.view_count }} &nbsp;
+					({% trans 'only you can see this' %})
+				</span>
+				<p class="small mb-4">
+					{% blocktrans %}
+						This is the number of times that users have viewed your profile. <br>
+						The more active you are on the website, the more likely more people will view your profile.
+					{% endblocktrans %}
+				</p>
+			{% endif %}
+
 			{# user info #}
 			<h3 class="mb-3">{% trans 'User Info' %}</h3>
 			<div class="ps-3">
@@ -60,6 +75,15 @@
 				{% url 'users:profile-bookmarkedprofiles' as bookmarks_url %}
 				{% trans 'Bookmark this profile. (click again to undo)' as title_text %}
 				{% render_bookmark_template object bookmark_url bookmarks_url title_text %}
+			</div>
+		{% endif %}
+
+		{% if can_delete %}
+			<div class="my-3">
+				<a class="btn btn-danger btn-sm" href="{% url 'socialize:delete-profile' username=user.username %}">
+					<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
+					{% trans 'Delete social profile' %}
+				</a>
 			</div>
 		{% endif %}
 

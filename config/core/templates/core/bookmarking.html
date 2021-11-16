@@ -1,6 +1,7 @@
 {# Template to permit bookmarking and unbookmarking of objects #}
 {# NOTE only one instance of this template should exist per page. #}
 {# to enable multiple instances, revise javascript. #}
+{# template is loaded using inclusion_tag (django) #}
 
 {% load i18n %}
 {% load static %}
@@ -12,7 +13,7 @@
 			{% trans 'You must login to bookmark a post.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}" target="_blank">
+				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
 					{% trans 'here' %}
 				</a> 
 				{% trans 'to login to your account or' %} 

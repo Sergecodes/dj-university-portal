@@ -12,11 +12,6 @@
 	<title>{{ listing.title }} {% trans 'for sale' %} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" type="text/css" href="{% static 'minified/css/flag.min.css' %}">
-	<link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}"> -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -29,7 +24,7 @@
 			{% trans 'You must login before adding a post.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}" target="_blank">
+				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
 					{% trans 'here' %}
 				</a> 
 				{% trans 'to login to your account or' %} 
@@ -194,7 +189,7 @@
 					<div class="d-inline ms-2">
 						{% if user.is_anonymous %}
 							{% get_login_url as login_url %}
-							<a href="{{ login_url }}?next={{ request.build_absolute_uri }}" class="link-danger text-decoration-none">
+							<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
 								{% trans 'Report post' %}
 								<span>
 									{% include "flag/flag_icon.html" %}

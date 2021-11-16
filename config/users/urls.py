@@ -28,7 +28,8 @@ urlpatterns = [
 		_('login/'),
 		auth_views.LoginView.as_view(
 			template_name='users/auth/login.html',
-			# see warning concerning this boolean attribute https://docs.djangoproject.com/en/3.1/topics/auth/default/#django.contrib.auth.views.LoginView
+			# see warning concerning this boolean attribute 
+			# https://docs.djangoproject.com/en/3.1/topics/auth/default/#django.contrib.auth.views.LoginView
 			redirect_authenticated_user=True
 		), 
 		name='login'

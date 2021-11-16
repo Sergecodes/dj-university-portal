@@ -5,9 +5,9 @@ from django.db import models
 from django.template import defaultfilters as filters
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.functional import cached_property
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-from flagging.models import Flag
+from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import (
 	PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR,
@@ -16,39 +16,28 @@ from core.constants import (
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
 )
 from core.models import Institution
-from core.storage_backends import PublicMediaStorage
+from core.model_fields import DynamicStorageFileField
+from core.utils import PhotoModelMixin
+from flagging.models import Flag
 from qa_site.models import Subject
 from users.models import get_dummy_user
 
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
  
  
-class PastPaperPhoto(models.Model):
+class PastPaperPhoto(models.Model, PhotoModelMixin):
 	"""
 	These photos should be periodically removed from storage, since after upload they are practically useless since they are used solely to generate the pdf file containing these photos...
 	"""
-	file = models.ImageField(storage=PublicMediaStorage(), upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR)
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE, 
+		upload_to=PAST_PAPERS_PHOTOS_UPLOAD_DIR
+	)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.actual_filename
-
-	@cached_property
-	def actual_filename(self):
-		"""
-		Get file name of file with extension (not relative path from MEDIA_URL).
-		If files have the same name, Django automatically appends a unique string to each file before storing.
-		This property(function) returns the name of a file (on disk) with its extension.
-		Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-		"""
-		import os
-		
-		return os.path.basename(self.file.name)
-
-	@cached_property
-	def title(self):
-		"""Get alternate name that can be used for the photo in template."""
-		return self.actual_filename.split('.')[0]
 
 
 class Comment(models.Model):
@@ -153,11 +142,7 @@ class PastPaper(models.Model):
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
-	file = models.FileField(
-		storage=PublicMediaStorage(), 
-		upload_to=PAST_PAPERS_UPLOAD_DIR,
-		blank=True
-	)
+	file = DynamicStorageFileField(upload_to=PAST_PAPERS_UPLOAD_DIR, blank=True)
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.SET(get_dummy_user),

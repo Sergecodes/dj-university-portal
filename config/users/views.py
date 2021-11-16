@@ -159,7 +159,7 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	form_class = UserUpdateForm
 	slug_url_kwarg = 'username'
 	slug_field = 'username'
-	template_name = 'users/edit_profile.html'
+	template_name = 'users/profile/edit_profile.html'
 	permission_denied_message = _('This is not your username. You can only edit your own account.')
 
 	def test_func(self):
@@ -183,16 +183,14 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		self.object = self.get_object()
 		form = self.get_form()
 		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
-
+		
 		# ensure email wasn't sent(email should not be in the form)
 		# email is included in list of form fields (UserUpdateForm),
 		# but it's marked disabled so it shouldn't be sent.
 		# it will be gotten from the object instance
 		# frontend prevention is done and this is for backend
-		# print(form.fields)
-		# print(request.POST)
 		if request.POST.get('email'):
-			# print("Email was sent, errror")
+			# email was sent, errror
 			form.add_error(
 				'email', 
 				ValidationError(_("You can't change your email address"))
@@ -223,6 +221,9 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 			phone_number.save()
 			# save many2many fields since the form was saved with commit=False
 			number_form.save_m2m()
+
+		if next_url := self.request.POST.get('next'):
+			return redirect(next_url)
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.

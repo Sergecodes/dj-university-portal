@@ -1,15 +1,16 @@
 import django_filters as filters
 from django_filters.views import FilterView
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
-from django.core.files import File
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -23,7 +24,6 @@ from core.constants import (
 )
 from django.core.files.base import ContentFile
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
-from core.storage_backends import PublicMediaStorage 
 from core.utils import generate_past_papers_pdf, get_photos, should_redirect
 from qa_site.models import Subject
 from .forms import PastPaperForm, CommentForm
@@ -32,6 +32,8 @@ from .mixins import (
 	CanDeletePastPaperCommentMixin, CanEditPastPaperCommentMixin,
 )
 from .models import PastPaper, Comment
+
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 
 
 class PastPaperCreate(LoginRequiredMixin, CreateView):
@@ -53,8 +55,6 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		# these validations isn't done in the form's clean 
 		# coz we won't have access to the request object to get the session
 		file = request.FILES.get('file')
-		print(file, bool(file))
-		print(photos_list, bool(photos_list))
 		
 		if file and photos_list:
 			form.add_error(
@@ -84,21 +84,20 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 		
 		if photos_list:
 			# generate past paper from photos
-			# byte_str = generate_past_papers_pdf(photos_list, slugify(past_paper.title))
 			byte_str = generate_past_papers_pdf(photos_list)
-			storage = PublicMediaStorage()
 			filename = slugify(past_paper.title)
 
 			# save byte string to django file
 			file = ContentFile(byte_str)
-			pdf_name = storage.save(PAST_PAPERS_UPLOAD_DIR + filename + '.pdf', file)
+			pdf_name = STORAGE.save(PAST_PAPERS_UPLOAD_DIR + filename + '.pdf', file)
 			
+			# save file
 			past_paper.file.name = pdf_name
-			past_paper.save()
 
 			# remove photos list from session 
 			request.session.pop(user.username + PAST_PAPER_SUFFIX, [])
 
+		past_paper.save()
 		return redirect(past_paper)
 
 

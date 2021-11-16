@@ -5,6 +5,8 @@ from django.apps import apps
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models import Q
+from django.utils.module_loading import import_string
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
@@ -14,8 +16,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from random import choice
 
-from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR
-from core.storage_backends import PublicMediaStorage
+from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES
 
 BASE_DIR = settings.BASE_DIR
 SECRET_KEY = settings.SECRET_KEY
@@ -24,10 +25,54 @@ IMAGE_FONT = ImageFont.truetype(
 	os.path.join(BASE_DIR, 'static/webfonts', 'ScheherazadeNew-Bold.ttf'),
 	40
 )
-storage = PublicMediaStorage()
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 # export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
 
+
 ## CORE ##
+
+def actual_filename(photo):
+	"""
+	Get file name of file with extension (not relative path from MEDIA_URL).
+	`photo` should be in storage.
+	If files have the same name, Django automatically appends a unique string to each file before storing.
+	This property(function) returns the name of a file (on disk) with its extension.
+	Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
+	"""
+	return os.path.basename(photo.name)
+
+
+class PhotoModelMixin:
+	"""Add additional methods to image-related models""" 
+
+	@cached_property
+	def actual_filename(self):
+		return actual_filename(self.file)
+
+	@cached_property
+	def title(self):
+		return self.actual_filename.split('.')[0]
+
+
+class PhotoUploadMixin:
+	"""
+	Ensure valid photo format is uploaded(PNG/JPEG).
+	Used in forms.
+	"""
+
+	def clean_file(self):
+		photo = self.cleaned_data.get('file')
+
+		if photo:
+			format = Image.open(photo.file).format
+			photo.file.seek(0)
+			
+			if format in VALID_IMAGE_FILETYPES:
+				return photo
+		
+		self.add_error('file', _('Invalid file format, only JPEG/PNG are permitted'))
+
+
 def translate_text(text, target):
 	"""
 	Translates text into the target language.
@@ -62,24 +107,19 @@ def should_redirect(object, test_slug):
 		return False
 
 
-def actual_filename(photo):
-	"""
-	Get file name of file with extension (not relative path from MEDIA_URL).
-	`photo` should be in storage.
-	If files have the same name, Django automatically appends a unique string to each file before storing.
-	This property(function) returns the name of a file (on disk) with its extension.
-	Ex. `Screenshot_from_2020_hGETyTo.png` or `Screenshot_from_2020.png`
-	"""
-	return os.path.basename(photo.name)
-
-
 def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 	"""Insert text on image and save"""
 	img = Image.open(photo)
-	
 	w, h = img.size
 
+	# convert image to RGB (such as grayscale images)
+	img = img.convert('RGB')
+
 	# call draw method to insert 2D graphics in an image
+	# this will return an error if image is grayscale.
+	# see stackoverflow.com/q/39080087/pillow-strange-behavior-using-draw-rectangle/
+	img_editable = ImageDraw.Draw(img)
+	
 	img_editable = ImageDraw.Draw(img)
 	text_w, text_h = img_editable.textsize(text, IMAGE_FONT)
 
@@ -87,24 +127,37 @@ def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 	# use (image_ord - text_ord) as offset before manipulating the ordinate in question
 	# this will insert the text at bottom right corner
 	x_pos, y_pos = (w - text_w) - 15, (h - text_h) - 15
-
 	img_editable.text((x_pos, y_pos), text, (254, 192, 14), font=IMAGE_FONT)
 
-	## convert PIL image to django-compatible file object and save file as png
+	## convert PIL image to django-compatible file object and save
 	# img.show()
 	img_io = BytesIO()
-	img.save(img_io, format='PNG')
+
+	# our pdf file generator only supports png files from remote location(via url)
+	# hence if photo is past paper, store as png
+	if save_dir == PAST_PAPERS_PHOTOS_UPLOAD_DIR:
+		img.save(img_io, format='PNG')
+	else:
+		img.save(img_io, format=photo.image.format)
 
 	# create a new django file-like object that can be used
 	img_file = ContentFile(img_io.getvalue())
-	# this name will be in the form 'ad_photos/filename.png'
+
+	valid_name = STORAGE.get_valid_name(photo.name)
+
+	# rename extension of past paper photo file
+	# this name will be in the form 'past_paper_photos/filename.png'
+	if save_dir == PAST_PAPERS_PHOTOS_UPLOAD_DIR:
+		valid_name = valid_name.replace(valid_name.split('.')[-1], 'png')
+
+	# store saved file in a model object
+	saved_file_name = STORAGE.save(save_dir + valid_name, img_file)
+	ImageHolder = apps.get_model('core.ImageHolder')
+	image = ImageHolder()
+	image.file = saved_file_name
+	image.save()
 	
-	# change extension of file..
-	valid_name = storage.get_valid_name(photo.name)
-	new_name = valid_name.replace(valid_name.split('.')[1], 'png')
-	saved_file_name = storage.save(save_dir + storage.get_valid_name(new_name), img_file)
-	
-	return saved_file_name
+	return image, saved_file_name
 
 
 def get_minutes(time_d):
@@ -219,32 +272,6 @@ def get_search_results(keyword_list, category=None):
 	return (results, results.count())
 
 
-def generate_past_papers_pdf(file_names):
-	"""
-	Generate a pdf containing images in file_names and return a django File object 
-	pointing to the pdf. \n
-	`file_names` is a list(or sequence) of the names of the files in s3 bucket; 
-	generally obtained from the session. \n
-	"""
-	
-	pdf = FPDF()
-	image_urls = [storage.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + file) for file in file_names]
-
-	# all files are stored as png so convert any 
-	for url in image_urls:
-		pdf.add_page()
-		# w=210, h=297 is the standard for A4 sized pdfs
-		# no height is set so that the original height of the image is maintained 
-		# and the image isn't stretched vertically which may cause vertical distortion
-		pdf.image(url, 0, 0, 210)
-
-	# output_file = os.path.join(gen_files_dir, gen_file_name + '.pdf')
-	# pdf.output(output_file, 'S')
-
-	# return pdf as string(buffer)
-	return pdf.output(dest='S').encode('latin-1')
-
-
 def is_mobile(request):
 	"""Return `True` if the request comes from a mobile device and `False` otherwise."""
 	MOBILE_AGENT_RE = re.compile(r".*(iphone|mobile|androidtouch)", re.IGNORECASE)
@@ -272,7 +299,7 @@ def get_photos(photos_name_list, dir):
 		# prints the path of the file eg. (ad_photos/filename.jpg)
 		file_path = os.path.join(dir, photo_name)
 		photos_info.append({
-			'url': storage.url(file_path),
+			'url': STORAGE.url(file_path),
 			# this is the format of the file name expected in the upload view..
 			'filename': cryptocode.encrypt(photo_name, SECRET_KEY)
 		})
@@ -324,6 +351,32 @@ def get_label(category):
 
 
 ## PAST_PAPERS ##
+def generate_past_papers_pdf(file_names):
+	"""
+	Generate a pdf containing images in file_names and return a django File object 
+	pointing to the pdf. \n
+	`file_names` is a list(or sequence) of the names of the files in s3 bucket; 
+	generally obtained from the session. \n
+	"""
+
+	## The library FPDF only supports png images from remote locations.
+	
+	pdf = FPDF()
+	image_urls = [STORAGE.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + file) for file in file_names]
+
+	# all files are stored as png so convert any 
+	for url in image_urls:
+		pdf.add_page()
+		# w=210, h=297 is the standard for A4 sized pdfs
+		# no height is set so that the original height of the image is maintained 
+		# and the image isn't stretched vertically which may cause vertical distortion
+		pdf.image(url, 0, 0, 210)
+
+	# output_file = os.path.join(gen_files_dir, gen_file_name + '.pdf')
+	# pdf.output(output_file, 'S')
+
+	# return pdf as string(buffer)
+	return pdf.output(dest='S').encode('latin-1')
 
 
 ## QA_SITE ##
@@ -353,6 +406,12 @@ def get_random_profiles(count=7):
 			'user__username', 'user__site_points', 'gender'
 		)
 	)
+
+	# complexity of this is currently O(n^2) in worst-case
+	# though in reality it's amortized. since the length of the 
+	# list(random_profiles) is initially empty then increases progressively
+	# we get sum of (n * n-1 * n-2 ...) in opposite direction of course.
+	# this is equivalent to n(n-1)/2 hence O(n^2)
 	for i in range(count):
 		random_profile = choice(all_profiles)
 
@@ -360,14 +419,22 @@ def get_random_profiles(count=7):
 		if random_profile not in random_profiles:
 			random_profiles.append(random_profile)
 
+		# else if user has been selected, do nothing...
+		# however the likelyhood of this happening is slim
+		# (especially if the initial list is large),
+		# except if there are just a few elements in the initial list
+		else:
+			pass
+
 	return random_profiles
 
 
 
 ## USERS ##
-def get_edit_numbers_url(user):
-	"""Get url to edit phone numbers for the given user."""
-	return reverse('users:edit-profile', kwargs={'username': user.username}) + '#phoneSection'
+def get_edit_profile_url(user):
+	"""Get url to edit profile for the given user."""
+	return reverse('users:edit-profile', kwargs={'username': user.username})
+	# return reverse('users:edit-profile', kwargs={'username': user.username}) + '#phoneSection'
 
 
 def parse_email(email):

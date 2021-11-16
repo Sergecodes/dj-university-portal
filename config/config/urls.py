@@ -16,10 +16,12 @@ Including another URLconf
 
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
-# from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
+
+if not settings.USE_S3:
+	from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -43,7 +45,9 @@ urlpatterns += i18n_patterns(
 	path(_('users/'), include('users.urls', namespace='users')),
 
 ) 
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if not settings.USE_S3:
+	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 # custom error pages
