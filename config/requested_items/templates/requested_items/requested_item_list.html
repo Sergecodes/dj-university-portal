@@ -62,7 +62,7 @@
 
 		<!-- requested items list -->
 		<section>
-			<ul class="ms-2 pe-lg-4 pe-1">
+			<ul class="ms-2 ps-2 ps-md-4 pe-lg-4 pe-1">
 				{% for requested_item, photo in page_obj|zip:first_photos %}
 					{% with poster=requested_item.poster poster=requested_item.poster view_count=requested_item.view_count original_lang=requested_item.original_language %}
 						<li class="d-flex p-3 ps-0 ps-lg-auto pb-3 mb-2 requested-item-item">

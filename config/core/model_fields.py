@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models.fields.files import FieldFile
+from django.db.models.fields.files import FieldFile, ImageFieldFile
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
@@ -10,6 +10,12 @@ STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 
 
 class DynamicStorageFieldFile(FieldFile):
+	def __init__(self, instance, field, name):
+		super().__init__(instance, field, name)
+		self.storage = STORAGE
+
+
+class DynamicStorageImageFieldFile(ImageFieldFile):
 	def __init__(self, instance, field, name):
 		super().__init__(instance, field, name)
 		self.storage = STORAGE
@@ -35,7 +41,7 @@ class DynamicStorageImageField(models.ImageField):
 	Enable dynamically changing storage backend, 
 	such as switching between AWS S3 and local storage
 	"""
-	attr_class = DynamicStorageFieldFile
+	attr_class = DynamicStorageImageFieldFile
 
 	def pre_save(self, model_instance, add):
 		self.storage = STORAGE

@@ -88,12 +88,14 @@
 							>
 								{{ past_paper.level }}
 							</a>
-							<a 
-								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
-								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
-							>
-								{{ past_paper.subject }}
-							</a>
+							{% if past_paper.subject_id %}
+								<a 
+									class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
+									href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
+								>
+									{{ past_paper.subject }}
+								</a>
+							{% endif %}
 							{% if past_paper.school %}
 								<a 
 									class="small text-decoration-none" 

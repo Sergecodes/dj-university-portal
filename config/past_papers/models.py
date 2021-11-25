@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.template import defaultfilters as filters
 from django.urls import reverse
@@ -142,7 +143,11 @@ class PastPaper(models.Model):
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
-	file = DynamicStorageFileField(upload_to=PAST_PAPERS_UPLOAD_DIR, blank=True)
+	file = DynamicStorageFileField(
+		upload_to=PAST_PAPERS_UPLOAD_DIR, 
+		validators=[FileExtensionValidator(['pdf'])],
+		blank=True
+	)
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.SET(get_dummy_user),

@@ -1,5 +1,6 @@
 import cryptocode
 from django.conf import settings
+# from django.core.files.images import get_image_dimensions
 from django.http import JsonResponse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -28,6 +29,7 @@ from requested_items.forms import RequestedItemPhotoForm
 USE_S3 = settings.USE_S3
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 SECRET_KEY = settings.SECRET_KEY
+THUMBNAIL_ALIASES = settings.THUMBNAIL_ALIASES
 FORM_AND_SUFFIX = {
 	'item_listing': ITEM_LISTING_SUFFIX,
 	'ad_listing': AD_LISTING_SUFFIX,
@@ -112,11 +114,25 @@ class PhotoUploadView(View):
 			# this name is a path to the file. eg. ad_photos/filename.png
 			# all files uploaded will be in a directory.
 			image_obj, saved_photo_name = insert_text_in_photo(file, FORM_AND_UPLOAD_DIR[form_for]) 
+			img_file = image_obj.file
 
-			if form_for == 'past_paper':
-				thumb_url = thumbnail_url(image_obj.file, 'past_paper_thumb') 
+			# if image has lesser dimensions than the thumbnail size(width + height)
+			# use same image (use small thumb to generate thumbnail)
+			thumb_dim = sum(THUMBNAIL_ALIASES['']['thumb']['size'])
+			if img_file.width + img_file.height < thumb_dim:
+				thumbnailer = get_thumbnailer(img_file)
+
+				if form_for == 'past_paper':
+					thumb_file = thumbnailer['pp_thumb']
+				else:
+					thumb_file = thumbnailer['sm_thumb']
+
+				thumb_url = thumb_file.url
 			else:
-				thumb_url = thumbnail_url(image_obj.file, 'thumb')
+				if form_for == 'past_paper':
+					thumb_url = thumbnail_url(img_file, 'pp_thumb') 
+				else:
+					thumb_url = thumbnail_url(img_file, 'thumb')
 
 			## as of now, uploading a single file(photo) causes 3 requests to the storage.
 			# inserting text in image causes 2(or 1?). 

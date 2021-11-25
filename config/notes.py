@@ -2,13 +2,20 @@
 # Don't get that twisted
 
 ** TO DO:
-- host on Python Anywhere. hence will need to install MySql and ensure it still works locally
+- host on Heroku (for free) before November 25th
+- test site with newly installed python-3.9 then if ok, set runtime.txt to the current python version
 
+# - create another thumbnail alias for small photos. this one will be used with small photos such that their size doesn't add. ex. in the current implementation, a photo with resolution(200 x 80) will generate a thumbnail with higher resolution and hence heavier. Use a thumbnail alias 'small_photo_thumb' and perform a size check during photo upload, perhaps from 1MB and below should use this alias, better still check the width and height of the image... (maybe sum of W and H)
+- when user is logged in, reduce size of notifs and my account section on mobile.
+# - validate uploaded past paper file type
+- test adding image via ckeditor 
+- arrange 'upload past paper button' when on mobile (see detail view.). others too like question detail ...
 
 # freeprivacypolicy.com  (cool)
+# 
+# - change text in toast after bookmarking social profile 
 # - in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
 # - get thumbnail of past paper pdf file. can easy_thumbnails do this... 
-# - validate uploaded past paper file type
 # - count number of downloads for past paper(download_count field) .. ajax on download button click
 # - editing and creating a new item(that supports photos) pollutes the photos. (since session uses same key for updates and creations) (i don't think it's a big problem lol)
 # - for watermark, if text(Camerschools.com) is too long (if image is not wide enough to contain text), insert either just Camerschools or logo..

@@ -29,7 +29,7 @@
 			</div>
 
 			{# view count #}
-			{% if object.user == user %}
+			{% if profile_user == user %}
 				<span class="fw-bold text-secondary">
 					{% trans 'Profile views' %}: &nbsp; {{ object.view_count }} &nbsp;
 					({% trans 'only you can see this' %})
@@ -54,7 +54,7 @@
 		</div>
 		
 		{# social media links #}
-		<div>
+		<div class="mb-4">
 			<h3>{% trans 'Social Media Links' %}</h3>
 			<div class="ps-3">
 				{% for field, val in social_media_links.items %}
@@ -80,7 +80,7 @@
 
 		{% if can_delete %}
 			<div class="my-3">
-				<a class="btn btn-danger btn-sm" href="{% url 'socialize:delete-profile' username=user.username %}">
+				<a class="btn btn-danger btn-sm" href="{% url 'socialize:delete-profile' username=profile_user.username %}">
 					<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
 					{% trans 'Delete social profile' %}
 				</a>

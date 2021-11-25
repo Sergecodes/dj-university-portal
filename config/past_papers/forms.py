@@ -90,6 +90,7 @@ class PastPaperForm(forms.ModelForm):
 			Submit('submit', _('Upload'), css_class='btn-success'),
 		)
 
+	
 	# def clean(self):
 	# 	data = self.cleaned_data
 

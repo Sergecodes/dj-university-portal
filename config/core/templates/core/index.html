@@ -94,7 +94,7 @@
 					{% endfor %}
 				</div>
 			</div>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
 				{% trans 'All Questions' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'qa_site:questions-explain' %}">
@@ -104,7 +104,7 @@
 
 		{# Marketplace/items section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Latest Items' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -142,7 +142,7 @@
 					{% endwith %}
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
 				{% trans 'View Items' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'marketplace:item-listing-create' %}">
@@ -152,7 +152,7 @@
 
 		{# Marketplace/adverts section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Latest Adverts' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -200,7 +200,7 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:ad-listing-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:ad-listing-list' %}">
 				{% trans 'View Adverts' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'marketplace:ad-listing-create' %}">
@@ -210,7 +210,7 @@
 
 		{# Requested items section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Requested Items' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -252,7 +252,7 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'requested_items:requested-item-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'requested_items:requested-item-list' %}">
 				{% trans 'View Requested Items' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'requested_items:requested-item-create' %}">
@@ -262,7 +262,7 @@
 
 		{# past papers section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -283,12 +283,14 @@
 							>
 								{{ past_paper.level }}
 							</a>
-							<a 
-								class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
-								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
-							>
-								{{ past_paper.subject }}
-							</a>
+							{% if past_paper.subject_id %}
+								<a 
+									class="badge bg-secondary ms-2 link-light opacity-75 text-decoration-none" 
+									href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
+								>
+									{{ past_paper.subject }}
+								</a>
+							{% endif %}
 							{% if past_paper.school_id %}
 								<a 
 									class="small text-decoration-none" 
@@ -307,7 +309,7 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
 				{% trans 'View Past Papers' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'marketplace:item-listing-create' %}">
@@ -317,7 +319,7 @@
 
 		{# Lost items section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Lost Items' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -361,7 +363,7 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_or_found:lost-item-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'lost_or_found:lost-item-list' %}">
 				{% trans 'View Lost Items' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'lost_or_found:lost-item-create' %}">
@@ -371,7 +373,7 @@
 
 		{# found items section #}
 		<section class="py-3 mb-4">
-			<h2 class="section-title text-success mb-3 pb-lg-3">
+			<h2 class="section-title text-success opacity-75 mb-3 pb-lg-3">
 				<span class="section-title__text pb-lg-3">{% trans 'Found Items' %}</span>
 			</h2>
 			<ul class="row list-unstyled mb-3">
@@ -397,7 +399,7 @@
 					</li> 
 				{% endfor %}
 			</ul>
-			<a class="btn btn-success me-1 mb-1 mb-lg-0" href="{% url 'lost_or_found:found-item-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'lost_or_found:found-item-list' %}">
 				{% trans 'View Found Items' %}
 			</a>
 			<a class="btn btn-success" href="{% url 'lost_or_found:found-item-create' %}">

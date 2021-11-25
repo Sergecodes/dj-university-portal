@@ -32,7 +32,7 @@ urlpatterns = [
 # will throw ImproperlyConfigured error if used in an included URLconf
 urlpatterns += i18n_patterns(
 	path('', include('core.urls', namespace='core')),
-	path(_('admin/'), admin.site.urls),
+	path('sup4r/s3cr3t/admin/', admin.site.urls),
 	path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
 	path(_('flag/'), include('flagging.urls', namespace='flagging')),  
 	path(_('lost-or-found/'), include('lost_or_found.urls', namespace='lost_or_found')),

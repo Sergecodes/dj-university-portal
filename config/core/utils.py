@@ -133,7 +133,7 @@ def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
 	# img.show()
 	img_io = BytesIO()
 
-	# our pdf file generator only supports png files from remote location(via url)
+	# our pdf file generator(FPDF) only supports png files from remote location(via url)
 	# hence if photo is past paper, store as png
 	if save_dir == PAST_PAPERS_PHOTOS_UPLOAD_DIR:
 		img.save(img_io, format='PNG')

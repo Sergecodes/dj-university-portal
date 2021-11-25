@@ -88,5 +88,9 @@ class ImageHolder(models.Model, PhotoModelMixin):
 	
 	# this upload_to directory is useless, since this model is used with files that
 	# have already been saved...
-	file = DynamicStorageImageField(upload_to=IMAGE_HOLDER_UPLOAD_DIR)
-
+	width = models.PositiveIntegerField()
+	height = models.PositiveIntegerField()
+	file = DynamicStorageImageField(
+		upload_to=IMAGE_HOLDER_UPLOAD_DIR,
+		width_field='width', height_field='height',
+	)

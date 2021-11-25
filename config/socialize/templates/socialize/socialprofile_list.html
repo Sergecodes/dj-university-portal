@@ -9,10 +9,6 @@
 	<title>{% trans 'Search Results' %} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" href="{% static 'minified/css/socialize.min.css' %}">  -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -30,7 +26,7 @@
 
 			<!-- results list -->
 			<section>
-				<ul>
+				<ul class="ps-3">
 					{% for profile in page_obj %}
 						{% with dp=profile.profile_image user=profile.user %}
 							<li class="d-flex px-md-3 pb-3 mb-2 profile-item">
@@ -38,8 +34,7 @@
 									{% if dp %}
 										<a href="{{ profile.get_absolute_url }}">
 											{# alt used here without visually-hidden. for accessibility.. #}
-											<!-- <img class="py-2 profile-item__img" src="{{ dp.url }}" alt="{% trans 'Social profile' %}"> -->
-											<img class="py-2 post__img" src="{{ dp.url }}" alt="{% trans 'Social profile' %}">
+											<img class="py-2 post-img" src="{{ dp.url }}" alt="{% trans 'Social profile' %}">
 										</a>
 									{% else %}
 										<a href="{{ profile.get_absolute_url }}" class="d-inline-block link-secondary">
@@ -66,9 +61,13 @@
 									</div>
 									<div>
 										<strong>{% trans 'School' %}:</strong>
-										<a href="{% url 'socialize:find-friend' %}?school={{ profile.school_id }}" class="text-decoration-none">
-											{{ profile.school }}
-										</a>
+										{% if profile.school_id %}
+											<a href="{% url 'socialize:find-friend' %}?school={{ profile.school_id }}" class="text-decoration-none">
+												{{ profile.school }}
+											</a>
+										{% else %}
+											<span>&nbsp; -</span>
+										{% endif %}
 									</div>
 									<div>
 										<strong>{% trans 'Level' %}:</strong>
@@ -80,7 +79,7 @@
 									</div>
 									<div>
 										<strong>{% trans 'Interested in' %}:</strong>
-										{{ profile.interested_relationship }}
+										{{ profile.get_interested_relationship_display }}
 									</div>
 								</div>
 							</li> 

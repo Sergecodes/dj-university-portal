@@ -376,7 +376,8 @@ class SocialProfileFilter(filters.FilterSet):
 	def qs(self):
 		parent = super().qs
 		# order results by user points
-		return parent.order_by('-user__site_points')
+		# exclude user doing the search
+		return parent.exclude(user_id=self.request.user.id).order_by('-user__site_points')
 
 
 class SocialProfileDetail(

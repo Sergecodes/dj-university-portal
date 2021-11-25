@@ -90,7 +90,7 @@
 				aria-labelledby="nav-items-tab"
 			>	
 				<section class="listing-list-wrp">
-					<ul class="listing-list">
+					<ul class="listing-list ps-2 ps-md-5">
 						{# {% for listing, photo in filter.qs|zip:first_photos %} #}
 						{% for listing, photo in page_obj|zip:first_photos %}
 							{% with cond=listing.condition view_count=listing.view_count poster=listing.poster original_lang=listing.original_language %}

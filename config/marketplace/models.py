@@ -60,7 +60,6 @@ class ItemCategory(models.Model):
 
 
 class ItemListingPhoto(models.Model, PhotoModelMixin):
-	# file = DynamicStorageImageField(upload_to=LISTING_PHOTOS_UPLOAD_DIR)
 	file = ThumbnailerImageField(
 		thumbnail_storage=STORAGE, 
 		upload_to=LISTING_PHOTOS_UPLOAD_DIR
@@ -99,9 +98,8 @@ class ItemListingPhoto(models.Model, PhotoModelMixin):
 
 
 class AdListingPhoto(models.Model, PhotoModelMixin):
-	# file = DynamicStorageImageField(upload_to=AD_PHOTOS_UPLOAD_DIR)
 	file = ThumbnailerImageField(
-		thumbnail_storage=STORAGE, 
+		thumbnail_storage=STORAGE,
 		upload_to=AD_PHOTOS_UPLOAD_DIR
 	)
 	upload_datetime = models.DateTimeField(auto_now_add=True)
