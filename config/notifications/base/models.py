@@ -176,6 +176,7 @@ class AbstractNotification(models.Model):
         null=True,
         on_delete=models.CASCADE
     )
+    # Use CharField so as to be able to point to an id of any type(int, uid, etc..)
     target_object_id = models.CharField(max_length=255, blank=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 

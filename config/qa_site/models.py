@@ -402,12 +402,12 @@ class AcademicQuestionTag(TagBase):
 
 class TaggedAcademicQuestion(TaggedItemBase):
 	# DON'T rename this field !!
-	# renaming it will require multiple customizations at the GenericRelation level
-	# which is definitely not worthwile !
+	# django-taggit says to use `content_object` as the name
 	content_object = models.ForeignKey(
 		'AcademicQuestion',
 		on_delete=models.CASCADE
 	)
+	# django-taggit says to use the name `tag`
 	tag = models.ForeignKey(
 		AcademicQuestionTag,
 		on_delete=models.CASCADE,
