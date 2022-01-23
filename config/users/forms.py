@@ -4,6 +4,7 @@ from django.contrib.auth.forms import (
 	UserCreationForm as BaseUserCreationForm,
 	# ReadOnlyPasswordHashField
 )
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
@@ -58,6 +59,13 @@ class UserCreationForm(BaseUserCreationForm):
 		# this can't be done on the Meta.widgets object because
 		# this field was set in the class definition(super class)
 		self.fields['password1'].widget.attrs.update({'class': 'js-password1'})
+
+	def clean(self):
+		cleaned_data = super().clean()
+		password = cleaned_data.get('password1')
+
+		if password:
+			validate_password(password)
 		
 	def save(self, commit=True):
 		# save this object's m2m method..

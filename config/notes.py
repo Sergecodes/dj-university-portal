@@ -1,10 +1,10 @@
 # I either give an order or my point of view. I don't give advices. - Draco
 # Don't get that twisted
 
-** TO DO:
-- host on Heroku (for free) before November 25th
-- test site with newly installed python-3.9 then if ok, set runtime.txt to the current python version
+# export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
 
+** TO DO:
+- on ckeditor page, when image is about to uploaded, clicking on "Browse server" opens a new window to the admin page. Prevent this.
 # - create another thumbnail alias for small photos. this one will be used with small photos such that their size doesn't add. ex. in the current implementation, a photo with resolution(200 x 80) will generate a thumbnail with higher resolution and hence heavier. Use a thumbnail alias 'small_photo_thumb' and perform a size check during photo upload, perhaps from 1MB and below should use this alias, better still check the width and height of the image... (maybe sum of W and H)
 - when user is logged in, reduce size of notifs and my account section on mobile.
 # - validate uploaded past paper file type

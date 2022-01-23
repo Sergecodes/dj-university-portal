@@ -159,10 +159,12 @@
 					<span class="px-1 bg-info" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ question_poster.username }}</span>
 				{% endif %}
 			</span>
-			<span class="mx-1">
-				{% trans 'In' %}
-				<a href="{% url 'qa_site:academic-question-list' %}?subject={{ question.subject_id }}" class="text-decoration-none">{{ question.subject.name }}</a>
-			</span>
+			{% if question.subject_id %}
+				<span class="mx-1">
+					{% trans 'In' %}
+					<a href="{% url 'qa_site:academic-question-list' %}?subject={{ question.subject_id }}" class="text-decoration-none">{{ question.subject.name }}</a>
+				</span>
+			{% endif %}
 			{% with view_count=question.view_count %}
 			<p class="mx-1">
 				{% trans 'Views' %}:

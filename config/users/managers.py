@@ -1,5 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.password_validation import validate_password
+# from django.contrib.auth.password_validation import validate_password
 from django.db.models import QuerySet, Manager
 from django.urls import reverse
 from django.utils import timezone
@@ -77,7 +77,7 @@ class UserManager(BaseUserManager, Manager):
 			**extra_fields
 		)
 		
-		validate_password(password)
+		# validate_password(password)
 		user.set_password(password)
 
 		if commit:
