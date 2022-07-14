@@ -1,6 +1,8 @@
 # I either give an order or my point of view. I don't give advices. - Draco
 # Don't get that twisted
 
+source /home/sergeman/.virtualenvs/univ-portal-env/bin/activate
+
 # export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
 
 ** TO DO:

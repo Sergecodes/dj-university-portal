@@ -15,8 +15,8 @@
 # debug
 
 # collecstatic static files and media files
-/config/core/static/
-/config/media/
+core/static/
+media/
 
 # development files
 *.log
