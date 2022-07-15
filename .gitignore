@@ -24,6 +24,8 @@ media/
 *.pyc
 __pycache__/
 
+secret
+
 
 # local env files
 .env
