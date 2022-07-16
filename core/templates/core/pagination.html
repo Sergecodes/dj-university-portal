@@ -8,7 +8,7 @@
         <li class="page-item">
             <a 
                 aria-label="{% trans 'Previous' %}"
-                class="page-link" 
+                class="page-link " 
                 href="?{% query_transform request page=page_obj.previous_page_number %}"
             >
                 <span aria-hidden="true">
@@ -27,7 +27,7 @@
     {% if page_obj.number|add:'-4' > 1 %}
         <li class="page-item">
             <a 
-                class="page-link"
+                class="page-link "
                 href="?{% query_transform request page=page_obj.number|add:'-5' %}"
             >
                 &hellip;
@@ -45,7 +45,7 @@
         {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
             <li class="page-item">
                 <a 
-                    class="page-link"
+                    class="page-link "
                     href="?{% query_transform request page=i %}"
                 >
                     {{ i }}
@@ -57,7 +57,7 @@
     {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
         <li class="page-item">
             <a 
-                class="page-link"
+                class="page-link "
                 href="?{% query_transform request page=page_obj.number|add:'5' %}"
             >
                 &hellip;
@@ -69,7 +69,7 @@
         <li class="page-item">
             <a 
                 aria-label="{% trans 'Next' %}"
-                class="page-link" 
+                class="page-link " 
                 href="?{% query_transform request page=page_obj.next_page_number %}"
             >
                 <span aria-hidden="true">

@@ -21,8 +21,8 @@
 
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	{% comment %} <link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}"> {% endcomment %}
-	<link rel="stylesheet" href="{% static 'css/all.css' %}">
 	<link rel="stylesheet" href="{% static 'css/colors.css' %}">
+	<link rel="stylesheet" href="{% static 'css/all.css' %}">
 	{% block extra_css %}
 	{% endblock extra_css %}
 
@@ -126,7 +126,7 @@
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
 							<div class="px-4 py-2">
-								<a href="{% url 'users:profile-dashboard' %}" class="header-profile-info" role="button">
+								<a href="{% url 'users:profile-dashboard' %}" class=" header-profile-info" role="button">
 									<span class="d-block">{{ user.username }}</span>
 									<span class="small text-dark fw-bold">{{ user.full_name|truncatechars:18 }}</span>
 								</a>
@@ -173,7 +173,7 @@
 								<input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}">
 							</div>
 							<button type="submit" class="d-block w-100 mb-3 py-1 btn btn-lg btn-purple">{% trans 'LOGIN' %}</button>
-							<a href="{% url 'users:password-reset' %}" class="link-purple text-decoration-none border-bottom-dotted">{% trans 'Forgot Password' %}</a>
+							<a href="{% url 'users:password-reset' %}" class=" text-decoration-none border-bottom-dotted">{% trans 'Forgot Password' %}</a>
 							<hr class="mb-3">
 							<a href="{% url 'users:login' %}?next={{ request.get_full_path }}" class="mb-1 d-block text-center link-secondary">{% trans 'Open login form on new page' %}</a>
 						</form>
@@ -267,7 +267,7 @@
 							</a>
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu2">
 								<div class="px-4 py-2">
-									<a href="{% url 'users:profile-dashboard' %}" class="header-profile-info">
+									<a href="{% url 'users:profile-dashboard' %}" class="link-profile header-profile-info">
 										<span class="d-block">{{ user.username }}</span>
 										<span class="small text-dark">{{ user.full_name|truncatechars:18 }}</span>
 									</a>
@@ -473,7 +473,8 @@
 					<h2 class="opacity-75 footer__subheading">CamerSchools</h2>
 					<p class="small">
 						{% blocktrans %}
-						On camerschools.com, you can ask questions, request items you need, sell your items, advertize your products, view and download past papers for various subjects, communicate with other students and much more! <br>
+						On camerschools.com, you can ask questions, request items you need, sell your items, advertize your products, 
+						view and download past papers for various subjects, communicate with other students and much more! <br>
 						We provide you with means to leverage your academic life.
 						{% endblocktrans %}
 					</p>
@@ -628,7 +629,7 @@
 								{% trans 'Copyright' %} &copy {% now 'Y' %} CamerSchools
 							</span>
 						</li>
-						<li class="">
+						<li>
 							<p class="small">
 								{% trans 'All Names, Acronyms and Trademarks displayed on this website are those of their respective owners.' %}
 							</p>

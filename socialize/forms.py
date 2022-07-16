@@ -45,14 +45,14 @@ class SocialMediaFollowForm(forms.ModelForm):
 					Column(
 						PrependedText(
 							'facebook_follow', 
-							'<i class="fab fa-facebook-f link-primary" aria-hidden="true"></i>', 
+							'<i class="fab fa-facebook-f " aria-hidden="true"></i>', 
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),
 					Column(
 						PrependedText(
 							'twitter_follow', 
-							'<i class="fab fa-twitter link-primary" aria-hidden="true"></i>',
+							'<i class="fab fa-twitter " aria-hidden="true"></i>',
 						),
 						css_class='form-group col-sm-6 col-lg-4 mb-0'
 					),

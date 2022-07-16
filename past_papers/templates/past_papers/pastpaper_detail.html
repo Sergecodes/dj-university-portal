@@ -85,7 +85,7 @@
 		</section>
 
 		{% with file=past_paper.file %}
-		<a href="{{ file.url }}" class="btn btn-primary mb-4" download>
+		<a href="{{ file.url }}" class="btn btn-purple mb-4" download>
 			<i class="fas fa-file-download me-1" aria-hidden="true"></i>
 			{% trans 'Download file' %} 
 			({{ file.size|filesizeformat }})

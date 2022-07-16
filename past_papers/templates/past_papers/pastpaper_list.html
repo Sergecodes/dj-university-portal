@@ -62,14 +62,14 @@
 						</div>
 					</div>
 				{% endwith %}
-				<button type="submit" class="btn btn-primary">
+				<button type="submit" class="btn btn-purple">
 					<i class="fas fa-search" aria-hidden="true"></i>
 					{% trans 'Search' %}
 				</button>
 			</form>
 		</section>
 
-		<section class="">
+		<section>
 			<ul class="list-group list-group-flush ms-5 pe-4">
 				{% for past_paper in page_obj %}
 					<li class="list-group-item pb-4 mb-3 ms-2 {% if forloop.first %} pt-3 {% endif %}">

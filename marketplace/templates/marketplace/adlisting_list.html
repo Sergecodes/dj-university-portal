@@ -47,7 +47,7 @@
 						</div>
 					</div>
 				{% endwith %}
-				<button type="submit" class="btn btn-primary">
+				<button type="submit" class="btn btn-purple">
 					<i class="fas fa-search" aria-hidden="true"></i>
 					{% trans 'Search' %}
 				</button>
@@ -55,10 +55,10 @@
 			</form>
 		</section>
 
-		<nav class="">
+		<nav>
 			<div class="nav nav-tabs" id="nav-tab">
 				<a 
-					class="nav-link" 
+					class="nav-link link-purple" 
 					href="{% url 'marketplace:item-listing-list' %}"
 					id="nav-items-tab" 
 					aria-controls="nav-items" 
@@ -66,10 +66,8 @@
 				>
 					{% trans 'Items' %}
 				</a>
-				<!-- use text-primary to style link. link-primary doesn't work due to the 
-					.nav-link.active class-->
 				<a 
-					class="nav-link active text-primary" 
+					class="nav-link active link-purple" 
 					id="nav-adverts-tab" 
 					aria-controls="nav-adverts" 
 					aria-selected="true"

@@ -50,7 +50,7 @@
 									{{ notif.verb }}
 								</a>
 							{% else %}
-								<a href="{{ notif.follow_url }}" class="text-decoration-none notif-item-link">
+								<a href="{{ notif.follow_url }}" class="text-decoration-none  notif-item-link">
 									{{ notif.verb }}
 								</a>
 							{% endif %}
@@ -68,7 +68,7 @@
 				</ul>
 				{% endif %}
 			{% empty %}
-				<div class="alert alert-primary py-2" role="alert">
+				<div class="alert alert-purple py-2" role="alert">
 					{% trans 'You have no message in your inbox.' %} <br>
 					{% trans 'Messages from CamerSchools to you will be displayed here.' %}
 				</div>
@@ -90,10 +90,10 @@
 					{{ notif.verb }} 
 				</li>
 				{% if notif.target.get_absolute_url %} 
-					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.get_absolute_url }}" class="text-decoration-none notif-item-link">{% trans 'view post' %}</a>
+					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.get_absolute_url }}" class="text-decoration-none  notif-item-link">{% trans 'view post' %}</a>
 				{% else %}
 					{# if eg post is a comment or answer #}
-					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.parent_object.get_absolute_url }}" class="text-decoration-none notif-item-link">
+					<a href="{% url 'notifications:mark_as_read' notif.id %}?next={{ notif.target.parent_object.get_absolute_url }}" class="text-decoration-none  notif-item-link">
 						{% trans 'view containing post' %}
 					</a>
 				{% endif %}
@@ -120,7 +120,7 @@
 						{% if notif.target %}
 							<li class="mb-2 p-1 {% if notif.unread %} bg-secondary opacity-50 {% endif %}">
 								{% if notif.target.get_absolute_url %}
-									<a href="{{ notif.target.get_absolute_url }}" class="text-decoration-none">
+									<a href="{{ notif.target.get_absolute_url }}" class="text-decoration-none ">
 										{{ notif.target }}
 									</a>
 								{% else %}
@@ -129,7 +129,7 @@
 									{# ensure these fields have a content attribute #}
 									{{ notif.target.content }} <br>
 									<a href="" class="link-danger">{% trans 'Delete' %}</a>
-									<a href="" class="d-inline-block">{% trans 'Absolve' %}</a> 
+									<a href="" class="d-inline-block ">{% trans 'Absolve' %}</a> 
 									<br>
 									<a href="{{ notif.target.parent_object.get_absolute_url }}">
 										{% trans 'Containing post' %}
@@ -140,7 +140,7 @@
 					{% endfor %}
 					</ul>
 				{% else %}
-					<div class="alert alert-primary py-2" role="alert">
+					<div class="alert alert-purple py-2" role="alert">
 						{% trans 'Posts flagged by users will be displayed here.' %} <br>
 						{% trans 'You can delete or absolve these posts.' %}
 					</div>
@@ -171,7 +171,7 @@
 					<li class="mb-2 p-1 {% if post_unread %} bg-secondary opacity-50 {% endif %}">
 						{% if post.get_absolute_url %}
 							{# if post is unread, upon clicking on list item, firt mark post as read before redirecting to post url. if post is read, go directly to post url #}
-							<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% endif %} notif-item-link">
+							<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% else %} border-purple  {% endif %} notif-item-link">
 								{# remember that school questions are sanitized before been printed. #}
 								{# safe is used to remove the leftover html entities like &nbsp; that aren't stripped #}
 								{% if post|get_model_name == 'SchoolQuestion' %}
@@ -188,7 +188,7 @@
 						{% endif %}
 					</li>
 					{% if not post.get_absolute_url %}
-						<a href="{{ post.question.get_absolute_url }}" class="text-decoration-none">
+						<a href="{{ post.question.get_absolute_url }}" class="text-decoration-none ">
 							{% trans 'view question' %}
 						</a>
 					{% endif %}
@@ -205,7 +205,7 @@
 				{% endfor %}	
 				</ul>
 			{% else %}
-				<div class="alert alert-primary py-2" role="alert">
+				<div class="alert alert-purple py-2" role="alert">
 					{% trans 'Notifications on your questions and answers will be displayed here.' %}
 				</div>
 			{% endif %}
@@ -232,7 +232,7 @@
 				{% for post in followings_notifs_targets %}
 					{% with post_unread=followings_notifs|post_is_unread:post %}
 					<li class="mb-2 p-1 {% if post_unread %} bg-secondary opacity-50 {% endif %}">
-						<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% endif %} notif-item-link">
+						<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% else %} border-purple  {% endif %} notif-item-link">
 							{% if post|get_model_name == 'SchoolQuestion' %}
 								{{ post|safe }}
 							{% else %}
@@ -253,7 +253,7 @@
 				{% endfor %}	
 				</ul>
 			{% else %}
-				<div class="alert alert-primary py-2" role="alert">
+				<div class="alert alert-purple py-2" role="alert">
 					{% trans 'Notifications on questions that you are following will be displayed here.' %}
 				</div>
 			{% endif %}
@@ -269,12 +269,12 @@
 			
 			{% for notif in mentions_notifs %}
 				<li class="mb-2">
-					<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none">
+					<a href="{{ found_item.get_absolute_url }}" class="text-decoration-none ">
 						{{ found_item.item_found }}
 					</a>
 				</li>
 			{% empty %}
-				<div class="alert alert-primary py-2" role="alert">
+				<div class="alert alert-purple py-2" role="alert">
 					
 				</div>
 			{% endfor %}

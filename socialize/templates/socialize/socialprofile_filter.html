@@ -37,7 +37,7 @@
 				<form method="get" action="{% url 'socialize:display-results' %}" class="p-3 m-3 border">
 					<h4>{% trans 'Filter' %}</h4>
 					{{ filter.form|crispy }}
-					<button type="submit" class="btn btn-primary mt-1">
+					<button type="submit" class="btn btn-purple mt-1">
 						<i class="fas fa-search" aria-hidden="true"></i>
 						{% trans 'Search' %}
 					</button>

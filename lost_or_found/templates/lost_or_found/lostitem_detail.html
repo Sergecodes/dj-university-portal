@@ -169,10 +169,10 @@
 
 		{% if user.id != lost_item.poster_id %}
 			<!-- don't separate these 3 elements, dependency in js. -->
-			<button class="btn btn-primary mb-3 w-25 js-refund-item-btn">
+			<button class="btn btn-purple mb-3 w-25 js-refund-item-btn">
 				{% trans 'Refund item' %}
 			</button>
-			<div class="alert alert-primary pb-1 mb-4 appreciation-msg-wrp" role="alert">
+			<div class="alert alert-purple pb-1 mb-4 appreciation-msg-wrp" role="alert">
 				<h5 class="alert-heading">{% trans 'Props to you for deciding to refund this item!' %}</h5>
 				<p>
 					{% trans "Thank you for deciding to refund this item to its owner. Contact the owner using the details below." %}

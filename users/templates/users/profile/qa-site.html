@@ -47,7 +47,7 @@
 								<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not asked any academic question yet.' %} <br>
 								{% trans 'Click' %}
 								<a href="{% url 'qa_site:academic-question-create' %}">{% trans 'here' %}</a>
@@ -72,7 +72,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not bookmarked any academic question yet.' %}
 							</div>
 						{% endfor %}
@@ -94,7 +94,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You are not following any academic question.' %}
 							</div>
 						{% endfor %}
@@ -126,7 +126,7 @@
 								<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not asked any school-based question yet.' %} <br>
 								{% trans 'Click' %}
 								<a href="{% url 'qa_site:school-question-create' %}">{% trans 'here' %}</a>
@@ -151,7 +151,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not bookmarked any school-based question yet.' %}
 							</div>
 						{% endfor %}
@@ -173,7 +173,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You are not following any school-based question.' %}
 							</div>
 						{% endfor %}
@@ -204,7 +204,7 @@
 							</span>
 						</div>
 					{% empty %}
-						<div class="alert alert-primary" role="alert">
+						<div class="alert alert-purple" role="alert">
 							{% trans 'You have not answered any academic question yet.' %} <br>
 							{% trans 'Click' %}
 							<a href="{% url 'qa_site:academic-question-list' %}">{% trans 'here' %}</a>
@@ -223,7 +223,7 @@
 							</span>
 						</div>
 					{% empty %}
-						<div class="alert alert-primary" role="alert">
+						<div class="alert alert-purple" role="alert">
 							{% trans 'You have not answered any school-based question yet.' %} <br>
 							{% trans 'Click' %}
 							<a href="{% url 'qa_site:school-question-list' %}">{% trans 'here' %}</a>

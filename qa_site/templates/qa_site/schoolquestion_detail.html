@@ -25,7 +25,7 @@
 
 {% block content %}
 <!-- toasts -->
-<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body js-toast-message">
 			{# message will be inserted here via js #}
@@ -79,7 +79,7 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-<div class="toast hide alert alert-primary align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>	
@@ -388,7 +388,7 @@
 				
 				<a 
 					role="button" 
-					class="link-primary text-decoration-none d-inline-block mb-2 {% if comments.exists %} mt-3  {% else %} mt-2 {% endif %} js-add-question-comment"
+					class=" text-decoration-none d-inline-block mb-2 {% if comments.exists %} mt-3  {% else %} mt-2 {% endif %} js-add-question-comment"
 					title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
 				>
 					{% trans 'Add a comment' %}
@@ -399,7 +399,7 @@
 					{{ qstn_comment_form|crispy }}
 					
 					<input type="hidden" name="question_id" value="{{ question.id }}">
-					<input type="submit" class="btn btn-sm btn-primary" name="add_question_comment" value="{% trans 'Add comment' %}">
+					<input type="submit" class="btn btn-sm btn-purple" name="add_question_comment" value="{% trans 'Add comment' %}">
 				</form>
 			</section>
 			<hr class="mb-2">
@@ -597,7 +597,7 @@
 								
 								<a 
 									role="button" 
-									class="link-primary text-decoration-none mt-4 mb-3 js-add-answer-comment"
+									class=" text-decoration-none mt-4 mb-3 js-add-answer-comment"
 									title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
 								>
 									{% trans 'Add a comment' %}
@@ -609,7 +609,7 @@
 									
 									<input type="hidden" name="question_id" value="{{ question.id }}">
 									<input type="hidden" name="answer_id" value="{{ answer.id }}">
-									<input type="submit" class="btn btn-sm btn-primary" name="add_answer_comment" value="{% trans 'Add comment' %}">
+									<input type="submit" class="btn btn-sm btn-purple" name="add_answer_comment" value="{% trans 'Add comment' %}">
 								</form>
 							</div>
 						</div>
@@ -617,7 +617,7 @@
 
 					<a 
 						role="button" 
-						class="link-primary text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
+						class=" text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
 					>
 						{% trans 'Answer this question' %}
 					</a>
@@ -627,7 +627,7 @@
 						{{ answer_form|crispy }}
 						
 						<input type="hidden" name="question_id" value="{{ question.id }}">
-						<input type="submit" class="btn btn-primary" name="add_answer" value="{% trans 'Post Answer' %}">
+						<input type="submit" class="btn btn-purple" name="add_answer" value="{% trans 'Post Answer' %}">
 					</form>
 				</div>
 			</section>

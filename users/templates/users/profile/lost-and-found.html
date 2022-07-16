@@ -39,7 +39,7 @@
 								<span class="small text-muted mx-2">{% trans 'Reported' %} {{ lost_item.posted_datetime|naturaltime }}</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not reportedany lost item yet.' %}
 							</div>
 						{% endfor %}
@@ -61,7 +61,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not bookmarked any lost item yet.' %}
 							</div>
 						{% endfor %}
@@ -76,7 +76,7 @@
 							<span class="text-muted">({{ found_items.count }})</span>
 						</h4>
 						{% if not found_items.exists %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not reported any item you have found yet.' %}
 							</div>
 						{% else %}
@@ -107,7 +107,7 @@
 								</span>
 							</div>
 						{% empty %}
-							<div class="alert alert-primary" role="alert">
+							<div class="alert alert-purple" role="alert">
 								{% trans 'You have not bookmarked any found item yet.' %}
 							</div>
 						{% endfor %}

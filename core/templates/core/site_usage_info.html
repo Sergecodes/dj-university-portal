@@ -20,7 +20,7 @@
 			<dt>{% trans 'GENERAL INFO' %}</dt>
 			<dd class="mb-4">
 				<p>{% trans 'Each section is listed below' %}:</p>
-				<ul class="">
+				<ul>
 					<li class="mb-2">
 						<a href="{% url 'marketplace:item-listing-list' %}" class="text-decoration-none">
 							{% trans 'Buying & Selling' %}
@@ -104,33 +104,33 @@
 					</li>
 				</ul>
 
-				<p class="">
+				<p>
 					{# TODO (money earning programme page ..) #}
 					{% blocktrans %}
 					Anything you post on this website is rewarded in points that will earn you money! 
-					<span class="text-primary">(see money earning programme)</span>
+					<span class="text-purple">(see money earning programme)</span>
 					<br>
 					For all the sections listed above <b>excluding the Ask Questions section</b>, 
 					the points rewarded are as follows:
 					{% endblocktrans %}
 
-					<ul class="">
-						<li class="">
+					<ul>
+						<li>
 							{% blocktrans %}
 							You get <b>{{ new_user_points }}</b> points when you sign up to the website and 
 							confirm your email address. This is your starting number of points.
 							{% endblocktrans %}
 						</li>
-						<li class="">
+						<li>
 							{% blocktrans %}
 							You get no point when you post an advert or item for sell.
 							{% endblocktrans %}
 						</li>
-						<li class="">
+						<li>
 							{% blocktrans %}
 							You get <b>{{ post_points }} points</b> when you do any of the following:
 							{% endblocktrans %}
-							<ul class="">
+							<ul>
 								<li>{% trans 'Connect your social profile' %}</li>
 								<li>
 									{% blocktrans %}
