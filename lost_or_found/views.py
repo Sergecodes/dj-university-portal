@@ -33,6 +33,7 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		self.object = form.save(commit=False)
 		found_item = self.object
+		current_lang = get_language()
 
 		# # print("current language is", current_lang)
 		# # print("using the form instance returned(commit=False)")
@@ -51,8 +52,7 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 
 		## TRANSLATION
 		if settings.ENABLE_GOOGLE_TRANSLATE:
-			# get current language and language to translate to
-			current_lang = get_language()
+			# get language to translate to
 			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
 			# if item was saved in english ('en') => trans_lang = 'fr'

@@ -19,6 +19,7 @@ from random import choice
 from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES
 
 BASE_DIR = settings.BASE_DIR
+MEDIA_ROOT = settings.MEDIA_ROOT
 SECRET_KEY = settings.SECRET_KEY
 # get custom font here rather than loading it multiple times..
 IMAGE_FONT = ImageFont.truetype(
@@ -362,7 +363,14 @@ def generate_past_papers_pdf(file_names):
 	## The library FPDF only supports png images from remote locations.
 	
 	pdf = FPDF()
-	image_urls = [STORAGE.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + file) for file in file_names]
+	if settings.USE_S3:
+		image_urls = [STORAGE.url(PAST_PAPERS_PHOTOS_UPLOAD_DIR + name) for name in file_names]
+	else:
+		# Use full file location
+		image_urls = [
+			os.path.join(BASE_DIR, MEDIA_ROOT, PAST_PAPERS_PHOTOS_UPLOAD_DIR, name) 
+			for name in file_names
+		]
 
 	# all files are stored as png so convert any 
 	for url in image_urls:
