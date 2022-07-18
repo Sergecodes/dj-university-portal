@@ -12,7 +12,7 @@
 {% block content %}
 <article class="container mb-5">
 	{# Questions section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<!-- each span in section-title can be called section-title__span or section-title__text -->
 		<!-- can replace `section-title__text` with `border-2 border-success border-bottom` -->
 		<h2 class="text-success mb-3 pb-lg-3 section-title">
@@ -94,7 +94,7 @@
 				{% endfor %}
 			</div>
 		</div>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
 				{% trans 'All Questions' %}
 			</a>
@@ -105,7 +105,7 @@
 	</section>
 
 	{# Marketplace/items section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Latest Items' %}</span>
 		</h2>
@@ -144,7 +144,7 @@
 				{% endwith %}
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
 				{% trans 'View Items' %}
 			</a>
@@ -155,7 +155,7 @@
 	</section>
 
 	{# Marketplace/adverts section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Latest Adverts' %}</span>
 		</h2>
@@ -204,7 +204,7 @@
 				</li> 
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:ad-listing-list' %}">
 				{% trans 'View Adverts' %}
 			</a>
@@ -215,7 +215,7 @@
 	</section>
 
 	{# Requested items section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Requested Items' %}</span>
 		</h2>
@@ -258,7 +258,7 @@
 				</li> 
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'requested_items:requested-item-list' %}">
 				{% trans 'View Requested Items' %}
 			</a>
@@ -269,7 +269,7 @@
 	</section>
 
 	{# past papers section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
 		</h2>
@@ -317,7 +317,7 @@
 				</li> 
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
 				{% trans 'View Past Papers' %}
 			</a>
@@ -328,7 +328,7 @@
 	</section>
 
 	{# Lost items section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Lost Items' %}</span>
 		</h2>
@@ -373,7 +373,7 @@
 				</li> 
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'lost_or_found:lost-item-list' %}">
 				{% trans 'View Lost Items' %}
 			</a>
@@ -384,7 +384,7 @@
 	</section>
 
 	{# found items section #}
-	<section class="py-3 mb-4">
+	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
 			<span class="section-title__text pb-lg-3">{% trans 'Found Items' %}</span>
 		</h2>
@@ -411,7 +411,7 @@
 				</li> 
 			{% endfor %}
 		</ul>
-		<div class="actions-wrp">
+		<div class="text-center">
 			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'lost_or_found:found-item-list' %}">
 				{% trans 'View Found Items' %}
 			</a>

@@ -466,177 +466,88 @@
 	{% endblock %}
 
 	{% block footer %}
-	<footer class="bg-success bg-gradient pb-2 pt-4 footer">
-		<div class="container-lg ">
-			<div class="row">
-				<div class="col-sm-6 mb-3 footer-info">
-					<h2 class="opacity-75 footer__subheading">CamerSchools</h2>
-					<p class="small">
-						{% blocktrans %}
-						On camerschools.com, you can ask questions, request items you need, sell your items, advertize your products, 
-						view and download past papers for various subjects, communicate with other students and much more! <br>
-						We provide you with means to leverage your academic life.
-						{% endblocktrans %}
-					</p>
-					<div class="mt-3">
-						<form method="get" action="{% url 'core:site-search' %}">
-							<div class="row flex-column">
-								<div class="col-sm-12 col-lg-8">
-									<input 
-										class="form-control mb-2" 
-										type="search" name="keywords" 
-										placeholder="{% trans 'Search...' %}" 
-										aria-label="{% trans 'Search' %}"
-									>
-								</div>
-								<div class="col col-lg-6">
-									<button class="btn btn-sm btn-light text-break w-50 py-1" type="submit">
-										{% trans 'SEARCH' %}
-									</button>
-								</div>
-							</div>
-						</form>
-					</div>
-				</div>
-				<div class="col-sm-6 mb-3 footer-explore">
-					<h2 class="opacity-75 footer__subheading">{% trans 'Explore' %}</h2>
-					<div class="row">
-						<div class="col pe-lg-0 ">
-							<ul class="nav flex-column">
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'core:home' %}">
-										{% trans 'Home' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'socialize:camerschools-profile' %}">
-										{% trans 'Our Social Profile' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'core:usage-info' %}">
-										{% trans 'Website Usage Info' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'marketplace:item-listing-create' %}">
-										{% trans 'Sell an item' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'qa_site:questions-explain' %}">
-										{% trans 'Ask a question' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'requested_items:requested-item-create' %}">
-										{% trans 'Request an Item' %}
-									</a>
-								</li>
-							</ul>
-						</div>
-						<div class="col ps-lg-0">
-							<ul class="nav flex-column">
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'marketplace:ad-listing-create' %}">
-										{% trans 'Advertize a product' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'past_papers:past-paper-upload' %}">
-										{% trans 'Upload a past paper' context 'footer' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'lost_or_found:lost-item-create' %}">
-										{% trans 'Report a lost item' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'lost_or_found:found-item-create' %}">
-										{% trans 'Report a found item' %}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link footer__link" href="{% url 'socialize:find-friend' %}">
-										{% trans 'Socialize' %}
-									</a>
-								</li>
-								{% comment %} <li class="nav-item">
-									<a class="nav-link footer__link" href="#">
-										{% trans 'Contact us' %}
-									</a>
-								</li> {% endcomment %}
-							</ul>
-						</div>
-					</div>
-				</div>
-				<div class="col-sm-6 mb-3 footer-channels">
-					<h2 class="opacity-75 footer__subheading">{% trans 'Channels' %}</h2>
-					<ul class="nav flex-column">
-						<li class="nav-item">
-							<a class="nav-link footer__link" href="https://www.facebook.com/profile.php?id=100073786242906" target="_blank">
-								{% trans 'Facebook' %}
-								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
-									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
-									</path>
-									<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
-									</polygon>
-								</svg>
-							</a>
-						</li>
-						<li class="nav-item mb-3">
-							<a class="nav-link footer__link" href="https://www.twitter.com/camerschools/" target="_blank">
-								{% trans 'Twitter' %}
-								<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="footer-channels__svg">
-									<path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
-									</path>
-									<polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" style="--darkreader-inline-fill:currentColor;" data-darkreader-inline-fill="">
-									</polygon>
-								</svg>
-							</a>
-						</li>
-						<li>
-							{% comment %} <span class="small d-inline-block">
-								{% trans 'Call Hours: 9am - 5pm (Mon - Fri)' %}
-							</span> {% endcomment %}
-							<span class="small d-block">
-								{% trans 'WhatsApp:' %} +237 6 51 20 98 32
-							</span>
-						</li>
-						<li>
-							<span class="small d-inline-block">
-								{% trans 'Email: info@camerschools.com' %}
-							</span>
-						</li>
-					</ul>
-				</div>
-				<div class="col-sm-6 mb-3 footer-legal">
-					<h2 class="opacity-75 footer__subheading">{% trans 'Legal' %}</h2>
-					<ul class="nav flex-column">
-						<li class="nav-item">
-							<a class="nav-link footer__link" href="{% url 'core:terms-conditions' %}">
-								{% trans 'Terms' %}
-							</a>
-						</li>
-						<li class="nav-item mb-3">
-							<a class="nav-link footer__link" href="{% url 'core:privacy-policy' %}">
-								{% trans 'Privacy' %}
-							</a>
-						</li>
-						<li class="mb-3">
-							<span class="footer-legal">
-								{% trans 'Copyright' %} &copy {% now 'Y' %} CamerSchools
-							</span>
-						</li>
-						<li>
-							<p class="small">
-								{% trans 'All Names, Acronyms and Trademarks displayed on this website are those of their respective owners.' %}
-							</p>
-						</li>
-					</ul>
-				</div>
-			</div>
+	<footer class="d-flex flex-column text-center p-3 footer">
+		<ul class="list-inline mt-4 footer-links-ul">
+			<li class="list-inline-item pe-5">
+				<a href="{% url 'core:home' %}" class="text-decoration-none footer__link">
+					{% trans 'Home' %}
+				</a>
+			</li>
+			<li class="list-inline-item pe-5">
+				<a href="{% url 'core:usage-info' %}" class="text-decoration-none footer__link">
+					{% trans 'About' %}
+				</a>
+			</li>
+			<li class="list-inline-item pe-5">
+				<a href="{% url 'core:terms-conditions' %}" class="text-decoration-none footer__link">
+					{% trans 'Terms' %}
+				</a>
+			</li>
+			<li class="list-inline-item pe-5">
+				<a href="{% url 'core:privacy-policy' %}" class="text-decoration-none footer__link">
+					{% trans 'Privacy' %}
+				</a>
+			</li>
+			<li class="list-inline-item">
+				<a href="#" class="text-decoration-none footer__link">
+					{% trans 'Contact Us' %}
+				</a>
+			</li>
+		</ul>
+		<ul class="list-inline mt-4 footer-socials-ul">
+			<li class="list-inline-item">
+				<a href="#" class="text-decoration-none footer__link">
+					<span class="footer-ico-wrp" style="color: #295fcc;">
+						<span class="fa-stack fa-2x">
+							<i class="fas fa-circle-thin fa-stack-2x"></i>
+							<i class="fab fa-facebook fa-stack-1x"></i>
+						</span>
+					</span>
+					<span class="visually-hidden">Facebook</span>
+				</a>
+			</li>
+			<li class="list-inline-item">
+				<a href="#" class="text-decoration-none footer__link">
+					<span class="footer-ico-wrp" style="color: #5ECC64;">
+						<span class="fa-stack fa-2x">
+							<i class="fas fa-circle-thin fa-stack-2x"></i>
+							<i class="fab fa-whatsapp fa-stack-1x"></i>
+						</span>
+					</span>
+					<span class="visually-hidden">WhatsApp</span>
+				</a>
+			</li>
+			<li class="list-inline-item">
+				<a href="#" class="text-decoration-none footer__link">
+					{% comment %} #4aa1f2 {% endcomment %}
+					<span class="footer-ico-wrp" style="color: Dodgerblue;">
+						<span class="fa-stack fa-2x">
+							<i class="fas fa-circle-thin fa-stack-2x"></i>
+							<i class="fab fa-twitter fa-stack-1x"></i>
+						</span>
+					</span>
+					<span class="visually-hidden">Twitter</span>
+				</a>
+			</li>
+			<li class="list-inline-item">
+				<a href="#" class="text-decoration-none footer__link">
+					<span class="footer-ico-wrp" style="color: #d93025;">
+						<span class="fa-stack fa-2x">
+							<i class="fas fa-circle-thin fa-stack-2x"></i>
+							<i class="far fa-envelope fa-stack-1x"></i>
+						</span>
+					</span>
+					<span class="visually-hidden">Email</span>
+				</a>
+			</li>
+		</ul>
+		<div class="mt-4 footer-legal">
+			<p class="small text-secondary">
+				{% trans 'Copyright' %} &copy {% now 'Y' %} CamerSchools
+			</p>
+			{% comment %} <p class="small text-secondary">
+				{% trans 'All Names, Acronyms and Trademarks displayed on this website are those of their respective owners.' %}
+			</p> {% endcomment %}
 		</div>
 	</footer>
 	{% endblock %}
