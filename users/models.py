@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_email
 from django.db import models
 from django.db.models import F
@@ -16,7 +16,8 @@ from core.constants import (
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
-from core.model_fields import NormalizedEmailField
+from core.fields import NormalizedEmailField
+from core.models import Country
 from core.utils import parse_phone_number, translate_text
 from core.validators import FullNameValidator, UsernameValidator
 from flagging.models import Flag
@@ -49,17 +50,9 @@ def get_dummy_user():
 
 
 class PhoneNumber(models.Model):
-	# don't add any `datetime_added` field coz when user edits profile, 
+	# Don't add any `datetime_added` field coz when user edits profile, 
 	# all his phone numbers are removed and his phone numbers are recreated.
-	ISPs = (
-		('MTN', 'MTN'),
-		('Nexttel', 'Nexttel'),
-		('Orange', 'Orange'),
-		('CAMTEL', 'CAMTEL'),
-		('O', 'Other')  # TODO add other ISPs.
-	)
 
-	operator = models.CharField(_('Operator'), choices=ISPs, max_length=8, default='MTN')
 	number = models.CharField(
 		_('Phone number'),
 		max_length=20,  # filler value since CharFields must define a max_length attribute
@@ -75,15 +68,17 @@ class PhoneNumber(models.Model):
 
 	def __str__(self):
 		if self.can_whatsapp:
-			return f"{parse_phone_number(self.number)}, {self.operator}, {_('Supports WhatsApp')}"
-		return f"{parse_phone_number(self.number)}, {self.operator}, {_('No WhatsApp')}"
+			return f"{parse_phone_number(self.number)}, {_('Supports WhatsApp')}"
+		return f"{parse_phone_number(self.number)}, {_('No WhatsApp')}"
 
 	class Meta:
 		verbose_name = _("Phone Number")
 		verbose_name_plural = _("Phone Numbers")
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractUser):
+	first_name, last_name, date_joined = None, None, None
+
 	email = NormalizedEmailField(
 		_('Email address'),
 		max_length=50,
@@ -108,7 +103,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 		error_messages={
 			'unique': _('A user with that username already exists.'),
 		},
-		validators=[UsernameValidator()]
+		validators=[UsernameValidator()],
+		## https://docs.djangoproject.com/en/3.2/ref/contrib/postgres/operations
+		# /#managing-colations-using-migrations
+		#
+		## https://stackoverflow.com/questions/18807276/
+		# how-to-make-my-postgresql-database-use-a-case-insensitive-colation
+		#
+		## https://gist.github.com/hleroy/2f3c6b00f284180da10ed9d20bf9240a
+		# how to use Django 3.2 CreateCollation and db_collation to implement a 
+		# case-insensitive Charfield with Postgres > 1
+		#
+		## https://www.postgresql.org/docs/current/citext.html
+		#
+		## https://www.postgresql.org/docs/current/collation.html#COLLATION-NONDETERMINISTIC
+		# db_collation='case_insensitive'  # TODO Implement this
 	)
 	full_name = models.CharField(
 		_('Full name'),
@@ -128,6 +137,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 		help_text=_(
 			"Your preferred language. Don't worry, you can always view the site in another language."
 		)
+	)
+	country = models.ForeignKey(
+		Country, 
+		verbose_name=_('Country of residence'),
+		on_delete=models.RESTRICT,
+		related_name='users',
+		related_query_name='user',
 	)
 	gender = models.CharField(
 		_('Gender'),

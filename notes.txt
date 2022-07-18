@@ -5,6 +5,14 @@ source /home/sergeman/.virtualenvs/univ-portal-env/bin/activate
 
 # export GOOGLE_APPLICATION_CREDENTIALS='/home/sergeman/Downloads/camerschools-demo-c99628e30d95.json'
 
+
+** to do first:
+- enable unique username (collation)
+- complete footer (social media redirect links too)
+- remove google translation
+- use font awesome latest version(6.1.1) and properly install thttps://fontawesome.com/docs/web/use-with/python-django
+
+
 ** TO DO:
 - on ckeditor page, when image is about to uploaded, clicking on "Browse server" opens a new window to the admin page. Prevent this.
 # - create another thumbnail alias for small photos. this one will be used with small photos such that their size doesn't add. ex. in the current implementation, a photo with resolution(200 x 80) will generate a thumbnail with higher resolution and hence heavier. Use a thumbnail alias 'small_photo_thumb' and perform a size check during photo upload, perhaps from 1MB and below should use this alias, better still check the width and height of the image... (maybe sum of W and H)
@@ -112,6 +120,26 @@ jquery validation plugin..
 # 	- users can only perform transaction in  items in univ, hence more security...
 
 
+## case insentitive collation
+from django.contrib.postgres.operations import CreateCollation
+from django.db import migrations
+
+
+class Migration(migrations.Migration):
+
+   initial = True
+
+   operations = [
+      CreateCollation(
+         'case_insensitive',
+         provider='icu',
+         locale='und-u-ks-level2',
+         deterministic=False
+      ),
+   ]
+    
+
+
 # how do you do this in db: "you have 10 votes left for today? "
 #  nb: Entities: user, Date; Relation: Activity..(num_of_votes, ...)
 '''
@@ -148,5 +176,4 @@ class UserActivity(models.Model):
 	# from django.utils.timezone import localtime, now
 	remove all entries where entry.datetime.date() < timezone.now().date
 '''
-
 

@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
-from core.model_fields import NormalizedEmailField
+from core.fields import NormalizedEmailField
 from core.models import Institution
 from past_papers.models import PastPaper
 

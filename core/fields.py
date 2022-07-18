@@ -1,10 +1,10 @@
+# Ref: https://docs.djangoproject.com/en/3.2/ref/models/fields/#field-api-reference
+
 from django.conf import settings
 from django.db import models
 from django.db.models.fields.files import FieldFile, ImageFieldFile
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-
-from core.utils import parse_email
 
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 
@@ -51,35 +51,31 @@ class DynamicStorageImageField(models.ImageField):
 		return file
 	
 
-class ModifyingFieldDescriptor:
-	"""Modifies a field when set using the field's overriden .to_python() method"""
-	def __init__(self, field):
-		self.field = field
-
-	def __get__(self, instance, owner=None):
-		if instance is None:
-			raise AttributeError('Can only be accessed via an instance.')
-		return instance.__dict__[self.field.name]
-
-	def __set__(self, instance, value):
-		instance.__dict__[self.field.name] = self.field.to_python(value)
-
-
 class NormalizedEmailField(models.EmailField):
-	""" Override EmailField to convert emails to lowercase before saving """
-	description = "Convert email to lowercase and convert 'googlemail' to 'gmail'"
+    description = "An email field that replaces @googlemail.com to @gmail.com since both are actually the same"
+   
+    def _parse_value(self, value: str):
+      # Remember username@googlemail.com and username@gmail.com point to the same gmail account.
+      # see mailigen.com/blog/does-capitalization-matter-in-email-addresses/
+      from django.contrib.auth.models import UserManager
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+      value = UserManager.normalize_email(value)
+      return value.replace('@googlemail.com', '@gmail.com')
 
-	def to_python(self, value):
-		if not value:
-			return ''
-		return parse_email(value)
+    def get_prep_value(self, value):
+        # When storing to db
+        value = super().get_prep_value(value)
+        if value is None:
+            return None
+        return self._parse_value(str(value))
 
-	def contribute_to_class(self, cls, name, private_only=False):
-		super().contribute_to_class(cls, name)
-		setattr(cls, self.name, ModifyingFieldDescriptor(self))
+    def to_python(self, value):
+        # When displaying
+        if value is None:
+            return value
+        return self._parse_value(str(value))
 
-
+    def from_db_value(self, value, expression, connection):
+        # After retrieving from db
+        return self.to_python(value)
 

@@ -424,7 +424,7 @@ class AcademicQuestion(Question):
 	subject = models.ForeignKey(
 		'Subject',
 		verbose_name=_('Subject'),
-		on_delete=models.PROTECT,
+		on_delete=models.RESTRICT,
 		related_name='academic_questions',
 		related_query_name='academic_question',
 		null=True, blank=True,

@@ -5,9 +5,43 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import IMAGE_HOLDER_UPLOAD_DIR
-from core.model_fields import DynamicStorageImageField, NormalizedEmailField
+from core.fields import DynamicStorageImageField, NormalizedEmailField
 from core.utils import PhotoModelMixin
 from flagging.models import Flag
+
+
+class Country(models.Model):
+	code = models.CharField(max_length=3, unique=True)
+	name = models.CharField(max_length=50, unique=True)
+	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f'{self.name} {self.code}'
+
+	@classmethod
+	def create_countries(cls):
+		COUNTRIES = [
+			{ 
+				'code': 'CMR', 
+				'name': 'Cameroon', 
+				'name_fr': 'Cameroun',
+				'slug_fr': 'cameroun'
+			},
+			{ 
+				'code': 'NGA', 
+				'name': 'Nigeria', 
+				'name_fr': 'Nigéria',
+				'slug_fr': 'nigeria'
+			},
+
+		]
+
+		country_objs = [Country(**country) for country in COUNTRIES]
+		Country.objects.bulk_create(country_objs, ignore_conflicts=True)
+
+	class Meta:
+		verbose_name_plural = _('Countries')
 
 
 class Institution(models.Model):
@@ -16,7 +50,15 @@ class Institution(models.Model):
 	location = models.CharField(
 		_('Location'),
 		max_length=60,
-		help_text=_('Street or quarter where institution is located')
+		help_text=_('Street or quarter where institution is located'),
+		blank=True
+	)
+	country = models.ForeignKey(
+		Country, 
+		verbose_name=_('Country'),
+		on_delete=models.RESTRICT,
+		related_name='institutions',
+		related_query_name='institution'
 	)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)

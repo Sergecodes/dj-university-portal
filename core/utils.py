@@ -445,16 +445,6 @@ def get_edit_profile_url(user):
 	# return reverse('users:edit-profile', kwargs={'username': user.username}) + '#phoneSection'
 
 
-def parse_email(email):
-	"""
-	Convert email to lowercase and replace `googlemail` to `gmail`
-	Remember username@googlemail.com and username@gmail.com point to the same gmail account.
-	see mailigen.com/blog/does-capitalization-matter-in-email-addresses/
-	"""
-	email = email.replace('googlemail', 'gmail')
-	return email.lower()
-
-
 def parse_full_name(full_name):
 	"""
 	Ensure full names are separated only with one space. 

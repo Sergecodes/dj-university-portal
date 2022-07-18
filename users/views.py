@@ -84,7 +84,6 @@ class UserCreate(CreateView):
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
 			phone_number_dict = {
-				'operator': phone_number.operator,
 				'number': phone_number.number,
 				'can_whatsapp': phone_number.can_whatsapp
 			}

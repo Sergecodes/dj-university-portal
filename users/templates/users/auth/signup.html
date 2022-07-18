@@ -166,9 +166,6 @@
 			// do this to re-remove the button from the first form
 			$('.delete-row').first().hide();
 
-			// style operator div as above
-			$newForm.find('.js-operator').parent().css('width', '7rem');
-
 			// remove labels from newly added form fields
 			$newForm.find('label').hide();
 
@@ -192,9 +189,7 @@
 	var $formsetTable = $('.js-phoneNumbersTable').first();
 
 	var $numberDivs = $formsetTable.find('.js-number').parent();
-	var $operatorDivs = $formsetTable.find('.js-operator').parent();
 	$numberDivs.css('width', '12rem');
-	$operatorDivs.css('width', '7rem');
 
 	// hide "Remove" button from the first phone number 
 	// since user must have at least one number

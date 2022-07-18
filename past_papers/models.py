@@ -17,7 +17,7 @@ from core.constants import (
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
 )
 from core.models import Institution
-from core.model_fields import DynamicStorageFileField
+from core.fields import DynamicStorageFileField
 from core.utils import PhotoModelMixin
 from flagging.models import Flag
 from qa_site.models import Subject
@@ -173,7 +173,7 @@ class PastPaper(models.Model):
 	subject = models.ForeignKey(
 		Subject,
 		verbose_name=_('Subject'),
-		on_delete=models.PROTECT,
+		on_delete=models.RESTRICT,
 		related_name='past_papers',
 		related_query_name='past_paper',
 		blank=True, null=True

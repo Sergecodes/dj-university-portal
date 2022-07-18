@@ -23,7 +23,7 @@ class RequestedItem(Post):
 		verbose_name=_('Category'),
 		related_name='requested_items', 
 		related_query_name='requested_item',
-		on_delete=models.PROTECT
+		on_delete=models.RESTRICT
 	)
 	item_requested = models.CharField(
 		_('Item requested'), 

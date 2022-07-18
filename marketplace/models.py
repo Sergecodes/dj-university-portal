@@ -33,7 +33,7 @@ class ItemSubCategory(models.Model):
 	name = models.CharField(_('Name'), max_length=35)
 	parent_category = models.ForeignKey(
 		'ItemCategory', 
-		on_delete=models.PROTECT,  # prevent deletion of group if it contains some categories
+		on_delete=models.RESTRICT,  # prevent deletion of group if it contains some categories
 		related_name='sub_categories',
 		related_query_name='sub_category'
 	)
@@ -201,14 +201,14 @@ class ItemListing(ListingPost):
 		verbose_name=_('Category'),
 		related_name='item_listings', 
 		related_query_name='item_listing',
-		on_delete=models.PROTECT
+		on_delete=models.RESTRICT
 	)
 	sub_category = models.ForeignKey(
 		'ItemSubCategory', 
 		verbose_name=_('Sub category'),
 		related_name='item_listings', 
 		related_query_name='item_listing',
-		on_delete=models.PROTECT,
+		on_delete=models.RESTRICT,
 		null=True, blank=True,
 	)
 	condition = models.CharField(
@@ -261,7 +261,7 @@ class AdListing(ListingPost):
 		verbose_name=_('Category'),
 		related_name='ad_listings', 
 		related_query_name='ad_listing',
-		on_delete=models.PROTECT
+		on_delete=models.RESTRICT
 	)
 	pricing = models.CharField(
 		_('Pricing'), 

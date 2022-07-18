@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import (
 	IS_BAD_USER_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
 )
-from core.utils import parse_email, parse_full_name
+from core.utils import parse_full_name
 from notifications.models import Notification
 from notifications.signals import notify
 
@@ -36,16 +36,17 @@ class UserQuerySet(QuerySet):
 
 class UserManager(BaseUserManager, Manager):
 	def create_user(
-			self, 
-			email, 
-			username, 
-			full_name, 
-			password, 
-			gender, 
-			first_language, 
-			commit=True, 
-			**extra_fields
-		):
+		self, 
+		email, 
+		username, 
+		full_name, 
+		password, 
+		gender, 
+		first_language, 
+		country,
+		commit=True, 
+		**extra_fields
+	):
 		""" 
 		Create and save a user with the given email, username, password, etc... . 
 		"""
@@ -62,6 +63,8 @@ class UserManager(BaseUserManager, Manager):
 			raise ValueError(_('The gender must be set'))
 		if not first_language:
 			raise ValueError(_('The first language must be set'))	
+		if not country:
+			raise ValueError(_('The country must be set'))
 
 		# no need for this, it will be called when the object is been saved.
 		# since it is included in the validators property of the username field.
@@ -69,11 +72,12 @@ class UserManager(BaseUserManager, Manager):
 		# validate_username(username)
 		
 		user = self.model(
-			email=parse_email(email), 
+			email=email, 
 			username=username, 
 			full_name=parse_full_name(full_name), 
 			gender=gender,
 			first_language=first_language,
+			country=country,
 			**extra_fields
 		)
 		
@@ -86,16 +90,17 @@ class UserManager(BaseUserManager, Manager):
 		return user
 
 	def create_superuser(
-			self, 
-			email, 
-			username, 
-			full_name, 
-			password, 
-			gender, 
-			first_language, 
-			commit=True,
-			**extra_fields
-		):
+		self, 
+		email, 
+		username, 
+		full_name, 
+		password, 
+		gender, 
+		first_language, 
+		country,
+		commit=True,
+		**extra_fields
+	):
 		""" 
 		Create and save a SuperUser with the given email, name, full name, password etc... 
 		"""
@@ -119,6 +124,7 @@ class UserManager(BaseUserManager, Manager):
 			gender=gender,
 			password=password,
 			first_language=first_language,
+			country=country,
 			**extra_fields
 		)
 
@@ -187,18 +193,8 @@ class UserManager(BaseUserManager, Manager):
 		notify.send(
 			sender=user,  # just use same user as sender
 			recipient=user, 
-			verb=_("Click here to view information on how to use this website."),
+			verb=_("Welcome to CamerSchools. Click here to view information on how to use this website."),
 			follow_url=reverse('core:usage-info'),
-			category=Notification.GENERAL
-		)
-
-		# notification with link to CamerSchools profile
-		# camerschools_account = self.get_site_account()
-		notify.send(
-			sender=user,  # just use same user as sender
-			recipient=user, 
-			verb=_("Welcome to CamerSchools. Click here to view our social profile"),
-			follow_url=reverse('socialize:camerschools-profile'),
 			category=Notification.GENERAL
 		)
 

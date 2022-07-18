@@ -28,11 +28,6 @@ urlpatterns = [
         views.SocialProfileUpdate.as_view(), 
         name='update-profile'
     ),
-    path(
-        _('camerschools/profile/'),
-        views.CamerSchoolsProfileView.as_view(),
-        name='camerschools-profile'
-    ),
 
     path('ajax/social-profile/bookmark/', views.social_profile_bookmark_toggle, name='social-profile-bookmark-toggle'),
 
