@@ -1,0 +1,54 @@
+/** EXTRA CSS FOR THE PAST_PAPERS SITE */
+
+/** Past paper creation form */
+.pastpaper-form-container,
+.pastpaper-edit-comment-form-container {
+    width: 70%;
+}
+
+.pastpaper-edit-comment-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+
+/** Past papers list */
+.pastpapers-list-container {
+	width: 75%;
+}
+
+/** Past papers detail page */
+.pastpaper-comments {
+    width: 70%;
+}
+
+.pastpaper-comment-form {
+    width: 55%;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+    .pastpaper-edit-comment-form-container,
+    .pastpaper-form-container {
+        width: 100%;
+    }
+
+    .pastpaper-edit-comment-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+	.pastpapers-list-container {
+		width: 100%;
+	} 
+
+    .pastpaper-comments {
+        width: 100%;
+    }
+
+    .pastpaper-comment-form {
+        width: 100%;
+    }
+
+}

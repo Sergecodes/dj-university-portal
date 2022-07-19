@@ -467,7 +467,8 @@
 
 	{% block footer %}
 	<footer class="d-flex flex-column text-center p-3 footer">
-		<ul class="list-inline mt-4 footer-links-ul">
+		{# site links #}
+		<ul class="list-inline mt-4">
 			<li class="list-inline-item pe-5">
 				<a href="{% url 'core:home' %}" class="text-decoration-none footer__link">
 					{% trans 'Home' %}
@@ -494,7 +495,9 @@
 				</a>
 			</li>
 		</ul>
-		<ul class="list-inline mt-4 footer-socials-ul">
+
+		{# social links #}
+		<ul class="list-inline mt-4">
 			<li class="list-inline-item">
 				<a href="#" class="text-decoration-none footer__link">
 					<span class="footer-ico-wrp" style="color: #295fcc;">
@@ -541,6 +544,13 @@
 				</a>
 			</li>
 		</ul>
+
+		{# select menus #}
+		<div class="">
+			
+		</div>
+
+		{# copyright info #}
 		<div class="mt-4 footer-legal">
 			<p class="small text-secondary">
 				{% trans 'Copyright' %} &copy {% now 'Y' %} CamerSchools
@@ -552,8 +562,8 @@
 	</footer>
 	{% endblock %}
 	
-	<script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script>
-	<!-- <script type="text/javascript" src="{% static 'js/base.js' %}"></script> -->
+	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+	<!-- <script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script> -->
 	{% block extra_js %}
 	{% endblock %}
 </body>

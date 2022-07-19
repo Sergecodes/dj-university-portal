@@ -1,0 +1,105 @@
+/** EXTRA CSS FOR THE QA_SITE */
+
+/* Question creation templates */
+.comment-form-container,
+.answer-form-container,
+.school-question-form-container,
+.academic-question-form-container {
+	width: 75%;
+}
+
+.comment-form,
+.answer-form,
+.school-question-form,
+.academic-question-form {
+    padding: 1.5rem 1rem 1.5rem 2rem;  /* pt-4, pb-4 */
+}
+
+/* Answer and comment edit and deletion templates */
+
+
+/* Ck-editor widgets */
+/* question form widget */
+.django-ckeditor-widget {
+	width: 100%;
+}
+
+/* #cke_addQuestionCommentArea,
+.cke_editor_addQuestionCommentArea {
+	width: 50%;
+} */
+
+
+/* Questions detail view pages */
+.question-header {
+	justify-content: space-between;
+	align-items: center;
+}
+
+.question-header__title {
+	color: #3c4146;
+}
+
+.question-info {
+	font-size: .95rem;
+}
+
+.answers-header__count {
+	color: #3c4146;
+	font-size: 1.4rem;
+}
+
+/** Questions explain page */
+.qstn-descr-img {
+	height: 12rem;
+}
+
+
+
+/*** MEDIA QUERIES ***/
+
+/* lg and above */
+@media (min-width: 992px) {
+	.question-list-art {
+		width: 75%;
+		margin-right: 1.5rem; /* me-4 */
+	} 
+
+	.subjects-list-aside,
+	.schools-list-aside {
+		width: 25%;
+	}
+}
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	/* .question-list-art {
+
+	} */
+
+	.comment-form-container,
+	.answer-form-container,
+	.school-question-form-container,
+	.academic-question-form-container {
+		width: 100%;
+	}
+
+	.comment-form,
+	.answer-form,
+	.school-question-form,
+	.academic-question-form {
+        padding-left: 1rem; /* ps-3 */
+        padding-right: 1rem; 
+    }
+
+	/* #cke_addQuestionCommentArea,
+	.cke_editor_addQuestionCommentArea {
+		width: 100%;
+	} */
+
+	/* .question-list-art {
+		width: 100%;
+		margin: 0;
+	} */
+
+}

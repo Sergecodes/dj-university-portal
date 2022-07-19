@@ -15,7 +15,7 @@
 # debug
 
 # collecstatic static files and media files
-core/static/
+staticfiles/
 media/
 
 # development files

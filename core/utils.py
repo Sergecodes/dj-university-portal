@@ -23,7 +23,7 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 SECRET_KEY = settings.SECRET_KEY
 # get custom font here rather than loading it multiple times..
 IMAGE_FONT = ImageFont.truetype(
-	os.path.join(BASE_DIR, 'static/webfonts', 'ScheherazadeNew-Bold.ttf'),
+	os.path.join(BASE_DIR, 'core/static/webfonts', 'ScheherazadeNew-Bold.ttf'),
 	40
 )
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()

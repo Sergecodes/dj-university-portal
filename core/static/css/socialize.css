@@ -1,0 +1,49 @@
+/** EXTRA CSS FOR THE SOCIALIZE SITE */
+
+/* Creation page */
+.socialize-form-container {
+    width: 75%;
+}
+
+/* listing page */
+.profiles-list-art,
+.profile-filter-art {
+	width: 75%;
+	margin-right: 1.5rem; /* me-4 */
+}
+
+.profiles-list-container {
+    width: 80%;
+}
+
+.profile-item {
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-item__img {
+    width: 10rem;
+    height: 100%;
+}
+
+
+/*** MEDIA QUERIES ***/
+/* Layout for desktop sizes and greater (>= lg) */
+@media (min-width: 992px) {
+	
+}
+
+
+/* xs, sm, md. (lg is from >= 992px) */
+@media (max-width: 991.98px) {
+	.profiles-list-container,
+    .socialize-form-container {
+        width: 100%;
+    }
+	
+	.profiles-list-art,  /** added.. */
+	.profile-filter-art {
+		width: 100%;
+		margin: 0;
+	}
+
+}
