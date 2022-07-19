@@ -34,7 +34,7 @@ class UserCreationForm(BaseUserCreationForm):
 		model = User
 		fields = [
 			'full_name', 'username', 'email', 
-			'password1', 'first_language', 'gender', 
+			'password1', 'country', 'first_language', 'gender', 
 		]
 		# localized_fields = ('birth_date', )
 		widgets = {
@@ -108,7 +108,7 @@ class UserUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model = User
-		fields = ['email', 'full_name', 'username', 'first_language', 'gender', ]
+		fields = ['email', 'full_name', 'username', 'country', 'first_language', 'gender', ]
 		widgets = {
 			'first_language': forms.RadioSelect(),
 			'gender': forms.RadioSelect(),

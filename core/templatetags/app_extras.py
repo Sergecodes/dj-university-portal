@@ -1,4 +1,6 @@
 import bleach
+from core.models import Country
+from core.utils import parse_phone_number, is_mobile
 from django import template
 from django.apps import apps
 from django.conf import settings
@@ -6,10 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 # from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
-
-from core.utils import parse_phone_number, is_mobile
 from past_papers.mixins import can_edit_comment, can_delete_comment
-# i imported the User module directly; this was to ensure that 
+# I imported the User module directly; this was to ensure that 
 # the User methods will be highlighted by the code editor; xD
 # just allow it as it is.
 from users.models import User
@@ -32,13 +32,53 @@ register.filter('can_edit_past_paper_comment', can_edit_comment)
 register.filter('can_delete_past_paper_comment', can_delete_comment)
 
 
+@register.simple_tag
+def get_countries():
+	return Country.objects.all()
+
+
+@register.simple_tag
+def get_languages():
+	result = []
+	for lang in settings.LANGUAGES:
+		result.append({
+			'code': lang[0],
+			'name': lang[1]
+		})
+	
+	return result
+
+
+@register.simple_tag(takes_context=True)
+def get_default_country(context):
+	"""Get default country. """
+	# If session.country_code doesn't exist, then return user's country
+	country_code = context['request'].session.get('country_code')
+	if country_code:
+		return Country.objects.get(code=country_code)
+
+	return context['user'].country
+
+
+@register.filter
+def get_language_name(code):
+	"""Get language name from code"""
+	for lang in settings.LANGUAGES:
+		if lang[0] == code:
+			return lang[1]
+
+	raise ValueError(f'code {code} is not in settings.LANGUAGES')
+
+
 @register.filter
 def get_model_name(obj):
 	return type(obj).__name__
 
+
 @register.filter
 def get_app_name(obj):
 	return obj._meta.app_label
+
 
 @register.filter
 def post_is_unread(user_notifs_group, post):
@@ -112,7 +152,7 @@ def query_transform(request, **kwargs):
 	return updated.urlencode()
 
 
-@register.simple_tag(name='get_login_url')
+@register.simple_tag
 def get_login_url():
 	login_url = getattr(settings, 'LOGIN_URL', None)
 	if not login_url:

@@ -3,11 +3,11 @@ from django.core.paginator import Paginator
 from django.db.models import Prefetch
 from django.http import HttpResponseServerError
 from django.http.response import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import loader
 from django.template.context import Context, RequestContext
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.views.generic.base import TemplateView
 
 from core.constants import (
@@ -275,6 +275,13 @@ def get_category_search_results(request, category):
 		# if more than one page is present, then the results are paginated
 		'is_paginated': paginator.num_pages > 1
 	})
+
+
+def set_session_country(request, country_code):
+	print("in set session country")
+	# Store user's selected country in session
+	request.session['country_code'] = country_code
+	redirect(request.path)
 
 
 class SiteUsageInfoView(TemplateView):
