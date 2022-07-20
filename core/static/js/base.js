@@ -558,9 +558,58 @@ function displayCustomErrorToast(message) {
 
 /**
  * Create and prepare footer select menus
- * https://www.w3schools.com/howto/howto_custom_select.asp
+ * Inspired by https://www.w3schools.com/howto/howto_custom_select.asp
  */
 function initFooterSelects() {
+	function handleSelectClick(e) {
+		// when the select box is clicked, close any other select boxes,
+		// and open/close the current select box
+		e.stopPropagation();
+		closeAllFooterSelects(this);
+		this.nextSibling.classList.toggle("footer-select--hide");
+		this.classList.toggle("footer-select-arrow--active");
+	}
+
+	function handleItemClick(e) {
+		// when an item is clicked, update the original select box,
+		// and the selected item
+		var y, i, k, s, h, sl, yl;
+		s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+		sl = s.length;
+		h = this.parentNode.previousSibling;
+		for (i = 0; i < sl; i++) {
+			if (s.options[i].innerHTML == this.innerHTML) {
+				s.selectedIndex = i;
+				h.innerHTML = this.innerHTML;
+				y = this.parentNode.getElementsByClassName("same-as-selected");
+				yl = y.length;
+				for (k = 0; k < yl; k++) {
+					y[k].classList.remove('same-as-selected')
+				}
+				this.classList.add("same-as-selected");
+				break;
+			}
+		}
+		h.click();
+	}
+
+	function handleItemLinkClick(option, e) {
+		// Only change url if clicked option is different from currently selected
+		var select = option.parentElement;
+		if (select.selectedIndex != option.index)
+			location.href = option.dataset.url;
+	}
+
+	function handleLangClick(option, e) {
+		// Trigger language form submit
+		var select = option.parentElement;
+		if (select.selectedIndex != option.index) {
+			var langForm = document.querySelector('#footer-language-form');
+			select.selectedIndex = option.index;
+			langForm.submit();
+		}
+	}
+
 	var x, i, j, l, ll, selElmnt, a, b, c;
 	// look for any elements with the class "footer-select-wrp"
 	x = document.getElementsByClassName("js-footer-select-wrp");
@@ -582,43 +631,37 @@ function initFooterSelects() {
 		for (j = 1; j < ll; j++) {
 			// for each option in the original select element,
 			// create a new DIV that will act as an option item
+			var option = selElmnt.options[j];
 			c = document.createElement("DIV");
 			c.classList.add('footer-select-items-div');
-			c.innerHTML = selElmnt.options[j].innerHTML;
-			c.addEventListener("click", function (e) {
-				// when an item is clicked, update the original select box,
-				// and the selected item
-				var y, i, k, s, h, sl, yl;
-				s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-				sl = s.length;
-				h = this.parentNode.previousSibling;
-				for (i = 0; i < sl; i++) {
-					if (s.options[i].innerHTML == this.innerHTML) {
-						s.selectedIndex = i;
-						h.innerHTML = this.innerHTML;
-						y = this.parentNode.getElementsByClassName("same-as-selected");
-						yl = y.length;
-						for (k = 0; k < yl; k++) {
-							y[k].classList.remove('same-as-selected')
-						}
-						this.classList.add("same-as-selected");
-						break;
-					}
-				}
-				h.click();
-			});
+			c.innerHTML = option.innerHTML;
+
+			if (selElmnt.classList.contains('js-footer-select--country')) {
+				c.addEventListener("click", handleItemLinkClick.bind(this, option));
+			} else if (selElmnt.classList.contains('js-footer-select--language')) {
+				c.addEventListener('click', handleLangClick.bind(this, option));
+			} else {
+				c.addEventListener("click", handleItemClick);
+			}
+
 			b.appendChild(c);
 		}
 
 		x[i].appendChild(b);
-		a.addEventListener("click", function (e) {
-			// when the select box is clicked, close any other select boxes,
-			// and open/close the current select box
-			e.stopPropagation();
-			closeAllFooterSelects(this);
-			this.nextSibling.classList.toggle("footer-select--hide");
-			this.classList.toggle("footer-select-arrow--active");
-		});
+		a.addEventListener("click", handleSelectClick);
+
+		// Mark default selected item in list as selected
+		// i.e. in list of items, find the currently selected item and mark it as 
+		// selected (by adding the 'same-as-selected' class)
+		var idx;
+		var sd = x[i].getElementsByClassName('footer-select-items-div');
+		for (idx = 0; idx < sd.length; idx++) {
+			// Use -1 because in the select menu, the initial option is present twice
+			if (selElmnt.selectedIndex - 1 == idx) {
+				sd[idx].classList.add("same-as-selected");
+				break;
+			}
+		}
 	}
 }
 

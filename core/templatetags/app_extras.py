@@ -37,18 +37,6 @@ def get_countries():
 	return Country.objects.all()
 
 
-@register.simple_tag
-def get_languages():
-	result = []
-	for lang in settings.LANGUAGES:
-		result.append({
-			'code': lang[0],
-			'name': lang[1]
-		})
-	
-	return result
-
-
 @register.simple_tag(takes_context=True)
 def get_default_country(context):
 	"""Get default country. """
@@ -58,16 +46,6 @@ def get_default_country(context):
 		return Country.objects.get(code=country_code)
 
 	return context['user'].country
-
-
-@register.filter
-def get_language_name(code):
-	"""Get language name from code"""
-	for lang in settings.LANGUAGES:
-		if lang[0] == code:
-			return lang[1]
-
-	raise ValueError(f'code {code} is not in settings.LANGUAGES')
 
 
 @register.filter

@@ -278,10 +278,13 @@ def get_category_search_results(request, category):
 
 
 def set_session_country(request, country_code):
-	print("in set session country")
 	# Store user's selected country in session
 	request.session['country_code'] = country_code
-	redirect(request.path)
+
+	if next_url := request.GET.get('next'):
+		return redirect(next_url)
+	
+	return redirect('/')
 
 
 class SiteUsageInfoView(TemplateView):

@@ -287,8 +287,9 @@ a.dropdown-item:focus {
     height: 95px;
 }
 
-
+/** FOOTER SECTION */
 .footer {
+    margin-top: 6rem;
     background-color: #222;
 }
 
@@ -323,7 +324,7 @@ a.dropdown-item:focus {
 .footer-select-selected:after {
     position: absolute;
     content: "";
-    top: 16px;
+    top: 13px;
     right: 10px;
     width: 0;
     height: 0;
@@ -345,6 +346,7 @@ a.dropdown-item:focus {
     border: 1px solid #ccc;
     cursor: pointer;
     user-select: none;
+    font-size: .875em;
 }
 
 /* style items (options) */
@@ -356,7 +358,7 @@ a.dropdown-item:focus {
     right: 0;
     z-index: 99;
     height: 100px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 /* hide the items when the select box is closed */
@@ -367,7 +369,10 @@ a.dropdown-item:focus {
 .footer-select-items-div:hover,
 .same-as-selected {
     background-color: rgb(243 241 241 / 21%);
-    /* background-color: rgba(0, 0, 0, 0.1); */
+}
+
+.footer-legal {
+    margin-top: 2.25rem;
 }
 
 
