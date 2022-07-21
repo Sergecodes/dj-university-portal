@@ -13,11 +13,6 @@
 * xxl -- Extra extra large devices (larger desktops, >=1400px)
 */
 
-/* font for language switcher */
-/* https://github.com/bluebits-academy/language-switcher */
-@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap');
-
-
 :root {
     --purple: #3956b2;
     --green: #3c8754;
@@ -25,9 +20,9 @@
     --footer-select-bg: transparent;
 }
 
-/* .body {
-    font-family: 'Didact Gothic', sans-serif;
-} */
+.page {
+    font-family: Arial, sans-serif;
+}
 
 img {
     max-width: 100%;

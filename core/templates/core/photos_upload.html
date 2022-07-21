@@ -1,125 +1,100 @@
-{% extends "core/base.html" %}
-
-{# this comment isn't at the top because the extends tag have to be the first tag in the template #}
-{% comment %}
-Due to the Layout object from django-crispy forms, apparently, 
-we need to inherit from the base template... 
-{% endcomment %}
-
 {% load static %} 
 {% load i18n %} 
-{% load thumbnail %}
 {% load app_extras %}
 
-{% block head %}
-{% endblock %}
-
-{% block header %}
-{% endblock %}
-
-{% block institution_searchbox %}
-{% endblock %}
-
-{% block content %}
-
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				{% trans 'You are not logged in.' %} 
-				<p class="text-dark mt-1 mb-0">
-					{% trans 'Click' %} 
-					<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
-						{% trans 'here' %}
-					</a> 
-					{% trans 'to login to your account' %} 
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans 'You are not logged in.' %} 
+			<p class="text-dark mt-1 mb-0">
+				{% trans 'Click' %} 
+				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
+					{% trans 'here' %}
+				</a> 
+				{% trans 'to login to your account' %} 
+			</p>
 		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
+</div>
 
-	<div class="mt-2 mb-4 gallery-container">
-		{# button to trigger click event on input type=file button (.js-file-upload button) #}
-		<button type="button" class="d-block btn btn-secondary js-upload-photos">
-			<i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 
-			{% trans 'Upload photos' %}
-		</button>
-		<span class="form-text text-muted d-inline-block mb-2 js-helpTextSpan">
-			{{ upload_help_text }}
-		</span>
+<div class="mt-2 mb-4 gallery-container">
+	{# button to trigger click event on input type=file button (.js-file-upload button) #}
+	<button type="button" class="d-block btn btn-secondary js-upload-photos">
+		<i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 
+		{% trans 'Upload photos' %}
+	</button>
+	<span class="form-text text-muted d-inline-block mb-2 js-helpTextSpan">
+		{{ upload_help_text }}
+	</span>
 
-		{# input type="file" to be used by the file upload plugin, dispay set to none so as to hide it but it will be triggered via another button. #}
-		{# note that the name attribute should be the same name used in the backend form #}
-		{# these data attributes are used by the plugin. #}
-		<input 
-			class="js-file-upload" 
-			type="file" 
-			name="file"
-			accept="image/png, image/jpeg"
-			style="display: none;" 
-			data-url="{% url 'core:photo-upload' form_for=form_for %}"
-			data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'
-			multiple 
-		>
-		<hr class="my-2">
-		<!-- container for photos, generally obtained from get_form_kwargs() -->
-		<div class="row m-auto js-gallery">
-			{% for photo_info in initial_photos %}
-			<div class="col-4 col-lg-3 my-2 photo-wrp js-photo-wrp">
-				{# also encode encrypted filename as safe-url so that signs such as + sign get correctly parsed(by querydict) in backend #}
-				{# see stackoverflow.com/q/66167067/querydict-in-django #}
-				<img 
-					src="{{ photo_info.url }}"
-					class="photo-wrp__img"
-					data-filename="{{ photo_info.filename|urlencode }}"
-				>
-				<button  
-					type="button"
-					class="btn-close js-remove-photo"
-					aria-label="{% trans 'Delete' %}"
-				></button> 
-			</div>
-			{% endfor %}
-		</div>
-		<hr class="my-2">
-
-		<!-- container for any errors(notably if user doesn't upload the minimum number of photos) -->
-		<div class="js-photo-errors"></div>
-	</div>
-
-	<!-- progress bar modal. PS modals are hidden by default -->
-	<div 
-		class="modal fade js-modal-progress" 
-		data-bs-backdrop="static" 
-		data-bs-keyboard="false"
-		tabindex="-1"
+	{# input type="file" to be used by the file upload plugin, dispay set to none so as to hide it but it will be triggered via another button. #}
+	{# note that the name attribute should be the same name used in the backend form #}
+	{# these data attributes are used by the plugin. #}
+	<input 
+		class="js-file-upload" 
+		type="file" 
+		name="file"
+		accept="image/png, image/jpeg"
+		style="display: none;" 
+		data-url="{% url 'core:photo-upload' form_for=form_for %}"
+		data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'
+		multiple 
 	>
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title">{% trans 'Uploading' %}...</h4>
-				</div>
-				<div class="modal-body">
-					<div class="progress">
-						<div 
-							class="progress-bar js-progress-bar" 
-							role="progressbar" 
-							style="width: 0%;"
-						>
-							0%
-						</div>
+	<hr class="my-2">
+	<!-- container for photos, generally obtained from get_form_kwargs() -->
+	<div class="row m-auto js-gallery">
+		{% for photo_info in initial_photos %}
+		<div class="col-4 col-lg-3 my-2 photo-wrp js-photo-wrp">
+			{# also encode encrypted filename as safe-url so that signs such as + sign get correctly parsed(by querydict) in backend #}
+			{# see stackoverflow.com/q/66167067/querydict-in-django #}
+			<img 
+				src="{{ photo_info.url }}"
+				class="photo-wrp__img"
+				data-filename="{{ photo_info.filename|urlencode }}"
+			>
+			<button  
+				type="button"
+				class="btn-close js-remove-photo"
+				aria-label="{% trans 'Delete' %}"
+			></button> 
+		</div>
+		{% endfor %}
+	</div>
+	<hr class="my-2">
+
+	<!-- container for any errors(notably if user doesn't upload the minimum number of photos) -->
+	<div class="js-photo-errors"></div>
+</div>
+
+<!-- progress bar modal. PS modals are hidden by default -->
+<div 
+	class="modal fade js-modal-progress" 
+	data-bs-backdrop="static" 
+	data-bs-keyboard="false"
+	tabindex="-1"
+>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">{% trans 'Uploading' %}...</h4>
+			</div>
+			<div class="modal-body">
+				<div class="progress">
+					<div 
+						class="progress-bar js-progress-bar" 
+						role="progressbar" 
+						style="width: 0%;"
+					>
+						0%
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
 
-{% endblock content %}
 
-{% block footer %}
-{% endblock %}
-
-{% block extra_js %}
 {# jquery file upload scripts #}
 <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
 <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
@@ -256,4 +231,3 @@ we need to inherit from the base template...
 	});
 
 </script>
-{% endblock %}

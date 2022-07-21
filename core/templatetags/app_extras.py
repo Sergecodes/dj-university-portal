@@ -17,7 +17,6 @@ from users.models import User
 
 register = template.Library()
 
-
 register.filter('is_mobile', is_mobile)
 register.filter('parse_tel', parse_phone_number)
 
@@ -53,16 +52,15 @@ def general_country_code():
 def get_default_country(context):
 	"""Get default country. """
 	user, request = context['user'], context['request']
-
-	# If session.country_code doesn't exist, then return user's country
 	country_code = request.session.get('country_code')
+
 	if country_code:
 		return Country.objects.get(code=country_code)
 
 	if user.is_authenticated:
 		return user.country
 
-	# User is not auth so use default country_code
+	# User is not auth or no country is in session so use default country_code
 	return None
 
 

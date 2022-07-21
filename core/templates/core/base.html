@@ -37,16 +37,7 @@
 	<script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>  
 	{% comment %} <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script> {% endcomment %}
-	
-	<style>
-		{# Use this here so as to use static tag as they are not supported in css files #}
-		.en:before {
-			background-image: url("{% static 'icons/en.svg' %}");
-		}
-		.fr:before {
-			background-image: url("{% static 'icons/fr.svg' %}");
-		}
-	</style>
+
 	{% block extra_script_pre %}
 	{% endblock extra_script_pre %}
 </head>
@@ -365,8 +356,8 @@
 								{% trans 'Items for sale' %}
 							</a>
 							<div class="dropdown-menu" aria-labelledby="buySellItem">
-								<a class="dropdown-item" href="{% url 'marketplace:item-listing-list' %}">{% trans 'View/Buy items' %}</a>
 								<a class="dropdown-item" href="{% url 'marketplace:item-listing-create' %}">{% trans 'Sell an item' %}</a>
+								<a class="dropdown-item" href="{% url 'marketplace:item-listing-list' %}">{% trans 'View/Buy items' %}</a>
 							</div>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">

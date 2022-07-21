@@ -14,7 +14,7 @@ var lastWidth;
 var isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matches;
 
 
-function headerDropdownHover() {
+function headerDropdownHover(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.show();
@@ -32,7 +32,7 @@ function headerDropdownHover() {
 	}
 }
 
-function headerDropdownClick() {
+function headerDropdownClick(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.show();
@@ -54,7 +54,7 @@ function headerDropdownClick() {
 	});
 }
 
-function headerDropdownMouseLeave(event) {
+function headerDropdownMouseLeave(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.hide();
@@ -68,7 +68,7 @@ function headerDropdownMouseLeave(event) {
 	$navLink.attr('aria-expanded', 'false');
 }
 
-function headerAccountInfoHoverOrClick(event) {
+function headerAccountInfoHoverOrClick(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.addClass("show");
@@ -85,7 +85,7 @@ function headerAccountInfoHoverOrClick(event) {
 	link.css('filter', 'drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px)');
 }
 
-function headerAccountInfoMouseLeave() {
+function headerAccountInfoMouseLeave(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.removeClass("show");
@@ -96,7 +96,7 @@ function headerAccountInfoMouseLeave() {
 	link.css('filter', '');
 }
 
-function loginDropdownHoverOrClick() {
+function loginDropdownHoverOrClick(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.addClass("show");
@@ -109,7 +109,7 @@ function loginDropdownHoverOrClick() {
 	});
 }
 
-function headerLangDropdownHover() {
+function headerLangDropdownHover(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.find('.dropdown-menu');
 	dropdownMenu.addClass("show");
@@ -118,7 +118,7 @@ function headerLangDropdownHover() {
 	$this.find('.dropdown-toggle').attr('aria-expanded', 'true');
 }
 
-function headerLangDropdownMouseLeave() {
+function headerLangDropdownMouseLeave(e) {
 	var $this = $(this);
 	var dropdownMenu = $this.find('.dropdown-menu');
 	dropdownMenu.removeClass("show");
@@ -126,7 +126,7 @@ function headerLangDropdownMouseLeave() {
 	$this.find('.dropdown-toggle').attr('aria-expanded', 'false');
 }
 
-function loginDropdownMouseLeave() {
+function loginDropdownMouseLeave(e) {
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
 	dropdownMenu.removeClass("show");
 	dropdownMenu.hide();
@@ -365,7 +365,7 @@ function insertItemSubCategories(e) {
 				$subCategoryMenu.append(option);
 			});
 			$subCategoryMenu.prepend(" \
-				<option value='' selected='selected'> \
+				<option value='' selected> \
 					--------- \
 				</option>"
 			);
@@ -433,9 +433,7 @@ function expandImage(e) {
 }
 
 
-/**
- * Display toast. Toast should be present in the html page
- */
+/** Display toast. Toast should be present in the html page */
 function displayToast(type, param) {
 	var VALID_TOASTS = [
 		'LOGIN_REQUIRED', 'SELF_VOTE', 'ERROR_OCCURRED', 
@@ -477,7 +475,6 @@ function displayToast(type, param) {
 
 	} else if (type == 'BOOKMARK_TOGGLE') {
 		var bookmarkAdded = param;
-		var $myToast;
 		if (bookmarkAdded)
 			$myToast = $('.js-bookmark-added-toast').first();
 		else
@@ -485,7 +482,6 @@ function displayToast(type, param) {
 
 	} else if (type == 'FOLLOW_TOGGLE') {
 		var followed = param;
-		var $myToast;
 		if (followed)
 			$myToast = $('.js-followed-toast').first();
 		else
@@ -541,15 +537,13 @@ function init() {
 
 	} else if (isMobile) {
 		// detach all added event handlers and 
-		// let Bootstrap default click functionality for dropdowns
+		// var Bootstrap default click functionality for dropdowns
 		$headerDropdown.off();
 		$headerAccountInfo.off();
 	}
 }
 
-/**
- * Initialize all bootstrap tooltips
- */
+/** Initialize all bootstrap tooltips */
 function initTooltips() {
 	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -797,16 +791,16 @@ $('.js-bookmark-button').click(function (event) {
 document.addEventListener('DOMContentLoaded', function () {
 	'use strict';
 
-	let headers = {
+	var headers = {
 		'X-Requested-With': 'XMLHttpRequest',
 		'Content-Type': 'application/x-www-form-urlencoded'
 	};
 
 	const fadeOut = function (element, duration) {
-		let interval = 10;//ms
-		let opacity = 1.0;
-		let targetOpacity = 0.0;
-		let timer = setInterval(function () {
+		var interval = 10;//ms
+		var opacity = 1.0;
+		var targetOpacity = 0.0;
+		var timer = setInterval(function () {
 			if (opacity <= targetOpacity) {
 				opacity = targetOpacity;
 				clearInterval(timer);
@@ -817,10 +811,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	};
 
 	const fadeIn = function (element, duration) {
-		let interval = 20;//ms
-		let opacity = 0.0;
-		let targetOpacity = 1.0;
-		let timer = setInterval(function () {
+		var interval = 20;//ms
+		var opacity = 0.0;
+		var targetOpacity = 1.0;
+		var timer = setInterval(function () {
 			if (opacity >= targetOpacity) {
 				opacity = targetOpacity;
 				clearInterval(timer);
@@ -842,8 +836,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const toggleText = function (element, action) {
 		// element that contains flag 
-		const spanEle = element.querySelector('span');
-		var textSpan = spanEle.querySelector('span');
+		// const spanEle = element.querySelector('span');
+		// var textSpan = spanEle.querySelector('span');
 		var textSpan = (document.querySelector('.js-first-child')).previousElementSibling;
 
 		// `textSpan` will be null if no text is present. 
@@ -939,7 +933,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	};
 
 	const submitFlagForm = function (ele, action = 'add') {
-		let flagEle, info = null, reason = null;
+		var flagEle, info = null, reason = null;
 		if (action !== 'add') {
 			action = 'remove';
 			flagEle = ele;
@@ -976,7 +970,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (response) {
 				createInfoElement(flagEle.parentElement, response.status, response.msg);
 				const modal = flagEle.nextElementSibling;
-				let action;
+				var action;
 				if (response.flag === 1) {
 					action = 'add';
 					hideModal(modal);

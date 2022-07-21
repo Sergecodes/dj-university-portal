@@ -35,6 +35,7 @@
 {% block extra_js %}
 <script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
+	var $window = $(window);
 	var $form = $("[name='item-listing-form']");
 	$form.dirty({
 		preventLeaving: true,
@@ -50,18 +51,18 @@
 		'D': "{% trans 'An item that does not function as intended and is not fully operational. This includes items that are defective in ways that render them difficult to use, items that require service or repair, or items missing essential components.' %}"
 	};
 	// get help text of initial listing condition
-	$(window).on('load', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
+	$window.on('load', { conditions: CONDITIONS_AND_HELP_TEXTS }, insertConditionHelpText);
 
 	var $condition = $('.js-condition');
-	$condition.on('change', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
+	$condition.on('change', { conditions: CONDITIONS_AND_HELP_TEXTS }, insertConditionHelpText);
 	$condition.on('change', {}, onConditionChange);
 
-	// todo fill sub category options with initial value of category
+	// Fill sub category options with initial value of category
 	var getSubCategoriesUrl = "{% url 'marketplace:get-item-subcategories' %}";
-	$(window).on(
+	$window.on(
 		'load', 
 		// pass url to js instead of hardcoding
-		{url: getSubCategoriesUrl}, 
+		{ url: getSubCategoriesUrl }, 
 		insertItemSubCategories
 	);
 
@@ -69,7 +70,7 @@
 	var $category = $('.js-category');
 	$category.on(
 		'change', 
-		{url: getSubCategoriesUrl}, 
+		{ url: getSubCategoriesUrl }, 
 		insertItemSubCategories
 	);
 
@@ -91,16 +92,16 @@
 
 	// place listing description help text directly after label instead of below the ckeditor widget
 	var $descriptionLabel = $("[for='id_description']");
-	$descriptionLabel.css({'margin-bottom': '0', 'display': 'block'});
+	$descriptionLabel.css({ 'margin-bottom': '0', 'display': 'block' });
 	var $descriptionHelpText = $('#hint_id_description');
-	$descriptionHelpText.css({'display': 'block', 'margin-top': '0', 'margin-bottom': '.8rem'});
+	$descriptionHelpText.css({ 'display': 'block', 'margin-top': '0', 'margin-bottom': '.8rem' });
 	$descriptionLabel.after($descriptionHelpText);
 
 	// place general condition help text directly after label instead of below select menu
 	var $conditionLabel = $("[for='id_condition']");
-	$conditionLabel.css({'margin-bottom': '0', 'display': 'block'});
+	$conditionLabel.css({ 'margin-bottom': '0', 'display': 'block' });
 	var $conditionHelpText = $('#hint_id_condition');
-	$conditionHelpText.css({'display': 'block', 'margin-top': '0', 'margin-bottom': '1rem'});
+	$conditionHelpText.css({ 'display': 'block', 'margin-top': '0', 'margin-bottom': '1rem' });
 	$conditionLabel.after($conditionHelpText);
 </script>
 {% endblock %}
