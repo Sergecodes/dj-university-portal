@@ -745,7 +745,7 @@
 		if (!userId) {
 			// prevent other handlers from being called(prevent sending request to backend)
 			event.stopImmediatePropagation();
-			displayLoginRequiredToast();
+			displayToast('LOGIN_REQUIRED');
 			return false;
 		}
 
@@ -753,14 +753,14 @@
 		var threadType = event.currentTarget.dataset.thread;
 		if (!THREAD_TYPES.includes(threadType)) {
 			event.stopImmediatePropagation();
-			displayErrorOccurredToast();
+			displayToast('ERROR_OCCURRED');
 			return false;
 		}
 
 		// if user is voting for their post
 		if (userId === this.dataset.posterId) {
 			event.stopImmediatePropagation();
-			displaySelfVoteToast();
+			displayToast('SELF_VOTE');
 			return false;
 		}
 	}
@@ -775,7 +775,7 @@
 		// if current user isn't logged in
 		if (!userId) {
 			event.stopImmediatePropagation();
-			displayLoginRequiredToast();
+			displayToast('LOGIN_REQUIRED');
 			return false;
 		}
 
@@ -839,7 +839,7 @@
 						}
 					} else {
 						// console.log(response);
-						displayCustomErrorToast(response['message']);
+						displayToast('CUSTOM_ERROR', response['message']);
 					}
 				}
 			});
@@ -887,7 +887,7 @@
 						// console.log(response);
 						var msg = response['message'];
 						// console.log({{ msg|linebreaksbr }}); 
-						displayCustomErrorToast(response['message']);
+						displayToast('CUSTOM_ERROR', response['message']);
 					}
 				},
 				error: function() {
@@ -930,7 +930,7 @@
 						textNode.textContent = " {% trans 'Dislike' %}";
 					} else {
 						// console.log(response);
-						displayCustomErrorToast(response['message']);
+						displayToast('CUSTOM_ERROR', response['message']);
 					}
 				}
 			});
@@ -944,7 +944,7 @@
 			console.log(isNumeric(userPoints));
 			if (isNumeric(userPoints) && userPoints < requiredDownvotePoints) {
 				var toastMsg = {% blocktrans %} "You need at least <strong>{{ required_downvote_points }} points</strong> to be able to add a dislike." {% endblocktrans %};
-				displayCustomErrorToast(toastMsg);
+				displayToast('CUSTOM_ERROR', toastMsg);
 				return false;
 			}
 
@@ -970,7 +970,7 @@
 						textNode.textContent = " {% trans 'Disliked' %}";
 					} else {
 						// console.log(response);
-						displayCustomErrorToast(response['message']);
+						displayToast('CUSTOM_ERROR', response['message']);
 					}
 				}
 			});
@@ -987,7 +987,7 @@
 		$('.js-follow-button').click(function(event) {
 			// if user isn't logged in
 			if (!userId) {
-				displayLoginRequiredToast();
+				displayToast('LOGIN_REQUIRED');
 				return false;
 			}
 
@@ -1012,11 +1012,11 @@
 						if (result['unfollowed']) {
 							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
 							$followUnfollowSpan.text({{ follow_text }});
-							displayFollowToggleToast(false);
+							displayToast('FOLLOW_TOGGLE', false);
 
 						} else {
 							console.error(result);
-							displayErrorOccurredToast();
+							displayToast('ERROR_OCCURRED');
 						}
 					}
 				});
@@ -1037,10 +1037,10 @@
 						if (result['followed']) {
 							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
 							$followUnfollowSpan.text({{ unfollow_text }});
-							displayFollowToggleToast(true);
+							displayToast('FOLLOW_TOGGLE', true);
 						} else {
 							console.error(result);
-							displayErrorOccurredToast();
+							displayToast('ERROR_OCCURRED');
 						}
 					}
 				});

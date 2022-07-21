@@ -84,10 +84,10 @@
 		// copy the text inside the text field
 		navigator.clipboard.writeText(linkInput.value).then(function() {
 			var successMsg = "{% trans 'Link copied to clipboard.' %}";
-			displayCustomSuccessToast(successMsg);
+			displayToast('CUSTOM_SUCCESS', successMsg);
 		}, function() {
 			var errMsg = "{% blocktrans %} An error occured when copying the link. <br> Try to copy it manually by selecting the text and copying. {% endblocktrans %}";
-			displayCustomErrorToast(errMsg);
+			displayToast('CUSTOM_ERROR', errMsg);
 		});
 	}
 

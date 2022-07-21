@@ -32,7 +32,6 @@ function headerDropdownHover() {
 	}
 }
 
-
 function headerDropdownClick() {
 	var $this = $(this);
 	var dropdownMenu = $this.children(".dropdown-menu");
@@ -55,7 +54,6 @@ function headerDropdownClick() {
 	});
 }
 
-
 function headerDropdownMouseLeave(event) {
 	var $this = $(this);
 	var dropdownMenu = $this.children(".dropdown-menu");
@@ -69,7 +67,6 @@ function headerDropdownMouseLeave(event) {
 	}
 	$navLink.attr('aria-expanded', 'false');
 }
-
 
 function headerAccountInfoHoverOrClick(event) {
 	var $this = $(this);
@@ -88,7 +85,6 @@ function headerAccountInfoHoverOrClick(event) {
 	link.css('filter', 'drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px)');
 }
 
-
 function headerAccountInfoMouseLeave() {
 	var $this = $(this);
 	var dropdownMenu = $this.children('.dropdown-menu-end');
@@ -99,7 +95,6 @@ function headerAccountInfoMouseLeave() {
 	link.attr('aria-expanded', 'false');
 	link.css('filter', '');
 }
-
 
 function loginDropdownHoverOrClick() {
 	var $this = $(this);
@@ -137,7 +132,6 @@ function loginDropdownMouseLeave() {
 	dropdownMenu.hide();
 }
 
-
 /** 
  * Verify if val contains only numeric characters(digits). 
  * `val` string or number
@@ -146,14 +140,12 @@ function isNumeric(val) {
 	return /^\d+$/.test(val);
 }
 
-
 /** 
  * Generate a random id 
  * Used in the academic and school detail pages for ckeditor instances */
 function uid() {
 	return "id" + Math.random().toString(16).slice(2);
 }
-
 
 /** 
  * Verify if val contains only digits and spaces(and at least one digit)
@@ -174,7 +166,6 @@ function validateUsername(username) {
 	return /^[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}$/.test(username);
 }
 
-
 /**
  * Verify if full name is valid.
  * Full name rules:
@@ -185,7 +176,6 @@ function validateUsername(username) {
 function validateFullName(fullName) {
 	return /^(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]+(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]*(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)*$/.test(fullName);
 }
-
 
 /** 
  * Called when the signup or login forms are submitted. 
@@ -297,7 +287,6 @@ function signupAndEditSubmit(e) {
 
 }
 
-
 /**
  * Called when the item listing form is submitted.
  */
@@ -346,7 +335,6 @@ function itemListingFormSubmit(e) {
 
 }
 
-
 /** 
  * Called when user selects another category in the listing category select menu
  * Also used to fill the sub category options for the default(initial) category
@@ -385,7 +373,6 @@ function insertItemSubCategories(e) {
 	});
 }
 
-
 /**
  * Called when user selects another condition in the listing condition select menu
  * Also used to fill the help_text of the initial condition 
@@ -402,7 +389,6 @@ function insertConditionHelpText(e) {
 	// then insert new help text
 	$conditionMenu.after(helpText);
 }
-
 
 /**
  * Called when user selects another item condition
@@ -428,7 +414,6 @@ function onConditionChange(e) {
 	}
 }
 
-
 /**
  * Called when an image of the slide is clicked
  * Displays the image in the expandable menu and places a border around the clicked image
@@ -449,128 +434,84 @@ function expandImage(e) {
 
 
 /**
- * Display toast telling user that he needs to be logged in.
- * Toast should be present in the html page
+ * Display toast. Toast should be present in the html page
  */
-function displayLoginRequiredToast() {
-	// this toast should be present in the html page !
-	var $myToast = $('.js-login-required-toast').first();
+function displayToast(type, param) {
+	var VALID_TOASTS = [
+		'LOGIN_REQUIRED', 'SELF_VOTE', 'ERROR_OCCURRED', 
+		'FOLLOW_TOGGLE', 'CUSTOM_SUCCESS', 'CUSTOM_ERROR',
+		'BOOKMARK_TOGGLE', 
+	];
+	if (!VALID_TOASTS.includes(type)) {
+		throw `${type} is an invalid toast type`;
+	}
 
-	// reset styles alert-danger styles since apparently, some toast styles override them. 
-	$myToast.css({
-		'color': '#842029',
-		'border-color': '#f5c2c7'
-	});
-
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
-
-
-/**
- * Display toast telling user that he can't vote for his post
- * Toast should be present in the html page
- */
-function displaySelfVoteToast() {
-	// this toast should be present in the html page !
-	var $myToast = $('.js-self-vote-toast').first();
-
-	// reset styles alert-danger styles since apparently, some toast styles override them. 
-	$myToast.css({
-		'color': '#842029',
-		'border-color': '#f5c2c7'
-	});
-
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
-
-
-/**
- * Display toast telling user that an error occurred(generally an unexpected error)
- * Toast should be present in the html page
- */
-function displayErrorOccurredToast() {
-	// this toast should be present in the html page !
-	var $myToast = $('.js-error-occurred-toast').first();
-
-	// reset styles alert-danger styles since apparently, some toast styles override them. 
-	$myToast.css({
-		'color': '#842029',
-		'border-color': '#f5c2c7'
-	});
-
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
-
-
-/**
- * Display toast telling user that they have successfully bookmarked or unbookmarked a post
- * Toast should be present in the html page
- */
-function displayBookmarkToggleToast(bookmarkAdded) {
 	var $myToast;
-	if (bookmarkAdded)
-		$myToast = $('.js-bookmark-added-toast').first();
-	else
-		$myToast = $('.js-bookmark-removed-toast').first();
+	
+	if (type == 'LOGIN_REQUIRED') {
+		$myToast = $('.js-login-required-toast').first();
 
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
+		// reset styles alert-danger styles since apparently, some toast styles override them. 
+		$myToast.css({
+			'color': '#842029',
+			'border-color': '#f5c2c7'
+		});
 
+	} else if (type == 'SELF_VOTE') {
+		$myToast = $('.js-self-vote-toast').first();
 
-/**
- * Display toast telling user that they have successfully followed or unfollowed a post
- * Toast should be present in the html page
- */
-function displayFollowToggleToast(followed) {
-	var $myToast;
-	if (followed)
-		$myToast = $('.js-followed-toast').first();
-	else
-		$myToast = $('.js-unfollowed-toast').first();
+		// reset styles alert-danger styles since apparently, some toast styles override them. 
+		$myToast.css({
+			'color': '#842029',
+			'border-color': '#f5c2c7'
+		});
 
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
+	} else if (type == 'ERROR_OCCURRED') {
+		$myToast = $('.js-error-occurred-toast').first();
 
+		// reset styles alert-danger styles since apparently, some toast styles override them. 
+		$myToast.css({
+			'color': '#842029',
+			'border-color': '#f5c2c7'
+		});
 
-/**
- * Display custom success message toast
- * Toast should be present in the html page
- */
-function displayCustomSuccessToast(message) {
-	// this toast should be present in the html page !
-	var $myToast = $('.js-custom-success-toast').first();
+	} else if (type == 'BOOKMARK_TOGGLE') {
+		var bookmarkAdded = param;
+		var $myToast;
+		if (bookmarkAdded)
+			$myToast = $('.js-bookmark-added-toast').first();
+		else
+			$myToast = $('.js-bookmark-removed-toast').first();
 
-	var $msgWrp = $('.js-toast-message');
-	// use html() not text() 
-	$msgWrp.html(message);
+	} else if (type == 'FOLLOW_TOGGLE') {
+		var followed = param;
+		var $myToast;
+		if (followed)
+			$myToast = $('.js-followed-toast').first();
+		else
+			$myToast = $('.js-unfollowed-toast').first();
 
-	var bsToast = new bootstrap.Toast($myToast[0]);
-	bsToast.show();
-}
+	} else if (type == 'CUSTOM_SUCCESS') {
+		var message = param;
+		$myToast = $('.js-custom-success-toast').first();
 
+		var $msgWrp = $('.js-toast-message');
+		// use html() not text() 
+		$msgWrp.html(message);
 
-/**
- * Display custom error message toast
- * Toast should be present in the html page
- */
-function displayCustomErrorToast(message) {
-	// this toast should be present in the html page !
-	var $myToast = $('.js-custom-error-toast').first();
+	} else if (type == 'CUSTOM_ERROR') {
+		var message = param;
+		$myToast = $('.js-custom-error-toast').first();
 
-	// reset styles alert-danger styles since apparently, some toast styles override them. 
-	$myToast.css({
-		'color': '#842029',
-		'border-color': '#f5c2c7'
-	});
+		// reset styles alert-danger styles since apparently, some toast styles override them. 
+		$myToast.css({
+			'color': '#842029',
+			'border-color': '#f5c2c7'
+		});
 
-	var $msgWrp = $('.js-toast-message');
-	// use html() not text() 
-	$msgWrp.html(message);
+		var $msgWrp = $('.js-toast-message');
+		$msgWrp.html(message);
+	}
 
 	var bsToast = new bootstrap.Toast($myToast[0]);
 	bsToast.show();
@@ -620,7 +561,7 @@ function initTooltips() {
  * Create and prepare footer select menus
  * Inspired by https://www.w3schools.com/howto/howto_custom_select.asp
  */
- function initFooterSelects() {
+function initFooterSelects() {
 	function handleSelectClick(e) {
 		// when the select box is clicked, close any other select boxes,
 		// and open/close the current select box
@@ -769,12 +710,6 @@ $(document).ready(function () {
 	initTooltips();
 	initFooterSelects();
 	lastWidth = $window.width();
-
-	// var $languageSelect = $(".js-languageSelect");
-	// $languageSelect.on('change', function() {
-	// 	$(this).closest('form').submit();
-	// });
-
 });
 
 
@@ -784,7 +719,7 @@ $(document).ready(function () {
 $('.js-bookmark-button').click(function (event) {
 	// if user isn't logged in
 	if (!userId) {
-		displayLoginRequiredToast();
+		displayToast('LOGIN_REQUIRED');
 		return false;
 	}
 
@@ -815,11 +750,11 @@ $('.js-bookmark-button').click(function (event) {
 					// update text
 					var textNode = $icon[0].nextSibling;
 					textNode.textContent = " " + bookmarkText;
-					displayBookmarkToggleToast(false);
+					displayToast('BOOKMARK_TOGGLE', false);
 
 				} else {
 					console.error(result);
-					displayErrorOccurredToast();
+					displayToast('ERROR_OCCURRED');
 				}
 			}
 		});
@@ -847,10 +782,10 @@ $('.js-bookmark-button').click(function (event) {
 
 					var textNode = $icon[0].nextSibling;
 					textNode.textContent = " " + bookmarkedText;
-					displayBookmarkToggleToast(true);
+					displayToast('BOOKMARK_TOGGLE', true);
 				} else {
 					console.error(result);
-					displayErrorOccurredToast();
+					displayToast('ERROR_OCCURRED');
 				}
 			}
 		});
@@ -1065,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			// get flag error message
 			var alertMsg = document.querySelector('.js-flag-alert-msg').textContent;
 			// Note: toast(.js-custom-error-toast) must be in html 
-			displayCustomErrorToast(alertMsg);
+			displayToast('CUSTOM_ERROR', alertMsg);
 		});
 	};
 

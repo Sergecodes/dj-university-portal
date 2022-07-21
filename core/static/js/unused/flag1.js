@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // get flag error message
       var alertMsg = document.querySelector('.js-flag-alert-msg').textContent;
       // Note: toast(.js-custom-error-toast) must be in html 
-      displayCustomErrorToast(alertMsg);
+      displayToast('CUSTOM_ERROR', alertMsg);
     });
   };
 

@@ -12,12 +12,11 @@ COLOUR PALETTE:
 
 
 ** to do first:
-- remove google translation
 - update views (including home page) to consider country in session
 - change full name validator (frontend nd backend)
 - enable unique username (collation)
 - use font awesome latest version(6.1.1) and properly install thttps://fontawesome.com/docs/web/use-with/python-django
-
+- remove google translation
 
 ** TO DO:
 - on ckeditor page, when image is about to uploaded, clicking on "Browse server" opens a new window to the admin page. Prevent this.

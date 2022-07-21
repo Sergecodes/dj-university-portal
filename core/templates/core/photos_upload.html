@@ -160,7 +160,7 @@ we need to inherit from the base template...
 			if (userId == "None") {
 				// NOTE: the js file (base.min.js) should also be included.
 				// its already included in the base template ...
-				displayLoginRequiredToast();
+				displayToast('LOGIN_REQUIRED');
 				return false;
 			}
 
@@ -183,7 +183,7 @@ we need to inherit from the base template...
 
 			if (result.is_anonymous) {
 				// javascript file should be present !
-				displayLoginRequiredToast();
+				displayToast('LOGIN_REQUIRED');
 				return false;
 			}
 			
@@ -233,7 +233,7 @@ we need to inherit from the base template...
 				// see explanation above in file upload...
 				var userId = "{{ user.id }}";
 				if (userId == "None") {
-					displayLoginRequiredToast();
+					displayToast('LOGIN_REQUIRED');
 					return false;
 				}
 			},
@@ -246,7 +246,7 @@ we need to inherit from the base template...
 			},
 			error: function() {
 				if (result.is_anonymous) {
-					displayLoginRequiredToast();
+					displayToast('LOGIN_REQUIRED');
 					return false;
 				} else {
 					alert(errorMessage);
