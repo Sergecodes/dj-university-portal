@@ -4,6 +4,10 @@
 {% load app_extras %}
 
 {% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES %}
+{% get_countries as countries %}
+{% get_default_country as default_country %}
+{% general_country_code as GEN_COUNTRY_CODE %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -18,9 +22,11 @@
 	<link rel="shortcut icon" type="image/x-icon" href="{% static 'icons/favicon.ico' %}">
 	<link rel="stylesheet" href="{% static 'css/bootstrap-v5.1.0.min.css' %}"> 
 	{% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"> {% endcomment %}
-
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
+	<link rel="stylesheet" href="{% static 'css/normalize-v8.0.1.min.css' %}">
+	{% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"> {% endcomment %}
 	{% comment %} <link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}"> {% endcomment %}
+
 	<link rel="stylesheet" href="{% static 'css/colors.css' %}">
 	<link rel="stylesheet" href="{% static 'css/all.css' %}">
 	{% block extra_css %}
@@ -31,7 +37,16 @@
 	<script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>  
 	{% comment %} <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script> {% endcomment %}
-
+	
+	<style>
+		{# Use this here so as to use static tag as they are not supported in css files #}
+		.en:before {
+			background-image: url("{% static 'icons/en.svg' %}");
+		}
+		.fr:before {
+			background-image: url("{% static 'icons/fr.svg' %}");
+		}
+	</style>
 	{% block extra_script_pre %}
 	{% endblock extra_script_pre %}
 </head>
@@ -41,15 +56,20 @@
 
 <body class="page">
 	{% block header %}
-	<header class="mb-4">
+	<header class="mb-4 header">
 		<div class="bg-gradient header-top">
 			<div class="container-fluid row align-items-center pe-lg-0">
-				<div class="text-center col-lg-3">
+				<div 
+					class="text-center col-lg-3 
+					{% if user.is_authenticated %} me-3 {% else %} me-1 {% endif %}"
+				>
 					<a class="d-inline-block" href="{% url 'core:home' %}">
 						<img src="{% static 'images/yellow-logo.png' %}" class="logo__img" alt="CamerSchools home">
 					</a>
 				</div>
-				<div class="d-none d-lg-block col-lg-5 ps-0 header-search-form">
+				<div 
+					class="d-none d-lg-block col-lg-5 header-search-form
+					{% if user.is_authenticated %} px-0 {% else %} ps-0 {% endif %}">
 					<form class="d-flex" method="get" action="{% url 'core:site-search' %}">
 						<input 
 							class="form-control me-2" 
@@ -61,31 +81,56 @@
 				</div>
 
 				<!-- Language select section area(desktop) -->
-				{# ensure the links work after modifying i18n-related settings. see comments under stackoverflow.com/q/18392405/issue-trying-to-change-language-from-django-template#comment81836795_18393243 #}
-				<div class="d-none d-lg-inline-block col-lg-auto ps-3">
-					<form action="{% url 'set_language' %}" method="post">
-						{% csrf_token %}
-						{# if english is the current language display England flag in span #}
-						{% if LANGUAGE_CODE == 'en' %}
-							<span class="d-inline-block me-1 lang-switcher lang-switcher--selected" title="{% trans 'English' %}">
-								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
-							</span>
-							<button type="submit" name="language" value="fr" class="me-1 no-style-button lang-switcher" title="{% trans 'French' %}">
-								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+				{% comment %}
+				Ensure the links work after modifying i18n-related settings. 
+				see comments under stackoverflow.com/q/18392405/issue-trying-to-change-language-from-django-template#comment81836795_18393243 
+				{% endcomment %}
+				<div 
+					class="d-none d-lg-inline-block col-lg-auto 
+					{% if user.is_authenticated %} ps-5 {% else %} ps-3 {% endif %}"
+				>
+					<div class="dropdown js-langDropdownDesk">
+						<form action="{% url 'set_language' %}" method="post">
+							{% csrf_token %}
+							<button 
+								class="dropdown-toggle text-white no-style-button" 
+								type="button" 
+								id="langDropdown1"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+							>
+								{{ LANGUAGE_CODE|language_name_local }}
 							</button>
-						{% elif LANGUAGE_CODE == 'fr' %}
-							<button name="language" value="en" type="submit" class="me-1 no-style-button lang-switcher" title="{% trans 'English' %}">
-								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
-							</button>
-							<span class="d-inline-block me-1 lang-switcher--selected lang-switcher" title="{% trans 'French' %}">
-								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
-							</span>
-						{% endif %}
-					</form>
+							<ul class="dropdown-menu" aria-labelledby="langDropdown1">
+								{% for lang_code, lang_name in LANGUAGES %}
+								<li 
+									class="dropdown-item cursor-pointer 
+									{% if LANGUAGE_CODE == lang_code %} active {% endif %}"
+								>
+									{% with flag_url="icons/"|addstr:lang_code|addstr:".svg" %}
+										<button 
+											class="no-style-button text-start w-100"
+											{% if lang_code != LANGUAGE_CODE %}
+											type="submit" 
+											name="language" 
+											value="{{ lang_code }}" 
+											{% else %}
+											type="button"
+											{% endif %}
+										>
+											<img class="me-1 header__flag" src="{% static flag_url %}" alt="{{ lang_name }} {% trans 'flag' %}" />
+											<span>{{ lang_name }}</span>
+										</button>
+									{% endwith %}
+								</li>
+								{% endfor %}
+							</ul>
+						</form>
+					</div>
 				</div>
 
 				{% if user.is_authenticated %}
-				<ul class="d-none d-lg-block col-lg-2 m-0 pe-0 text-center list-inline">
+				<ul class="d-none d-lg-block col-lg-2 m-0 px-0 text-center list-inline">
 					<li class="list-inline-item text-end">
 						<a href="{% url 'core:my-notifs' %}" class="position-relative header-notifs-link">
 							<svg class="header-notifs-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="50" height="50" viewBox="0 0 390 390" xml:space="preserve">
@@ -119,9 +164,9 @@
 								<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="{% if '/users/' in request.path or '/utilisateurs/' in request.path %} black {% else %} white {% endif %}"></path>
 							</svg>
 							<br>
-							<span class="{% if '/users/' in request.path or '/utilisateurs/' in request.path %} text-dark fw-bold {% endif %}">
+							<span class="dropdown-toggle {% if '/users/' in request.path or '/utilisateurs/' in request.path %} text-dark fw-bold {% endif %}">
 								{% trans 'My Account' %}
-								<i class="fas fa-angle-down" aria-hidden="true"></i>
+								{% comment %} <i class="fas fa-angle-down" aria-hidden="true"></i> {% endcomment %}
 							</span>
 						</a>
 						<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
@@ -148,7 +193,7 @@
 				
 				{% else %}
 				{# register-and-login class #}
-				<ul class="d-none d-lg-flex col-lg-2 mb-0 pe-0">
+				<ul class="d-none d-lg-flex col-lg-2 mb-0">
 					<li class="list-inline-item">
 						<a href="{% url 'users:register' %}" class="btn link-light fw-bolder register-button">{% trans 'REGISTER' %}</a>
 					</li>
@@ -184,50 +229,50 @@
 		</div>
 		<div class="bg-success header-bottom">
 			<nav class="navbar container py-0 ps-xl-0 navbar-expand-xl">
-				<button class="navbar-toggler nav-bar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
+				<button class="navbar-toggler my-1 nav-bar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="{% trans 'Toggle navigation' %}">
 					<span class="navbar-toggler-icon nav-bar-toggler__icon" aria-hidden="true"></span>
 				</button>
 
 				<!-- Language, notifs & profile section for mobile users -->
-				{# look up about what happens when you set left or right margin on flex-item #}
-				<div class="d-inline-block d-lg-none ps-4 pe-2 ms-auto">
-					<form action="{% url 'set_language' %}" method="post">
-						{% csrf_token %}
-						{# if english is the current language display England flag in span #}
-						{% if LANGUAGE_CODE == 'en' %}
-							<span class="d-inline-block me-1 lang-switcher lang-switcher--selected" title="{% trans 'English' %}">
-								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
-							</span>
-							<button type="submit" name="language" value="fr" class="me-1 no-style-button lang-switcher" title="{% trans 'French' %}">
-								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
+				<div class="d-flex align-items-center d-lg-none">
+					<div class="dropdown">
+						<form action="{% url 'set_language' %}" method="post">
+							{% csrf_token %}
+							<button 
+								class="dropdown-toggle text-white me-3 no-style-button" 
+								type="button" 
+								id="langDropdown2"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+							>
+								{{ LANGUAGE_CODE|language_name_local }}
 							</button>
-						{% elif LANGUAGE_CODE == 'fr' %}
-							<button name="language" value="en" type="submit" class="me-1 no-style-button lang-switcher" title="{% trans 'English' %}">
-								<img src="{% static 'icons/en.svg' %}" class="lang-switcher__img">
-							</button>
-							<span class="d-inline-block me-1 lang-switcher--selected lang-switcher" title="{% trans 'French' %}">
-								<img src="{% static 'icons/fr.svg' %}" class="lang-switcher__img">
-							</span>
-						{% endif %}
-					</form>
-				</div>
-
-				{% comment %} 
-				<!-- Form to select language (mobile view) -->
-				<form action="{% url 'set_language' %}" method="post" class="d-lg-none col-md-3 ms-md-5 col-7 pe-0 {% if not user.is_authenticated %} lang-select-form--unauthed {% endif %}">
-					{% csrf_token %}
-					<select name="language" class="form-select form-select-sm js-languageSelect {% if not user.is_authenticated %} lang-select--unauthed {% else %} {% endif %}">
-						{% get_available_languages as LANGUAGES %}
-						{% get_language_info_list for LANGUAGES as languages %}
-						{% for language in languages %}
-							<option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.name_local }} ({{ language.code }})
-							</option>
-						{% endfor %}
-					</select>
-				</form> 
-				{% endcomment %}
-				
-				<div class="d-inline-block d-lg-none text-end ms-auto ps-4 pe-2">
+							<ul class="dropdown-menu" aria-labelledby="langDropdown2">
+								{% for lang_code, lang_name in LANGUAGES %}
+								<li 
+									class="dropdown-item cursor-pointer 
+									{% if LANGUAGE_CODE == lang_code %} active {% endif %}"
+								>
+									{% with flag_url="icons/"|addstr:lang_code|addstr:".svg" %}
+										<button 
+											class="no-style-button text-start w-100"
+											{% if lang_code != LANGUAGE_CODE %}
+											type="submit" 
+											name="language" 
+											value="{{ lang_code }}" 
+											{% else %}
+											type="button"
+											{% endif %}
+										>
+											<img class="me-1 header__flag" src="{% static flag_url %}" alt="{{ lang_name }} {% trans 'flag' %}" />
+											<span>{{ lang_name }}</span>
+										</button>
+									{% endwith %}
+								</li>
+								{% endfor %}
+							</ul>
+						</form>
+					</div>
 					{% if user.is_authenticated %}
 					<ul class="list-inline mb-1">
 						<li class="list-inline-item text-end">
@@ -260,9 +305,9 @@
 									<path d="M22.5049 13.6092C22.5049 16.9919 20.0399 19.736 17 19.736C13.9586 19.736 11.4937 16.9921 11.4937 13.6092C11.4937 10.2251 13.9587 7.48236 17 7.48236C20.0401 7.48236 22.5049 10.2249 22.5049 13.6092Z" fill="{% if '/users/' in request.path or '/utilisateurs/' in request.path %} black {% else %} white {% endif %}"></path>
 								</svg>
 								<br>
-								<span class="{% if '/users/' in request.path or '/utilisateurs/' in request.path %} text-dark fw-bold {% endif %}">
+								<span class="dropdown-toggle {% if '/users/' in request.path or '/utilisateurs/' in request.path %} text-dark fw-bold {% endif %}">
 									{% trans 'My Account' %}
-									<i class="fas fa-angle-down" aria-hidden="true"></i>
+									{% comment %} <i class="fas fa-angle-down" aria-hidden="true"></i> {% endcomment %}
 								</span>
 							</a>
 							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu2">
@@ -546,34 +591,58 @@
 		</ul>
 
 		{# select menus #}
-		{% get_countries as countries %}
-		{% get_available_languages as LANGUAGES %}
-		{% get_default_country as default_country %}
-
 		<div class="mt-3 mb-5 d-flex justify-content-evenly">
-			<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
-				<select class="footer-select js-footer-select--country">
-					<option value="{{ default_country.code }}">
-						{{ default_country.name }}
-					</option>
-					{% for country in countries %}
-						{% comment %} 
-						If country is already selected, clicking on it shouldn't
-						activate the link. So add data-url attribute to the option;
-						we can't add the a tag because options can only contain texts.
-						{% endcomment %}
+			<div>
+				<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
+					<select class="footer-select js-footer-select--country">
+						{% if default_country %}
+							<option value="{{ default_country.code }}">
+								{{ default_country.name }}
+							</option>
+						{% else %}
+							<option value="---">
+								{% trans 'No particular country' %}
+							</option>
+						{% endif %}
+
+						{# Display general country code as first option #}
 						<option 
-							value="{{ country.code }}" 
-							{% if country.code != default_country.code %} 
-							data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
-							{% else %}
-							selected
-							{% endif %}
+							value="---" 
+							data-url="{% url 'core:set-session-country' GEN_COUNTRY_CODE %}?next={{ request.path }}"
+							{% if not default_country %} selected {% endif %}
 						>
-							{{ country.name }}
+							{% trans 'No particular country' %}
 						</option>
-					{% endfor %}
-				</select>
+						{% for country in countries %}
+							{% comment %} 
+							If country is already selected, clicking on it shouldn't
+							activate the link. So add data-url attribute to the option;
+							we can't add the a tag because options can only contain texts.
+							{% endcomment %}
+							<option 
+								value="{{ country.code }}" 
+								{% if country.code != default_country.code %} 
+								data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
+								{% else %}
+								selected
+								{% endif %}
+							>
+								{{ country.name }}
+							</option>
+						{% endfor %}
+					</select>
+				</div>
+				<span 
+					class="ms-2 text-light" 
+					data-bs-toggle="tooltip" 
+					data-bs-placement="right" 
+					title="{% blocktrans %} 
+					The only sections that do not consider countries are questions, past papers and projects.
+					{% endblocktrans %}"
+				>
+					<i class="fas fa-info-circle"></i>
+					<span class="visually-hidden">{% trans 'Country select info' %}</span>
+				</span>
 			</div>
 			<div class="footer-select-wrp js-footer-select-wrp" style="width: 200px;">
 				{# Create hidden form that will be used to submit language selection #}

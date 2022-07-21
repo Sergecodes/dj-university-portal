@@ -12,7 +12,6 @@ COLOUR PALETTE:
 
 
 ** to do first:
-- complete footer (social media redirect links too)
 - remove google translation
 - update views (including home page) to consider country in session
 - change full name validator (frontend nd backend)

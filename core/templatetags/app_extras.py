@@ -1,4 +1,5 @@
 import bleach
+from core.constants import GENERAL_COUNTRY_CODE
 from core.models import Country
 from core.utils import parse_phone_number, is_mobile
 from django import template
@@ -32,20 +33,37 @@ register.filter('can_edit_past_paper_comment', can_edit_comment)
 register.filter('can_delete_past_paper_comment', can_delete_comment)
 
 
+@register.filter
+def addstr(arg1, arg2):
+	"""Concatenate arg1 & arg2"""
+	return str(arg1) + str(arg2)
+
+
 @register.simple_tag
 def get_countries():
 	return Country.objects.all()
 
 
+@register.simple_tag
+def general_country_code():
+	return GENERAL_COUNTRY_CODE
+
+
 @register.simple_tag(takes_context=True)
 def get_default_country(context):
 	"""Get default country. """
+	user, request = context['user'], context['request']
+
 	# If session.country_code doesn't exist, then return user's country
-	country_code = context['request'].session.get('country_code')
+	country_code = request.session.get('country_code')
 	if country_code:
 		return Country.objects.get(code=country_code)
 
-	return context['user'].country
+	if user.is_authenticated:
+		return user.country
+
+	# User is not auth so use default country_code
+	return None
 
 
 @register.filter

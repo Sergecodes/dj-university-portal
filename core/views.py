@@ -17,7 +17,7 @@ from core.constants import (
 	COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT, INITIAL_POINTS, 
 	MAX_ANSWERS_PER_USER_PER_QUESTION, PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
 	PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT, REQUIRED_DOWNVOTE_POINTS, 
-	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, 
+	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, GENERAL_COUNTRY_CODE,
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
 )
@@ -278,8 +278,14 @@ def get_category_search_results(request, category):
 
 
 def set_session_country(request, country_code):
-	# Store user's selected country in session
-	request.session['country_code'] = country_code
+	# Store user's selected country in session if country isn't
+	# the default country
+	if country_code != GENERAL_COUNTRY_CODE:
+		request.session['country_code'] = country_code
+	else:
+		# pop raises KeyError if key isn't found and no default is specified
+		# so specify default as None
+		request.session.pop('country_code', None)
 
 	if next_url := request.GET.get('next'):
 		return redirect(next_url)

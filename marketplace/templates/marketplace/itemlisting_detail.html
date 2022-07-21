@@ -263,7 +263,7 @@
 						{% if phone_number.can_whatsapp %}
 							<a 
 								href="https://wa.me/237{{number}}" 
-								class="text-success number-box__whatsapp js-whatsapp-tooltip"
+								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
 								aria-label="{% trans 'Contact via WhatsApp' %}"
@@ -312,12 +312,6 @@
 {% block extra_js %}
 <!-- <script src="{% static 'js/flag.js' %}"></script> -->
 <script>
-	/* initialize whatsapp tooltips on the page */
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('.js-whatsapp-tooltip'));
-	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
-	});
-
 	/* Gallery */
 	var $images = $('.js-photo-slide__img');
 	$images.on('click', {$images: $images}, expandImage);

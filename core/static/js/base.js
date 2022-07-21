@@ -15,10 +15,11 @@ var isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matche
 
 
 function headerDropdownHover() {
-	var dropdownMenu = $(this).children(".dropdown-menu");
+	var $this = $(this);
+	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.show();
 
-	var $navLink = $(this).children("a:first-child");
+	var $navLink = $this.children("a:first-child");
 
 	// if nav link isn't for current page, set color...
 	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
@@ -33,9 +34,10 @@ function headerDropdownHover() {
 
 
 function headerDropdownClick() {
-	var dropdownMenu = $(this).children(".dropdown-menu");
+	var $this = $(this);
+	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.show();
-	var $navLink = $(this).children("a:first-child");
+	var $navLink = $this.children("a:first-child");
 
 	// if nav link isn't for current page, set color...
 	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
@@ -55,10 +57,11 @@ function headerDropdownClick() {
 
 
 function headerDropdownMouseLeave(event) {
-	var dropdownMenu = $(this).children(".dropdown-menu");
+	var $this = $(this);
+	var dropdownMenu = $this.children(".dropdown-menu");
 	dropdownMenu.hide();
 
-	var $navLink = $(this).children("a:first-child");
+	var $navLink = $this.children("a:first-child");
 
 	// if nav link isn't for current page, set color to white(default)
 	if (!$navLink.hasClass(CURRENT_NAV_LINK_CLASS)) {
@@ -69,7 +72,8 @@ function headerDropdownMouseLeave(event) {
 
 
 function headerAccountInfoHoverOrClick(event) {
-	var dropdownMenu = $(this).children('.dropdown-menu-end');
+	var $this = $(this);
+	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.addClass("show");
 	dropdownMenu.show();
 	dropdownMenu.css({
@@ -79,25 +83,27 @@ function headerAccountInfoHoverOrClick(event) {
 		'transform': 'translate(-96px, 67px)'
 	});
 
-	var link = $(this).children("a:first-child");
+	var link = $this.children("a:first-child");
 	link.attr('aria-expanded', 'true');
 	link.css('filter', 'drop-shadow(rgba(255, 255, 255, 0.5) 0px 2px 5px)');
 }
 
 
 function headerAccountInfoMouseLeave() {
-	var dropdownMenu = $(this).children('.dropdown-menu-end');
+	var $this = $(this);
+	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.removeClass("show");
 	dropdownMenu.hide();
 
-	var link = $(this).children("a:first-child");
+	var link = $this.children("a:first-child");
 	link.attr('aria-expanded', 'false');
 	link.css('filter', '');
 }
 
 
 function loginDropdownHoverOrClick() {
-	var dropdownMenu = $(this).children('.dropdown-menu-end');
+	var $this = $(this);
+	var dropdownMenu = $this.children('.dropdown-menu-end');
 	dropdownMenu.addClass("show");
 	dropdownMenu.show();
 	dropdownMenu.css({
@@ -106,9 +112,24 @@ function loginDropdownHoverOrClick() {
 		'margin': '0px',
 		'transform': 'translate(-235px, 40px)'
 	});
-
 }
 
+function headerLangDropdownHover() {
+	var $this = $(this);
+	var dropdownMenu = $this.find('.dropdown-menu');
+	dropdownMenu.addClass("show");
+	dropdownMenu.show();
+
+	$this.find('.dropdown-toggle').attr('aria-expanded', 'true');
+}
+
+function headerLangDropdownMouseLeave() {
+	var $this = $(this);
+	var dropdownMenu = $this.find('.dropdown-menu');
+	dropdownMenu.removeClass("show");
+	dropdownMenu.hide();
+	$this.find('.dropdown-toggle').attr('aria-expanded', 'false');
+}
 
 function loginDropdownMouseLeave() {
 	var dropdownMenu = $(this).children('.dropdown-menu-end');
@@ -556,11 +577,50 @@ function displayCustomErrorToast(message) {
 }
 
 
+/** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
+function init() {
+	var $headerDropdown = $(".js-headerDropdown");
+	var $headerAccountInfo = $(".js-headerAccountInfo");
+
+	isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matches;
+	var isDesktop = !isMobile;
+
+	// don't enable hover on mobile screens..
+	if (isDesktop) {
+		// remember login dropdown is only available on desktop
+		var $loginDropdown = $(".js-loginDropdown");
+		var $deskLangDropdown = $('.js-langDropdownDesk');
+		$headerDropdown.hover(headerDropdownHover, headerDropdownMouseLeave);
+		$headerDropdown.click(headerDropdownClick);
+		$headerAccountInfo.hover(headerAccountInfoHoverOrClick, headerAccountInfoMouseLeave);
+		$headerAccountInfo.click(headerAccountInfoHoverOrClick);
+		$loginDropdown.hover(loginDropdownHoverOrClick, loginDropdownMouseLeave);
+		$loginDropdown.click(loginDropdownHoverOrClick);
+		$deskLangDropdown.hover(headerLangDropdownHover, headerLangDropdownMouseLeave);
+
+	} else if (isMobile) {
+		// detach all added event handlers and 
+		// let Bootstrap default click functionality for dropdowns
+		$headerDropdown.off();
+		$headerAccountInfo.off();
+	}
+}
+
+/**
+ * Initialize all bootstrap tooltips
+ */
+function initTooltips() {
+	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+		return new bootstrap.Tooltip(tooltipTriggerEl)
+	});
+}
+
 /**
  * Create and prepare footer select menus
  * Inspired by https://www.w3schools.com/howto/howto_custom_select.asp
  */
-function initFooterSelects() {
+ function initFooterSelects() {
 	function handleSelectClick(e) {
 		// when the select box is clicked, close any other select boxes,
 		// and open/close the current select box
@@ -593,7 +653,7 @@ function initFooterSelects() {
 		h.click();
 	}
 
-	function handleItemLinkClick(option, e) {
+	function handleCountryClick(option, e) {
 		// Only change url if clicked option is different from currently selected
 		var select = option.parentElement;
 		if (select.selectedIndex != option.index)
@@ -637,7 +697,7 @@ function initFooterSelects() {
 			c.innerHTML = option.innerHTML;
 
 			if (selElmnt.classList.contains('js-footer-select--country')) {
-				c.addEventListener("click", handleItemLinkClick.bind(this, option));
+				c.addEventListener("click", handleCountryClick.bind(this, option));
 			} else if (selElmnt.classList.contains('js-footer-select--language')) {
 				c.addEventListener('click', handleLangClick.bind(this, option));
 			} else {
@@ -693,34 +753,6 @@ function closeAllFooterSelects(elmnt) {
 }
 
 
-/** Attach appropriate events to header dropdown menus based on media type (desktop or mobile) */
-function init() {
-	var $headerDropdown = $(".js-headerDropdown");
-	var $headerAccountInfo = $(".js-headerAccountInfo");
-
-	isMobile = window.matchMedia("only screen and (max-width: 991.98px)").matches;
-	var isDesktop = !isMobile;
-
-	// don't enable hover on mobile screens..
-	if (isDesktop) {
-		// remember login dropdown is only available on desktop
-		var $loginDropdown = $(".js-loginDropdown");
-		$headerDropdown.hover(headerDropdownHover, headerDropdownMouseLeave);
-		$headerDropdown.click(headerDropdownClick);
-		$headerAccountInfo.hover(headerAccountInfoHoverOrClick, headerAccountInfoMouseLeave);
-		$headerAccountInfo.click(headerAccountInfoHoverOrClick);
-		$loginDropdown.hover(loginDropdownHoverOrClick, loginDropdownMouseLeave);
-		$loginDropdown.click(loginDropdownHoverOrClick);
-
-	} else if (isMobile) {
-		// detach all added event handlers and 
-		// let Bootstrap default click functionality for dropdowns
-		$headerDropdown.off();
-		$headerAccountInfo.off();
-	}
-}
-
-
 $window.on('resize', function () {
 	var $this = $(this);
 	var newWidth = $this.width();
@@ -734,6 +766,7 @@ $window.on('resize', function () {
 
 $(document).ready(function () {
 	init();
+	initTooltips();
 	initFooterSelects();
 	lastWidth = $window.width();
 

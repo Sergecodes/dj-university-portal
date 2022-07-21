@@ -146,3 +146,8 @@ button.bg-purple:focus {
 .link-purple:hover, .link-purple:focus {
    color: #2c438b !important;
 }
+
+.dropdown-item.active, .dropdown-item:active {
+   background-color: #a6b4e2;
+}
+

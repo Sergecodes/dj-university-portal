@@ -73,14 +73,6 @@
 	// to allow input elements with some attrs
 	defaultAllowList.input = ['class', 'type', 'value', 'title', 'readonly'];
 
-	/* initialise all tooltips on the page */
-	// notably the social media share tooltip
-	// note that we select only the class .js-share-tooltip; 
-	var tooltipTriggerList = [].slice.call(shareToolTips);
-	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
-	});
-
 	// tooltip needs to first be inserted in page, so do this after tooltip is inserted.
 	/* Copying to clipboard functionality */
 	function onCopyLink(event) {

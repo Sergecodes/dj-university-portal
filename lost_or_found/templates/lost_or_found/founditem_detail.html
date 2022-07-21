@@ -178,7 +178,7 @@
 							{# https://stackoverflow.com/questions/27953425/ #}
 							<a 
 								href="https://wa.me/237{{ number }}" 
-								class="text-success number-box__whatsapp js-whatsapp-tooltip"
+								class="text-success number-box__whatsapp"
 								data-bs-toggle="tooltip"
 								title="{% trans 'Contact via WhatsApp' %}"
 								aria-label="{% trans 'Contact via WhatsApp' %}"
@@ -199,12 +199,6 @@
 {% block extra_js %}
 <!-- <script src="{% static 'js/flag.js' %}"></script> -->
 <script>
-	// initialize contact tooltips on page
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('.js-whatsapp-tooltip'));
-	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl);
-	});
-
 	{% if user.id != found_item.poster_id %}
 		var $claimBtn = $('.js-claim-item-btn').first();
 		$claimBtn.click(function() {
