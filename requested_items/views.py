@@ -206,6 +206,16 @@ class RequestedItemDelete(GetObjectMixin, CanDeleteRequestedItemMixin, DeleteVie
 class RequestedItemFilter(filters.FilterSet):
 	item_requested = filters.CharFilter(label=_('Keywords'), method='filter_item')
 
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(
+				Q(school__isnull=True) | Q(school__country__code=country_code)
+			)
+
+		return parent_qs
+
 	class Meta:
 		model = RequestedItem
 		fields = ['school', 'item_requested', 'category', ]

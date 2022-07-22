@@ -401,38 +401,44 @@ def get_usernames_from_comment(comment, post_type):
 
 
 ## SOCIALIZE ##
-def get_random_profiles(count=7):
+def get_random_profiles(count=7, current_user=None):
 	"""
 	Return a list of `count` randomly selected social profiles. 
 	Only some particular fields for each profile is taken from the database.
 	"""
 	SocialProfile = apps.get_model('socialize', 'SocialProfile')
 	random_profiles = []
-
-	all_profiles = list(
-		SocialProfile.objects.only(
+	
+	# Exclude current user from list
+	if current_user:
+		qs = SocialProfile.objects.exclude(user_id=current_user.id) \
+			.only('user__username', 'user__site_points', 'gender')
+	else:
+		qs = SocialProfile.objects.only(
 			'user__username', 'user__site_points', 'gender'
 		)
-	)
+		
+	if qs.count() != 0:
+		all_profiles = list(qs)
 
-	# complexity of this is currently O(n^2) in worst-case
-	# though in reality it's amortized. since the length of the 
-	# list(random_profiles) is initially empty then increases progressively
-	# we get sum of (n * n-1 * n-2 ...) in opposite direction of course.
-	# this is equivalent to n(n-1)/2 hence O(n^2)
-	for i in range(count):
-		random_profile = choice(all_profiles)
+		# complexity of this is currently O(n^2) in worst-case
+		# though in reality it's amortized. since the length of the 
+		# list(random_profiles) is initially empty then increases progressively
+		# we get sum of (n * n-1 * n-2 ...) in opposite direction of course.
+		# this is equivalent to n(n-1)/2 hence O(n^2)
+		for i in range(count):
+			random_profile = choice(all_profiles)
 
-		# if user hasn't already been selected
-		if random_profile not in random_profiles:
-			random_profiles.append(random_profile)
+			# if user hasn't already been selected
+			if random_profile not in random_profiles:
+				random_profiles.append(random_profile)
 
-		# else if user has been selected, do nothing...
-		# however the likelyhood of this happening is slim
-		# (especially if the initial list is large),
-		# except if there are just a few elements in the initial list
-		else:
-			pass
+			# else if user has been selected, do nothing...
+			# however the likelyhood of this happening is slim
+			# (especially if the initial list is large),
+			# except if there are just a few elements in the initial list
+			else:
+				pass
 
 	return random_profiles
 

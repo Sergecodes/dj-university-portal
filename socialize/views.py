@@ -512,7 +512,7 @@ def friend_finder(request):
 
 	context = {
 		'filter': filter,
-		'random_profiles': get_random_profiles()
+		'random_profiles': get_random_profiles(current_user=request.user)
 	}
 
 	return render(request, 'socialize/socialprofile_filter.html', context)

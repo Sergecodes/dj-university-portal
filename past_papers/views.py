@@ -180,6 +180,16 @@ class PastPaperFilter(filters.FilterSet):
 		self.filters['subject'].label = _('Subject')
 		self.filters['level'].label = _('Level')
 
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(
+				Q(school__isnull=True) | Q(school__country__code=country_code)
+			)
+
+		return parent_qs
+
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(

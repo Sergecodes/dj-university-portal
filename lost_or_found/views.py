@@ -130,6 +130,14 @@ class FoundItemFilter(filters.FilterSet):
 		# # print(self.filters)
 		self.filters['school'].label = _('School')
 
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(school__country__code=country_code)
+
+		return parent_qs
+
 	def filter_item(self, queryset, name, value):
 		value_list = value.split()
 		qs = queryset.filter(
@@ -315,6 +323,14 @@ class LostItemFilter(filters.FilterSet):
 		# this is so as to enable translation of labels.
 		super().__init__(*args, **kwargs)
 		self.filters['school'].label = _('School')
+
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(school__country__code=country_code)
+
+		return parent_qs
 
 	def filter_item(self, queryset, name, value):
 		value_list = value.split()

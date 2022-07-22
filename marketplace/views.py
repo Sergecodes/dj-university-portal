@@ -16,7 +16,7 @@ from functools import reduce
 from core.constants import (
 	LISTING_PHOTOS_UPLOAD_DIR, AD_PHOTOS_UPLOAD_DIR,
 	ITEM_LISTING_SUFFIX, AD_LISTING_SUFFIX,
-	MIN_ITEM_PHOTOS_LENGTH 
+	MIN_ITEM_PHOTOS_LENGTH, 
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos, should_redirect, translate_text
@@ -340,6 +340,14 @@ class ItemListingFilter(filters.FilterSet):
 		self.filters['school'].label = _('School')
 		self.filters['category'].label = _('Category')
 
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(school__country__code=country_code)
+
+		return parent_qs
+
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
 
@@ -608,6 +616,16 @@ class AdListingFilter(filters.FilterSet):
 		super().__init__(*args, **kwargs)
 		self.filters['school'].label = _('School')
 		self.filters['category'].label = _('Category')
+
+	@property
+	def qs(self):
+		parent_qs = super().qs
+		if country_code := self.request.session.get('country_code'):
+			return parent_qs.filter(
+				Q(school__isnull=True) | Q(school__country__code=country_code)
+			)
+
+		return parent_qs
 
 	def filter_title(self, queryset, name, value):
 		value_list = value.split()
