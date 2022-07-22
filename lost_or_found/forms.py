@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
+from core.models import Institution
 from core.utils import get_edit_profile_url, PhotoUploadMixin
 from .models import LostItem, LostItemPhoto, FoundItem
 
@@ -15,76 +16,15 @@ class LostItemPhotoForm(forms.ModelForm, PhotoUploadMixin):
 		fields = ('file', )
 
 
-class FoundItemForm(forms.ModelForm):
-	contact_numbers = forms.ModelMultipleChoiceField(
-		queryset=None, 
-		required=True,
-		widget=forms.CheckboxSelectMultiple()
-	)
-
-	class Meta: 
-		model = FoundItem
-		exclude = (
-			# we include slug_en and slug_fr coz with `modeltranslation`,
-			# doing something like obj.slug_en = 'foo' also does obj.slug = 'foo'
-			# now if we don't exclude them, their values will be '' (obj.slug_en = '').
-			# so the object will be saved as obj.slug = ''
-			'slug', 'slug_en', 'slug_fr', 'posted_datetime', 'last_modified', 
-			'poster', 'original_language', 'view_count'
-		)
-		widgets = {
-			'item_found': forms.TextInput(attrs={'placeholder': _('Green backpack')}),
-			'area_found': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
-			'how_found': forms.Textarea(attrs={
-				'placeholder': _(
-					'I was walking near Amphi 250 and found the green backpack near the door.'
-				),
-				'rows': '3',
-			}),
-		}
-
-	def __init__(self, *args, **kwargs):
-		user, update = kwargs.pop('user'), kwargs.pop('update', False)
-		super().__init__(*args, **kwargs)
-
-		# email used for notifications concerning listing is user's email by default.
-		# user may enter another email
-		self.fields['contact_email'].initial = user.email
-		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].empty_label = None
-
-		self.helper = FormHelper()
-		self.helper.layout = Layout(
-			Fieldset(_('Found Item Information'),
-				'school',
-				'item_found',
-				'area_found',
-				'how_found'
-			),
-			Fieldset(_("Poster's Information"),
-				'contact_email',
-				'contact_numbers'
-			),
-			HTML(" \
-				<a \
-					class='btn btn-outline link-success opacity-75 d-inline-block mb-4 pt-0' \
-					href=" + get_edit_profile_url(user) + '?next={{ request.get_full_path }}#phoneSection>'
-					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
-				"</a>"
-			),
-		)
-
-		if update:
-			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block btn-success"))
-		else:
-			self.helper.add_input(Submit('submit', _('Report item'), css_class="d-block btn-success"))
-
-
 class LostItemForm(forms.ModelForm):
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
 		required=True,
 		widget=forms.CheckboxSelectMultiple()
+	)
+	school = forms.ModelChoiceField(
+		queryset=None, 
+		empty_label=None
 	)
 
 	class Meta:
@@ -113,7 +53,7 @@ class LostItemForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].empty_label = None
+		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
@@ -160,3 +100,70 @@ class LostItemForm(forms.ModelForm):
 			self.helper.add_input(Submit('submit', _('Report item'), css_class="d-block btn-success"))
 
 
+class FoundItemForm(forms.ModelForm):
+	contact_numbers = forms.ModelMultipleChoiceField(
+		queryset=None, 
+		required=True,
+		widget=forms.CheckboxSelectMultiple()
+	)
+	school = forms.ModelChoiceField(
+		queryset=None, 
+		empty_label=None
+	)
+
+	class Meta: 
+		model = FoundItem
+		exclude = (
+			# we include slug_en and slug_fr coz with `modeltranslation`,
+			# doing something like obj.slug_en = 'foo' also does obj.slug = 'foo'
+			# now if we don't exclude them, their values will be '' (obj.slug_en = '').
+			# so the object will be saved as obj.slug = ''
+			'slug', 'slug_en', 'slug_fr', 'posted_datetime', 'last_modified', 
+			'poster', 'original_language', 'view_count'
+		)
+		widgets = {
+			'item_found': forms.TextInput(attrs={'placeholder': _('Green backpack')}),
+			'area_found': forms.TextInput(attrs={'placeholder': _('Infront of Amphi 250')}),
+			'how_found': forms.Textarea(attrs={
+				'placeholder': _(
+					'I was walking near Amphi 250 and found the green backpack near the door.'
+				),
+				'rows': '3',
+			}),
+		}
+
+	def __init__(self, *args, **kwargs):
+		user, update = kwargs.pop('user'), kwargs.pop('update', False)
+		super().__init__(*args, **kwargs)
+
+		# email used for notifications concerning listing is user's email by default.
+		# user may enter another email
+		self.fields['contact_email'].initial = user.email
+		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+
+		self.helper = FormHelper()
+		self.helper.layout = Layout(
+			Fieldset(_('Found Item Information'),
+				'school',
+				'item_found',
+				'area_found',
+				'how_found'
+			),
+			Fieldset(_("Poster's Information"),
+				'contact_email',
+				'contact_numbers'
+			),
+			HTML(" \
+				<a \
+					class='btn btn-outline link-success opacity-75 d-inline-block mb-4 pt-0' \
+					href=" + get_edit_profile_url(user) + '?next={{ request.get_full_path }}#phoneSection>'
+					+ str(_('Edit phone numbers')) + EXTERNAL_LINK_ICON + 
+				"</a>"
+			),
+		)
+
+		if update:
+			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block btn-success"))
+		else:
+			self.helper.add_input(Submit('submit', _('Report item'), css_class="d-block btn-success"))

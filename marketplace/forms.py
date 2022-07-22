@@ -28,7 +28,7 @@ class ItemListingForm(forms.ModelForm):
 	"""Form used to create a new item listing."""
 	# slug = forms.CharField(required=False)
 	school = forms.ModelChoiceField(
-		queryset=Institution.objects.all(), 
+		queryset=None, 
 		empty_label=None
 	)
 	description = forms.CharField(
@@ -84,6 +84,7 @@ class ItemListingForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
@@ -169,7 +170,10 @@ class AdListingForm(forms.ModelForm):
 		widget= CKEditorWidget(config_name='listing_description'),
 		help_text=_("Describe your advert. Use a clear and concise format to keep your description lisible.")
 	)
-
+	school = forms.ModelChoiceField(
+		queryset=None, # queryset will be set in form init
+		empty_label=None
+	)
 	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
@@ -196,6 +200,7 @@ class AdListingForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
 		self.fields['category'].empty_label = None
 
 		self.helper = FormHelper()

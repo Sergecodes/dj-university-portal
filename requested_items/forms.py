@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
+from core.models import Institution
 from core.utils import get_edit_profile_url, PhotoUploadMixin
 from .models import RequestedItem, RequestedItemPhoto
 
@@ -19,6 +20,9 @@ class RequestedItemPhotoForm(forms.ModelForm, PhotoUploadMixin):
 
 
 class RequestedItemForm(forms.ModelForm):
+	school = forms.ModelChoiceField(
+		queryset=None, 
+	)
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
 		required=True,
@@ -45,6 +49,7 @@ class RequestedItemForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
 		self.fields['category'].empty_label = None
 
 		self.helper = FormHelper()

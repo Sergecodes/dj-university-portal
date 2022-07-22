@@ -52,12 +52,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		form = self.get_form()
 		session, username = request.session, request.user.username
 
-		# # print(request.POST, request.FILES)
-		# # print(form.data)
-		# # print(form.data['sub_category'])
-		# # print(dir(form.fields['sub_category']))
-
-		# validate minimum number of photos (backend)
+		# Validate minimum number of photos (backend)
 		# this check is also done on the frontend; but in an almost naive way..
 		# - counting the number of html photo containers.
 		# no need to validate max number since the photo upload ajax view already does that
@@ -68,13 +63,17 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
 			)
 
-		# update queryset of sub category field to ensure that sub category received 
-		# is indeed a sub category of the passed category
-		# we can't do it in the form class coz we need the request object.
-		category_pk = request.POST.get('category', None)  
-		category = get_object_or_404(ItemCategory, pk=category_pk)
-		sub_category_field = form.fields['sub_category']
-		sub_category_field.queryset = category.sub_categories.all()
+		# Validate that sub category belongs to category
+		sub_category_pk = request.POST.get('sub_category', None)
+		if sub_category_pk:
+			category_pk = request.POST.get('category', None)  
+			category = get_object_or_404(ItemCategory, pk=category_pk)
+
+			if sub_category_pk not in category.sub_categories.values_list('id', flat=True):
+				form.add_error(
+					'sub_category',
+					_('Sub category {} is not in category {}'.format(sub_category_pk, category_pk))
+				)
 
 		if form.is_valid():
 			return self.form_valid(form)
