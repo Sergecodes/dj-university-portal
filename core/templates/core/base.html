@@ -583,57 +583,44 @@
 
 		{# select menus #}
 		<div class="mt-3 mb-5 d-flex justify-content-evenly">
-			<div>
-				<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
-					<select class="footer-select js-footer-select--country">
-						{% if default_country %}
-							<option value="{{ default_country.code }}">
-								{{ default_country.name }}
-							</option>
-						{% else %}
-							<option value="---">
-								{% trans 'No particular country' %}
-							</option>
-						{% endif %}
-
-						{# Display general country code as first option #}
-						<option 
-							value="---" 
-							data-url="{% url 'core:set-session-country' GEN_COUNTRY_CODE %}?next={{ request.path }}"
-							{% if not default_country %} selected {% endif %}
-						>
+			<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
+				<select class="footer-select js-footer-select--country">
+					{% if default_country %}
+						<option value="{{ default_country.code }}">
+							{{ default_country.name }}
+						</option>
+					{% else %}
+						<option value="---">
 							{% trans 'No particular country' %}
 						</option>
-						{% for country in countries %}
-							{% comment %} 
-							If country is already selected, clicking on it shouldn't
-							activate the link. So add data-url attribute to the option;
-							we can't add the a tag because options can only contain texts.
-							{% endcomment %}
-							<option 
-								value="{{ country.code }}" 
-								{% if country.code != default_country.code %} 
-								data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
-								{% else %}
-								selected
-								{% endif %}
-							>
-								{{ country.name }}
-							</option>
-						{% endfor %}
-					</select>
-				</div>
-				<span 
-					class="ms-2 text-light" 
-					data-bs-toggle="tooltip" 
-					data-bs-placement="right" 
-					title="{% blocktrans %} 
-					The only sections that do not consider countries are questions, past papers and projects.
-					{% endblocktrans %}"
-				>
-					<i class="fas fa-info-circle"></i>
-					<span class="visually-hidden">{% trans 'Country select info' %}</span>
-				</span>
+					{% endif %}
+
+					{# Display general country code as first option #}
+					<option 
+						value="---" 
+						data-url="{% url 'core:set-session-country' GEN_COUNTRY_CODE %}?next={{ request.path }}"
+						{% if not default_country %} selected {% endif %}
+					>
+						{% trans 'No particular country' %}
+					</option>
+					{% for country in countries %}
+						{% comment %} 
+						If country is already selected, clicking on it shouldn't
+						activate the link. So add data-url attribute to the option;
+						we can't add the a tag because options can only contain texts.
+						{% endcomment %}
+						<option 
+							value="{{ country.code }}" 
+							{% if country.code != default_country.code %} 
+							data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
+							{% else %}
+							selected
+							{% endif %}
+						>
+							{{ country.name }}
+						</option>
+					{% endfor %}
+				</select>
 			</div>
 			<div class="footer-select-wrp js-footer-select-wrp" style="width: 200px;">
 				{# Create hidden form that will be used to submit language selection #}

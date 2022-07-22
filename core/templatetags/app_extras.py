@@ -1,7 +1,4 @@
 import bleach
-from core.constants import GENERAL_COUNTRY_CODE
-from core.models import Country
-from core.utils import parse_phone_number, is_mobile
 from django import template
 from django.apps import apps
 from django.conf import settings
@@ -9,6 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 # from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
+
+from core.constants import GENERAL_COUNTRY_CODE
+from core.models import Country
+from core.utils import parse_phone_number, is_mobile
 from past_papers.mixins import can_edit_comment, can_delete_comment
 # I imported the User module directly; this was to ensure that 
 # the User methods will be highlighted by the code editor; xD
@@ -51,16 +52,12 @@ def general_country_code():
 @register.simple_tag(takes_context=True)
 def get_default_country(context):
 	"""Get default country. """
-	user, request = context['user'], context['request']
-	country_code = request.session.get('country_code')
+	country_code = context['request'].session.get('country_code')
 
 	if country_code:
 		return Country.objects.get(code=country_code)
 
-	if user.is_authenticated:
-		return user.country
-
-	# User is not auth or no country is in session so use default country_code
+	# No country is in session so use default country_code
 	return None
 
 
