@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
-from core.models import Institution
+from core.models import City
 from core.utils import get_edit_profile_url, PhotoUploadMixin
 from .models import (
 	ItemListing, AdListing, ItemSubCategory,
@@ -27,7 +27,7 @@ class ItemListingPhotoForm(forms.ModelForm, PhotoUploadMixin):
 class ItemListingForm(forms.ModelForm):
 	"""Form used to create a new item listing."""
 	# slug = forms.CharField(required=False)
-	school = forms.ModelChoiceField(
+	city = forms.ModelChoiceField(
 		queryset=None, 
 		empty_label=None
 	)
@@ -84,12 +84,12 @@ class ItemListingForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('School & Item Category'),
-				'school',
+			Fieldset(_('City & Item Category'),
+				'city',
 				Row(
 					Column('category', css_class='form-group col-md-6 mb-0'),
 					Column('sub_category', css_class='form-group col-md-6 mb-0'),
@@ -170,7 +170,7 @@ class AdListingForm(forms.ModelForm):
 		widget= CKEditorWidget(config_name='listing_description'),
 		help_text=_("Describe your advert. Use a clear and concise format to keep your description lisible.")
 	)
-	school = forms.ModelChoiceField(
+	city = forms.ModelChoiceField(
 		queryset=None, # queryset will be set in form init
 		empty_label=None
 	)
@@ -200,14 +200,14 @@ class AdListingForm(forms.ModelForm):
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		self.fields['category'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('School & Advert Category'),
+			Fieldset(_('City & Advert Category'),
 				Row(
-					Column('school', css_class='form-group col-md-6 mb-0'),
+					Column('city', css_class='form-group col-md-6 mb-0'),
 					Column('category', css_class='form-group col-md-6 mb-0'),
 					css_class='form-row'
 				),

@@ -94,9 +94,15 @@
 						</td>
 					</tr>
 					<tr>
-						<td>{% trans 'School' %}</td>
+						<td>{% trans 'City' %}</td>
 						<td>
-							<a href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+							<a
+								title={{ listing.city.country }} 
+								href="{% url 'marketplace:item-listing-list' %}?city={{ listing.city_id }}" 
+								class="text-decoration-none"
+							>
+								{{ listing.city }}
+							</a>
 						</td>
 					</tr>
 					<tr>
@@ -117,10 +123,10 @@
 					<tr>
 						<td>{% trans 'Category' %}</td>
 						<td>
-							<a href="{% url 'marketplace:item-listing-list' %}?category={{ listing.category_id }}" class="text-decoration-none">{{ listing.category }}</a>
-							{% if listing.sub_category %}
-								<span> > <span class="text-dark"> {{ listing.sub_category }}</span></span>
-							{% endif %}
+							{% with category=listing.sub_category.parent_category %}
+							<a href="{% url 'marketplace:item-listing-list' %}?category={{ category.id }}" class="text-decoration-none">{{ category }}</a>
+							{% endwith %}
+							<span> > <span class="text-dark"> {{ listing.sub_category }}</span></span>
 						</td>
 					</tr>
 					<tr>
@@ -283,7 +289,7 @@
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
 				{% trans 'Similar listings in' %} 
-				<a href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+				<a href="{% url 'marketplace:item-listing-list' %}?city={{ listing.city_id }}" class="text-decoration-none">{{ listing.city }}</a>
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}

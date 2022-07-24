@@ -49,11 +49,12 @@ class HomePageView(TemplateView):
 		)[:NUM_QUESTIONS]
 
 		## marketplace(items / adverts) ##
-		# since school has been "select_related", it must be among the fields in only()
-		item_listings = ItemListing.objects.select_related('school').prefetch_related(
+		# since city has been "select_related", it must be among the fields in only()
+		# ie it should not be deferred
+		item_listings = ItemListing.objects.select_related('city').prefetch_related(
 			'photos'
 		).defer('description', 'condition_description', 'original_language')[:NUM_ITEMS]
-		ad_listings = AdListing.objects.select_related('school').prefetch_related(
+		ad_listings = AdListing.objects.select_related('city').prefetch_related(
 			'photos'
 		)[:NUM_ITEMS]
 

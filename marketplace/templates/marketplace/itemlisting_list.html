@@ -109,10 +109,11 @@
 									{% include 'core/google_attribution.html' with object=listing %}
 									<br class="mb-4">
 									<a 
+										title={{ listing.city.country }}
 										class="text-decoration-none" 
-										href="{% url 'marketplace:item-listing-list' %}?school={{ listing.school_id }}"
+										href="{% url 'marketplace:item-listing-list' %}?city={{ listing.city_id }}"
 									>
-										{{ listing.school }}
+										{{ listing.city }}
 									</a>
 									&nbsp;- &nbsp;
 									<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
@@ -154,26 +155,3 @@
 	</div>
 </div>
 {% endblock content %}
-
-{% block extra_js %}
-<!-- 
-<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
-<script src="{% static 'js/infinite.min.js' %}"></script>
-<script>
-	console.log("{{ page_obj.paginator.page_range }}")
-	console.log("{{ page_obj.paginator.num_pages }}");
-	var infinite = new Waypoint.Infinite({
-		element: $('.js-listing-list-content').first().get(0),
-		items: '.js-post',
-		more: '.infinite-more-link',
-		onBeforePageLoad: function () {
-			$('.js-loading').show();
-		},
-		onAfterPageLoad: function ($items) {
-			var $previouslyActive = $('.active').first();
-			$('.js-loading').hide();
-		}
-	}); 
-</script> 
--->
-{% endblock %} 

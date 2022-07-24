@@ -19,29 +19,50 @@ class Country(models.Model):
 	def __str__(self):
 		return f'{self.name} {self.code}'
 
-	@classmethod
-	def create_countries(cls):
-		COUNTRIES = [
-			{ 
-				'code': 'CMR', 
-				'name': 'Cameroon', 
-				'name_fr': 'Cameroun',
-				'slug_fr': 'cameroun'
-			},
-			{ 
-				'code': 'NGA', 
-				'name': 'Nigeria', 
-				'name_fr': 'Nigéria',
-				'slug_fr': 'nigeria'
-			},
+	# @classmethod
+	# def create_countries(cls):
+	# 	COUNTRIES = [
+	# 		{ 
+	# 			'code': 'CMR', 
+	# 			'name': 'Cameroon', 
+	# 			'name_fr': 'Cameroun',
+	# 			'slug_fr': 'cameroun'
+	# 		},
+	# 		{ 
+	# 			'code': 'NGA', 
+	# 			'name': 'Nigeria', 
+	# 			'name_fr': 'Nigéria',
+	# 			'slug_fr': 'nigeria'
+	# 		},
 
-		]
+	# 	]
 
-		country_objs = [Country(**country) for country in COUNTRIES]
-		Country.objects.bulk_create(country_objs, ignore_conflicts=True)
+	# 	country_objs = [Country(**country) for country in COUNTRIES]
+	# 	Country.objects.bulk_create(country_objs, ignore_conflicts=True)
 
 	class Meta:
+		ordering = ['name']
 		verbose_name_plural = _('Countries')
+
+
+class City(models.Model):
+	name = models.CharField(_('Name'), max_length=50, unique=True)
+	country = models.ForeignKey(
+		Country, 
+		verbose_name=_('Country'),
+		on_delete=models.RESTRICT,
+		related_name='cities',
+		related_query_name='city'
+	)
+	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.name
+	
+	class Meta:
+		ordering = ['name']
+		verbose_name_plural = _('Cities')
 
 
 class Institution(models.Model):

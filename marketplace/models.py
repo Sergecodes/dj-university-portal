@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
-from core.models import Post, Institution
+from core.models import Post, City
 from core.utils import PhotoModelMixin
 
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
@@ -189,27 +189,19 @@ class ItemListing(ListingPost):
 		related_name='item_listings',
 		related_query_name='item_listing'
 	)
-	school = models.ForeignKey(
-		Institution,
-		verbose_name=_('School'),
+	city = models.ForeignKey(
+		City,
+		verbose_name=_('City'),
 		on_delete=models.CASCADE,
 		related_name='item_listings',
 		related_query_name='item_listing'
 	)
-	category = models.ForeignKey(
-		'ItemCategory', 
-		verbose_name=_('Category'),
-		related_name='item_listings', 
-		related_query_name='item_listing',
-		on_delete=models.RESTRICT
-	)
 	sub_category = models.ForeignKey(
-		'ItemSubCategory', 
+		ItemSubCategory, 
 		verbose_name=_('Sub category'),
 		related_name='item_listings', 
 		related_query_name='item_listing',
-		on_delete=models.RESTRICT,
-		null=True, blank=True,
+		on_delete=models.RESTRICT
 	)
 	condition = models.CharField(
 		_('Condition'),
@@ -269,14 +261,14 @@ class AdListing(ListingPost):
 		default='-',
 		max_length=40
 	)
-	school = models.ForeignKey(
-		Institution,
-		verbose_name=_('School'),
+	city = models.ForeignKey(
+		City,
+		verbose_name=_('City'),
 		on_delete=models.CASCADE,
 		related_name='ad_listings',
 		related_query_name='ad_listing',
 		null=True, blank=True,
-		help_text=_('Allow this field empty if this advert does not concern a particular school.')
+		help_text=_('Allow this field empty if this advert does not concern a particular city.')
 	)
 	bookmarkers = models.ManyToManyField(
 		User,

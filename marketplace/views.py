@@ -289,21 +289,17 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		listing = self.object
 		listing_photos = listing.photos.all()
 		
-		# listing.sub_category.name may throw an AttributeError if the listing has no sub_category (will be None.name)
-		sub_category_name = getattr(listing.sub_category, 'name', '')
-		if sub_category_name:
-			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-				school=listing.school,
-				sub_category__name=sub_category_name
-			).only('title', 'price', 'posted_datetime')
-		else:
-			similar_listings = ItemListing.objects.prefetch_related('photos').filter(
-				school=listing.school
-			).only('title', 'price', 'posted_datetime')
-		
-		# exclude current object from list of similar objects and slice queryset
-		# note that we can filter queryset after slice has been taken
-		similar_listings = similar_listings.exclude(id=listing.id)[:NUM_LISTINGS]
+		# Accesing the listing's city or country won't hit the database
+		#
+		# Exclude current object from list of similar objects and slice queryset
+		# note that we can't filter queryset after slice has been taken
+		similar_listings = ItemListing.objects.select_related(
+			'city__country'
+		).prefetch_related(
+			'photos'
+		).filter(
+			city=listing.city, sub_category=listing.sub_category
+		).exclude(id=listing.id).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -328,23 +324,27 @@ class ItemListingDelete(GetObjectMixin, CanDeleteListingMixin, DeleteView):
 
 class ItemListingFilter(filters.FilterSet):
 	title = filters.CharFilter(label=_('Item keywords'), method='filter_title')
+	category = filters.ModelChoiceFilter(
+		label=_('Category'),
+		queryset=ItemCategory.objects.all(),
+		method='filter_category'
+	)
 
 	class Meta:
 		model = ItemListing
-		fields = ['school', 'title', 'category', ]
+		fields = ['city', 'title', 'category', ]
 
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is so as to enable translation of labels.
 		super().__init__(*args, **kwargs)
-		self.filters['school'].label = _('School')
-		self.filters['category'].label = _('Category')
+		self.filters['city'].label = _('City')
 
 	@property
 	def qs(self):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
-			return parent_qs.filter(school__country__code=country_code)
+			return parent_qs.filter(city__country__code=country_code)
 
 		return parent_qs
 
@@ -358,6 +358,10 @@ class ItemListingFilter(filters.FilterSet):
 			)
 		)
 		return qs
+
+	def filter_category(self, queryset, name, value):
+		# `value` is the corresponding category instance
+		return queryset.filter(sub_category__parent_category=value)
 
 
 class ItemListingList(FilterView):
@@ -566,17 +570,16 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
-		user = self.request.user
-		
-		context = super().get_context_data(**kwargs)
+		user, context = self.request.user, super().get_context_data(**kwargs)
+
 		listing = self.object
 		listing_photos = listing.photos.all()
-		
-		similar_listings = AdListing.objects.prefetch_related('photos').filter(
-			school=listing.school,
-			category__name=listing.category.name
-		).exclude(id=listing.id).only('title', 'pricing', 'posted_datetime')[0:NUM_LISTINGS]
-		# print(similar_listings)
+		similar_listings = AdListing.objects.select_related(
+			'sub_category', 'city__country'
+		).prefetch_related('photos').filter(
+			city=listing.city,
+			category=listing.category
+		).exclude(id=listing.id).only('title', 'pricing', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -608,13 +611,13 @@ class AdListingFilter(filters.FilterSet):
 
 	class Meta:
 		model = AdListing
-		fields = ['school', 'title', 'category', ]
+		fields = ['city', 'title', 'category', ]
 	
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is to enable translation of labels.
 		super().__init__(*args, **kwargs)
-		self.filters['school'].label = _('School')
+		self.filters['city'].label = _('City')
 		self.filters['category'].label = _('Category')
 
 	@property
@@ -622,7 +625,7 @@ class AdListingFilter(filters.FilterSet):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
 			return parent_qs.filter(
-				Q(school__isnull=True) | Q(school__country__code=country_code)
+				Q(city__isnull=True) | Q(city__country__code=country_code)
 			)
 
 		return parent_qs

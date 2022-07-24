@@ -111,12 +111,13 @@
 									</a>
 									{% include 'core/google_attribution.html' with object=listing %}
 									<br class="mb-4">
-									{% if listing.school %}
+									{% if listing.city %}
 										<a 
+											title={{ listing.city.country }}
 											class="text-decoration-none" 
-											href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}"
+											href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.city_id }}"
 										>
-											{{ listing.school }}
+											{{ listing.city }}
 										</a>
 									{% else %}
 										<span>{% trans 'No particular school' %}</span>

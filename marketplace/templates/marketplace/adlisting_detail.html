@@ -81,7 +81,8 @@
 					</div>
 				</div>
 			{% endif %}
-			<!-- apparently "advert-info" is a browser-extension class that is initially set to display none !important -->
+
+			<!-- NOTE apparently "advert-info" is a browser-extension class that is initially set to display none !important -->
 			<div class="ms-3 mt-4 d-lg-block ad-info">
 				<table class="table table-bordered">
 					<tr>
@@ -99,10 +100,16 @@
 						</td>
 					</tr>
 					<tr>
-						<td>{% trans 'School' %}</td>
+						<td>{% trans 'City' %}</td>
 						<td>
-							{% if listing.school %}
-								<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+							{% if listing.city %}
+								<a
+									title={{ listing.city.country }} 
+									href="{% url 'marketplace:ad-listing-list' %}?city={{ listing.city_id }}" 
+									class="text-decoration-none"
+								>
+									{{ listing.city }}
+								</a>
 							{% else %}
 								-
 							{% endif %}
@@ -274,9 +281,15 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
-				{% if listing.school_id %}
+				{% if listing.city_id %}
 					{% trans 'Similar adverts in' %} 
-					<a href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.school_id }}" class="text-decoration-none">{{ listing.school }}</a>
+					<a 
+						title={{ listing.city.country }}
+						href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.city_id }}" 
+						class="text-decoration-none"
+					>
+						{{ listing.city }}
+					</a>
 				{% else %}
 					{% trans 'Similar adverts' %}
 				{% endif %}
