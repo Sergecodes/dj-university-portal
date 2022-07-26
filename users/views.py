@@ -21,7 +21,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import PHONE_NUMBERS_KEY, TEST_ACCOUNT_EMAIL, TEST_ACCOUNT_USERNAME
-from qa_site.models import SchoolAnswer, AcademicAnswer
+from qa_site.models import AcademicAnswer, DiscussComment
 from users.models import PhoneNumber
 from .forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
@@ -307,10 +307,10 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 		user = self.request.user
 		all_users_id = User.objects.only('id')
 
-		context['school_questions'] = user.school_questions.select_related('school').prefetch_related(
+		context['discuss_questions'] = user.discuss_questions.select_related('school').prefetch_related(
 			Prefetch('upvoters', queryset=all_users_id),
 			Prefetch('downvoters', queryset=all_users_id),
-			Prefetch('answers', queryset=SchoolAnswer.objects.only('id'))
+			Prefetch('comments', queryset=DiscussComment.objects.only('id'))
 		)
 		context['academic_questions'] = user.academic_questions.prefetch_related(
 			Prefetch('upvoters', queryset=all_users_id),
@@ -319,22 +319,27 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 		)
 
 		qstn_fields = ('id', 'poster_id', 'posted_datetime', )
-		ans_fields = ('id', 'content', 'posted_datetime', 'question_id', 'poster_id', )
+		ans_fields = ('id', 'content', 'posted_datetime', 'poster_id', )
 
 		# bookmarked questions
 		context['bookmarked_academic_qstns'] = user.bookmarked_academic_questions \
 			.only('title', *qstn_fields)
-		context['bookmarked_school_qstns'] = user.bookmarked_school_questions \
+		context['bookmarked_discuss_qstns'] = user.bookmarked_discuss_questions \
 			.only('content', *qstn_fields)
 
 		# following questions
 		context['following_academic_qstns'] = user.following_academic_questions \
 			.only('title', *qstn_fields)
-		context['following_school_qstns'] = user.following_school_questions \
+		context['following_discuss_qstns'] = user.following_discuss_questions \
 			.only('content', *qstn_fields)
 
-		context['academic_answers'] = user.academic_answers.only('question__slug', *ans_fields)
-		context['school_answers'] = user.school_answers.only(*ans_fields)
+		context['academic_answers'] = user.academic_answers.select_related(
+			'question'
+		).only('question', *ans_fields)
+
+		context['ancestor_discuss_comments'] = user.discuss_comments.select_related(
+			'question'
+		).filter(parent__isnull=True).only('question', *ans_fields)
 
 		return context
 

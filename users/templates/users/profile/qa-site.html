@@ -101,15 +101,15 @@
 					</div>	
 				</section>	
 
-				<!-- school-based questions -->
+				<!-- discussion questions -->
 				<section class="mb-5">
-					{# user's school questions #}
+					{# user's discussion questions #}
 					<div class="mb-4">
 						<h4 class="text-success">
-							{% trans 'My School-Based Questions' %}
-							<span class="text-muted">({{ school_questions.count }})</span>
+							{% trans 'My Discussion Questions' %}
+							<span class="text-muted">({{ discuss_questions.count }})</span>
 						</h4>
-						{% for question in school_questions %}
+						{% for question in discuss_questions %}
 							<div class="mb-2">
 								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 									<span 
@@ -118,7 +118,6 @@
 									<span>
 										{# `safe` is used at the end to also remove html entities #}
 										{{ question.content|remove_tags|truncatewords:50|safe }}
-										<span class="small">({{ question.school }})</span>
 										- <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
 									</span>
 								</a>
@@ -127,10 +126,10 @@
 							</div>
 						{% empty %}
 							<div class="alert alert-purple" role="alert">
-								{% trans 'You have not asked any school-based question yet.' %} <br>
+								{% trans 'You have not asked any question for discussion yet.' %} <br>
 								{% trans 'Click' %}
-								<a href="{% url 'qa_site:school-question-create' %}">{% trans 'here' %}</a>
-								{% trans 'to ask a question concerning a particular school.' %}
+								<a href="{% url 'qa_site:discuss-question-create' %}">{% trans 'here' %}</a>
+								{% trans 'to discuss about any topic.' %}
 							</div>
 						{% endfor %}	
 					</div>
@@ -138,10 +137,10 @@
 					{# bookmarks #}
 					<div class="mb-4">	
 						<h4 class="text-success">
-							{% trans 'Bookmarked School Questions' %}
-							<span class="text-muted">({{ bookmarked_school_qstns.count }})</span>
+							{% trans 'Bookmarked Discussion Questions' %}
+							<span class="text-muted">({{ bookmarked_discuss_qstns.count }})</span>
 						</h4>
-						{% for question in bookmarked_school_qstns %}
+						{% for question in bookmarked_discuss_qstns %}
 							<div class="mb-2">
 								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 									{{ question }}
@@ -152,7 +151,7 @@
 							</div>
 						{% empty %}
 							<div class="alert alert-purple" role="alert">
-								{% trans 'You have not bookmarked any school-based question yet.' %}
+								{% trans 'You have not bookmarked any discussion question yet.' %}
 							</div>
 						{% endfor %}
 					</div>	
@@ -160,10 +159,10 @@
 					{# following #}
 					<div>	
 						<h4 class="text-success">
-							{% trans 'Following School Questions' %}
-							<span class="text-muted">({{ following_school_qstns.count }})</span>
+							{% trans 'Following Discussion Questions' %}
+							<span class="text-muted">({{ following_discuss_qstns.count }})</span>
 						</h4>
-						{% for question in following_school_qstns %}
+						{% for question in following_discuss_qstns %}
 							<div class="mb-2">
 								<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 									{{ question }}
@@ -174,7 +173,7 @@
 							</div>
 						{% empty %}
 							<div class="alert alert-purple" role="alert">
-								{% trans 'You are not following any school-based question.' %}
+								{% trans 'You are not following any discussion question.' %}
 							</div>
 						{% endfor %}
 					</div>	
@@ -184,12 +183,12 @@
 				<section class="mb-4">
 					<h4 class="text-success mb-3">
 						{% trans 'My Answers' %}
-						{% with aca_count=academic_answers.count school_count=school_answers.count %}
+						{% with aca_count=academic_answers.count discuss_count=ancestor_discuss_comments.count %}
 						<span class="text-muted small">
 							(
 							{% trans 'Academic' %} - {{ aca_count }}
 							&nbsp;;&nbsp; 
-							{% trans 'School-Based' %} - {{ school_count }}
+							{% trans 'Discussion' %} - {{ discuss_count }}
 							)
 						</span>
 						{% endwith %}
@@ -213,20 +212,20 @@
 					{% endfor %}	
 
 					<hr class="my-2">
-					{% for answer in school_answers %}
+					{% for comment in ancestor_discuss_comments %}
 						<div class="mb-2">
-							<a href="{{ answer.question.get_absolute_url }}" class="text-decoration-none">
-								{{ answer.content|remove_tags|truncatewords:50|safe }}
+							<a href="{{ comment.question.get_absolute_url }}" class="text-decoration-none">
+								{{ comment.content|remove_tags|truncatewords:50|safe }}
 							</a>
 							<span class="small text-muted mx-2">
-								{% trans 'Answered' %} {{ answer.posted_datetime|naturaltime }}
+								{% trans 'Answered' %} {{ comment.posted_datetime|naturaltime }}
 							</span>
 						</div>
 					{% empty %}
 						<div class="alert alert-purple" role="alert">
-							{% trans 'You have not answered any school-based question yet.' %} <br>
+							{% trans 'You have not answered any discussion question yet.' %} <br>
 							{% trans 'Click' %}
-							<a href="{% url 'qa_site:school-question-list' %}">{% trans 'here' %}</a>
+							<a href="{% url 'qa_site:discuss-question-list' %}">{% trans 'here' %}</a>
 							{% trans 'to see some questions.' %}
 						</div>
 					{% endfor %}	

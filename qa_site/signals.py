@@ -7,8 +7,8 @@ from notifications.signals import notify
 
 from core.constants import MAX_TAGS_PER_QUESTION
 from .models import (
-	SchoolQuestion, AcademicQuestionComment, AcademicAnswerComment, 
-	SchoolQuestionComment, SchoolAnswerComment
+	DiscussQuestion, AcademicQuestionComment, 
+	AcademicAnswerComment, DiscussComment,
 )
 
 User = get_user_model()
@@ -44,7 +44,7 @@ def comment_posted(sender, instance, created, **kwargs):
 # 			)
 
 # # m2m_changed.connect(tags_changed, sender=AcademicQuestion.tags.through)
-# m2m_changed.connect(tags_changed, sender=SchoolQuestion.tags.through)
+# m2m_changed.connect(tags_changed, sender=DiscussQuestion.tags.through)
 
 
 # def tags_changed(sender, instance, action, **kwargs):
@@ -59,5 +59,5 @@ def comment_posted(sender, instance, created, **kwargs):
 # 			)
 
 # # m2m_changed.connect(tags_changed, sender=AcademicQuestion.tags.through)
-# m2m_changed.connect(tags_changed, sender=SchoolQuestion.tags.through)
+# m2m_changed.connect(tags_changed, sender=DiscussQuestion.tags.through)
 

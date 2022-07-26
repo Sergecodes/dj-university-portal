@@ -7,7 +7,7 @@
 {% load app_extras %}
 
 {% block title %}
-	<title>{% trans 'School-Based Questions' %} | CamerSchools</title>
+	<title>{% trans 'Discussion Questions' %} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
@@ -19,20 +19,20 @@
 
 {% block content %}
 <div class="container-lg mb-5">
-	<h2 class="text-success">{% trans 'School-Based Questions' %}</h2>
+	<h2 class="text-success">{% trans 'Discussion Questions' %}</h2>
 	<div class="d-lg-flex">
 		<article class="border pb-2 mb-4 mb-lg-3 question-list-art">
 			<section class="px-3 pt-4">
 				<p>
 					{% blocktrans %}
-						Questions posted or answered here are those related to particular schools. 
-						So you can find questions that have been answered on issues relating to Departments, 
-						Courses or Change of Course, Resumption Period, School Cut-Off, Admissions or 
-						Criteria for Admission into a particular institution. <br>
-						Enter here to answer questions or post questions relating to a particular school.
+						Questions posted or answered here are questions or topics that users 
+						would like to discuss about. Here, you can find questions that touch on issues 
+						related to particular schools such as criteria for admission, courses;
+						or general issues such as job, life, health, wealth etc. <br>
+						Enter here to ask others and also share your opinions.
 					{% endblocktrans %}
 				</p>
-				<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-warning mb-3">
+				<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-warning mb-3">
 					{% trans 'Ask a Question' %}
 				</a>
 			</section>
@@ -48,6 +48,9 @@
 								{{ form.school|as_crispy_field }}
 							</div>
 							<div class="form-group col-md-7">
+								{{ form.tags|as_crispy_field }}
+							</div>
+							<div class="form-group">
 								{{ form.content|as_crispy_field }}
 							</div>
 						</div>
@@ -83,29 +86,43 @@
 										{{ question.content|remove_tags|truncatewords:80|safe }}
 									</a>
 									<div class="mb-2 mb-lg-0 question-meta">
+										{% if question.school_id %}
 										<a 
-											class="badge rounded-pill bg-info link-light text-decoration-none" 
-											href="{% url 'qa_site:school-question-list' %}?school={{ question.school_id }}"
+											class="badge rounded-pill bg-info link-light text-decoration-none me-4" 
+											href="{% url 'qa_site:discuss-question-list' %}?school={{ question.school_id }}"
 										>
 											{{ question.school }}
 										</a>
-										<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+										{% endif %}
+										<span class="align-middle" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 											<i class="far fa-eye me-1" aria-hidden="true"></i>
 											<span class="visually-hidden">{% trans 'Number of views' %}</span>
 											{{ view_count }}
 										</span>
+
+										<!-- taglist -->
+										{% for tag in question.tags.all %}
+											{% if forloop.first %}
+											<div class="mb-2">
+											{% endif %}
+												<span class="badge rounded-pill bg-secondary">{{ tag.name }}</span>
+											{% if forloop.last %}
+											</div>
+											{% endif %}
+										{% endfor %}
+
 										<div class="d-block mt-2">
 											<span class="text-muted">{% trans 'asked by' %}</span>
-											{% if question_poster.has_social_profile %}
+											{% if poster.has_social_profile %}
 												<a 
 													class="text-decoration-none" 
-													href="{{ question_poster.get_absolute_url }}"
+													href="{{ poster.get_absolute_url }}"
 												>
-													{{ question_poster.username }}
+													{{ poster.username }}
 												</a>
 											{% else %}
 												<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
-													{{ question_poster.username }}
+													{{ poster.username }}
 												</span>
 											{% endif %}
 											<span class="small text-muted">&nbsp;{{ question.posted_datetime|naturaltime }}</span>
@@ -132,7 +149,7 @@
 					{% for school in schools %}
 						<li class="list-group-item">
 							<a 
-								href="{% url 'qa_site:school-question-list' %}?school={{ school.id }}" class="small text-decoration-none"
+								href="{% url 'qa_site:discuss-question-list' %}?school={{ school.id }}" class="small text-decoration-none"
 							>
 								{{ school.name }} ({{ school.questions.count }})
 							</a>

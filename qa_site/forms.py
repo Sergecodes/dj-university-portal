@@ -4,14 +4,11 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import MAX_TAGS_PER_QUESTION
-from core.models import Institution
+from core.constants import MAX_TAGS_PER_QUESTION, MAX_TAGS_PER_DISCUSSION
 from core.validators import validate_academic_question_tags as validate_tags
 from .models import (
-	AcademicAnswer, SchoolAnswer,
-	AcademicAnswerComment, SchoolAnswerComment,
-	AcademicQuestion, SchoolQuestion,
-	AcademicQuestionComment, SchoolQuestionComment
+	AcademicAnswer, AcademicAnswerComment, AcademicQuestion, 
+	DiscussQuestion, AcademicQuestionComment, DiscussComment
 )
 
 
@@ -117,50 +114,42 @@ class AcademicAnswerCommentForm(forms.ModelForm):
 		fields = ['content', ]
 
 
-class SchoolQuestionForm(forms.ModelForm):
-	school = forms.ModelChoiceField(
-		queryset=Institution.objects.all(), 
-		empty_label=None,
-	)
+class DiscussQuestionForm(forms.ModelForm):
 	content = forms.CharField(
-		widget= CKEditorUploadingWidget(
-			config_name='add_school_question',
+		widget=CKEditorUploadingWidget(
+			config_name='add_discuss_question',
 			attrs={'id': 'addQuestionWidget'}
 		),
 		help_text=_("Include all the information someone would need to answer your question"),
-		label=_('Body'),
+		label=_('Question'),
 		required=True
+	)
+	tags = CustomTagField(
+		empty_value='',
+		initial='',
+		required=False,
+		widget=forms.TextInput(attrs={
+			'placeholder': _('Ex: tag1 tag2 tag3')
+		}),
+		help_text=_(
+			'Enter a space-separated list of at most {} tags. <br>'
+			"Do not enter comma(\',\') or quotes(\', \")."
+		).format(MAX_TAGS_PER_DISCUSSION)
 	)
 
 	class Meta:
-		model = SchoolQuestion
-		fields = ['school', 'content', ]
+		model = DiscussQuestion
+		fields = ['school', 'content', 'tags', ]
+		help_texts={
+			'school': _("Allow this field empty if the question does not concern a particular school")
+		}
 
 
-class SchoolAnswerForm(forms.ModelForm):
-	content = forms.CharField(
-		widget=CKEditorUploadingWidget(
-			config_name='add_school_answer',
-			attrs={'id': 'addAnswerWidget'}
-		),
-		label=_('Your Answer'),
-		required=True
-	)
-
-	class Meta:
-		model = SchoolAnswer
-		fields = ['content', ]
-
-
-class SchoolQuestionCommentForm(forms.ModelForm):
+class DiscussCommentForm(forms.ModelForm):
 	# a ckeditor will be generated from this on the frontent
 	content = forms.CharField(
 		widget= CKEditorWidget(
-			config_name='add_school_comment', 
-			# attrs={
-			# 	'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-			# 	'id': 'addQuestionComentArea'
-			# }
+			config_name='add_discuss_comment',
 		),
 		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
 		label='',
@@ -168,25 +157,6 @@ class SchoolQuestionCommentForm(forms.ModelForm):
 	)
 
 	class Meta:
-		model = SchoolQuestionComment
-		fields = ['content', ]
-
-
-class SchoolAnswerCommentForm(forms.ModelForm):
-	content = forms.CharField(
-		widget= CKEditorWidget(
-			config_name='add_school_comment', 
-			attrs={
-				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				'class': 'js-answerComment' 
-			}
-		),
-		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
-		label='',
-		required=True
-	)
-
-	class Meta:
-		model = SchoolAnswerComment
-		fields = ['content', ]
+		model = DiscussComment
+		fields = ['content', 'parent', ]
 

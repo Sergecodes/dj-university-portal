@@ -19,7 +19,6 @@ freeprivacypolicy.com  (cool)
 (to verify if general question is a school quetion, check the uptional school field)
 - school should not be compulsory. (update concerned models) 
 (also update corresponding views & templates)
-- remove category field from ItemListing, sub category is enough
 - add country info in list & detail pages
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
@@ -41,6 +40,7 @@ better still check the width and height of the image... (maybe sum of W and H)
 - change text in toast after bookmarking social profile 
 - after uploading image, there should be an eye icon on it. upon which clicking should 
 enlarge the image...
+- restrict length of text fields... (also in models; eg via clean method)
 - if user is authed, on header, change profile icon to his profile image. 
 - add a page in the site to explain how non-univ students can use it ...?
 - on social profile create form, interested relationship should be multiple select (multiple values should be permitted).

@@ -174,7 +174,7 @@
 							<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='A' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% else %} border-purple  {% endif %} notif-item-link">
 								{# remember that school questions are sanitized before been printed. #}
 								{# safe is used to remove the leftover html entities like &nbsp; that aren't stripped #}
-								{% if post|get_model_name == 'SchoolQuestion' %}
+								{% if post|get_model_name == 'DiscussQuestion' %}
 									{{ post|safe }}
 								{% else %}
 									{{ post }}
@@ -233,7 +233,7 @@
 					{% with post_unread=followings_notifs|post_is_unread:post %}
 					<li class="mb-2 p-1 {% if post_unread %} bg-secondary opacity-50 {% endif %}">
 						<a href="{% if post_unread %} {% url 'notifications:mark_post_as_read' category='FF' obj_id=post.id app_name=post|get_app_name model_name=post|get_model_name %}?next={{ post.get_absolute_url }} {% else %} {{ post.get_absolute_url }} {% endif %}" class="text-decoration-none {% if post_unread %} border-light link-light {% else %} border-purple  {% endif %} notif-item-link">
-							{% if post|get_model_name == 'SchoolQuestion' %}
+							{% if post|get_model_name == 'DiscussQuestion' %}
 								{{ post|safe }}
 							{% else %}
 								{{ post }}

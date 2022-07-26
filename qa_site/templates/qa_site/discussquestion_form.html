@@ -5,16 +5,16 @@
 {% load crispy_forms_tags %}
 
 {% block title %}
-	<title>{% trans 'Ask a Question - School-Based Questions' %} | CamerSchools</title>
+	<title>{% trans 'Ask a Question for Discussion' %} | CamerSchools</title>
 {% endblock %}
 
 {% block institution_searchbox %}
 {% endblock %}
 
 {% block content %}
-<div class="container-lg mb-5 school-question-form-container">
-	<form name="school-question-form" method="post" class="shadow mt-5 school-question-form">
-		<h2 class="mb-4 text-success text-center">{% trans 'Ask a question concerning a school' %}</h2>
+<div class="container-lg mb-5 discuss-question-form-container">
+	<form name="discuss-question-form" method="post" class="shadow mt-5 discuss-question-form">
+		<h2 class="mb-4 text-success text-center">{% trans 'Ask a Question or Topic for Discussion' %}</h2>
 		{% csrf_token %}
 		{# when using `{% crispy form %}`, the submit button leaves the form #}
 		{{ form.media }}
@@ -29,7 +29,7 @@
 <script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
 	// show message when user is about to leave "dirty" form
-	var $form = $("[name='school-question-form']");
+	var $form = $("[name='discuss-question-form']");
 	$form.dirty({
 		preventLeaving: true,
 		// message to display when user is about to leave page..

@@ -27,8 +27,8 @@ from marketplace.models import ItemListing, AdListing
 from notifications.models import Notification
 from past_papers.models import PastPaper
 from qa_site.models import (
-	AcademicQuestion, SchoolQuestion,
-	AcademicAnswer, SchoolAnswer
+	AcademicQuestion, DiscussComment, 
+	DiscussQuestion, AcademicAnswer
 )
 from requested_items.models import RequestedItem
 
@@ -44,8 +44,8 @@ class HomePageView(TemplateView):
 		academic_questions = AcademicQuestion.objects.prefetch_related(
 			Prefetch('answers', queryset=AcademicAnswer.objects.only('id'))
 		).defer('content')[:NUM_QUESTIONS]
-		school_questions = SchoolQuestion.objects.select_related('school').prefetch_related(
-			Prefetch('answers', queryset=SchoolAnswer.objects.only('id'))
+		discuss_questions = DiscussQuestion.objects.select_related('school').prefetch_related(
+			Prefetch('comments', queryset=DiscussComment.objects.only('id'))
 		)[:NUM_QUESTIONS]
 
 		## marketplace(items / adverts) ##
@@ -104,7 +104,7 @@ class HomePageView(TemplateView):
 		)[:NUM_ITEMS]
 		
 		context['academic_questions'] = academic_questions
-		context['school_questions'] = school_questions
+		context['discuss_questions'] = discuss_questions
 		context['items_and_photos'] = zip(item_listings, items_first_photos)
 		context['ads_and_photos'] = zip(ad_listings, ads_first_photos)
 		context['requested_items_and_photos'] = zip(requested_items, requested_items_first_photos)
@@ -124,10 +124,10 @@ class HomePageView(TemplateView):
 			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
 		).filter(total_votes__gt=0)[:NUM_QUESTIONS]
 
-		school_questions = SchoolQuestion.objects.annotate(
+		discuss_questions = DiscussQuestion.objects.annotate(
 			total_votes=Count('upvoters', distinct=True)-Count('downvoters', distinct=True)
 		).prefetch_related(
-			Prefetch('answers', queryset=SchoolAnswer.objects.all().only('id'))
+			Prefetch('comments', queryset=DiscussComment.objects.all().only('id'))
 		).filter(total_votes__gt=0)[:NUM_QUESTIONS]
 		'''
 
@@ -222,7 +222,7 @@ def search_site(request):
 		'num_results': count,
 		'results_count': results_count,
 		'academic_questions': results['academic_questions'][:NUM_ITEMS],
-		'school_questions': results['school_questions'][:NUM_ITEMS],
+		'discuss_questions': results['discuss_questions'][:NUM_ITEMS],
 		'item_listings': results['item_listings'][:NUM_ITEMS],
 		'ad_listings': results['ad_listings'][:NUM_ITEMS],
 		'requested_items': results['requested_items'][:NUM_ITEMS],
@@ -241,7 +241,7 @@ def get_category_search_results(request, category):
 	TEMPLATE_NAME = 'core/category_search_results.html'
 	RESULTS_PER_PAGE = 3
 	CATEGORIES = (
-		'academic_questions', 'school_questions', 'item_listings',
+		'academic_questions', 'discuss_questions', 'item_listings',
 		'ad_listings', 'requested_items', 'lost_items', 
 		'found_items', 'past_papers'
 	)

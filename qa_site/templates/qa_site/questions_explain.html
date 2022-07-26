@@ -40,17 +40,19 @@
 				<img src="{% static 'images/some students.jpeg' %}" alt="" class="w-100 mb-2 mb-lg-0 pe-4 pe-lg-0 qstn-descr-img">
 			</div>
 			<div class="col-lg-8">
-				<h4>{% trans 'School-Based Questions' %}</h4>
+				<h4>{% trans 'Discussion Questions' %}</h4>
 				<p>
 					{% blocktrans %}
-						Questions posted or answered here are those related to particular schools. So you can find questions that have been answered on issues relating to Departments, Courses or Change of Course, Resumption Period, School Cut-Off, Admissions or Criteria for Admission into a particular institution. <br>
-						Enter here to answer questions or post questions relating to a particular school.
+					Questions posted here are questions or topics that users 
+					would like to discuss about. Here, you can find questions that touch on 
+					any subject matter such as jobs, life, wealth, etc...
+					And information related to particular schools.
 					{% endblocktrans %}
 				</p>
-				<a href="{% url 'qa_site:school-question-list' %}" class="btn btn-outline-success me-2">
+				<a href="{% url 'qa_site:discuss-question-list' %}" class="btn btn-outline-success me-2">
 					{% trans 'View Questions' %}
 				</a>
-				<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-outline-success">
+				<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-outline-success">
 					{% trans 'Ask a Question' %}
 				</a>
 			</div>

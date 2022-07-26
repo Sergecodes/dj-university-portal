@@ -90,16 +90,18 @@
 									</p>
 
 									<div class="question-meta">
+										{% if question.subject_id %}
 										<a 
-											class="badge bg-info link-light text-decoration-none mb-2" 
+											class="badge bg-info link-light text-decoration-none mb-2 me-4" 
 											href="{% url 'qa_site:academic-question-list' %}?subject={{ question.subject_id }}"
 										>
 											{{ question.subject }}
 										</a>
-											<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
-												<i class="far fa-eye me-1" aria-hidden="true"></i>
-												<span class="visually-hidden">{% trans 'Number of views' %}</span>
-												{{ view_count }}
+										{% endif %}
+										<span class="align-middle" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+											<i class="far fa-eye me-1" aria-hidden="true"></i>
+											<span class="visually-hidden">{% trans 'Number of views' %}</span>
+											{{ view_count }}
 										</span>
 
 										<!-- taglist -->
@@ -120,11 +122,11 @@
 													class="text-decoration-none" 
 													href="{{ poster.get_absolute_url }}"
 												>
-													{{ question.username }}
+													{{ poster.username }}
 												</a>
 											{% else %}
 												<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
-													{{ question.username }}
+													{{ poster.username }}
 												</span>
 											{% endif %}
 											<span class="small text-muted">

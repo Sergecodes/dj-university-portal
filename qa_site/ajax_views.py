@@ -14,10 +14,8 @@ from core.constants import (
 from notifications.models import Notification
 from notifications.signals import notify
 from .models import (
-	SchoolQuestion, AcademicQuestion, 
-	SchoolAnswer, AcademicAnswer,
-	SchoolQuestionComment, AcademicQuestionComment,
-	SchoolAnswerComment, AcademicAnswerComment
+	DiscussQuestion, AcademicQuestion, AcademicAnswer,
+	DiscussComment, AcademicQuestionComment, AcademicAnswerComment
 )
 
 
@@ -241,24 +239,22 @@ def vote_academic_thread(request):
 
 @login_required
 @require_POST
-def vote_school_thread(request):
+def vote_discuss_thread(request):
 	"""
-	This view handles upvotes and downvotes for questions, answers and comments of as school-based question.
+	This view handles upvotes and downvotes for questions, answers and comments of discussion questions.
 	"""
 	user, POST = request.user, request.POST
 	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
 	# print(POST)
 
-	# possible thread types are {question, answer, question-comment, answer-comment}
+	# possible thread types are {question, answer, answer-comment(reply to answer)}
 	if thread_type == 'question':
-		object = get_object_or_404(SchoolQuestion, pk=thread_id)
+		object = get_object_or_404(DiscussQuestion, pk=thread_id)
 	elif thread_type == 'answer':
-		object = get_object_or_404(SchoolAnswer, pk=thread_id)
-	elif thread_type == 'question-comment':
-		object = get_object_or_404(SchoolQuestionComment, pk=thread_id)
+		object = get_object_or_404(DiscussComment.objects.filter(parent__isnull=True), pk=thread_id)
 	elif thread_type == 'answer-comment':
-		object = get_object_or_404(SchoolAnswerComment, pk=thread_id)
+		object = get_object_or_404(DiscussComment.objects.filter(parent__isnull=False), pk=thread_id)
 	else:
 		return JsonResponse({
 			'success': False,
@@ -395,7 +391,9 @@ def vote_school_thread(request):
 	
 	# only upvotes are supported on comments
 	# no notifications sent to owner of comment
-	elif thread_type == 'question-comment' or thread_type == 'answer-comment':
+	# 
+	# Only answer-comment for discusions
+	elif thread_type == 'answer-comment':
 		already_upvoted = user in object.upvoters.only('id')
 
 		if vote_action == 'vote':
@@ -461,11 +459,11 @@ def academic_question_bookmark_toggle(request):
 
 @login_required
 @require_POST
-def school_question_bookmark_toggle(request):
-	"""This view handles bookmarking for school-based questions"""
+def discuss_question_bookmark_toggle(request):
+	"""This view handles bookmarking for discussion questions"""
 	user, POST = request.user, request.POST
 	id, action = POST.get('id'), POST.get('action')
-	question = get_object_or_404(SchoolQuestion, pk=id)
+	question = get_object_or_404(DiscussQuestion, pk=id)
 
 	# if vote is new (not removing bookmark)
 	if action == 'bookmark':
@@ -507,11 +505,11 @@ def academic_question_follow_toggle(request):
 
 @login_required
 @require_POST
-def school_question_follow_toggle(request):
-	"""This view handles following for school-based questions"""
+def discuss_question_follow_toggle(request):
+	"""This view handles following for discussion questions"""
 	user, POST = request.user, request.POST
 	id, action = POST.get('id'), POST.get('action')
-	question = get_object_or_404(SchoolQuestion, pk=id)
+	question = get_object_or_404(DiscussQuestion, pk=id)
 
 	# user can't follow his own question
 	if user.id == question.poster_id:

@@ -319,8 +319,8 @@ CKEDITOR_CONFIGS = {
 		'extraPlugins': 'codesnippet',
 		# 'uiColor': '#ff3333',
 	},
-	# no CodeSnippet for school-based stuffs
-	'add_school_question': {
+	# no CodeSnippet for discussion qstns stuffs
+	'add_discuss_question': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			['Bold', 'Italic', ],
@@ -332,6 +332,7 @@ CKEDITOR_CONFIGS = {
 		],
 		'tabSpaces': 4,
 		'width': 'auto',
+		'height': '150px',
 	},
 	'add_academic_answer': {
 		'toolbar': 'Custom',
@@ -348,7 +349,7 @@ CKEDITOR_CONFIGS = {
 		'extraPlugins': 'codesnippet',
 		# 'uiColor': '#ff3333',
 	},
-	'add_school_answer': {
+	'add_discuss_answer': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			['Bold', 'Italic', ],
@@ -370,7 +371,7 @@ CKEDITOR_CONFIGS = {
 		'extraPlugins': 'codesnippet',
 		'width': 'auto',
 	},
-	'add_school_comment': {
+	'add_discuss_comment': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			['Bold', 'Italic', 'Link', ],

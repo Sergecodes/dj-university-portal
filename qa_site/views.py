@@ -24,9 +24,9 @@ from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.models import Institution
 from core.utils import should_redirect, translate_text
 from .forms import (
-	AcademicQuestionForm, SchoolQuestionForm, AcademicAnswerForm,
+	AcademicQuestionForm, DiscussQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
-	SchoolQuestionCommentForm, SchoolAnswerCommentForm, SchoolAnswerForm
+	DiscussCommentForm
 )
 from notifications.models import Notification
 from notifications.signals import notify
@@ -36,10 +36,9 @@ from .mixins import (
 	CanEditCommentMixin, CanDeleteCommentMixin
 )
 from .models import (
-	SchoolAnswer, SchoolQuestionComment, Subject, 
-	AcademicQuestion, SchoolQuestion, SchoolAnswerComment,
+	DiscussComment, Subject, AcademicQuestion, DiscussQuestion,
 	AcademicQuestionComment, AcademicAnswerComment,
-	TaggedAcademicQuestion, AcademicAnswer, 
+	TaggedAcademicQuestion, AcademicAnswer, TaggedDiscussQuestion, 
 )
 
 User = get_user_model()
@@ -167,7 +166,6 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 			Prefetch('upvoters', queryset=all_users.only('id'))
 		).all()
 
-
 		## RELATED QUESTIONS
 		related_items = TaggedAcademicQuestion.objects.none()
 		question_tags = question.tags.all()
@@ -239,11 +237,10 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 		question = form.save(commit=False)
 		followers = question.followers.all()
 		current_lang = get_language()
+		changed_data = form.changed_data
 
 		## TRANSLATION
 		if settings.ENABLE_GOOGLE_TRANSLATE:
-			changed_data = form.changed_data
-
 			# get fields that are translatable(permitted to be translated)
 			permitted_fields = ['title', 'content', ]
 
@@ -363,15 +360,15 @@ class AcademicQuestionList(FilterView):
 		return context
 
 
-class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
-	form_class = SchoolQuestionForm
-	model = SchoolQuestionForm
-	template_name = 'qa_site/schoolquestion_form.html'
+class DiscussQuestionCreate(LoginRequiredMixin, CreateView):
+	form_class = DiscussQuestionForm
+	model = DiscussQuestionForm
+	template_name = 'qa_site/discussquestion_form.html'
 
 	def form_valid(self, form):
 		self.object = form.save(commit=False)
-		school_question, poster = self.object, self.request.user
-		school_question.school = form.cleaned_data['school']
+		discuss_question, poster = self.object, self.request.user
+		discuss_question.school = form.cleaned_data['school']
 		current_lang = get_language()
 
 		## TRANSLATION
@@ -385,28 +382,28 @@ class SchoolQuestionCreate(LoginRequiredMixin, CreateView):
 			# fields that need to be translated. (see translation.py)
 			# ommit slug because google corrects the slug to appropriate string b4 translating.
 			# see demo in google translate .
-			field_values = [getattr(school_question, field) for field in translatable_fields]
+			field_values = [getattr(discuss_question, field) for field in translatable_fields]
 			trans_results = translate_text(field_values, trans_lang)
 			
 			# each dict in trans_results contains keys: 
 			# `input`, `translatedText`, `detectedSourceLanguage`
 			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(school_question, trans_field, result_dict['translatedText'])
+				setattr(discuss_question, trans_field, result_dict['translatedText'])
 
 		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
 		poster.save(update_fields=['site_points'])
 
-		school_question.poster = poster
-		school_question.original_language = get_language()
-		school_question.save()	
+		discuss_question.poster = poster
+		discuss_question.original_language = get_language()
+		discuss_question.save()	
 		form.save_m2m()
 
-		return redirect(school_question)
+		return redirect(discuss_question)
 
 
-class SchoolQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
-	model = SchoolQuestion
-	success_url = reverse_lazy('qa_site:school-question-list')
+class DiscussQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
+	model = DiscussQuestion
+	success_url = reverse_lazy('qa_site:discuss-question-list')
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -430,20 +427,19 @@ class SchoolQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
 		return redirect(self.get_success_url())
 
 
-class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
-	model = SchoolQuestion
-	form_class = SchoolQuestionForm
-	template_name = 'qa_site/schoolquestion_update.html'
+class DiscussQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
+	model = DiscussQuestion
+	form_class = DiscussQuestionForm
+	template_name = 'qa_site/discussquestion_update.html'
 
 	def form_valid(self, form):
-		school_question = form.save(commit=False)
-		followers = school_question.followers.all()
+		question = form.save(commit=False)
+		followers = question.followers.all()
 		current_lang = get_language()
+		changed_data = form.changed_data
 
 		## TRANSLATION
 		if settings.ENABLE_GOOGLE_TRANSLATE:
-			changed_data = form.changed_data
-
 			# get fields that are translatable(permitted to be translated)
 			permitted_fields = ['content', ]
 
@@ -456,7 +452,7 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 			trans_lang = 'fr' if current_lang == 'en' else 'en'
 
 			# get and translated values that need to be translated
-			field_values = [getattr(school_question, field) for field in desired_fields]
+			field_values = [getattr(question, field) for field in desired_fields]
 		
 			if field_values:
 				trans_results = translate_text(field_values, trans_lang)
@@ -467,10 +463,14 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				# each dict in trans_results contains keys: 
 				# `input`, `translatedText`, `detectedSourceLanguage`
 				for trans_field, result_dict in zip(translate_fields, trans_results):
-					setattr(school_question, trans_field, result_dict['translatedText'])
+					setattr(question, trans_field, result_dict['translatedText'])
 
-		school_question.update_language = current_lang
-		school_question.save()
+		question.update_language = current_lang
+		question.save()
+
+		if 'tags' in changed_data:
+			question.tags.set(*form.cleaned_data['tags'])
+		# print(question.tags.all())
 
 		# notify users that are following this question
 		for follower in followers:
@@ -478,22 +478,23 @@ class SchoolQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				sender=follower,  # just use follower as sender,
 				recipient=follower, 
 				verb=_('There was an activity on the question'),
-				target=school_question,
+				target=question,
 				category=Notification.FOLLOWING
 			)
 
-		return redirect(school_question)
+		return redirect(question)
 
 
-class SchoolQuestionFilter(filters.FilterSet):
+class DiscussQuestionFilter(filters.FilterSet):
 	# this query will take long in cases where the school question is too long
 	# which will occur occasionally 
 	# TODO use postgres text search 
 	content = filters.CharFilter(label=_('Keywords'), method='filter_content')
+	tags = filters.CharFilter(label=_('Tags'), method='filter_tags')
 
 	class Meta:
-		model = SchoolQuestion
-		fields = ['school', 'content',]
+		model = DiscussQuestion
+		fields = ['school', 'content', 'tags', ]
 	
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
@@ -511,12 +512,22 @@ class SchoolQuestionFilter(filters.FilterSet):
 		)
 		return qs
 
+	def filter_tags(self, queryset, name, value):
+		tag_list = value.split()
+		qs = queryset.filter(
+			reduce(
+				lambda x, y: x | y, 
+				[Q(tags__name__icontains=word) for word in tag_list]
+			)
+		)
+		return qs
 
-class SchoolQuestionList(FilterView):
-	model = SchoolQuestion
+
+class DiscussQuestionList(FilterView):
+	model = DiscussQuestion
 	# context_object_name = 'questions'
-	filterset_class = SchoolQuestionFilter
-	template_name = 'qa_site/schoolquestion_list.html'
+	filterset_class = DiscussQuestionFilter
+	template_name = 'qa_site/discussquestion_list.html'
 	template_name_suffix = '_list'
 	paginate_by = 7
 
@@ -524,10 +535,10 @@ class SchoolQuestionList(FilterView):
 		context = super().get_context_data(**kwargs)
 
 		schools = Institution.objects.prefetch_related(
-			Prefetch('questions', queryset=SchoolQuestion.objects.only('id'))
+			Prefetch('questions', queryset=DiscussQuestion.objects.only('id'))
 		)
 		context['schools'] = schools
-		context['total_num_qstns'] = SchoolQuestion.objects.count()
+		context['total_num_qstns'] = DiscussQuestion.objects.count()
 
 		# optimise queries by using prefetch related on objects for the current page
 		page_obj = context.get('page_obj')
@@ -545,41 +556,23 @@ class SchoolQuestionList(FilterView):
 
 
 @method_decorator(login_required, name='post')
-class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
-	model = SchoolQuestion
+class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
+	model = DiscussQuestion
 	context_object_name = 'question'
 
 	def post(self, request, *args, **kwargs):
 		"""Handle submission of forms such as comments and answers."""
 		POST, user = request.POST, request.user
-		question = get_object_or_404(SchoolQuestion, id=POST.get('question_id'))
+		question = get_object_or_404(DiscussQuestion, id=POST.get('question_id'))
 
 		# if question comment form was submitted
 		if 'add_question_comment' in POST:
-			comment_form = SchoolQuestionCommentForm(POST)
+			comment_form = DiscussCommentForm(POST)
 			# remember if form isn't valid form will be populated with errors..
 			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
 			if comment_form.is_valid():
 				comment = comment_form.save(commit=False)
 				user.add_question_comment(question, comment)
-
-		elif 'add_answer_comment' in POST:
-			comment_form = SchoolAnswerCommentForm(POST)
-			if comment_form.is_valid():
-				comment = comment_form.save(commit=False)
-				answer = get_object_or_404(SchoolAnswer, id=POST.get('answer_id'))
-				user.add_answer_comment(answer, comment)
-
-		elif 'add_answer' in POST:
-			answer_form = SchoolAnswerForm(POST)
-			if answer_form.is_valid():
-				answer = answer_form.save(commit=False)
-				added_result = user.add_answer(question, answer, 'school-based')
-
-				# if answer wasn't added 
-				# (if user has attained number of answers limit)
-				if not added_result[0]:
-					raise PermissionDenied(added_result[1])
 
 		return redirect(question)
 
@@ -588,28 +581,50 @@ class SchoolQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		return super().get(request, *args, **kwargs)
 		
 	def get_context_data(self, **kwargs):
+		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
-		question, user = self.object, self.request.user
+		question, user, all_users = self.object, self.request.user, User.objects.active()
+
+		comments = question.comments.prefetch_related(
+			'replies',
+			Prefetch('upvoters', queryset=all_users.only('id')),
+		)
+		answers = comments.filter(parent__isnull=True)
 
 		# initialize comment and answer forms
-		qstn_comment_form = SchoolQuestionCommentForm()
-		ans_comment_form = SchoolAnswerCommentForm()
-		answer_form = SchoolAnswerForm()
-		context['qstn_comment_form'] = qstn_comment_form
-		context['ans_comment_form'] = ans_comment_form
-		context['answer_form'] = answer_form
-		
-		answers = question.answers.prefetch_related(
-			'comments', 
-			Prefetch('upvoters', queryset=User.objects.active().only('id'))
-		).all()
-		comments = question.comments.prefetch_related(
-			Prefetch('upvoters', queryset=User.objects.active().only('id'))
-		).all()
+		answer_form = DiscussCommentForm()
+		ans_comment_form = DiscussCommentForm()
 
+		context['answer_form'] = answer_form
+		context['ans_comment_form'] = ans_comment_form
+		
+		## RELATED QUESTIONS
+		related_items = TaggedDiscussQuestion.objects.none()
+		question_tags = question.tags.all()
+		for tag in question_tags:
+			# build queryset of all TaggedItems. 
+			# since our DiscussQuestionTag serves as the through model, 
+			# it contains each tag and the object(question) it's linked to
+			# so get union(|) of these querysets
+			related_items |= tag.discuss_questions.exclude(content_object=question)
+
+		# grab each question's id for filtering
+		related_items_ids = related_items.values_list('content_object_id', flat=True)
+		related_qstns = DiscussQuestion.objects.filter(
+			id__in=related_items_ids
+		).only('content') \
+		.prefetch_related(
+			Prefetch('comments', queryset=DiscussComment.objects.defer('content')),
+			Prefetch('upvoters', queryset=all_users.only('id')),
+			Prefetch('downvoters', queryset=all_users.only('id'))
+		) \
+		.order_by('-posted_datetime')[:NUM_RELATED_QSTNS]
+		
+		context['question_tags'] = question_tags
+		context['related_qstns'] = related_qstns
 		context['answers'] = answers
-		context['comments'] = comments
 		context['num_answers'] = answers.count()
+		context['num_comments'] = comments.count()
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
@@ -649,12 +664,8 @@ class AcademicQuestionCommentUpdate(CommentUpdate):
 class AcademicAnswerCommentUpdate(CommentUpdate):
 	model = AcademicAnswerComment
 
-class SchoolQuestionCommentUpdate(CommentUpdate):
-	model = SchoolQuestionComment
-
-class SchoolAnswerCommentUpdate(CommentUpdate):
-	model = SchoolAnswerComment
-
+class DiscussCommentUpdate(CommentUpdate):
+	model = DiscussComment
 
 class CommentDelete(GetObjectMixin, CanDeleteCommentMixin, DeleteView):
 	template_name = 'qa_site/misc/comment_confirm_delete.html'
@@ -669,11 +680,8 @@ class AcademicQuestionCommentDelete(CommentDelete):
 class AcademicAnswerCommentDelete(CommentDelete):
 	model = AcademicAnswerComment
 
-class SchoolQuestionCommentDelete(CommentDelete):
-	model = SchoolQuestionComment
-
-class SchoolAnswerCommentDelete(CommentDelete):
-	model = SchoolAnswerComment
+class DiscussCommentDelete(CommentDelete):
+	model = DiscussComment
 
 
 ## ANSWER UPDATE AND DELETE
@@ -717,9 +725,6 @@ class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
 class AcademicAnswerUpdate(AnswerUpdate):
 	model = AcademicAnswer
 
-class SchoolAnswerUpdate(AnswerUpdate):
-	model = SchoolAnswer
-
 
 class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
 	template_name = 'qa_site/misc/answer_confirm_delete.html'
@@ -748,7 +753,4 @@ class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
 
 class AcademicAnswerDelete(AnswerDelete):
 	model = AcademicAnswer
-
-class SchoolAnswerDelete(AnswerDelete):
-	model = SchoolAnswer
 

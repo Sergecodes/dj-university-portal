@@ -59,26 +59,26 @@
 			<div class="col-lg-6">
 				<div class="d-flex mb-3">
 					<div class="flex-shrink-0 me-3">
-						<a href="{% url 'qa_site:school-question-list' %}">
+						<a href="{% url 'qa_site:discuss-question-list' %}">
 							<img src="{% static 'images/some students.jpeg' %}" alt="" class="rounded extra-info-img">
-							<span class="visually-hidden">{% trans 'School-based questions' %}</span>
+							<span class="visually-hidden">{% trans 'Discussion questions' %}</span>
 						</a>
 					</div>
 					<div>
 						<h5>
-							<a href="{% url 'qa_site:school-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
-								{% trans 'School-Based Questions' %}
+							<a href="{% url 'qa_site:discuss-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
+								{% trans 'Discussion Questions' %}
 							</a>
 						</h5>
-						<a href="{% url 'qa_site:school-question-list' %}" class="btn btn-success mb-1 mb-lg-0 me-2">
+						<a href="{% url 'qa_site:discuss-question-list' %}" class="btn btn-success mb-1 mb-lg-0 me-2">
 							{% trans 'View Questions' %}
 						</a>
-						<a href="{% url 'qa_site:school-question-create' %}" class="btn btn-outline-success">
+						<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-outline-success">
 							{% trans 'Ask a Question' %}
 						</a>
 					</div>
 				</div>
-				{% for question in school_questions %}
+				{% for question in discuss_questions %}
 					<div class="mb-2">
 						<a href="{{ question.get_absolute_url }}" class="text-decoration-none ">
 							<span>

@@ -181,7 +181,7 @@ def get_search_results(keyword_list, category=None):
 	ItemListing = apps.get_model('marketplace.ItemListing')
 	AdListing = apps.get_model('marketplace.AdListing')
 	AcademicQuestion = apps.get_model('qa_site.AcademicQuestion')
-	SchoolQuestion = apps.get_model('qa_site.SchoolQuestion')
+	DiscussQuestion = apps.get_model('qa_site.DiscussQuestion')
 	PastPaper = apps.get_model('past_papers.PastPaper')
 	RequestedItem = apps.get_model('requested_items.RequestedItem')
 
@@ -231,7 +231,7 @@ def get_search_results(keyword_list, category=None):
 				)
 			).only('title'),
 		# school questions are generally short, so this query shouldn't hurt that much
-		'school_questions': SchoolQuestion.objects.filter(
+		'discuss_questions': DiscussQuestion.objects.filter(
 				reduce(
 					lambda x, y: x | y, 
 					[Q(content__icontains=word) for word in keyword_list]
@@ -256,7 +256,7 @@ def get_search_results(keyword_list, category=None):
 			'ad_listings': SEARCH_RESULTS['ad_listings'].count(),
 			'past_papers': SEARCH_RESULTS['past_papers'].count(),
 			'academic_questions': SEARCH_RESULTS['academic_questions'].count(),
-			'school_questions': SEARCH_RESULTS['school_questions'].count(),
+			'discuss_questions': SEARCH_RESULTS['discuss_questions'].count(),
 			'requested_items': SEARCH_RESULTS['requested_items'].count(),
 		}
 
@@ -329,8 +329,8 @@ def get_label(category):
 		label = _('Lost Items')
 	elif category == 'found_items':
 		label = _('Found Items')
-	elif category == 'school_questions':
-		label = _('School-Based Questions')
+	elif category == 'discuss_questions':
+		label = _('Discussion Questions')
 	elif category == 'academic_questions':
 		label = _('Academic Questions')
 	else:

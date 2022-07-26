@@ -13,7 +13,7 @@ from taggit.managers import TaggableManager
 from taggit.models import TagBase, TaggedItemBase
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
-from core.models import Institution
+from core.models import Institution, Comment
 from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
 from users.models import get_dummy_user
@@ -21,22 +21,8 @@ from users.models import get_dummy_user
 User = get_user_model()
 
 
-class Comment(models.Model):
-	flags = GenericRelation(Flag)
-	posted_datetime = models.DateTimeField(auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
-	update_language = models.CharField(
-		choices=settings.LANGUAGES,
-		max_length=2,
-		editable=False,
-		blank=True
-	)
-	users_mentioned = models.ManyToManyField(
-		User,
-		related_name='+',
-		blank=True
-	)
+class AcademicComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_academic_comment')
 	# comments have just votes (no upvotes & downvotes)
 	# vote_count = models.PositiveIntegerField(default=0)
 
@@ -47,16 +33,6 @@ class Comment(models.Model):
 		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
 		# while you're at it, see the answer with textwrap.shorten ..
 		return filters.truncatewords(remove_tags(self.content), 10)
-
-	@property
-	def parent_object(self):
-		"""
-		Get post under which comment belongs, used to get the url of post that contains comment.
-		"""
-		# if comment is for answer
-		if hasattr(self, 'answer'):
-			return self.answer.question
-		return self.question
 
 	@property
 	def upvote_count(self):
@@ -77,34 +53,7 @@ class Comment(models.Model):
 		return True
 
 
-class SchoolQuestionComment(Comment):
-	content = RichTextField(_('Content'), config_name='add_school_comment')
-	question = models.ForeignKey(
-		'SchoolQuestion',
-		on_delete=models.CASCADE,
-		related_name='comments',
-		related_query_name='comment',
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='school_question_comments',
-		related_query_name='school_question_comment'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_school_question_comments',
-		related_query_name='upvoted_school_question_comment',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('School Question Comment')
-		verbose_name_plural = _('School Question Comments')
-
-
-class AcademicQuestionComment(Comment):
-	content = RichTextField(_('Content'), config_name='add_academic_comment')
+class AcademicQuestionComment(AcademicComment):
 	question = models.ForeignKey(
 		'AcademicQuestion',
 		on_delete=models.CASCADE,
@@ -123,40 +72,19 @@ class AcademicQuestionComment(Comment):
 		related_query_name='upvoted_academic_question_comment',
 		blank=True
 	)
+	users_mentioned = models.ManyToManyField(
+		User,
+		related_name='academic_question_comments_mentioned',
+		related_query_name='academic_question_comment_mentioned',
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _('Academic Question Comment')
 		verbose_name_plural = _('Academic Question Comments')
 
 
-class SchoolAnswerComment(Comment):
-	content = RichTextField(_('Content'), config_name='add_school_comment')
-	answer = models.ForeignKey(
-		'SchoolAnswer',
-		on_delete=models.CASCADE,
-		related_name='comments',
-		related_query_name='comment',
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='school_answer_comments',
-		related_query_name='school_answer_comment'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_school_answer_comments',
-		related_query_name='upvoted_school_answer_comment',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('School Answer Comment')
-		verbose_name_plural = _('School Answer Comments')
-
-
-class AcademicAnswerComment(Comment):
-	content = RichTextField(_('Content'), config_name='add_academic_comment')
+class AcademicAnswerComment(AcademicComment):
 	answer = models.ForeignKey(
 		'AcademicAnswer',
 		on_delete=models.CASCADE,
@@ -173,6 +101,12 @@ class AcademicAnswerComment(Comment):
 		User,
 		related_name='upvoted_academic_answer_comments',
 		related_query_name='upvoted_academic_answer_comment',
+		blank=True
+	)
+	users_mentioned = models.ManyToManyField(
+		User,
+		related_name='academic_answer_comments_mentioned',
+		related_query_name='academic_answer_comment_mentioned',
 		blank=True
 	)
 
@@ -218,38 +152,6 @@ class Answer(models.Model):
 		return self.upvote_count - self.downvote_count
 
 
-class SchoolAnswer(Answer):
-	content = RichTextUploadingField(config_name='add_school_answer')
-	question = models.ForeignKey(
-		'SchoolQuestion',
-		on_delete=models.CASCADE,
-		related_name='answers',
-		related_query_name='answer'
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='school_answers',
-		related_query_name='school_answer'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_school_answers',
-		related_query_name='upvoted_school_answer',
-		blank=True
-	)
-	downvoters = models.ManyToManyField(
-		User,
-		related_name='downvoted_school_answers',
-		related_query_name='downvoted_school_answer',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('School Question Answer')
-		verbose_name_plural = _('School Question Answers')
-
-
 class AcademicAnswer(Answer):
 	content = RichTextUploadingField(config_name='add_academic_answer')
 	question = models.ForeignKey(
@@ -280,6 +182,35 @@ class AcademicAnswer(Answer):
 	class Meta:
 		verbose_name = _('Academic Question Answer')
 		verbose_name_plural = _('Academic Question Answers')
+
+
+## see django-taggit docs on how to use a Custom tag
+class AcademicQuestionTag(TagBase):
+	# overrode name and slug coz name's maxlength is 100 and slug is 100.
+	# this is bad coz if name is say 100(though almost impossible), slug will be >100 chars.
+	name = models.CharField(_('Name'), unique=True, max_length=50)
+	slug = models.SlugField(unique=True, max_length=100)
+	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		verbose_name = _('Academic Question Tag')
+		verbose_name_plural = _('Academic Question Tags')
+
+
+class TaggedAcademicQuestion(TaggedItemBase):
+	# DON'T rename this field !!
+	# django-taggit says to use `content_object` as the name
+	content_object = models.ForeignKey(
+		'AcademicQuestion',
+		on_delete=models.CASCADE
+	)
+	# django-taggit says to use the name `tag`
+	tag = models.ForeignKey(
+		AcademicQuestionTag,
+		on_delete=models.CASCADE,
+		related_name='academic_questions'
+	)
 
 
 class Question(models.Model):
@@ -322,105 +253,12 @@ class Question(models.Model):
 		return self.upvote_count - self.downvote_count
 
 
-class SchoolQuestion(Question):
-	# no title for school question...
-	# school questions are generally short and straight forward,
-	# so instead of creating a title field, 
-	# in which case some users will optionally and rarely fill the content field,
-	# just use a one-size-fits-all content field.
-	content = RichTextUploadingField(config_name='add_school_question')
-	school = models.ForeignKey(
-		Institution,
-		on_delete=models.CASCADE,
-		related_name='questions',
-		related_query_name='question'
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='school_questions',
-		related_query_name='school_question'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_school_questions',
-		related_query_name='upvoted_school_question',
-		blank=True
-	)
-	downvoters = models.ManyToManyField(
-		User,
-		related_name='downvoted_school_questions',
-		related_query_name='downvoted_school_question',
-		blank=True
-	)
-	# score = models.IntegerField(editable=False)  # do this for more performance gains...
-	# users following the question
-	followers = models.ManyToManyField(
-		User,
-		related_name='following_school_questions',
-		related_query_name='following_school_question',
-		blank=True   # to make the field optional in admin 
-	)
-	# users who bookmarked(saved) the question
-	bookmarkers = models.ManyToManyField(
-		User,
-		related_name='bookmarked_school_questions',
-		related_query_name='bookmarked_school_question',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('School Question')
-		verbose_name_plural = _('School Questions')
-		ordering = ['-posted_datetime']
-		indexes = [
-			models.Index(fields=['-posted_datetime'])
-		]
-
-	def __str__(self):
-		return filters.truncatewords(remove_tags(self.content), 10)
-
-	def save(self, *args, **kwargs):
-		self.content = filters.capfirst(self.content)
-		super().save(*args, **kwargs)
-
-	def get_absolute_url(self):
-		return reverse('qa_site:school-question-detail', kwargs={'pk': self.id})
-
-
-## see django-taggit docs on how to use a Custom tag
-class AcademicQuestionTag(TagBase):
-	# overrode name and slug coz name's maxlength is 100 and slug is 100.
-	# this is bad coz if name is say 100(though almost impossible), slug will be >100 chars.
-	name = models.CharField(_('Name'), unique=True, max_length=20)
-	slug = models.SlugField(unique=True, max_length=100)
-
-	class Meta:
-		verbose_name = _('Academic Question Tag')
-		verbose_name_plural = _('Academic Question Tags')
-
-
-class TaggedAcademicQuestion(TaggedItemBase):
-	# DON'T rename this field !!
-	# django-taggit says to use `content_object` as the name
-	content_object = models.ForeignKey(
-		'AcademicQuestion',
-		on_delete=models.CASCADE
-	)
-	# django-taggit says to use the name `tag`
-	tag = models.ForeignKey(
-		AcademicQuestionTag,
-		on_delete=models.CASCADE,
-		related_name='academic_questions'
-	)
-
-
 class AcademicQuestion(Question):
 	title = models.CharField(_('Title'), max_length=150, unique=True)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
 	content = RichTextUploadingField(_('Content'), config_name='add_academic_question', blank=True)
 	slug = models.SlugField(max_length=250)
-	tags = TaggableManager(verbose_name=_('Tags'), through=TaggedAcademicQuestion)
+	tags = TaggableManager(verbose_name=_('Tags'), through=TaggedAcademicQuestion, blank=True)
 	subject = models.ForeignKey(
 		'Subject',
 		verbose_name=_('Subject'),
@@ -469,7 +307,7 @@ class AcademicQuestion(Question):
 			models.Index(fields=['-posted_datetime'])
 		]
 	
-	def __str__(self, *args, **kwargs):
+	def __str__(self):
 		return self.title
 		
 	def save(self, *args, **kwargs):
@@ -487,7 +325,7 @@ class AcademicQuestion(Question):
 
 class Subject(models.Model):
 	"""Subject for academic question"""
-	name = models.CharField(_('Name'), max_length=30, unique=True)
+	name = models.CharField(_('Name'), max_length=50, unique=True)
 	slug = models.SlugField(max_length=200)
 	datetime_added = models.DateTimeField(auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
@@ -504,27 +342,128 @@ class Subject(models.Model):
 		return self.name
 
 
+class DiscussComment(Comment):
+	content = RichTextField(_('Content'), config_name='add_discuss_comment')
+	question = models.ForeignKey(
+		'DiscussQuestion',
+		on_delete=models.CASCADE,
+		related_name='comments',
+		related_query_name='comment',
+	)
+	poster = models.ForeignKey(
+		User,
+		on_delete=models.SET(get_dummy_user),
+		related_name='discuss_comments',
+		related_query_name='discuss_comment'
+	)
+	upvoters = models.ManyToManyField(
+		User,
+		related_name='upvoted_discuss_comments',
+		related_query_name='upvoted_discuss_comment',
+		blank=True
+	)
+
+	class Meta:
+		verbose_name = _('Discuss Comment')
+		verbose_name_plural = _('Discuss Comments')
 
 
-# class SchoolQuestionTag(models.Model):
-# 	"""Used to define the tags for a school question."""
-# 	# Tags include words like  registration, fees, etc...
-# 	name = models.CharField(max_length=30, unique=True) 
-# 	slug = models.SlugField(max_length=100) 
-# 	datetime_added = models.DateTimeField(auto_now_add=True)
-# 	last_modified = models.DateTimeField(auto_now=True)
+class DiscussQuestionTag(TagBase):
+	"""Used to define the tags for a discussion question."""
+	# Tags include words like  health, wealth, etc...
+	name = models.CharField(_('Name'), unique=True, max_length=50)
+	slug = models.SlugField(unique=True, max_length=100)
+	datetime_added = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
 
-# 	def save(self, *args, **kwargs):
-# 		if not self.id:
-# 			self.slug = slugify(self.name)
-# 		super().save(*args, **kwargs)
+	class Meta:
+		verbose_name = _('Discussion Question Tag')
+		verbose_name_plural = _('Discussion Question Tags')
 
-# 	def __str__(self):
-# 		return self.name.lower()
 
-# 	class Meta:
-# 		ordering = ['name']
-# 		indexes = [
-# 			models.Index(fields=['name'])
-# 		]
-	
+class TaggedDiscussQuestion(TaggedItemBase):
+	# DON'T rename this field !!
+	# django-taggit says to use `content_object` as the name
+	content_object = models.ForeignKey(
+		'DiscussQuestion',
+		on_delete=models.CASCADE
+	)
+	# django-taggit says to use the name `tag`
+	tag = models.ForeignKey(
+		DiscussQuestionTag,
+		on_delete=models.CASCADE,
+		related_name='discuss_questions'
+	)
+
+
+class DiscussQuestion(Question):
+	# no title for discussion question...
+	# discussion questions are generally short and straight forward,
+	# so instead of creating a title field, 
+	# in which case some users will optionally and rarely fill the content field,
+	# just use a one-size-fits-all content field.
+	content = RichTextUploadingField(config_name='add_discuss_question')
+	# If question concerns a school
+	school = models.ForeignKey(
+		Institution,
+		on_delete=models.CASCADE,
+		related_name='questions',
+		related_query_name='question',
+		blank=True, null=True
+	)
+	tags = TaggableManager(verbose_name=_('Tags'), through=TaggedDiscussQuestion, blank=True)
+	poster = models.ForeignKey(
+		User,
+		on_delete=models.SET(get_dummy_user),
+		related_name='discuss_questions',
+		related_query_name='discuss_question'
+	)
+	upvoters = models.ManyToManyField(
+		User,
+		related_name='upvoted_discuss_questions',
+		related_query_name='upvoted_discuss_question',
+		blank=True
+	)
+	downvoters = models.ManyToManyField(
+		User,
+		related_name='downvoted_discuss_questions',
+		related_query_name='downvoted_discuss_question',
+		blank=True
+	)
+	followers = models.ManyToManyField(
+		User,
+		related_name='following_discuss_questions',
+		related_query_name='following_discuss_question',
+		blank=True   # to make the field optional in admin 
+	)
+	bookmarkers = models.ManyToManyField(
+		User,
+		related_name='bookmarked_discuss_questions',
+		related_query_name='bookmarked_discuss_question',
+		blank=True
+	)
+
+	class Meta:
+		verbose_name = _('Discussion Question')
+		verbose_name_plural = _('Discussion Questions')
+		ordering = ['-posted_datetime']
+		indexes = [
+			models.Index(fields=['-posted_datetime'])
+		]
+
+	def __str__(self):
+		return filters.truncatewords(remove_tags(self.content), 10)
+
+	@property
+	def answers(self):
+		"""Return the parent comments as the answers to the question"""
+		return self.comments.filter(parent__isnull=True)
+
+	def save(self, *args, **kwargs):
+		self.content = filters.capfirst(self.content)
+		super().save(*args, **kwargs)
+
+	def get_absolute_url(self):
+		return reverse('qa_site:discuss-question-detail', kwargs={'pk': self.id})
+
+

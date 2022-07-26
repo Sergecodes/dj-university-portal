@@ -126,6 +126,7 @@ ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE = +10
 # each user can have max 2 answers per question
 MAX_ANSWERS_PER_USER_PER_QUESTION = 2  
 MAX_TAGS_PER_QUESTION = 3
+MAX_TAGS_PER_DISCUSSION = 5
 
 # set this as minimum points for users.
 # when his post is downvoted for instance, if his new points are less than this value,

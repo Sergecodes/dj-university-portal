@@ -2,10 +2,10 @@ from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
 from .models import (
-    Subject, AcademicAnswer, SchoolAnswer,
-    AcademicAnswerComment, SchoolAnswerComment,
-    AcademicQuestion, SchoolQuestion, AcademicQuestionTag,
-    AcademicQuestionComment, SchoolQuestionComment
+    Subject, AcademicAnswer, 
+    AcademicAnswerComment, AcademicQuestionTag,
+    AcademicQuestion, DiscussQuestion, 
+    AcademicQuestionComment, DiscussComment
 )
 
 
@@ -13,15 +13,7 @@ class AcademicAnswerAdmin(TranslationAdmin):
     pass
 
 
-class SchoolAnswerAdmin(TranslationAdmin):
-    pass
-
-
 class AcademicAnswerCommentAdmin(TranslationAdmin):
-    pass
-
-
-class SchoolAnswerCommentAdmin(TranslationAdmin):
     pass
 
 
@@ -29,7 +21,7 @@ class AcademicQuestionCommentAdmin(TranslationAdmin):
     pass
 
 
-class SchoolQuestionCommentAdmin(TranslationAdmin):
+class DiscussCommentAdmin(TranslationAdmin):
     pass
 
 
@@ -37,7 +29,7 @@ class QuestionAdmin(TranslationAdmin):
     pass
 
 
-class SchoolQuestionAdmin(TranslationAdmin):
+class DiscussQuestionAdmin(TranslationAdmin):
     pass
 
 
@@ -60,12 +52,10 @@ class SubjectAdmin(TranslationAdmin):
         
 
 admin.site.register(Subject, SubjectAdmin)
-admin.site.register(SchoolQuestion, SchoolQuestionAdmin)
+admin.site.register(DiscussQuestion, DiscussQuestionAdmin)
 admin.site.register(AcademicQuestionTag, AcademicQuestionTagAdmin)
 admin.site.register(AcademicQuestion, AcademicQuestionAdmin)
 admin.site.register(AcademicAnswer, AcademicAnswerAdmin)
-admin.site.register(SchoolAnswer, SchoolAnswerAdmin)
 admin.site.register(AcademicAnswerComment, AcademicAnswerCommentAdmin)
-admin.site.register(SchoolAnswerComment, SchoolAnswerCommentAdmin)
 admin.site.register(AcademicQuestionComment, AcademicQuestionCommentAdmin)
-admin.site.register(SchoolQuestionComment, SchoolQuestionCommentAdmin)
+admin.site.register(DiscussComment, DiscussCommentAdmin)

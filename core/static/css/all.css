@@ -846,14 +846,14 @@ a.dropdown-item:focus {
 /* Question creation templates */
 .comment-form-container,
 .answer-form-container,
-.school-question-form-container,
+.discuss-question-form-container,
 .academic-question-form-container {
     width: 75%;
 }
 
 .comment-form,
 .answer-form,
-.school-question-form,
+.discuss-question-form,
 .academic-question-form {
     padding: 1.5rem 1rem 1.5rem 2rem;
     /* pt-4, pb-4 */
@@ -911,14 +911,14 @@ a.dropdown-item:focus {
 
     .comment-form-container,
     .answer-form-container,
-    .school-question-form-container,
+    .discuss-question-form-container,
     .academic-question-form-container {
         width: 100%;
     }
 
     .comment-form,
     .answer-form,
-    .school-question-form,
+    .discuss-question-form,
     .academic-question-form {
         padding-left: 1rem;
         /* ps-3 */

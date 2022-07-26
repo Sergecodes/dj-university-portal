@@ -1,15 +1,20 @@
 from modeltranslation.translator import register, TranslationOptions as TransOptions
 
 from .models import (
-	Subject, AcademicAnswer, SchoolAnswer,
-	AcademicAnswerComment, SchoolAnswerComment,
-	AcademicQuestion, SchoolQuestion, AcademicQuestionTag,
-	AcademicQuestionComment, SchoolQuestionComment
+	Subject, AcademicAnswer, AcademicAnswerComment,
+	AcademicQuestion, DiscussQuestion, AcademicQuestionTag,
+	AcademicQuestionComment, DiscussComment, DiscussQuestionTag
 )
 
 
 @register(AcademicQuestionTag)
 class AcademicQuestionTagTransOptions(TransOptions):
+	fields = ('name', 'slug')
+	# required_languages = ('en', 'fr')
+
+
+@register(DiscussQuestionTag)
+class DiscussQuestionTagTransOptions(TransOptions):
 	fields = ('name', 'slug')
 	# required_languages = ('en', 'fr')
 
@@ -23,8 +28,8 @@ class AcademicQuestionTransOptions(TransOptions):
 	# check out the empty_values, may be it can be used with google translation...
 
 
-@register(SchoolQuestion)
-class SchoolQuestionTransOptions(TransOptions):
+@register(DiscussQuestion)
+class DiscussQuestionTransOptions(TransOptions):
 	fields = ('content', )
 	# required_languages = ('en', 'fr') 
 
@@ -35,22 +40,10 @@ class AcademicAnswerTransOptions(TransOptions):
 	# required_languages = ('en', 'fr')
 
 
-@register(SchoolAnswer)
-class SchoolAnswerTransOptions(TransOptions):
-	fields = ('content', )
-	# required_languages = ('en', 'fr')
-
-
 @register(AcademicAnswerComment)
 class AcademicAnswerCommentTransOptions(TransOptions):
 	fields = ('content', )
 	# required_languages = ('en', 'fr')
-
-
-@register(SchoolAnswerComment)
-class SchoolAnswerCommentTransOptions(TransOptions):
-	fields = ('content', )
-	# required_languages = ('en', 'fr')  
 
 
 @register(AcademicQuestionComment)
@@ -59,8 +52,8 @@ class AcademicQuestionCommentTransOptions(TransOptions):
 	# required_languages = ('en', 'fr')
 
 
-@register(SchoolQuestionComment)
-class SchoolQuestionCommentTransOptions(TransOptions):
+@register(DiscussComment)
+class DiscussCommentTransOptions(TransOptions):
 	fields = ('content', )
 	# required_languages = ('en', 'fr') 
 

@@ -41,22 +41,22 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='schoolquestion',
             name='bookmarkers',
-            field=models.ManyToManyField(blank=True, related_name='bookmarked_school_questions', related_query_name='bookmarked_school_question', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(blank=True, related_name='bookmarked_discuss_questions', related_query_name='bookmarked_school_question', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='schoolquestion',
             name='downvoters',
-            field=models.ManyToManyField(blank=True, related_name='downvoted_school_questions', related_query_name='downvoted_school_question', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(blank=True, related_name='downvoted_discuss_questions', related_query_name='downvoted_school_question', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='schoolquestion',
             name='followers',
-            field=models.ManyToManyField(blank=True, related_name='following_school_questions', related_query_name='following_school_question', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(blank=True, related_name='following_discuss_questions', related_query_name='following_school_question', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='schoolquestion',
             name='poster',
-            field=models.ForeignKey(on_delete=models.SET(users.models.get_dummy_user), related_name='school_questions', related_query_name='school_question', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=models.SET(users.models.get_dummy_user), related_name='discuss_questions', related_query_name='school_question', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='schoolquestion',
@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='schoolquestion',
             name='upvoters',
-            field=models.ManyToManyField(blank=True, related_name='upvoted_school_questions', related_query_name='upvoted_school_question', to=settings.AUTH_USER_MODEL),
+            field=models.ManyToManyField(blank=True, related_name='upvoted_discuss_questions', related_query_name='upvoted_school_question', to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='schoolanswercomment',

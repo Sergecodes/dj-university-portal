@@ -90,7 +90,6 @@ class Institution(models.Model):
 
 class Post(models.Model):
 	"""Abstract model to describe an item post."""
-
 	flags = GenericRelation(Flag)
 	view_count = models.PositiveIntegerField(default=0)
 	slug = models.SlugField(max_length=255)
@@ -132,7 +131,6 @@ class Post(models.Model):
 	class Meta:
 		abstract = True
 
-
 	# def save(self, *args, **kwargs):
 	# 	if not self.id:
 	# 		self.expiry_datetime = self.posted_datetime + VALIDITY_PERIOD
@@ -142,6 +140,44 @@ class Post(models.Model):
 	# def is_outdated(self):
 	# 	"""Returns whether a post is outdated(has expired)"""
 	# 	return self.expiry_datetime < timezone.now()
+
+
+class Comment(models.Model):
+	"""For comments in various apps"""
+	flags = GenericRelation(Flag)
+	parent = models.ForeignKey(
+		'self',
+		on_delete=models.CASCADE,
+		related_name='replies',
+		related_query_name='reply',
+		blank=True, null=True
+	)
+	posted_datetime = models.DateTimeField(auto_now_add=True)
+	last_modified = models.DateTimeField(auto_now=True)
+	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
+	update_language = models.CharField(
+		choices=settings.LANGUAGES,
+		max_length=2,
+		editable=False,
+		blank=True
+	)
+
+	@property
+	def is_parent(self):
+		return True if self.parent is None else False
+
+	@property
+	def parent_object(self):
+		"""
+		Get post under which comment belongs, used to get the url of post that contains comment.
+		"""
+		# if comment is for answer
+		if hasattr(self, 'answer'):
+			return self.answer.question
+		return self.question
+
+	class Meta:
+		abstract = True
 
 
 class ImageHolder(models.Model, PhotoModelMixin):

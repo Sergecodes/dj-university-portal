@@ -14,8 +14,8 @@
 		{% if num_results == 0 %}
 			{% trans 'No search result for' %} 
 		{% else %}
-			{{ num_results }} {% trans 'Search Results' %}
-			{{ num_results|pluralize }} {% trans 'for' %} 
+			{{ num_results }} {% trans 'Search Result' %}{{ num_results|pluralize }} 
+			{% trans 'for' %} 
 		{% endif %}
 		{% if keyword_list %} {{ keyword_list }} {% else %} "" {% endif %}
 	</h2>
@@ -87,12 +87,12 @@
 			</section>
 		{% endif %}
 
-		{# school-based questions #}
-		{% if school_questions.exists %}
+		{# discussion questions #}
+		{% if discuss_questions.exists %}
 			<section class="mb-5">
-				<h3>{% trans 'School-Based Questions' %} ({{ results_count.school_questions }})</h3>
+				<h3>{% trans 'Discussion Questions' %} ({{ results_count.discuss_questions }})</h3>
 				<ul class="list-group list-group-flush mb-4">
-					{% for question in school_questions %}
+					{% for question in discuss_questions %}
 						<li class="list-group-item">
 							<a href="{{ question.get_absolute_url }}" class="text-decoration-none">
 								{{ question }}
@@ -101,7 +101,7 @@
 					{% endfor %}
 				</ul>
 				<a 
-					href="{% url 'core:category-search' category='school_questions' %}?keywords={{ keywords|urlencode }}" 
+					href="{% url 'core:category-search' category='discuss_questions' %}?keywords={{ keywords|urlencode }}" 
 					class="btn btn-success"
 				>
 					{% trans 'View All Results' %}

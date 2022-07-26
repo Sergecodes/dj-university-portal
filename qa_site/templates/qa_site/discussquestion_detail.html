@@ -10,18 +10,13 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
-	<title>{{ question.title }} | CamerSchools</title>
-{% endblock %}
-
-{% block extra_css %}
-	<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
+	<title>{{ question|safe }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_script_pre %}
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/highlight.min.js' %}"></script>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -41,15 +36,7 @@
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body js-toast-message">
-			{# message will be inserted here via js #}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans "You can't vote for your own post" %} 
+			{# custom message will be inserted here via js #}
 		</div>
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
@@ -73,6 +60,14 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body">
+			{% trans "You can't vote for your own post" %} 
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
@@ -92,6 +87,7 @@
 					You are now following this question. You'll receive notifications when there's activity on this post.
 				{% endblocktrans %} <br>
 				{% trans 'Click' %}
+				{# TODO go to section where following tags are. (use hashtag ) #}
 				<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
 				{% trans 'to see the questions you are following' %}.
 			</p>
@@ -112,7 +108,13 @@
 				{% trans 'to see the questions you are following' %}.
 			</p>
 		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		<button 
+			type="button" 
+			class="btn-close me-2 m-auto" 
+			data-bs-dismiss="toast" 
+			aria-label="{% trans 'Close' %}"
+		>
+		</button>
 	</div>
 </div>
 
@@ -121,25 +123,14 @@
 <div class="border py-3 mb-5 container-lg">
 	<article class="js-question" data-id="{{ question.id }}">
 		{% with question_poster=question.poster %}
-		<div class="d-md-flex flex-row-reverse mb-3 mb-md-0 question-header">
-			<p class="text-end me-3">
-				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning">
-					{% trans 'Ask a Question' %}
-				</a>
-			</p>
-			<h2 class="question-header__title">
-				{% with original_lang=question.original_language %}
-				<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
-					{{ question.title }}
-				</span>
-				{% include 'core/google_attribution.html' with object=question %}
-				{% endwith %}
-			</h2>
+		<div class="text-end mb-3 mb-md-0 me-4">
+			<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-warning">
+				{% trans 'Ask a Question' %}
+			</a>
 		</div>
-
-		{# question-info #}
+		{# question info #}
 		<p class="mb-lg-1">
-			<span class="mx-1" >
+			<span class="mx-1">
 				{% trans 'Asked' %}
 				<strong title="{{ question.posted_datetime }}">
 					{{ question.posted_datetime|naturaltime }}
@@ -148,7 +139,6 @@
 			<span class="mx-1">
 				{% trans 'By' %}
 				{% if question_poster.has_social_profile %}
-					{# note that this `border-bottom-dotted` is a custom class, not from bootstrap. #}
 					<a 
 						class="px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted" 
 						href="{{ question_poster.get_absolute_url }}"
@@ -156,13 +146,23 @@
 						{{ question_poster.username }}
 					</a>
 				{% else %}
-					<span class="px-1 bg-info" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ question_poster.username }}</span>
+					<span 
+						class="px-1 bg-info" 
+						title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}"
+					>
+						{{ question_poster.username }}
+					</span>
 				{% endif %}
 			</span>
-			{% if question.subject_id %}
+			{% if question.school_id %}
 				<span class="mx-1">
-					{% trans 'In' %}
-					<a href="{% url 'qa_site:academic-question-list' %}?subject={{ question.subject_id }}" class="text-decoration-none ">{{ question.subject.name }}</a>
+					{% trans 'Concerning' %}
+					<a 
+						href="{% url 'qa_site:discuss-question-list' %}?school={{ question.school_id }}" 
+						class="text-decoration-none"
+					>
+						{{ question.school }}
+					</a>
 				</span>
 			{% endif %}
 			{% with view_count=question.view_count %}
@@ -179,7 +179,12 @@
 		<hr class="mb-3">
 		<section class="mb-4 px-3 question-layout">
 			{% with original_lang=question.original_language %}
-			<div class="mt-3 mb-4 question-content" {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+			<div 
+				class="mt-3 mb-4 question-content" 
+				{% if question|should_attribute:LANGUAGE_CODE %} 
+				lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" 
+				{% endif %}
+			>
 				{{ question.content|safe }}
 				{% include 'core/google_attribution.html' with object=question %}
 			</div>
@@ -193,13 +198,14 @@
 					{% endfor %}
 				</div>
 			{% endif %}
-
-			<!-- question-reaction(like, dislike, bookmark, flag) -->
-			<div class="mt-3 mb-3 question-reaction">
-				<div class="d-inline mx-2 question-reaction-upvote">
+			
+			<!-- Question reactions -->
+			<div class="mt-3 mb-3">
+				<!-- upvote -->
+				<div class="d-inline mx-2">
 					<a 
 						role="button" 
-						class="text-decoration-none link-primary js-upvote" 
+						class="text-decoration-none js-upvote" 
 						data-id="{{ question.id }}"
 						data-poster-id="{{ question.poster_id }}"
 						data-thread="question"
@@ -215,10 +221,11 @@
 					</a>
 					<span class="ms-1 text-success">{{ question.upvote_count }}</span>
 				</div>
-				<div class="d-inline mx-2 question-reaction-downvote">
+				<!-- downvote -->
+				<div class="d-inline mx-2">
 					<a 
 						role="button" 
-						class="text-decoration-none  js-downvote" 
+						class="text-decoration-none js-downvote" 
 						data-thread="question" 
 						data-id="{{ question.id }}"
 						data-poster-id="{{ question.poster_id }}"
@@ -234,9 +241,10 @@
 					</a>
 					<span class="ms-1 text-danger">{{ question.downvote_count }}</span>
 				</div>
+
 				<!-- Bookmark area -->
 				<div class="d-inline mx-2">
-					{% url 'qa_site:academic-bookmark-toggle' as bookmark_url %}
+					{% url 'qa_site:discuss-bookmark-toggle' as bookmark_url %}
 					{% url 'users:profile-qa' as bookmarks_url %}
 					{% trans 'Add this question to your favourites. (click again to undo)' as title_text %}
 					{% render_bookmark_template question bookmark_url bookmarks_url title_text %}
@@ -244,10 +252,10 @@
 				<!-- Share area -->
 				<div class="d-inline mx-2">
 					{% trans 'Share a link to this question' as heading %}
-					{% include 'core/social_share_tooltip.html' with heading=heading title=question.title url=request.build_absolute_uri %}
+					{% include 'core/social_share_tooltip.html' with heading=heading title='' url=request.build_absolute_uri %}
 				</div>
 				<!-- flag area -->
-				{# if question belongs to user, dont display flag widget #}
+				{# if question belongs to user, don't display follow widget. #}
 				{% if user != question_poster %}
 					<div class="d-inline ms-2">
 						{% if user.is_anonymous %}
@@ -270,13 +278,15 @@
 					</div>
 				{% endif %}
 			</div>
-
+			
 			<!-- edit and delete area -->
+			{% comment %} do this check only if user is authenticated; 
+			since we need to determine if user can edit or delete the question {% endcomment %}
 			{% if can_edit_question or can_delete_question %}
 				<div class="mb-4">
 					{% if can_edit_question %}
 						<div class="d-inline mx-2">
-							<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-question-update' pk=question.pk %}">
+							<a class="text-decoration-none link-danger" href="{% url 'qa_site:discuss-question-update' pk=question.pk %}">
 								<i class="fas fa-edit me-1" aria-hidden="true"></i>
 								{% trans 'Edit question' %}
 							</a>
@@ -284,7 +294,7 @@
 					{% endif %}
 					{% if can_delete_question %}
 						<div class="d-inline mx-2">
-							<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-question-delete' pk=question.pk %}">
+							<a class="text-decoration-none link-danger" href="{% url 'qa_site:discuss-question-delete' pk=question.pk %}">
 								<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
 								{% trans 'Delete question' %}
 							</a>
@@ -294,7 +304,7 @@
 			{% endif %}
 
 			<!-- follow area -->
-			{# if question belongs to user, don't display follow area. #}
+			{# if question belongs to user, don't display follow widget. #}
 			{% if user != question_poster %}
 				{% trans 'to unfollow this question (stop getting notifications when anyone posts a new answer to this question).' as unfollow_text %}
 				{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' as follow_text %}
@@ -314,122 +324,11 @@
 			{% endif %}
 		</section>
 
-		<!-- question comments -->
-		<section class="px-3 question-comments">
-			{% for comment in comments %}
-				{% with comment_poster=comment.poster %}
-				<div class="d-flex border-top border-bottom pt-2 pb-1 question-comment">
-					<div class="ms-2">
-						<span class="text-muted">
-							{% if comment.vote_count %}
-								{{ comment.vote_count }}
-							{% else %}
-								&nbsp;&nbsp;
-							{% endif %}
-						</span>
-						{# upvote and flag  #}
-						<div class="d-inline-flex flex-column align-items-center">
-							<!-- upvote icon button -->
-							<a 
-								role="button" 
-								class="mx-2 pb-1  js-upvote" 
-								data-id="{{ comment.id }}" 
-								data-poster-id="{{ comment.poster_id }}"
-								data-thread="question-comment"
-								title="{% trans 'This comment adds something useful to the post' %}"
-							>
-								{% if user in comment.upvoters.all %}
-									<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
-									<span class="visually-hidden">{% trans 'Liked' %}</span>
-								{% else %}
-									<i class="far fa-thumbs-up" aria-hidden="true"></i>
-									<span class="visually-hidden">{% trans 'Like' %}</span>
-								{% endif %}
-							</a>
-
-							<!-- flag form -->
-							{% if user != comment_poster %}
-								{% if user.is_anonymous %}
-									<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
-										<span>
-											{% include "flag/flag_icon.html" %}
-										</span>
-									</a>
-								{% else %}
-									{% render_flag_form comment user request display_title=True %}
-								{% endif %}
-							{% endif %}
-
-							{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
-							{% if user.is_authenticated %}
-								<!-- edit icon button -->
-								{% if user|can_edit_comment:comment %}
-									{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
-									<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
-									>
-										<i class="far fa-edit" aria-hidden="true"></i>
-										<span class="visually-hidden">{% trans 'Edit' %}</span>
-									</a>
-								{% endif %}
-
-								<!-- delete icon button -->
-								{% if user|can_delete_comment:comment %}
-									<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-question-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
-									>
-										<i class="fas fa-trash-alt" aria-hidden="true"></i>
-										<span class="visually-hidden">{% trans 'Delete' %}</span>
-									</a>
-								{% endif %}
-							{% endif %}
-						</div>
-					</div>
-					<div class="ms-3 js-comment-wrp">
-						{{ comment.content|safe }}
-						<span>-</span>
-						{% if comment_poster.has_social_profile %}
-							<a 
-								href="{{ comment_poster.get_absolute_url }}"
-								class="ms-1 me-2 px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted"
-								{% if comment_poster == question_poster %}
-									title="{% trans 'This is the user who asked the question' %}"
-								{% endif %}
-							> 
-								{{ comment_poster.username }}
-							</a>
-						{% else %}
-						<span class="px-1 bg-info opacity-75" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ comment_poster.username }}</span>
-						{% endif %}
-						<span class="ms-2 small text-muted">{{ comment.posted_datetime }}</span>
-					</div>
-				</div>
-				{% endwith %}
-			{% comment %} {% empty %}
-				<p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> {% endcomment %}
-			{% endfor %}
-			
-			<a 
-				role="button" 
-				class=" text-decoration-none d-inline-block mb-2 {% if comments.exists %} mt-3  {% else %} mt-2 {% endif %} js-add-question-comment"
-				title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
-			>
-				{% trans 'Add a comment' %}
-			</a>
-			<!-- don't separate this 2 elements, dependency in script... -->
-			<form class="d-none mt-2" method="post">
-				{% csrf_token %}
-				{{ qstn_comment_form|crispy }}
-				
-				<input type="hidden" name="question_id" value="{{ question.id }}">
-				<input type="submit" class="btn btn-sm btn-purple" name="add_question_comment" value="{% trans 'Add comment' %}">
-			</form>
-		</section>
-		<hr class="mb-2">
-
-		<!-- question answers -->
+		<!-- We'll consider ancestor comments as answers -->
 		<section class="px-3 question-answers">
 			<div class="d-flex answers-header">
 				<span class="answers-header__count">
-					{{ num_answers }} {% trans 'Answer' %}{{ num_answers|pluralize }}
+					{{ num_comments }} {% trans 'Comment' %}{{ num_comments|pluralize }}
 				</span>
 				{# TODO insert order_by dropdown form here (like myschool ...) #}
 				<div></div>
@@ -439,7 +338,12 @@
 					{# answer-layout #}
 					<div class="pt-2 pb-3 px-2 mb-3 border">
 						{% with original_lang=answer.original_language %}
-						<div class="mt-3 mb-4 answer-content" {% if answer|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+						<div 
+							class="mt-3 mb-4 answer-content" 
+							{% if answer|should_attribute:LANGUAGE_CODE %} 
+							lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" 
+							{% endif %}
+						>
 							{{ answer.content|safe }}
 							{% include 'core/google_attribution.html' with object=answer %}
 						</div>
@@ -533,7 +437,7 @@
 
 						{# answer comments here #}
 						<div class="px-3 answer-comments">
-							{% for comment in answer.comments.all %}
+							{% for comment in answer.replies.all %}
 								{% with comment_poster=comment.poster %}
 								<div class="d-flex border-top border-bottom pt-2 pb-1 answer-comment">
 									<span class="text-muted">
@@ -640,9 +544,9 @@
 				{# add answer section #}
 				<a 
 					role="button" 
-					class=" text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
+					class="text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
 				>
-					{% trans 'Answer this question' %}
+					{% trans 'Answer this question to share your idea/opinion' %}
 				</a>
 				<!-- don't separate this 2 elements, dependency in script... -->
 				<form class="d-none mt-2" method="post">
@@ -679,7 +583,7 @@
 						</span>
 						<span>
 							<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
-								{{ question.title }}
+								{{ question.content|remove_tags|truncatewords:50|safe }}
 							</span> - 
 							<strong>
 								{{ question.num_answers }} 
@@ -703,9 +607,6 @@
 
 {% block extra_js %}
 <script>
-	// call highlight js to highligt code on page
-	hljs.highlightAll();
-
 	// reduce margin of paragraphs so as to use less space..
 	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
 
@@ -718,15 +619,16 @@
 		// $('.js-flag-report-icon').first().click();
 	});
 
-	// set unique id on upcoming ckeditor instances
+
+	// set unique id on upcoming ckeditor instances 
 	var $ansCommentEditors = $('.js-answerComment');
 	for (var i = 0; i < $ansCommentEditors.length; i++) {
 		var editor = $ansCommentEditors[i];
 		editor.setAttribute('id', uid());
 	}
 
-	// possible thread types are {question, answer, question-comment, answer-comment}
-	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
+	// possible thread types are {question, answer, answer-comment}
+	var THREAD_TYPES = ["question", "answer", "answer-comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
 
 	/* Get current user's id.. */
@@ -736,7 +638,10 @@
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
 
-	/** for general checks to do before proceeding to upvoting or downvoting */
+	// enable username to be directly after comment
+	$('.js-comment-wrp').children().css('display', 'inline');
+
+
 	function onVote(event) {
 		// if user isn't logged in
 		if (!userId) {
@@ -766,7 +671,7 @@
 	$downvoteTriggerer.click(onVote);
 
 	// hide button and display forms when button is clicked
-	$('.js-add-question-comment, .js-add-answer-comment, .js-add-answer').click(function(event) {
+	$('.js-add-answer-comment, .js-add-answer').click(function(event) {
 		// console.log(event.target == this);  true !
 
 		// if current user isn't logged in
@@ -778,7 +683,7 @@
 
 		var $this = $(this);
 		// remove bootstrap class from element(class is used with the !important keyword 
-		// so we need to remove it for the hide() method for it to work)
+		// so we need to remove it for the hide() method to work)
 		$this.removeClass('d-inline-block');  
 		$this.hide();
 		var $form = $this.next();
@@ -792,7 +697,7 @@
 		
 		// possible thread types are {question, answer, question-comment, answer-comment}
 		var voteType = 'up', threadType = this.dataset.thread;
-		var url = "{% url 'qa_site:academic-thread-vote' %}";
+		var url = "{% url 'qa_site:discuss-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
@@ -812,7 +717,7 @@
 						$icon.removeClass('fas js-selected').addClass('far');
 
 						// update number of votes
-						if (threadType == 'question-comment' || threadType == 'answer-comment') {
+						if (threadType == 'answer-comment') {
 							// update vote count
 							// span comes before vote icon for comments
 							var $voteCounter = $this.parent().prev();
@@ -857,7 +762,7 @@
 						// remove far class and set to fas
 						$icon.removeClass('far').addClass('fas js-selected');
 
-						if (threadType == 'question-comment' || threadType == 'answer-comment') {
+						if (threadType == 'answer-comment') {
 							// update vote count
 							// span comes before vote icon for comments
 							var $voteCounter = $this.parent().prev();
@@ -882,8 +787,6 @@
 						}
 					} else {
 						// console.log(response);
-						var msg = response['message'];
-						// console.log({{ msg|linebreaksbr }}); 
 						displayToast('CUSTOM_ERROR', response['message']);
 					}
 				},
@@ -899,7 +802,7 @@
 		var $this = $(this);
 		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
 		var voteType = 'down', threadType = this.dataset.thread;
-		var url = "{% url 'qa_site:academic-thread-vote' %}";
+		var url = "{% url 'qa_site:discuss-thread-vote' %}";
 
 		// if user is trying to undo the vote(the upvote)
 		if ($icon.hasClass('js-selected')) {
@@ -933,12 +836,11 @@
 			});
 
 		} else {
-			// if user is adding a new downvote
+			// if user is adding a new vote
 			var voteAction = 'vote';
 
 			// user should have number of points required
-			// the isNumeric func is in the js file
-			console.log(isNumeric(userPoints));
+			// isNumeric function is in the base.min.js file
 			if (isNumeric(userPoints) && userPoints < requiredDownvotePoints) {
 				var toastMsg = {% blocktrans %} "You need at least <strong>{{ required_downvote_points }} points</strong> to be able to add a dislike." {% endblocktrans %};
 				displayToast('CUSTOM_ERROR', toastMsg);
@@ -990,7 +892,7 @@
 
 			var $this = $(this);
 			var id = parseInt(this.dataset.id, 10);
-			var url = "{% url 'qa_site:academic-follow-toggle' %}";
+			var url = "{% url 'qa_site:discuss-follow-toggle' %}";
 			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
 			
 			// if user is trying to undo the follow
@@ -1044,5 +946,6 @@
 			}
 		});
 	{% endif %}
+
 </script>
 {% endblock %}
