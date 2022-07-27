@@ -57,11 +57,11 @@
 						</td>
 					</tr>
 					<tr>
-						<td>{% trans 'School' %}</td>
+						<td>{% trans 'City' %}</td>
 						<td>
-							{% if requested_item.school %}
-								<a href="{% url 'requested_items:requested-item-list' %}?school={{ requested_item.school_id }}" class="text-decoration-none">
-									{{ requested_item.school }}
+							{% if requested_item.city %}
+								<a href="{% url 'requested_items:requested-item-list' %}?city={{ requested_item.city_id }}" class="text-decoration-none">
+									{{ requested_item.city }}
 								</a> 
 							{% else %} 
 								{% trans 'Anywhere' %} 
@@ -211,10 +211,10 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-items-wrp">
 			<h5 class="mb-4">
-				{% if requested_item.school %} 
+				{% if requested_item.city %} 
 					{% trans 'Similar requested items in' %}
-					<a href="{% url 'requested_items:requested-item-list' %}?school_id={{ requested_item.school_id }}" class="text-decoration-none">
-						{{ requested_item.school }}
+					<a href="{% url 'requested_items:requested-item-list' %}?city_id={{ requested_item.city_id }}" class="text-decoration-none">
+						{{ requested_item.city }}
 					</a> 
 				{% else %} 
 					{% trans 'Similar items' %} 

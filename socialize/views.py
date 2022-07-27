@@ -21,9 +21,8 @@ from django.views.generic.base import TemplateView
 
 from core.constants import TEST_ACCOUNT_USERNAME, CREATE_SOCIAL_PROFILE_POINTS_CHANGE
 from core.mixins import IncrementViewCountMixin
-from core.models import Institution
+from core.models import City
 from core.utils import get_random_profiles, translate_text
-from past_papers.models import PastPaper
 from .forms import SocialProfileForm, SocialMediaFollowForm
 from .models import SocialProfile
 
@@ -276,14 +275,9 @@ class SocialProfileFilter(filters.FilterSet):
 		empty_label=None,
 		choices=AGE_CHOICES,
 	)
-	school = filters.ModelChoiceFilter(
-		empty_label=_('All schools'),
-		queryset=Institution.objects.all()
-	)
-	level = filters.ChoiceFilter(
-		label=_('At the level of:'),
-		choices=PastPaper.LEVELS,
-		empty_label=_('Any level')
+	city = filters.ModelChoiceFilter(
+		empty_label=_('All cities'),
+		queryset=City.objects.all()
 	)
 	interest = filters.ChoiceFilter(
 		label=_('With special interest in:'),
@@ -301,8 +295,8 @@ class SocialProfileFilter(filters.FilterSet):
 	class Meta:
 		model = SocialProfile
 		fields = [
-			'name', 'school', 'gender', 'main_language', 'age', 
-			'level', 'interest', 'has_profile_image', 
+			'name', 'city', 'gender', 'main_language', 'age', 
+			'interest', 'has_profile_image', 
 		]	
 
 	def filter_language(self, queryset, name, value):
@@ -415,9 +409,8 @@ class SocialProfileDetail(
 		context['can_delete'] = current_user.is_staff or current_user.social_profile == self.object
 		context['profile_user'] = profile.user
 		context['profile_info'] = {
-			_('Level'): profile.get_level_display(),
 			_('Speciality'): profile.speciality,
-			_('School'): profile.school.name if profile.school_id else _('Not provided'),
+			_('City'): profile.city.name,
 			_('Gender'): profile.gender,
 			_('Aged between'): profile.age_range,
 			_('A little about me'): about_me if (about_me := profile.about_me) else _('Not provided'),

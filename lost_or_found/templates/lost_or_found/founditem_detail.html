@@ -30,12 +30,12 @@
 		</h2>
 		{% endwith %}
 		<div class="d-inline-block">
-			{% trans 'School' %}:
+			{% trans 'City' %}:
 			<a 
-				href="{% url 'lost_or_found:found-item-list' %}?school={{ found_item.school_id }}" 
+				href="{% url 'lost_or_found:found-item-list' %}?city={{ found_item.city_id }}" 
 				class="text-decoration-none"
 			> 
-				{{ found_item.school }}
+				{{ found_item.city }}
 			</a>
 			{% with view_count=found_item.view_count %}
 			<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">

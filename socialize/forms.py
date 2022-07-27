@@ -128,7 +128,7 @@ class SocialProfileForm(forms.ModelForm):
 		exclude = ('user', 'social_media', 'original_language', 'last_modified', 'view_count', )
 		widgets = {
 			'speciality': forms.TextInput(
-				attrs={'placeholder': _('Ex. Mathematics')}
+				attrs={'placeholder': _('Ex. Medicine, ')}
 			),
 			# set input to file input so as to activate `crispy form` magic
 			'profile_image': forms.FileInput(),
@@ -144,11 +144,10 @@ class SocialProfileForm(forms.ModelForm):
 		self.helper.disable_csrf = True
 		self.helper.form_tag = False
 		self.helper.layout = Layout(
-			Fieldset(_('Schooling Information'),
+			Fieldset(_('Residential Information'),
 				Row(
-					Column('school', css_class='form-group col-md-6 mb-0'),
-					Column('level', css_class='form-group col-md-6 mb-0'),
-					Column('speciality', css_class='col-md-6 mb-0'),
+					Column('city', css_class='form-group col-md-6 mb-0'),
+					Column('speciality', css_class='form-group col-md-6 mb-0'),
 					css_class='form-row'
 				),
 				css_class='mb-2'

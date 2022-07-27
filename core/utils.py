@@ -273,6 +273,17 @@ def get_search_results(keyword_list, category=None):
 	return (results, results.count())
 
 
+def get_country(country_or_code):
+	from core.models import Country
+	
+	if isinstance(country_or_code, Country):
+		country = country_or_code
+	else:
+		country = Country.objects.get(code=country_or_code)
+
+	return country
+
+
 def is_mobile(request):
 	"""Return `True` if the request comes from a mobile device and `False` otherwise."""
 	MOBILE_AGENT_RE = re.compile(r".*(iphone|mobile|androidtouch)", re.IGNORECASE)

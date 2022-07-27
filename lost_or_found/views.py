@@ -26,8 +26,10 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 	template_name = 'lost_or_found/founditem_create.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		form_kwargs['user'] = self.request.user
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		user = request.user
+		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		return form_kwargs
 
 	def form_valid(self, form):
@@ -121,20 +123,20 @@ class FoundItemFilter(filters.FilterSet):
 
 	class Meta:
 		model = FoundItem
-		fields = ['school', 'item_found', ]
+		fields = ['city', 'item_found', ]
 
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is so as to enable translation of labels.
 		super().__init__(*args, **kwargs)
 		# # print(self.filters)
-		self.filters['school'].label = _('School')
+		self.filters['city'].label = _('City')
 
 	@property
 	def qs(self):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
-			return parent_qs.filter(school__country__code=country_code)
+			return parent_qs.filter(city__country__code=country_code)
 
 		return parent_qs
 
@@ -164,8 +166,10 @@ class FoundItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 	template_name = 'lost_or_found/founditem_update.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		form_kwargs['user'] = self.request.user
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		user = request.user
+		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['update'] = True
 		return form_kwargs
 
@@ -245,6 +249,7 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + LOST_ITEM_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 		
 		return form_kwargs
@@ -316,19 +321,19 @@ class LostItemFilter(filters.FilterSet):
 
 	class Meta:
 		model = LostItem
-		fields = ['school', 'item_lost', ]
+		fields = ['city', 'item_lost', ]
 
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is so as to enable translation of labels.
 		super().__init__(*args, **kwargs)
-		self.filters['school'].label = _('School')
+		self.filters['city'].label = _('City')
 
 	@property
 	def qs(self):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
-			return parent_qs.filter(school__country__code=country_code)
+			return parent_qs.filter(city__country__code=country_code)
 
 		return parent_qs
 
@@ -395,12 +400,12 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 	template_name = 'lost_or_found/lostitem_update.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		lost_item, user, session = self.object, self.request.user, self.request.session
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		lost_item, user, session = self.object, request.user, request.session
 
 		# when form is initially displayed, get photos from lost_item
 		# otherwise(after form invalid) get photos from session.
-		if self.request.method == 'GET':
+		if request.method == 'GET':
 			# store photos in session
 			photos_list = [photo.actual_filename for photo in lost_item.photos.all()]
 
@@ -412,6 +417,7 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 			photos_list = session.get(user.username + LOST_ITEM_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['update'] = True
 		form_kwargs['initial_photos'] = get_photos(photos_list, LOST_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs

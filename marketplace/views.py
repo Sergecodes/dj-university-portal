@@ -44,6 +44,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + ITEM_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, LISTING_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
@@ -152,12 +153,12 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	template_name = 'marketplace/itemlisting_update.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		listing, user, session = self.object, self.request.user, self.request.session
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		listing, user, session = self.object, request.user, request.session
 
 		# when form is initially displayed, get photos from listing
 		# otherwise(after form invalid) get photos from session.
-		if self.request.method == 'GET':
+		if request.method == 'GET':
 			# store photos in session
 			photos_list = [photo.actual_filename for photo in listing.photos.all()]
 			session[user.username + ITEM_LISTING_SUFFIX] = photos_list
@@ -165,6 +166,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 			photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, LISTING_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
@@ -397,6 +399,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + AD_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
@@ -467,12 +470,12 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 	template_name = 'marketplace/adlisting_update.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		listing, user, session = self.object, self.request.user, self.request.session
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		listing, user, session = self.object, request.user, request.session
 
 		# when form is initially displayed, get photos from listing
 		# otherwise(after form invalid) get photos from session.
-		if self.request.method == 'GET':
+		if request.method == 'GET':
 			# store photos in session
 			photos_list = [photo.actual_filename for photo in listing.photos.all()]
 
@@ -484,6 +487,7 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 			photos_list = session.get(user.username + AD_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs

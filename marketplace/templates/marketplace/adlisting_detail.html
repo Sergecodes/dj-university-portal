@@ -285,7 +285,7 @@
 					{% trans 'Similar adverts in' %} 
 					<a 
 						title={{ listing.city.country }}
-						href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.city_id }}" 
+						href="{% url 'marketplace:ad-listing-list' %}?city={{ listing.city_id }}" 
 						class="text-decoration-none"
 					>
 						{{ listing.city }}

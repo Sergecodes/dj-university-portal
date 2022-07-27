@@ -8,8 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
-from core.models import Institution
-from core.utils import get_edit_profile_url, PhotoUploadMixin
+from core.models import City, Country
+from core.utils import get_edit_profile_url, PhotoUploadMixin, get_country
 from .models import RequestedItem, RequestedItemPhoto
 
 
@@ -20,8 +20,13 @@ class RequestedItemPhotoForm(forms.ModelForm, PhotoUploadMixin):
 
 
 class RequestedItemForm(forms.ModelForm):
-	school = forms.ModelChoiceField(
+	country = forms.ModelChoiceField(
+		queryset=Country.objects.all(),
+		empty_label=None,
+	)
+	city = forms.ModelChoiceField(
 		queryset=None, 
+		empty_label=None
 	)
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
@@ -42,22 +47,26 @@ class RequestedItemForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
-		update = kwargs.pop('update', False)
+		update, country_or_code = kwargs.pop('update', False), kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
+
+		country = get_country(country_or_code)
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+		self.fields['country'].initial = country.pk
+		self.fields['city'].queryset = City.objects.filter(country=country)
 		self.fields['category'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('School & Item Category'),
+			Fieldset(_('Area & Item Category'),
 				Row(
-					Column('school', css_class='form-group col-md-6 mb-0'),
-					Column('category', css_class='form-group col-md-6 mb-0'),
+					Column('country', css_class='form-group col-md-6'),
+					Column('city', css_class='form-group col-md-6'),
+					Column('category', css_class='form-group'),
 					css_class='form-row'
 				),
 				css_class='mb-2'

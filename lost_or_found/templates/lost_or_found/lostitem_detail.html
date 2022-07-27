@@ -30,8 +30,8 @@
 		</h2>
 		{% endwith %}
 		<div class="d-inline-block">
-			{% trans 'School' %}:
-			<a href="{% url 'lost_or_found:lost-item-list' %}?school={{ lost_item.school_id }}" class="text-decoration-none"> {{ lost_item.school }}</a>
+			{% trans 'City' %}:
+			<a href="{% url 'lost_or_found:lost-item-list' %}?city={{ lost_item.city_id }}" class="text-decoration-none"> {{ lost_item.city }}</a>
 			{% with view_count=lost_item.view_count %}
 			<span class="ms-3" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 				<i class="far fa-eye me-1" aria-hidden="true"></i>

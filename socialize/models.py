@@ -9,8 +9,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
 from core.fields import NormalizedEmailField
-from core.models import Institution
-from past_papers.models import PastPaper
+from core.models import City
 
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
@@ -100,16 +99,6 @@ class SocialProfile(models.Model):
 		('undecided', _('Undecided'))
 	]
 
-	# LEVELS = (
-	# 	('N/A', '--------'),  # this comma is required to create a tuple !
-	# ) + PastPaper.LEVELS
-
-	level = models.CharField(
-		_('Level'), 
-		choices=PastPaper.LEVELS, 
-		max_length=5, 
-		default=PastPaper.ORDINARY_LEVEL
-	)
 	about_me = models.TextField(_('A little about me'), blank=True)
 	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
 	profile_image = ThumbnailerImageField(
@@ -130,7 +119,7 @@ class SocialProfile(models.Model):
 	speciality = models.CharField(
 		_('Speciality'),
 		max_length=30,
-		help_text=_("Enter your study department or speciality")
+		help_text=_("Enter your speciality. i.e. what you do or what you're good at."),
 	)
 	user = models.OneToOneField(
 		User,
@@ -146,12 +135,10 @@ class SocialProfile(models.Model):
 		on_delete=models.SET_NULL,
 		null=True, blank=True  
 	)
-	school = models.ForeignKey(
-		Institution,
-		verbose_name=_('School'),
-		on_delete=models.SET_NULL,
-		# school may not be in list of available schools...
-		null=True, blank=True,
+	city = models.ForeignKey(
+		City,
+		verbose_name=_('City of residence'),
+		on_delete=models.RESTRICT,
 		related_name='social_profiles',
 		related_query_name='social_profile'
 	)

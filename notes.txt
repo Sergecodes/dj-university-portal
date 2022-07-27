@@ -1,5 +1,5 @@
-# I either give an order or my point of view. I don't give advices. - Draco
-# Don't get that twisted
+keyword = school
+include_files = requested_items/*,lost_or_found/*,marketplace/*
 
 source /home/sergeman/.virtualenvs/univ-portal-env/bin/activate
 
@@ -14,12 +14,6 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- add country option to social profile filtering
-- change school question to general question(like discussion)(eg. what to do if i'm having bad grades)
-(to verify if general question is a school quetion, check the uptional school field)
-- school should not be compulsory. (update concerned models) 
-(also update corresponding views & templates)
-- add country info in list & detail pages
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
 - change full name validator (frontend nd backend)

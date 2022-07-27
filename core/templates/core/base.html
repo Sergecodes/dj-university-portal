@@ -6,8 +6,7 @@
 {% get_current_language as LANGUAGE_CODE %}
 {% get_available_languages as LANGUAGES %}
 {% get_countries as countries %}
-{% get_default_country as default_country %}
-{% general_country_code as GEN_COUNTRY_CODE %}
+{% get_session_country as session_country %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -586,9 +585,9 @@
 			<div>
 				<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
 					<select class="footer-select js-footer-select--country">
-						{% if default_country %}
-							<option value="{{ default_country.code }}">
-								{{ default_country.name }}
+						{% if session_country %}
+							<option value="{{ session_country.code }}">
+								{{ session_country.name }}
 							</option>
 						{% else %}
 							<option value="---">
@@ -599,8 +598,8 @@
 						{# Display general country code as first option #}
 						<option 
 							value="---" 
-							data-url="{% url 'core:set-session-country' GEN_COUNTRY_CODE %}?next={{ request.path }}"
-							{% if not default_country %} selected {% endif %}
+							data-url="{% url 'core:set-session-country' %}?next={{ request.path }}"
+							{% if not session_country %} selected {% endif %}
 						>
 							{% trans 'No particular country' %}
 						</option>
@@ -612,7 +611,7 @@
 							{% endcomment %}
 							<option 
 								value="{{ country.code }}" 
-								{% if country.code != default_country.code %} 
+								{% if country.code != session_country.code %} 
 								data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
 								{% else %}
 								selected

@@ -37,6 +37,7 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 		photos_list = request.session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
 
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
@@ -106,12 +107,12 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 	template_name = 'requested_items/requested_item_update.html'
 
 	def get_form_kwargs(self, **kwargs):
-		form_kwargs = super().get_form_kwargs(**kwargs)
-		item, user, session = self.object, self.request.user, self.request.session
+		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
+		item, user, session = self.object, request.user, request.session
 
 		# when form is initially displayed, get photos from item
 		# otherwise(after form invalid) get photos from session.
-		if self.request.method == 'GET':
+		if request.method == 'GET':
 			# store photos in session
 			photos_list = [photo.actual_filename for photo in item.photos.all()]
 
@@ -123,6 +124,7 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 			photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
 		
 		form_kwargs['user'] = user
+		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
@@ -210,21 +212,19 @@ class RequestedItemFilter(filters.FilterSet):
 	def qs(self):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
-			return parent_qs.filter(
-				Q(school__isnull=True) | Q(school__country__code=country_code)
-			)
+			return parent_qs.filter(city__country__code=country_code)
 
 		return parent_qs
 
 	class Meta:
 		model = RequestedItem
-		fields = ['school', 'item_requested', 'category', ]
+		fields = ['city', 'item_requested', 'category', ]
 	
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is to enable translation of labels.
 		super().__init__(*args, **kwargs)
-		self.filters['school'].label = _('School')
+		self.filters['city'].label = _('City')
 		self.filters['category'].label = _('Category')
 
 	def filter_item(self, queryset, name, value):
@@ -283,7 +283,7 @@ class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 
 		## similar items
 		similar_items = RequestedItem.objects.prefetch_related('photos').filter(
-			school=requested_item.school,
+			city=requested_item.city,
 			category__name=requested_item.category.name
 		).exclude(id=requested_item.id) \
 		.only('item_requested', 'price_at_hand', 'posted_datetime')[:NUM_ITEMS]

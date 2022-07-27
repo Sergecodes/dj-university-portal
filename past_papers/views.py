@@ -42,9 +42,11 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
-		photos_list = request.session.get(request.user.username + PAST_PAPER_SUFFIX, [])
+		user, session = request.user, request.session
+		photos_list = session.get(user.username + PAST_PAPER_SUFFIX, [])
 		
 		form_kwargs['initial_photos'] = get_photos(photos_list, PAST_PAPERS_PHOTOS_UPLOAD_DIR)
+		form_kwargs['country_or_code'] = session.get('country_code', user.country)
 		return form_kwargs
 
 	def post(self, request, *args, **kwargs):
@@ -170,13 +172,13 @@ class PastPaperFilter(filters.FilterSet):
 
 	class Meta:
 		model = PastPaper
-		fields = ['school', 'subject', 'level', 'title', ]
+		fields = ['country', 'subject', 'level', 'title', ]
 		
 	def __init__(self, *args, **kwargs):
 		# set label for fields,
 		# this is to enable translation of labels.
 		super().__init__(*args, **kwargs)
-		self.filters['school'].label = _('School')
+		self.filters['country'].label = _('Country')
 		self.filters['subject'].label = _('Subject')
 		self.filters['level'].label = _('Level')
 
@@ -184,9 +186,7 @@ class PastPaperFilter(filters.FilterSet):
 	def qs(self):
 		parent_qs = super().qs
 		if country_code := self.request.session.get('country_code'):
-			return parent_qs.filter(
-				Q(school__isnull=True) | Q(school__country__code=country_code)
-			)
+			return parent_qs.filter(country__code=country_code)
 
 		return parent_qs
 

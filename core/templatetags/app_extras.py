@@ -44,20 +44,14 @@ def get_countries():
 	return Country.objects.all()
 
 
-@register.simple_tag
-def general_country_code():
-	return GENERAL_COUNTRY_CODE
-
-
 @register.simple_tag(takes_context=True)
-def get_default_country(context):
-	"""Get default country. """
+def get_session_country(context):
 	country_code = context['request'].session.get('country_code')
 
 	if country_code:
 		return Country.objects.get(code=country_code)
 
-	# No country is in session so use default country_code
+	# No country is in session 
 	return None
 
 

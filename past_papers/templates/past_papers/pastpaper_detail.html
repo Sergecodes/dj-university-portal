@@ -49,10 +49,10 @@
 				</span>
 			{% endif %}
 			{% endwith %}
-			{% if past_paper.school %}
-				{% trans 'for' %}
-				<a href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}" class="text-decoration-none">{{ past_paper.school }}</a>
-			{% endif %}
+			{% trans 'for' %}
+			<a href="{% url 'past_papers:past-paper-list' %}?country={{ past_paper.country_id }}" class="text-decoration-none">
+				{{ past_paper.country }}
+			</a>
 			{% with view_count=past_paper.view_count %}
 			<div>
 				{% trans 'Views' %}:

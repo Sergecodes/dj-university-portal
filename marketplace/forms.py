@@ -10,8 +10,8 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
-from core.models import City
-from core.utils import get_edit_profile_url, PhotoUploadMixin
+from core.models import City, Country
+from core.utils import get_edit_profile_url, PhotoUploadMixin, get_country
 from .models import (
 	ItemListing, AdListing, ItemSubCategory,
 	ItemCategory, ItemListingPhoto, AdListingPhoto
@@ -25,8 +25,10 @@ class ItemListingPhotoForm(forms.ModelForm, PhotoUploadMixin):
 
 
 class ItemListingForm(forms.ModelForm):
-	"""Form used to create a new item listing."""
-	# slug = forms.CharField(required=False)
+	country = forms.ModelChoiceField(
+		queryset=Country.objects.all(),
+		empty_label=None
+	)
 	city = forms.ModelChoiceField(
 		queryset=None, 
 		empty_label=None
@@ -77,19 +79,26 @@ class ItemListingForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		# Do not use kwargs.pop('user', None) due to potential security loophole (the user object must be in the form!)
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
-		update = kwargs.pop('update', False)
+		update, country_or_code = kwargs.pop('update', False), kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
+
+		country = get_country(country_or_code)
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['country'].initial = country.pk
 		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('City & Item Category'),
-				'city',
+				Row(
+					Column('country', css_class='form-group col-md-6 mb-0'),
+					Column('city', css_class='form-group col-md-6 mb-0'),
+					css_class='form-row'
+				),
 				Row(
 					Column('category', css_class='form-group col-md-6 mb-0'),
 					Column('sub_category', css_class='form-group col-md-6 mb-0'),
@@ -170,6 +179,10 @@ class AdListingForm(forms.ModelForm):
 		widget= CKEditorWidget(config_name='listing_description'),
 		help_text=_("Describe your advert. Use a clear and concise format to keep your description lisible.")
 	)
+	country = forms.ModelChoiceField(
+		queryset=Country.objects.all(),
+		empty_label=None
+	)
 	city = forms.ModelChoiceField(
 		queryset=None, # queryset will be set in form init
 		empty_label=None
@@ -193,13 +206,16 @@ class AdListingForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
-		update = kwargs.pop('update', False)
+		update, country_or_code = kwargs.pop('update', False), kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
+
+		country = get_country(country_or_code)
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
+		self.fields['country'].initial = country.pk
 		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		self.fields['category'].empty_label = None
 
@@ -207,8 +223,9 @@ class AdListingForm(forms.ModelForm):
 		self.helper.layout = Layout(
 			Fieldset(_('City & Advert Category'),
 				Row(
+					Column('country', css_class='form-group col-md-6 mb-0'),
 					Column('city', css_class='form-group col-md-6 mb-0'),
-					Column('category', css_class='form-group col-md-6 mb-0'),
+					Column('category', css_class='form-group mb-0'),
 					css_class='form-row'
 				),
 				css_class='mb-2'

@@ -23,7 +23,7 @@
 			<p>
 				{% blocktrans %}
 				Statistics say nearly 3,300 items are lost per year. 
-				Have you found a missing item in your school ? <br>
+				Have you found a missing item in your area ? <br>
 				Publish items you've found here.
 				{% endblocktrans %}
 			</p>
@@ -37,7 +37,7 @@
 				{% with filter.form as form %}
 					<div class="row">
 						<div class="form-group col-md-5">
-							{{ form.school|as_crispy_field }}
+							{{ form.city|as_crispy_field }}
 						</div>
 						<div class="form-group col-md-7">
 							{{ form.item_found|as_crispy_field }}
@@ -70,9 +70,9 @@
 						<div class="mt-2">
 							<a 
 								class="small text-decoration-none" 
-								href="{% url 'lost_or_found:found-item-list' %}?school={{ found_item.school_id }}"
+								href="{% url 'lost_or_found:found-item-list' %}?city={{ found_item.city_id }}"
 							>
-								({{ found_item.school }})
+								({{ found_item.city }})
 							</a>
 							<div class="d-inline ms-3">
 								<span class="text-muted">{% trans 'Published by' %}</span>

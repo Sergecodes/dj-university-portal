@@ -19,6 +19,7 @@ urlpatterns = [
     path(_('search/'), views.search_site, name='site-search'),
     path(_('search/<str:category>/'), views.get_category_search_results, name='category-search'),
     path(_('set-session-country/<str:country_code>/'), views.set_session_country, name='set-session-country'),
+    path(_('set-session-country/'), views.set_session_country, name='set-session-country'),
 	
     ### AJAX VIEWS ###
 	path('ajax/<str:form_for>/upload-photo/', PhotoUploadView.as_view(), name='photo-upload'),

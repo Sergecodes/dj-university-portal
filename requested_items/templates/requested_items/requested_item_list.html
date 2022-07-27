@@ -43,7 +43,7 @@
 				{% with filter.form as form %}
 					<div class="row">
 						<div class="form-group col-sm-6">
-							{{ form.school|as_crispy_field }}
+							{{ form.city|as_crispy_field }}
 						</div>
 						<div class="form-group col-sm-6">
 							{{ form.category|as_crispy_field }}
@@ -88,15 +88,13 @@
 								{% include 'core/google_attribution.html' with object=requested_item %}
 
 								<br class="mb-4">
-								{% if requested_item.school %}
-									<a 
-										class="text-decoration-none" 
-										href="{% url 'requested_items:requested-item-list' %}?school={{ requested_item.school_id }}"
-									>
-										{{ requested_item.school }}
-									</a>
+								<a 
+									class="text-decoration-none" 
+									href="{% url 'requested_items:requested-item-list' %}?city={{ requested_item.city_id }}"
+								>
+									{{ requested_item.city }}
+								</a>
 								<br class="mb-1">
-								{% endif %}
 								<span>
 									{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}
 									{% trans 'by' %}

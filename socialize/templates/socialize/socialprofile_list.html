@@ -60,21 +60,13 @@
 										{{ profile.speciality }}
 									</div>
 									<div>
-										<strong>{% trans 'School' %}:</strong>
-										{% if profile.school_id %}
-											<a href="{% url 'socialize:find-friend' %}?school={{ profile.school_id }}" class="text-decoration-none">
-												{{ profile.school }}
+										<strong>{% trans 'City' %}:</strong>
+										{% if profile.city_id %}
+											<a href="{% url 'socialize:find-friend' %}?city={{ profile.city_id }}" class="text-decoration-none">
+												{{ profile.city }}
 											</a>
 										{% else %}
 											<span>&nbsp; -</span>
-										{% endif %}
-									</div>
-									<div>
-										<strong>{% trans 'Level' %}:</strong>
-										{% if profile.level == 'N/A' %}
-											{% trans 'Confidential' %}
-										{% else %}
-											{{ profile.get_level_display }}
 										{% endif %}
 									</div>
 									<div>

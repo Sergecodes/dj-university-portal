@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 # from easy_thumbnails.widgets import ImageClearableFileInput
 
 from core.forms import PhotoFormLayout
-from core.utils import PhotoUploadMixin
+from core.utils import PhotoUploadMixin, get_country
 from .models import PastPaper, PastPaperPhoto, Comment
 
 
@@ -48,7 +48,7 @@ class PastPaperForm(forms.ModelForm):
 	class Meta:
 		model = PastPaper
 		fields = [
-			'school', 'type', 'level', 'subject', 
+			'country', 'type', 'level', 'subject', 
 			'written_date', 'title', 'file', 
 		]
 		widgets = {
@@ -63,19 +63,21 @@ class PastPaperForm(forms.ModelForm):
 			'title': _('Please include the class and subject name in the title.'),
 			'written_date': _('Optional. When this question paper was written. <br> Just the month and year will suffice, you can enter any day.'),
 			'level': _('The level for which the paper was set.'),
-			'school': _('Select the school. Allow empty if your school is not in the list.'),
 			'subject': _('Select the subject. Allow empty if the subject is not in the list.'),
 		}
 
 	def __init__(self, *args, **kwargs):
 		initial_photos = kwargs.pop('initial_photos', [])
+		country_or_code = kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
 
+		country = get_country(country_or_code)
+		self.fields['country'].initial = country.pk
 		# self.fields['subject'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			'school', 
+			'country', 
 			'type',
 			'level',
 			'subject', 

@@ -37,7 +37,7 @@
 				{% with filter.form as form %}
 					<div class="row">
 						<div class="form-group col-sm-6">
-							{{ form.school|as_crispy_field }}
+							{{ form.city|as_crispy_field }}
 						</div>
 						<div class="form-group col-sm-6">
 							{{ form.category|as_crispy_field }}
@@ -115,12 +115,12 @@
 										<a 
 											title={{ listing.city.country }}
 											class="text-decoration-none" 
-											href="{% url 'marketplace:ad-listing-list' %}?school={{ listing.city_id }}"
+											href="{% url 'marketplace:ad-listing-list' %}?city={{ listing.city_id }}"
 										>
 											{{ listing.city }}
 										</a>
 									{% else %}
-										<span>{% trans 'No particular school' %}</span>
+										<span>{% trans 'No particular city' %}</span>
 									{% endif %}
 									<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
 										<i class="far fa-eye me-1" aria-hidden="true"></i>

@@ -16,7 +16,7 @@ from core.constants import (
 	PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT,
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
 )
-from core.models import Institution
+from core.models import Country
 from core.fields import DynamicStorageFileField
 from core.utils import PhotoModelMixin
 from flagging.models import Flag
@@ -114,6 +114,7 @@ class PastPaper(models.Model):
 	# use lists(mutable) instead of tuples.
 	# so as to enable copying it withoud needing to cast it.
 	# eg. see SocialProfileForm init method
+	# TODO add others
 	LEVELS = [
 		(ORDINARY_LEVEL, 'Ordinary Level'),
 		(ADVANCED_LEVEL, 'Advanced Level'),
@@ -131,6 +132,7 @@ class PastPaper(models.Model):
 	GENERAL = 'GEN'
 	TECHNICAL = 'TECH'
 
+	# TODO add others
 	TYPES = (
 		(COMMERCIAL, _('Commercial')),
 		(GENERAL, _('General')),
@@ -160,16 +162,13 @@ class PastPaper(models.Model):
 		related_query_name='bookmarked_past_paper',
 		blank=True
 	)
-	# should be nullable; in case school isn't registered on our site.
-	school = models.ForeignKey(
-		Institution,
-		verbose_name=_('School'),
-		on_delete=models.SET_NULL,
+	country = models.ForeignKey(
+		Country,
+		verbose_name=_('Country'),
+		on_delete=models.RESTRICT,
 		related_name='past_papers',
 		related_query_name='past_paper',
-		null=True, blank=True
 	)
-	# should be nullable; in case school isn't registered on our site.
 	subject = models.ForeignKey(
 		Subject,
 		verbose_name=_('Subject'),

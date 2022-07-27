@@ -5,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
-from core.models import Institution
-from core.utils import get_edit_profile_url, PhotoUploadMixin
+from core.models import Country, City
+from core.utils import get_edit_profile_url, PhotoUploadMixin, get_country
 from .models import LostItem, LostItemPhoto, FoundItem
 
 
@@ -22,7 +22,11 @@ class LostItemForm(forms.ModelForm):
 		required=True,
 		widget=forms.CheckboxSelectMultiple()
 	)
-	school = forms.ModelChoiceField(
+	country = forms.ModelChoiceField(
+		queryset=Country.objects.all(),
+		empty_label=None
+	)
+	city = forms.ModelChoiceField(
 		queryset=None, 
 		empty_label=None
 	)
@@ -46,19 +50,23 @@ class LostItemForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, initial_photos = kwargs.pop('user'), kwargs.pop('initial_photos', [])
-		update = kwargs.pop('update', False)
+		update, country_or_code = kwargs.pop('update', False), kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
+
+		country = get_country(country_or_code)
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+		self.fields['country'].initial = country.pk
+		self.fields['city'].queryset = City.objects.filter(country=country)
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Lost Item Information'),
-				'school',
+				'country',
+				'city',
 				'item_lost',
 				'item_description',
 				PhotoFormLayout(extra_context={
@@ -106,7 +114,11 @@ class FoundItemForm(forms.ModelForm):
 		required=True,
 		widget=forms.CheckboxSelectMultiple()
 	)
-	school = forms.ModelChoiceField(
+	country = forms.ModelChoiceField(
+		queryset=Country.objects.all(),
+		empty_label=None
+	)
+	city = forms.ModelChoiceField(
 		queryset=None, 
 		empty_label=None
 	)
@@ -134,18 +146,23 @@ class FoundItemForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		user, update = kwargs.pop('user'), kwargs.pop('update', False)
+		country_or_code = kwargs.pop('country_or_code')
 		super().__init__(*args, **kwargs)
+
+		country = get_country(country_or_code)
 
 		# email used for notifications concerning listing is user's email by default.
 		# user may enter another email
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
-		self.fields['school'].queryset = Institution.objects.filter(country=user.country_id)
+		self.fields['country'].initial = country.pk
+		self.fields['city'].queryset = City.objects.filter(country=country)
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Found Item Information'),
-				'school',
+				'country',
+				'city',
 				'item_found',
 				'area_found',
 				'how_found'

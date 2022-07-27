@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
-from core.models import Post, Institution
+from core.models import Post, City
 from core.utils import PhotoModelMixin
 from marketplace.models import ItemCategory
 
@@ -45,17 +45,12 @@ class RequestedItem(Post):
 		default='-',
 		help_text=_('How much are you willing to pay for the item? You may allow this field empty.')
 	)
-	school = models.ForeignKey(
-		Institution,
-		verbose_name=_('School'),
+	city = models.ForeignKey(
+		City,
+		verbose_name=_('City of residence'),
 		on_delete=models.CASCADE,
 		related_name='requested_items',
 		related_query_name='requested_item',
-		null=True, blank=True,
-		help_text=_(
-			'Allow this field empty if you are willing to go to '
-			'another area to buy the item, not in your school.'
-		)
 	)
 	poster = models.ForeignKey(
 		User, 

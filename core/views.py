@@ -17,7 +17,7 @@ from core.constants import (
 	COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT, INITIAL_POINTS, 
 	MAX_ANSWERS_PER_USER_PER_QUESTION, PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
 	PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT, REQUIRED_DOWNVOTE_POINTS, 
-	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, GENERAL_COUNTRY_CODE,
+	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, 
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
 )
@@ -70,8 +70,8 @@ class HomePageView(TemplateView):
 				ads_first_photos.append(None)
 
 		## requested items ##
-		requested_items = RequestedItem.objects.select_related('school').prefetch_related('photos').only(
-			'school', 'item_requested', 'posted_datetime', 'slug'
+		requested_items = RequestedItem.objects.select_related('city').prefetch_related('photos').only(
+			'city', 'item_requested', 'posted_datetime', 'slug'
 		)[:NUM_ITEMS]
 
 		# get first photos of each lost_item..
@@ -83,11 +83,11 @@ class HomePageView(TemplateView):
 				requested_items_first_photos.append(None)
 
 		## lost and found items ##
-		lost_items = LostItem.objects.select_related('school').prefetch_related('photos').only(
-			'school', 'item_lost', 'posted_datetime', 'slug'
+		lost_items = LostItem.objects.select_related('city').prefetch_related('photos').only(
+			'city', 'item_lost', 'posted_datetime', 'slug'
 		)[:NUM_ITEMS]
-		found_items = FoundItem.objects.select_related('school').only(
-			'school', 'item_found', 'posted_datetime', 'slug'
+		found_items = FoundItem.objects.select_related('city').only(
+			'city', 'item_found', 'posted_datetime', 'slug'
 		)[:NUM_ITEMS]
 
 		# get first photos of each lost_item..
@@ -99,8 +99,8 @@ class HomePageView(TemplateView):
 				lost_items_first_photos.append(None)
 
 		## past papers ##
-		past_papers = PastPaper.objects.select_related('subject', 'school').only(
-			'subject', 'school', 'title', 'level', 'posted_datetime', 'slug'
+		past_papers = PastPaper.objects.select_related('subject', 'country').only(
+			'subject', 'country', 'title', 'level', 'posted_datetime', 'slug'
 		)[:NUM_ITEMS]
 		
 		context['academic_questions'] = academic_questions
@@ -278,10 +278,9 @@ def get_category_search_results(request, category):
 	})
 
 
-def set_session_country(request, country_code):
-	# Store user's selected country in session if country isn't
-	# the default country
-	if country_code != GENERAL_COUNTRY_CODE:
+def set_session_country(request, country_code=None):
+	# Store user's selected country in session 
+	if country_code:
 		request.session['country_code'] = country_code
 	else:
 		# pop raises KeyError if key isn't found and no default is specified
