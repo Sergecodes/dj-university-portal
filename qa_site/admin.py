@@ -2,9 +2,8 @@ from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
 from .models import (
-    Subject, AcademicAnswer, 
-    AcademicAnswerComment, AcademicQuestionTag,
-    AcademicQuestion, DiscussQuestion, 
+    Subject, AcademicAnswer, AcademicAnswerComment, 
+    QuestionTag, AcademicQuestion, DiscussQuestion, 
     AcademicQuestionComment, DiscussComment
 )
 
@@ -33,7 +32,7 @@ class DiscussQuestionAdmin(TranslationAdmin):
     pass
 
 
-class AcademicQuestionTagAdmin(TranslationAdmin):
+class QuestionTagAdmin(TranslationAdmin):
     pass
 
 
@@ -53,7 +52,7 @@ class SubjectAdmin(TranslationAdmin):
 
 admin.site.register(Subject, SubjectAdmin)
 admin.site.register(DiscussQuestion, DiscussQuestionAdmin)
-admin.site.register(AcademicQuestionTag, AcademicQuestionTagAdmin)
+admin.site.register(QuestionTag, QuestionTagAdmin)
 admin.site.register(AcademicQuestion, AcademicQuestionAdmin)
 admin.site.register(AcademicAnswer, AcademicAnswerAdmin)
 admin.site.register(AcademicAnswerComment, AcademicAnswerCommentAdmin)

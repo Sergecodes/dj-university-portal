@@ -171,7 +171,7 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		question_tags = question.tags.all()
 		for tag in question_tags:
 			# build queryset of all TaggedItems. 
-			# since our AcademicQuestionTag serves as the through model, 
+			# since our TaggedAcademicQuestion serves as the through model, 
 			# it contains each tag and the object(question) it's linked to
 			# so get union(|) of these querysets
 			related_items |= tag.academic_questions.exclude(content_object=question)
@@ -234,6 +234,7 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/academicquestion_update.html'
 
 	def form_valid(self, form):
+		print("cleaned_data", form.cleaned_data)
 		question = form.save(commit=False)
 		followers = question.followers.all()
 		current_lang = get_language()
@@ -603,7 +604,7 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		question_tags = question.tags.all()
 		for tag in question_tags:
 			# build queryset of all TaggedItems. 
-			# since our DiscussQuestionTag serves as the through model, 
+			# since our TaggedDiscussQuestion serves as the through model, 
 			# it contains each tag and the object(question) it's linked to
 			# so get union(|) of these querysets
 			related_items |= tag.discuss_questions.exclude(content_object=question)

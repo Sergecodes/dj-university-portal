@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from taggit.managers import TaggableManager
 from taggit.models import TagBase, TaggedItemBase
 
 from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
@@ -17,6 +16,7 @@ from core.models import Institution, Comment
 from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
 from users.models import get_dummy_user
+from .managers import TaggableManager
 
 User = get_user_model()
 
@@ -185,7 +185,7 @@ class AcademicAnswer(Answer):
 
 
 ## see django-taggit docs on how to use a Custom tag
-class AcademicQuestionTag(TagBase):
+class QuestionTag(TagBase):
 	# overrode name and slug coz name's maxlength is 100 and slug is 100.
 	# this is bad coz if name is say 100(though almost impossible), slug will be >100 chars.
 	name = models.CharField(_('Name'), unique=True, max_length=50)
@@ -194,8 +194,8 @@ class AcademicQuestionTag(TagBase):
 	last_modified = models.DateTimeField(auto_now=True)
 
 	class Meta:
-		verbose_name = _('Academic Question Tag')
-		verbose_name_plural = _('Academic Question Tags')
+		verbose_name = _('Question Tag')
+		verbose_name_plural = _('Question Tags')
 
 
 class TaggedAcademicQuestion(TaggedItemBase):
@@ -207,7 +207,7 @@ class TaggedAcademicQuestion(TaggedItemBase):
 	)
 	# django-taggit says to use the name `tag`
 	tag = models.ForeignKey(
-		AcademicQuestionTag,
+		QuestionTag,
 		on_delete=models.CASCADE,
 		related_name='academic_questions'
 	)
@@ -368,19 +368,6 @@ class DiscussComment(Comment):
 		verbose_name_plural = _('Discuss Comments')
 
 
-class DiscussQuestionTag(TagBase):
-	"""Used to define the tags for a discussion question."""
-	# Tags include words like  health, wealth, etc...
-	name = models.CharField(_('Name'), unique=True, max_length=50)
-	slug = models.SlugField(unique=True, max_length=100)
-	datetime_added = models.DateTimeField(auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-
-	class Meta:
-		verbose_name = _('Discussion Question Tag')
-		verbose_name_plural = _('Discussion Question Tags')
-
-
 class TaggedDiscussQuestion(TaggedItemBase):
 	# DON'T rename this field !!
 	# django-taggit says to use `content_object` as the name
@@ -390,7 +377,7 @@ class TaggedDiscussQuestion(TaggedItemBase):
 	)
 	# django-taggit says to use the name `tag`
 	tag = models.ForeignKey(
-		DiscussQuestionTag,
+		QuestionTag,
 		on_delete=models.CASCADE,
 		related_name='discuss_questions'
 	)

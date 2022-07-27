@@ -63,6 +63,7 @@ INSTALLED_APPS = [
 	'easy_thumbnails',
 	'storages',
 	'taggit',
+   'taggit_selectize',
 
 	# My apps
 	'core',
@@ -393,10 +394,23 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 # DEFAULT_HOST = 'www'
 
 
-### django-taggit ###
+### django-taggit & taggit_selectize ###
 TAGGIT_CASE_INSENSITIVE = True
-# TAGGIT_TAGS_FROM_STRING = 'core.utils.comma_splitter'
-# TAGGIT_STRING_FROM_TAGS = 'core.utils.comma_joiner'
+# Demanded by taggit_selectize to match functionality of selectize
+TAGGIT_SELECTIZE_THROUGH = 'qa_site.models.QuestionTag'
+TAGGIT_TAGS_FROM_STRING = 'taggit_selectize.utils.parse_tags'
+TAGGIT_STRING_FROM_TAGS = 'taggit_selectize.utils.join_tags'
+TAGGIT_SELECTIZE = {
+   'JS_FILENAMES': (
+		"taggit_selectize/js/selectize.js", 
+		"js/taggit-selectize.extra.js"
+	),
+	'PRELOAD': False,
+	'SELECT_ON_TAB': False,
+	'REMOVE_BUTTON': True,
+	'RESTORE_ON_BACKSPACE': True,
+	'DELIMITER': ' ',
+}
 
 
 ### easy_thumbnails ###

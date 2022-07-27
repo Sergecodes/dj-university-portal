@@ -105,6 +105,15 @@ a.dropdown-item:focus {
     border-bottom-color: #444;
 }
 
+/** taggit_selectize */
+.selectize-input > .item,
+.selectize-input > .item:focus,
+.selectize-input .remove {
+    /* background-color: var(--purple) !important; */
+    background-color: gray !important;
+    border-left: 1px solid #999 !important;
+}
+
 
 /** images on listing (list) pages */
 .post-img {

@@ -125,7 +125,7 @@ ANSWER_SCHOOL_QUESTION_POINTS_CHANGE = +8
 ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE = +10
 # each user can have max 2 answers per question
 MAX_ANSWERS_PER_USER_PER_QUESTION = 2  
-MAX_TAGS_PER_QUESTION = 3
+MAX_TAGS_PER_QUESTION = 5
 MAX_TAGS_PER_DISCUSSION = 5
 
 # set this as minimum points for users.
@@ -145,6 +145,7 @@ THRESHOLD_POINTS = 5
 #  so here, if user has 9 points 
 # (THRESHOLD_POINTS=5 + abs(POST_DOWNVOTE_POINTS_CHANGE)), increment it.
 RESTRICTED_POINTS = THRESHOLD_POINTS + abs(POST_DOWNVOTE_POINTS_CHANGE)
+INVALID_TAG_CHARS = "\"'\|`~!@#$%^&*()}{_+=,<>/?;:"
 
 ## Editing
 # questions with num_answers > this value can't be edited
