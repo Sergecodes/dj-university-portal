@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
-from . import views, ajax_views
+from .views import ajax, views
 
 app_name = 'marketplace'
 
@@ -25,9 +25,9 @@ ad_listing_patterns = [
 ]
 
 ajax_patterns = [
-	path('items/bookmark/', ajax_views.item_bookmark_toggle, name='item-bookmark-toggle'),
-	path('adverts/bookmark/', ajax_views.ad_bookmark_toggle, name='ad-bookmark-toggle'),
-	path('get-item-subcategories/', ajax_views.get_item_sub_categories, name='get-item-subcategories'),
+	path('items/bookmark/', ajax.item_bookmark_toggle, name='item-bookmark-toggle'),
+	path('adverts/bookmark/', ajax.ad_bookmark_toggle, name='ad-bookmark-toggle'),
+	path('get-item-subcategories/', ajax.get_item_sub_categories, name='get-item-subcategories'),
 ]
 
 

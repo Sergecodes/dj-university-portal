@@ -20,12 +20,12 @@ from core.constants import (
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos, should_redirect, translate_text
-from .forms import ItemListingForm, AdListingForm
-from .mixins import (
+from ..forms import ItemListingForm, AdListingForm
+from ..mixins import (
 	can_edit_listing, can_delete_listing, 
 	CanDeleteListingMixin, CanEditListingMixin
 )
-from .models import (
+from ..models import (
 	ItemListing, ItemCategory, 
 	ItemListingPhoto, AdListing, AdListingPhoto
 )

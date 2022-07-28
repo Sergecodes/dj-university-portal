@@ -15,9 +15,9 @@ from functools import reduce
 from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR, LOST_ITEM_SUFFIX
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.utils import get_photos, should_redirect, translate_text
-from .forms import FoundItemForm, LostItemForm
-from .mixins import can_edit_item, can_delete_item, CanEditItemMixin, CanDeleteItemMixin
-from .models import FoundItem, LostItem, LostItemPhoto
+from ..forms import FoundItemForm, LostItemForm
+from ..mixins import can_edit_item, can_delete_item, CanEditItemMixin, CanDeleteItemMixin
+from ..models import FoundItem, LostItem, LostItemPhoto
 
 
 class FoundItemCreate(LoginRequiredMixin, CreateView):

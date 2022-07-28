@@ -2,8 +2,7 @@ from django.urls import path
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import RedirectView
 
-from . import views
-from .ajax_views import PhotoUploadView
+from .views import views, ajax 
 
 app_name = 'core'
 
@@ -22,7 +21,7 @@ urlpatterns = [
     path(_('set-session-country/'), views.set_session_country, name='set-session-country'),
 	
     ### AJAX VIEWS ###
-	path('ajax/<str:form_for>/upload-photo/', PhotoUploadView.as_view(), name='photo-upload'),
-	path('ajax/delete-photo/', PhotoUploadView.as_view(), name='photo-delete'),
+	path('ajax/<str:form_for>/upload-photo/', ajax.PhotoUploadView.as_view(), name='photo-upload'),
+	path('ajax/delete-photo/', ajax.PhotoUploadView.as_view(), name='photo-delete'),
 ]
 

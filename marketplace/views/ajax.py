@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import ItemCategory, ItemListing, AdListing
+from ..models import ItemCategory, ItemListing, AdListing
 
 
 @login_required

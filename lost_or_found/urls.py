@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
-from . import views, ajax_views
+from .views import views, ajax
 
 app_name = 'lost_or_found'
 
@@ -27,12 +27,12 @@ found_items_patterns = [
 ajax_patterns = [
 	path(
 		'lost-items/bookmark/', 
-		ajax_views.lost_item_bookmark_toggle, 
+		ajax.lost_item_bookmark_toggle, 
 		name='lost-item-bookmark-toggle'
 	),
 	path(
 		'found-items/bookmark/', 
-		ajax_views.found_item_bookmark_toggle, 
+		ajax.found_item_bookmark_toggle, 
 		name='found-item-bookmark-toggle'
 	),
 ]
