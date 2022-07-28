@@ -51,7 +51,9 @@
 								{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
 							</span>
 						</a>
-						<span class="small text-muted mx-2">{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}</span>
+						<span class="small text-muted mx-2">
+							{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+						</span>
 						<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
 					</div>
 				{% endfor %}
@@ -84,7 +86,9 @@
 							<span>
 								{# `safe` is used at the end to also remove html entities #}
 								{{ question.content|remove_tags|truncatewords:50|safe }}
+								{% if question.school_id %}
 								<span class="small">({{ question.school }})</span>
+								{% endif %}
 								- <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
 							</span>
 						</a>
@@ -138,7 +142,9 @@
 								<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
 								<br class="mb-1">
 								<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
-								<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+								<span class="text-muted"> 
+									- {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}
+								</span>
 							</div>
 						</div>
 					</li> 
@@ -196,10 +202,14 @@
 								<br class="mb-1">
 							{% endif %}
 							{% if listing.pricing == '-' %}
-								<span>{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+								<span class="text-muted">
+									{% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}
+								</span>
 							{% else %}
 								<span class="fw-bold">{{ listing.pricing }}</span>
-								<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
+								<span class="text-muted">
+									- {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}
+								</span>
 							{% endif %}
 						</div>
 					</div>
@@ -245,16 +255,17 @@
 								{{ requested_item.item_requested|truncatechars:35 }}
 							</a>
 							<br class="mb-3">
-							{% if requested_item.school_id %}
-								<a 
-									class="text-decoration-none " 
-									href="{% url 'requested_items:requested-item-list' %}?school_id={{ requested_item.school_id }}"
-								>
-									{{ requested_item.school }}
-								</a>
-								<br class="mb-1">
-							{% endif %}
-							<span>{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}</span>	
+							<a 
+								class="text-decoration-none" 
+								title={{ requested_item.city.country }}
+								href="{% url 'requested_items:requested-item-list' %}?city_id={{ requested_item.city_id }}"
+							>
+								{{ requested_item.city }}
+							</a>
+							<br class="mb-1">
+							<span class="text-muted">
+								{% trans 'Posted' %} {{ requested_item.posted_datetime|naturaltime }}
+							</span>	
 						</div>
 					</div>
 				</li> 
@@ -301,14 +312,12 @@
 								{{ past_paper.subject }}
 							</a>
 						{% endif %}
-						{% if past_paper.school_id %}
-							<a 
-								class="small text-decoration-none " 
-								href="{% url 'past_papers:past-paper-list' %}?school={{ past_paper.school_id }}"
-							>
-								&nbsp; ({{ past_paper.school }})
-							</a>
-						{% endif %}
+						<a 
+							class="small text-decoration-none " 
+							href="{% url 'past_papers:past-paper-list' %}?country={{ past_paper.country_id }}"
+						>
+							&nbsp; ({{ past_paper.country }})
+						</a>
 						<div class="d-inline ms-3 small">
 							<span class="text-muted">{% trans 'Uploaded' %} </span>
 							<span class="small text-muted">
@@ -363,13 +372,16 @@
 							</a>
 							<br class="mb-3">
 							<a 
-								class="text-decoration-none " 
-								href="{% url 'lost_or_found:lost-item-list' %}?school={{ lost_item.school_id }}"
+								class="text-decoration-none" 
+								title={{ lost_item.city.country }}
+								href="{% url 'lost_or_found:lost-item-list' %}?city={{ lost_item.city_id }}"
 							>
-								{{ lost_item.school }}
+								{{ lost_item.city }}
 							</a>
 							<br class="mb-1">
-							<span>{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}</span>	
+							<span class="text-muted">
+								{% trans 'Published' %} {{ lost_item.posted_datetime|naturaltime }}
+							</span>	
 						</div>
 					</div>
 				</li> 
@@ -401,13 +413,16 @@
 					</a>
 					<div class="mt-2">
 						<a 
-							class="text-decoration-none " 
-							href="{% url 'lost_or_found:found-item-list' %}?school={{ found_item.school_id }}"
+							class="text-decoration-none" 
+							title={{ found_item.city.country }}
+							href="{% url 'lost_or_found:found-item-list' %}?city={{ found_item.city_id }}"
 						>
-							({{ found_item.school }})
+							{{ found_item.city }}
 						</a>
 						<div class="d-inline ms-3">
-							<span class="d-block text-muted small">{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}</span>
+							<span class="d-block text-muted small">
+								{% trans 'Published' %} {{ found_item.posted_datetime|naturaltime }}
+							</span>
 						</div>
 					</div>
 				</li> 

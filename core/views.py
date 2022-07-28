@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.http import HttpResponseServerError
 from django.http.response import Http404
 from django.shortcuts import render, redirect
@@ -37,26 +37,49 @@ class HomePageView(TemplateView):
 	template_name = "core/index.html"
 
 	def get_context_data(self, **kwargs):
-		NUM_QUESTIONS, NUM_ITEMS = 3, 6
-		context = super().get_context_data(**kwargs)
+		NUM_QUESTIONS, NUM_ITEMS = 5, 6
+		context, request = super().get_context_data(**kwargs), self.request
+		country_code = request.session.get('country_code')
 
 		## questions ##
-		academic_questions = AcademicQuestion.objects.prefetch_related(
-			Prefetch('answers', queryset=AcademicAnswer.objects.only('id'))
-		).defer('content')[:NUM_QUESTIONS]
-		discuss_questions = DiscussQuestion.objects.select_related('school').prefetch_related(
-			Prefetch('comments', queryset=DiscussComment.objects.only('id'))
-		)[:NUM_QUESTIONS]
+		academic_questions = AcademicQuestion.objects \
+			.prefetch_related(
+				Prefetch(
+					'answers', 
+					queryset=AcademicAnswer.objects.only('id')
+				)
+			)[:NUM_QUESTIONS]
+		discuss_questions = DiscussQuestion.objects \
+			.select_related('school') \
+			.prefetch_related(
+				Prefetch('comments', queryset=DiscussComment.objects.only('id'))
+			)
+
+		if country_code:
+			discuss_questions = discuss_questions.filter(
+				Q(school__isnull=True) | Q(school__country__code=country_code)
+			)
+		discuss_questions = discuss_questions[:NUM_QUESTIONS]
 
 		## marketplace(items / adverts) ##
 		# since city has been "select_related", it must be among the fields in only()
 		# ie it should not be deferred
-		item_listings = ItemListing.objects.select_related('city').prefetch_related(
-			'photos'
-		).defer('description', 'condition_description', 'original_language')[:NUM_ITEMS]
-		ad_listings = AdListing.objects.select_related('city').prefetch_related(
-			'photos'
-		)[:NUM_ITEMS]
+		item_listings = ItemListing.objects \
+			.select_related('city__country') \
+			.prefetch_related('photos') \
+			.defer('description', 'condition_description', 'original_language')
+		ad_listings = AdListing.objects \
+			.select_related('city__country') \
+			.prefetch_related('photos')
+
+		if country_code:
+			item_listings = item_listings.filter(city__country__code=country_code)
+			ad_listings = ad_listings.filter(
+				Q(city__isnull=True) | Q(city__country__code=country_code)
+			)
+
+		item_listings = item_listings[:NUM_ITEMS]
+		ad_listings = ad_listings[:NUM_ITEMS]
 
 		# get first photo of each listing
 		items_first_photos, ads_first_photos = [], []
@@ -70,9 +93,15 @@ class HomePageView(TemplateView):
 				ads_first_photos.append(None)
 
 		## requested items ##
-		requested_items = RequestedItem.objects.select_related('city').prefetch_related('photos').only(
-			'city', 'item_requested', 'posted_datetime', 'slug'
-		)[:NUM_ITEMS]
+		requested_items = RequestedItem.objects \
+			.select_related('city__country') \
+			.prefetch_related('photos') \
+			.only('city', 'item_requested', 'posted_datetime', 'slug')
+
+		if country_code:
+			requested_items = requested_items.filter(city__country__code=country_code)
+
+		requested_items = requested_items[:NUM_ITEMS]
 
 		# get first photos of each lost_item..
 		requested_items_first_photos = []
@@ -83,12 +112,20 @@ class HomePageView(TemplateView):
 				requested_items_first_photos.append(None)
 
 		## lost and found items ##
-		lost_items = LostItem.objects.select_related('city').prefetch_related('photos').only(
-			'city', 'item_lost', 'posted_datetime', 'slug'
-		)[:NUM_ITEMS]
-		found_items = FoundItem.objects.select_related('city').only(
-			'city', 'item_found', 'posted_datetime', 'slug'
-		)[:NUM_ITEMS]
+		lost_items = LostItem.objects \
+			.select_related('city__country') \
+			.prefetch_related('photos') \
+			.only('city', 'item_lost', 'posted_datetime', 'slug')
+		found_items = FoundItem.objects \
+			.select_related('city__country') \
+			.only('city', 'item_found', 'posted_datetime', 'slug')
+
+		if country_code:
+			lost_items = lost_items.filter(city__country__code=country_code)
+			found_items = found_items.filter(city__country__code=country_code)
+
+		lost_items = lost_items[:NUM_ITEMS]
+		found_items = found_items[:NUM_ITEMS]
 
 		# get first photos of each lost_item..
 		lost_items_first_photos = []
@@ -99,9 +136,9 @@ class HomePageView(TemplateView):
 				lost_items_first_photos.append(None)
 
 		## past papers ##
-		past_papers = PastPaper.objects.select_related('subject', 'country').only(
-			'subject', 'country', 'title', 'level', 'posted_datetime', 'slug'
-		)[:NUM_ITEMS]
+		past_papers = PastPaper.objects \
+			.select_related('subject', 'country') \
+			.only('subject', 'country', 'title', 'level', 'posted_datetime', 'slug')[:NUM_ITEMS]
 		
 		context['academic_questions'] = academic_questions
 		context['discuss_questions'] = discuss_questions

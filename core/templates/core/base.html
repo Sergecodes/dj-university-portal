@@ -617,7 +617,7 @@
 								selected
 								{% endif %}
 							>
-								{{ country.name }}
+								{{ country }}
 							</option>
 						{% endfor %}
 					</select>
@@ -627,7 +627,7 @@
 					data-bs-toggle="tooltip" 
 					data-bs-placement="right" 
 					title="{% blocktrans %} 
-					For the academic questions, past papers and projects sections, all posts will be displayed.
+					For the academic questions and projects sections, all posts will be displayed.
 					{% endblocktrans %}"
 				>
 					<i class="fas fa-info-circle"></i>
@@ -673,6 +673,23 @@
 	
 	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
 	<!-- <script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script> -->
+	<script>
+		/* load selectize files if no other instance is present */
+		if (typeof Selectize === 'undefined') {
+			var head = document.getElementsByTagName('head')[0];
+			var js = document.createElement("script"), css = document.createElement("link");
+			
+			js.type = "text/javascript";
+			// https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.6/js/standalone/selectize.min.js 
+			js.src = "{% static 'js/selectize.min.js' %}";
+			head.appendChild(js);
+
+			css.rel = "stylesheet";
+			// https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.6/css/selectize.bootstrap5.min.css
+			css.href = "{% static 'css/selectize.bootstrap5.min.css' %}";
+			head.appendChild(css);
+		}
+	</script>
 	{% block extra_js %}
 	{% endblock %}
 </body>
