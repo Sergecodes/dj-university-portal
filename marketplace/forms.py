@@ -46,7 +46,7 @@ class ItemListingForm(forms.ModelForm):
 	# initially, it should contain the sub categories of the current(initial) selected parent category
 	# also some user's listings might not have sub categories
 	sub_category = forms.ModelChoiceField(
-		required=False,
+		empty_label=None,
 		queryset=ItemSubCategory.objects.none(),
 		widget=forms.Select(attrs={'class': 'js-subcategory'})
 	)
@@ -93,7 +93,7 @@ class ItemListingForm(forms.ModelForm):
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('City & Item Category'),
+			Fieldset(_('Area & Item Category'),
 				Row(
 					Column('country', css_class='form-group col-md-6 mb-0'),
 					Column('city', css_class='form-group col-md-6 mb-0'),
@@ -221,7 +221,7 @@ class AdListingForm(forms.ModelForm):
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			Fieldset(_('City & Advert Category'),
+			Fieldset(_('Area & Advert Category'),
 				Row(
 					Column('country', css_class='form-group col-md-6 mb-0'),
 					Column('city', css_class='form-group col-md-6 mb-0'),

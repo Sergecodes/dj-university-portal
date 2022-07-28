@@ -106,9 +106,9 @@ a.dropdown-item:focus {
 }
 
 /** taggit_selectize */
-.selectize-input > .item,
-.selectize-input > .item:focus,
-.selectize-input .remove {
+#div_id_tags .item,
+#div_id_tags .item:focus,
+#div_id_tags .remove {
     /* background-color: var(--purple) !important; */
     background-color: gray !important;
     border-left: 1px solid #999 !important;

@@ -66,6 +66,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 
 		# Validate that sub category belongs to category
 		sub_category_pk = request.POST.get('sub_category', None)
+		print("sub_category_pk", sub_category_pk)
 		if sub_category_pk:
 			category_pk = request.POST.get('category', None)  
 			category = get_object_or_404(ItemCategory, pk=category_pk)

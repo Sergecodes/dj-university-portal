@@ -364,11 +364,6 @@ function insertItemSubCategories(e) {
 				var option = "<option value=" + item.id + ">" + item.name + "</option>";
 				$subCategoryMenu.append(option);
 			});
-			$subCategoryMenu.prepend(" \
-				<option value='' selected> \
-					--------- \
-				</option>"
-			);
 		}
 	});
 }
