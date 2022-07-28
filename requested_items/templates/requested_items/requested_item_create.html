@@ -19,9 +19,7 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5 requested-item-form-container">
 	<form name="requested-item-form" class="shadow requested-item-form" method="post">
-		{% csrf_token %}
 		<h2 class="text-center mb-4 text-success">{% trans 'Request an Item' %}</h2>
-		
 		{% crispy form %}
 	</form>
 </div>
