@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_email
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F
 from django.utils import timezone
 from django.utils.translation import get_language, gettext_lazy as _
@@ -227,9 +227,11 @@ class User(AbstractUser):
 		"""Remove all flags from a post"""
 		if self.is_mod:
 			flag = Flag.objects.get_flag(post)
-			# don't use bulk_delete so that signals are triggered
-			for flag_instance in flag.flags():
-				flag_instance.delete()
+
+			with transaction.atomic():
+				# don't use bulk_delete so that signals are triggered
+				for flag_instance in flag.flags():
+					flag_instance.delete()
 
 			return True
 			
@@ -243,7 +245,7 @@ class User(AbstractUser):
 	## QA_SITE APP
 	def add_answer(self, question, new_answer, question_type):
 		"""Add answer to question."""
-		# question_type can be 'academic' or 'school-based'
+		# question_type can be 'academic' or 'discuss'
 		# note that answer hasn't yet been saved, it's just an Answer() instance.
 		# this must be the case coz the answer doesn't yet have a question.
 
@@ -274,20 +276,22 @@ class User(AbstractUser):
 			translated_content = translate_text(new_answer.content, trans_lang)['translatedText']
 			setattr(new_answer, f'content_{trans_lang}', translated_content)
 
-		new_answer.poster = self
-		new_answer.question = question
-		new_answer.original_language = current_lang
-		new_answer.save()
+		with transaction.atomic():
+			new_answer.poster = self
+			new_answer.question = question
+			new_answer.original_language = current_lang
+			new_answer.save()
 
-		# update user's number of points if answerer is not question poster
-		if question_poster != self:
-			if question_type == 'school-based':
-				self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
-			elif question_type == 'academic':
-				self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
-			else:
-				raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'school-based' not '{question_type}'.")
-			self.save(update_fields=['site_points'])
+			# update user's number of points if answerer is not question poster
+			if question_poster != self:
+				if question_type == 'discuss':
+					self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
+				elif question_type == 'academic':
+					self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
+				else:
+					raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'discuss' not '{question_type}'.")
+				
+				self.save(update_fields=['site_points'])
 
 		# notify question owner and users that are following this question
 		notify.send(
@@ -310,7 +314,7 @@ class User(AbstractUser):
 
 	def add_question_comment(self, question, new_comment):
 		"""Add comment to question."""
-		# question_type can be 'academic' or 'school-based'
+		# question_type can be 'academic' or 'discuss'
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
 		new_comment.poster = self
@@ -362,8 +366,7 @@ class User(AbstractUser):
 			category=Notification.ACTIVITY
 		)
 		
-		question_followers = question.followers.all()
-		for follower in question_followers:
+		for follower in question.followers.all():
 			notify.send(
 				sender=self, 
 				recipient=follower, 
@@ -397,21 +400,23 @@ class User(AbstractUser):
 				_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 			)
 
-		# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
-		owner_points = question_owner.site_points
-		if owner_points == RESTRICTED_POINTS:
-			owner_points = RESTRICTED_POINTS + 1
-			# first update database so as to flawlessly leverage F expressions
+		with transaction.atomic():
+			# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
+			owner_points = question_owner.site_points
+			if owner_points == RESTRICTED_POINTS:
+				owner_points = RESTRICTED_POINTS + 1
+				# first update database so as to flawlessly leverage F expressions
+				question_owner.save(update_fields=['site_points'])
+
+			# penalise question owner for downvote
+			new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+			if new_points < THRESHOLD_POINTS:
+				new_points = THRESHOLD_POINTS
+
+			question_owner.site_points = new_points
 			question_owner.save(update_fields=['site_points'])
+			question.downvoters.add(self)
 
-		# penalise question owner for downvote
-		new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
-		if new_points < THRESHOLD_POINTS:
-			new_points = THRESHOLD_POINTS
-
-		question_owner.site_points = new_points
-		question_owner.save(update_fields=['site_points'])
-		question.downvoters.add(self)
 		return (True, question.downvote_count) if output else (True, '')
 
 	def downvote_answer(self, answer, output=False, for_html=False):
@@ -439,21 +444,23 @@ class User(AbstractUser):
 					_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
 				)
 
-		# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
-		owner_points = answer_owner.site_points
-		if owner_points == RESTRICTED_POINTS:
-			owner_points = RESTRICTED_POINTS + 1
-			# first update database so as to flawlessly leverage F expressions
+		with transaction.atomic():
+			# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
+			owner_points = answer_owner.site_points
+			if owner_points == RESTRICTED_POINTS:
+				owner_points = RESTRICTED_POINTS + 1
+				# first update database so as to flawlessly leverage F expressions
+				answer_owner.save(update_fields=['site_points'])
+
+			# penalise question owner for downvote
+			new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+			if new_points < THRESHOLD_POINTS:
+				new_points = THRESHOLD_POINTS
+
+			answer_owner.site_points = new_points
 			answer_owner.save(update_fields=['site_points'])
+			answer.downvoters.add(self)
 
-		# penalise question owner for downvote
-		new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
-		if new_points < THRESHOLD_POINTS:
-			new_points = THRESHOLD_POINTS
-
-		answer_owner.site_points = new_points
-		answer_owner.save(update_fields=['site_points'])
-		answer.downvoters.add(self)
 		return (True, answer.downvote_count) if output else (True, '')
 
 	# Verify if user can edit or delete posts ##

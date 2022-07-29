@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
-from . import views, ajax_views
+from .views import views, ajax
 
 app_name = 'qa_site'
 
@@ -122,12 +122,12 @@ discuss_comment_patterns = [
 ]
 
 ajax_patterns = [
-	path('academic-thread/vote/', ajax_views.vote_academic_thread, name='academic-thread-vote'),
-	path('discuss-thread/vote/', ajax_views.vote_discuss_thread, name='discuss-thread-vote'),
-	path('discuss-question/bookmark/', ajax_views.discuss_question_bookmark_toggle, name='discuss-bookmark-toggle'),
-	path('academic-question/bookmark/', ajax_views.academic_question_bookmark_toggle, name='academic-bookmark-toggle'),
-	path('academic-question/follow/', ajax_views.academic_question_follow_toggle, name='academic-follow-toggle'),
-	path('discuss-question/follow/', ajax_views.discuss_question_follow_toggle, name='discuss-follow-toggle'),
+	path('academic-thread/vote/', ajax.vote_academic_thread, name='academic-thread-vote'),
+	path('discuss-thread/vote/', ajax.vote_discuss_thread, name='discuss-thread-vote'),
+	path('discuss-question/bookmark/', ajax.discuss_question_bookmark_toggle, name='discuss-bookmark-toggle'),
+	path('academic-question/bookmark/', ajax.academic_question_bookmark_toggle, name='academic-bookmark-toggle'),
+	path('academic-question/follow/', ajax.academic_question_follow_toggle, name='academic-follow-toggle'),
+	path('discuss-question/follow/', ajax.discuss_question_follow_toggle, name='discuss-follow-toggle'),
 ]
 
 

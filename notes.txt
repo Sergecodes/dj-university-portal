@@ -65,10 +65,6 @@ on listing pages, enable ordering (by date too..)
 (to implement this, we can delete the previous post then create the new post...)
 (or redirect user to update page then add a field last_reposted_on ... idk)
 - num of characters limit control, ckeditor, comments, questions, etc..
-- don't show all comments of a post(question or answer) initially. 
-create a button `View comments(12)` that upon clicking, will display the comments of the post. 
-then change to hide comments..which upon clicking again hides the comments. 
-this can surely be done using bootstrap; see example in past papers list view, levels.
 - remove duration from listings for now right... perhaps implement in future. yep.
 - you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_or_found models.)
 - insert anchor links on each answer in question detail view so user(owner ?) can easily go to a given answer.

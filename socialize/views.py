@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -79,7 +80,6 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 		social_media_form = SocialMediaFollowForm(request.POST)
 		
 		if social_profile_form.is_valid() and social_media_form.is_valid():
-			social_media = social_media_form.save()
 			social_profile = social_profile_form.save(commit=False)
 			current_lang = get_language()
 
@@ -102,10 +102,13 @@ class SocialProfileCreate(LoginRequiredMixin, View):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(social_profile, trans_field, result_dict['translatedText'])
 
-			social_profile.user = request.user
-			social_profile.social_media = social_media
-			social_profile.original_language = current_lang
-			social_profile.save()
+			with transaction.atomic():
+				social_media = social_media_form.save()
+				
+				social_profile.user = request.user
+				social_profile.social_media = social_media
+				social_profile.original_language = current_lang
+				social_profile.save()
 			
 			if next_url := request.GET.get('next'):
 				return redirect(next_url)
@@ -159,7 +162,7 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 
 		# if username is user's but he doesn't have a social profile
 		if not user.has_social_profile():
-			return _("You don't have a social profile ")
+			return _("You don't have a social profile")
 			
 		return super().get_permission_denied_message()
 

@@ -4,6 +4,7 @@ from django_filters.views import FilterView
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -43,8 +44,7 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user
-		self.object = form.save(commit=False)
-		requested_item = self.object
+		requested_item = self.object = form.save(commit=False)
 		current_lang = get_language()
 
 		## TRANSLATION
@@ -74,23 +74,22 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				requested_item.item_requested_en = slugify(requested_item.item_requested_en)
 
-		requested_item.poster = user
-		requested_item.original_language = current_lang
-		requested_item.save()
-		
-		# add phone numbers (phone_numbers is a queryset)
-		phone_numbers = form.cleaned_data['contact_numbers']
-		for phone_number in phone_numbers:
-			requested_item.contact_numbers.add(phone_number)
+		with transaction.atomic():
+			requested_item.poster = user
+			requested_item.original_language = current_lang
+			requested_item.save()
+			requested_item.contact_numbers.add(*form.cleaned_data['contact_numbers'])
 
-		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, []) 
-		for photo_name in photos_list:
-			photo = RequestedItemPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
-			# bulk=False saves the photo instance before adding
-			requested_item.photos.add(photo, bulk=False)  
+			# create photo instances pointing to the pre-uploaded photos.
+			photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, []) 
+			item_photos = []
+			for photo_name in photos_list:
+				photo = RequestedItemPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
+				item_photos.append(photo)
+			
+			requested_item.photos.add(*item_photos, bulk=False)
 
 		# remove photos list from session 
 		# pop() default is empty list since photos are optional
@@ -163,34 +162,21 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(requested_item, trans_field, result_dict['translatedText'])
 
-		requested_item.update_language = current_lang	
-		requested_item.save()
-		
-		## add phone numbers to requested_item(phone_numbers is a queryset)
-		# first clear all requested_item's phone numbers
-		requested_item.contact_numbers.clear()
+		with transaction.atomic():
+			requested_item.update_language = current_lang	
+			requested_item.save()
+			requested_item.contact_numbers.set(form.cleaned_data['contact_numbers'], clear=True)
 
-		phone_numbers = form.cleaned_data['contact_numbers']
-		requested_item.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+			# Update photos
+			photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
+			item_photos = []
+			for photo_name in photos_list:
+				photo = RequestedItemPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
+				item_photos.append(photo)
 
-		## Reconstruct photos
-		photos_list = session.get(user.username + REQUESTED_ITEM_SUFFIX, [])
-
-		# first clear all photos of instance
-		requested_item.photos.clear()
-
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo = RequestedItemPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
-			# bulk=False saves the photo instance before adding
-			# since photo already has file, no file will be created, just the model instance
-			# note that this also implicitly does `photo.requested_item = requested_item`
-			requested_item.photos.add(photo, bulk=False)  
+			requested_item.photos.set(item_photos, bulk=False, clear=True)
 
 		# remove photos list from session 
 		session.pop(user.username + REQUESTED_ITEM_SUFFIX, [])
@@ -277,16 +263,15 @@ class RequestedItemDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		
 	def get_context_data(self, **kwargs):
 		NUM_ITEMS = 4
-		user = self.request.user
+		user, requested_item = self.request.user, self.object
 		context = super().get_context_data(**kwargs)
-		requested_item = self.object
 
 		## similar items
-		similar_items = RequestedItem.objects.prefetch_related('photos').filter(
-			city=requested_item.city,
-			category__name=requested_item.category.name
-		).exclude(id=requested_item.id) \
-		.only('item_requested', 'price_at_hand', 'posted_datetime')[:NUM_ITEMS]
+		similar_items = RequestedItem.objects \
+			.prefetch_related('photos') \
+			.filter(city=requested_item.city, category__name=requested_item.category.name) \
+			.exclude(id=requested_item.id) \
+			.only('item_requested', 'price_at_hand', 'posted_datetime')[:NUM_ITEMS]
 
 		# get first photos of each similar item
 		first_photos = []

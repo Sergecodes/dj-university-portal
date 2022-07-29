@@ -336,11 +336,44 @@ function itemListingFormSubmit(e) {
 }
 
 /** 
+ * Called when user selects another country in the country select menu
+ * Also used to fill the city options for the selected country
+ */
+function insertCities(e) {
+	// use this to get value instead of this.value or $(this).val() because 
+	// this.value will only work when the select is changed; 
+	// but we also want to call this method when the document loads.
+	var countryId = parseInt($('.js-country').first().val(), 10);
+
+	// get the select menu containing city options
+	var $cityMenu = $('.js-city');
+
+	$.ajax({
+		url: e.data.url,
+		data: {
+			'country_id': countryId
+		},
+		dataType: 'json',  // data type of the result(response)
+		success: function (result) {
+			var cities = result['cities'];
+			$cityMenu.empty();
+
+			$.each(cities, function (index, item) {
+				var option = "<option value=" + item.id + ">" + item.name + "</option>";
+				$cityMenu.append(option);
+			});
+		}
+	});
+}
+
+/** 
  * Called when user selects another category in the listing category select menu
- * Also used to fill the sub category options for the default(initial) category
+ * Also used to fill the sub category options for the selected category
  */
 function insertItemSubCategories(e) {
-	// use this to get value instead of this.value or $(this).val() because this.value will only work when the select is changed; but we also want to call this method when the document loads.
+	// use this to get value instead of this.value or $(this).val() 
+	// because this.value will only work when the select is changed; 
+	// but we also want to call this method when the document loads.
 	var categoryId = parseInt($('.js-category').first().val(), 10);
 
 	// get the select menu containing sub category options

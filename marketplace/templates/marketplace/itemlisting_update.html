@@ -27,7 +27,6 @@
 </div>
 {% endblock content %}
 
-
 {% block extra_js %}
 <script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
@@ -53,20 +52,35 @@
 	$condition.on('change', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
 	$condition.on('change', {}, onConditionChange);
 
-	// todo fill sub category options with initial value of category
+	// Fill sub category options with initial value of category
 	$(window).on(
 		'load', 
-		// pass url to js instead of hardcoding
-		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		{ url: "{% url 'marketplace:get-item-subcategories' %}" }, 
 		insertItemSubCategories
+	);
+
+	// Fill cities options with initial value of city
+	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
+	$window.on(
+		'load',
+		{ url: getCitiesUrl },
+		insertCities
 	);
 
 	// attach change event listener to item category(main category)
 	var $category = $('.js-category');
 	$category.on(
 		'change', 
-		{url: "{% url 'marketplace:get-item-subcategories' %}"}, 
+		{ url: "{% url 'marketplace:get-item-subcategories' %}" }, 
 		insertItemSubCategories
+	);
+
+	// attach change event listener to country
+	var $country = $('.js-country');
+	$country.on(
+		'change',
+		{ url: getCitiesUrl },
+		insertCities
 	);
 
 	// attach submit event listener to form

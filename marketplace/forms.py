@@ -27,11 +27,13 @@ class ItemListingPhotoForm(forms.ModelForm, PhotoUploadMixin):
 class ItemListingForm(forms.ModelForm):
 	country = forms.ModelChoiceField(
 		queryset=Country.objects.all(),
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-country' })
 	)
 	city = forms.ModelChoiceField(
-		queryset=None, 
-		empty_label=None
+		queryset=City.objects.none(), 
+		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-city' })
 	)
 	description = forms.CharField(
 		widget= CKEditorWidget(config_name='listing_description'),
@@ -41,7 +43,7 @@ class ItemListingForm(forms.ModelForm):
 		queryset=ItemCategory.objects.all(), 
 		empty_label=None,
 		# this class will be used in js script
-		widget=forms.Select(attrs={'class': 'js-category'})  
+		widget=forms.Select(attrs={ 'class': 'js-category' })  
 	)
 	# initially, it should contain the sub categories of the current(initial) selected parent category
 	# also some user's listings might not have sub categories
@@ -89,7 +91,6 @@ class ItemListingForm(forms.ModelForm):
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['country'].initial = country.pk
-		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
@@ -184,7 +185,7 @@ class AdListingForm(forms.ModelForm):
 		empty_label=None
 	)
 	city = forms.ModelChoiceField(
-		queryset=None, # queryset will be set in form init
+		queryset=City.objects.none(), 
 		empty_label=None
 	)
 	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
@@ -216,7 +217,6 @@ class AdListingForm(forms.ModelForm):
 		self.fields['contact_email'].initial = user.email
 		self.fields['contact_numbers'].queryset = user.phone_numbers.all()
 		self.fields['country'].initial = country.pk
-		self.fields['city'].queryset = City.objects.filter(country=user.country_id)
 		self.fields['category'].empty_label = None
 
 		self.helper = FormHelper()

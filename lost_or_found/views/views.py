@@ -3,6 +3,7 @@ import os
 from django_filters.views import FilterView
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -82,14 +83,13 @@ class FoundItemCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				found_item.slug_en = slugify(found_item.item_found_en)
 
-		found_item.poster = self.request.user
-		found_item.original_language = current_lang
-		found_item.save()
-		
-		# add phone numbers (phone_numbers is a queryset)
-		phone_numbers = form.cleaned_data['contact_numbers']
-		for phone_number in phone_numbers:
-			found_item.contact_numbers.add(phone_number)
+		with transaction.atomic():
+			found_item.poster = self.request.user
+			found_item.original_language = current_lang
+			found_item.save()
+			
+			# add phone numbers (contact_numbers is a queryset)
+			found_item.contact_numbers.add(*form.cleaned_data['contact_numbers'])
 
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
@@ -217,17 +217,13 @@ class FoundItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(found_item, trans_field, result_dict['translatedText'])
 
-		found_item.update_language = current_lang
-		found_item.save()
-		
-		## add phone numbers to found_item(phone_numbers is a queryset)
-		# first clear all found_item's phone numbers
-		found_item.contact_numbers.clear()
+		with transaction.atomic():
+			found_item.update_language = current_lang
+			found_item.save()
+			
+			# Update contact numbers to found_item
+			found_item.contact_numbers.set(form.cleaned_data['contact_numbers'], clear=True)
 
-		phone_numbers = form.cleaned_data['contact_numbers']
-		found_item.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
 		# Don't call the super() method here - you will end up saving the form twice. 
 		# Instead handle the redirect yourself.
 		return redirect(found_item)
@@ -290,23 +286,25 @@ class LostItemCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				lost_item.slug_en = slugify(lost_item.item_lost_en)
 
-		lost_item.poster = user
-		lost_item.original_language = current_lang
-		lost_item.save()
-		
-		# add phone numbers (phone_numbers is a queryset)
-		phone_numbers = form.cleaned_data['contact_numbers']
-		for phone_number in phone_numbers:
-			lost_item.contact_numbers.add(phone_number)
+		with transaction.atomic():
+			lost_item.poster = user
+			lost_item.original_language = current_lang
+			lost_item.save()
+			
+			# Add contact numbers 
+			lost_item.contact_numbers.add(*form.cleaned_data['contact_numbers'])
 
-		## create photo instances pointing to the pre-created photos.
-		# remember photos are optional
-		photos_list = session.get(username + LOST_ITEM_SUFFIX, []) 
-		for photo_name in photos_list:
-			photo = LostItemPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(LOST_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
-			lost_item.photos.add(photo, bulk=False)  # bulk=False saves the photo instance before adding
+			## create photo instances pointing to the pre-created photos.
+			# remember photos are optional
+			photos_list = session.get(username + LOST_ITEM_SUFFIX, []) 
+			item_photos = []
+			for photo_name in photos_list:
+				photo = LostItemPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(LOST_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
+				item_photos.append(photo)
+
+			lost_item.photos.add(*item_photos, bulk=False)
 
 		# remove photos list from session 
 		# pop() default is empty list since photos are optional
@@ -456,34 +454,23 @@ class LostItemUpdate(GetObjectMixin, CanEditItemMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(lost_item, trans_field, result_dict['translatedText'])
 
-		lost_item.update_language = current_lang	
-		lost_item.save()
-		
-		## add phone numbers to lost_item(phone_numbers is a queryset)
-		# first clear all lost_item's phone numbers
-		lost_item.contact_numbers.clear()
+		with transaction.atomic():
+			lost_item.update_language = current_lang	
+			lost_item.save()
+			
+			# Update contact numbers
+			lost_item.contact_numbers.set(form.cleaned_data['contact_numbers'], clear=True)
 
-		phone_numbers = form.cleaned_data['contact_numbers']
-		lost_item.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+			# Update photos
+			photos_list = session.get(user.username + LOST_ITEM_SUFFIX, [])
+			item_photos = []
+			for photo_name in photos_list:
+				photo = LostItemPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(LOST_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
+				item_photos.append(photo)
 
-		## reconstruct photos
-		photos_list = session.get(user.username + LOST_ITEM_SUFFIX, [])
-
-		# first clear all photos of instance
-		lost_item.photos.clear()
-
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo = LostItemPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(LOST_ITEMS_PHOTOS_UPLOAD_DIR, photo_name)
-			# bulk=False saves the photo instance before adding
-			# since photo already has file, no file will be created, just the model instance
-			# note that this also implicitly does `photo.lost_item = lost_item`
-			lost_item.photos.add(photo, bulk=False)  
+			lost_item.photos.set(item_photos, bulk=False, clear=True)
 
 		# remove photos list from session 
 		session.pop(user.username + LOST_ITEM_SUFFIX, [])

@@ -13,7 +13,7 @@ from core.constants import (
 )
 from notifications.models import Notification
 from notifications.signals import notify
-from .models import (
+from ..models import (
 	DiscussQuestion, AcademicQuestion, AcademicAnswer,
 	DiscussComment, AcademicQuestionComment, AcademicAnswerComment
 )

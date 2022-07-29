@@ -60,9 +60,16 @@
 	var getSubCategoriesUrl = "{% url 'marketplace:get-item-subcategories' %}";
 	$window.on(
 		'load', 
-		// pass url to js instead of hardcoding
 		{ url: getSubCategoriesUrl }, 
 		insertItemSubCategories
+	);
+
+	// Fill cities options with initial value of city
+	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
+	$window.on(
+		'load',
+		{ url: getCitiesUrl },
+		insertCities
 	);
 
 	// attach change event listener to item category(main category)
@@ -71,6 +78,14 @@
 		'change', 
 		{ url: getSubCategoriesUrl }, 
 		insertItemSubCategories
+	);
+
+	// attach change event listener to country
+	var $country = $('.js-country');
+	$country.on(
+		'change',
+		{ url: getCitiesUrl },
+		insertCities
 	);
 
 	// attach submit event listener to form

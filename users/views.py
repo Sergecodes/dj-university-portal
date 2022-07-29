@@ -9,6 +9,7 @@ from django.contrib.auth.views import (
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
@@ -66,6 +67,7 @@ class UserCreate(CreateView):
 		
 		# remember, by default, `is_active` field on User model is False
 		# so user won't be permitted to log in, even though his record exists in db
+
 		request, new_user = self.request, form.save()
 		
 		# compose and send email verification mail
@@ -78,8 +80,10 @@ class UserCreate(CreateView):
 		})
 		to_email = new_user.email
 		send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [to_email])
-		
-		# store phone numbers in session
+
+		# store phone numbers in session without actually saving in db
+		# (commit=False). 
+		# phone numbers will be saved to db during account activation
 		phone_numbers_list = []
 		for number_form in phone_number_formset:
 			phone_number = number_form.save(commit=False)
@@ -89,6 +93,14 @@ class UserCreate(CreateView):
 			}
 			phone_numbers_list.append(phone_number_dict)
 
+		# TODO: don't store this in session. If it's stored in session, then there's no means
+		# to use an email different from the one used to sign up. i.e. if link is sent to 
+		# an email not on the device used for registration, this session key will not be set;
+		# where as user has registered!
+		#
+		# Since we don't want to save in the database until the user has confirmed their account,
+		# we could store the phone number list in the cache; and use a very
+		# unique cache key
 		request.session[PHONE_NUMBERS_KEY] = phone_numbers_list
 
 		return HttpResponse(
@@ -116,6 +128,7 @@ def activate_account(request, uidb64, token):
 	
 	if user is not None and account_activation_token.check_token(user, token):
 		# first retrieve(try to retrieve) phone numbers from session
+		# TODO update this based on previous todo
 		phone_numbers = request.session.pop(PHONE_NUMBERS_KEY, [])
 		# phone numbers should normally be registered..
 		if not phone_numbers:

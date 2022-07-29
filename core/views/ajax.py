@@ -2,9 +2,11 @@ import cryptocode
 from django.conf import settings
 # from django.core.files.images import get_image_dimensions
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views import View
+from django.views.decorators.http import require_GET, require_POST
 from easy_thumbnails.files import get_thumbnailer
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
@@ -17,6 +19,7 @@ from core.constants import (
 	LOST_ITEMS_PHOTOS_UPLOAD_DIR, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR,
 	PAST_PAPERS_PHOTOS_UPLOAD_DIR, 
 )
+from core.models import Country
 from core.utils import insert_text_in_photo
 from lost_or_found.forms import LostItemPhotoForm
 from marketplace.forms import (
@@ -222,4 +225,23 @@ class PhotoUploadView(View):
 		session[username + FORM_AND_SUFFIX[form_for]] = user_photos_list
 
 		return JsonResponse({'deleted': True})
+
+
+@require_GET
+def get_country_cities(request):
+	"""Return the cities of a given country"""
+
+	# no need to coerce, get_object_or_404 handles coercion
+	country_pk = request.GET.get('country_id')
+
+	if not country_pk:
+		return JsonResponse({ 'cities': [] })
+
+	country = get_object_or_404(Country, pk=country_pk)
+	result = {
+		# get id and name of each city in list
+		'cities': list(country.cities.values('id', 'name'))
+	}
+
+	return JsonResponse(result)
 

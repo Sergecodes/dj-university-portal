@@ -23,5 +23,6 @@ urlpatterns = [
     ### AJAX VIEWS ###
 	path('ajax/<str:form_for>/upload-photo/', ajax.PhotoUploadView.as_view(), name='photo-upload'),
 	path('ajax/delete-photo/', ajax.PhotoUploadView.as_view(), name='photo-delete'),
+	path('get-country-cities/', ajax.get_country_cities, name='get-country-cities'),
 ]
 

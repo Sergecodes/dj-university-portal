@@ -55,7 +55,6 @@ def ad_bookmark_toggle(request):
 		return JsonResponse({'error': _('Invalid action')}, status=400)
 
 
-@login_required
 @require_GET
 def get_item_sub_categories(request):
 	"""Return the sub categories of a given item category via ajax"""
@@ -64,7 +63,7 @@ def get_item_sub_categories(request):
 	category_pk = request.GET.get('category_id')  
 
 	if not category_pk:
-		return JsonResponse({'sub_categories': []})
+		return JsonResponse({ 'sub_categories': [] })
 
 	category = get_object_or_404(ItemCategory, pk=category_pk)
 	result = {

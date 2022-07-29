@@ -4,6 +4,7 @@ from django_filters.views import FilterView
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -19,6 +20,7 @@ from core.constants import (
 	MIN_ITEM_PHOTOS_LENGTH, 
 )
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
+from core.models import Country
 from core.utils import get_photos, should_redirect, translate_text
 from ..forms import ItemListingForm, AdListingForm
 from ..mixins import (
@@ -64,18 +66,18 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
 			)
 
-		# Validate that sub category belongs to category
-		sub_category_pk = request.POST.get('sub_category', None)
-		print("sub_category_pk", sub_category_pk)
-		if sub_category_pk:
-			category_pk = request.POST.get('category', None)  
-			category = get_object_or_404(ItemCategory, pk=category_pk)
+		## Validate that sub category belongs to category and that city belongs to country
+		# update queryset of sub category field to ensure that sub category received 
+		# is indeed a sub category of the passed category
+		category_pk = request.POST.get('category')  
+		category = get_object_or_404(ItemCategory, pk=category_pk)
+		sub_category_field = form.fields['sub_category']
+		sub_category_field.queryset = category.sub_categories.all()
 
-			if sub_category_pk not in category.sub_categories.values_list('id', flat=True):
-				form.add_error(
-					'sub_category',
-					_('Sub category {} is not in category {}'.format(sub_category_pk, category_pk))
-				)
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
 
 		if form.is_valid():
 			return self.form_valid(form)
@@ -116,29 +118,31 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				listing.slug_en = slugify(listing.title_en)
 
-		listing.poster = user
-		listing.original_language = current_lang
-		listing.save()
-		
-		# add phone numbers to listing(phone_numbers is a queryset)
-		phone_numbers = form.cleaned_data['contact_numbers']
-		listing.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+		with transaction.atomic():
+			listing.poster = user
+			listing.original_language = current_lang
+			listing.save()
+			
+			# add phone numbers to listing(phone_numbers is a queryset)
+			listing.contact_numbers.add(*form.cleaned_data['contact_numbers'])
 
-		# get list of photo names
-		photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)  
+			# get list of photo names
+			photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)  
 
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo = ItemListingPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
+			# create photo instances pointing to the pre-created photos 
+			# recall that these photos are already in the file system
+			listing_photos = []
+			for photo_name in photos_list:
+				photo = ItemListingPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
+				listing_photos.append(photo)
+
 			# bulk=False saves the photo instance before adding
 			# since photo already has file, no file will be created, just the model instance
 			# note that this also implicitly does `photo.item_listing = listing`
-			listing.photos.add(photo, bulk=False)  
+			# see https://docs.djangoproject.com/en/3.2/ref/models/relations/#django.db.models.fields.related.RelatedManager.add
+			listing.photos.add(*listing_photos, bulk=False)
 
 		# remove photos list from session 
 		session.pop(user.username + ITEM_LISTING_SUFFIX)
@@ -188,14 +192,17 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
 			)
 		
-		# update queryset of sub category field to ensure that sub category received 
-		# is indeed a sub category of the passed category
-		category_pk = request.POST.get('category', None)  
+		## Validate that sub category belongs to category and that city belongs to country
+		category_pk = request.POST.get('category')  
 		category = get_object_or_404(ItemCategory, pk=category_pk)
 		sub_category_field = form.fields['sub_category']
 		sub_category_field.queryset = category.sub_categories.all()
+
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
 			
-		# # print(request.session.get(request.user.username + ITEM_LISTING_SUFFIX))
 		if form.is_valid():
 			return self.form_valid(form)
 		else:
@@ -236,34 +243,24 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(listing, trans_field, result_dict['translatedText'])
 
-		listing.update_language = current_lang
-		listing.save()
-		
-		## add phone numbers to listing(phone_numbers is a queryset)
-		# first clear all listing's phone numbers
-		listing.contact_numbers.clear()
+		with transaction.atomic():
+			listing.update_language = current_lang
+			listing.save()
+			
+			# Add phone numbers to listing(phone_numbers is a queryset)
+			listing.contact_numbers.set(form.cleaned_data['contact_numbers'], clear=True)
 
-		phone_numbers = form.cleaned_data['contact_numbers']
-		listing.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+			# Update photos
+			photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)
+			listing_photos = []
+			for photo_name in photos_list:
+				photo = ItemListingPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
+				listing_photos.append(photo)
 
-		## reconstruct photos
-		photos_list = session.get(user.username + ITEM_LISTING_SUFFIX)
-		# # print(photos_list)
-		# first clear all photos of instance
-		listing.photos.clear()
-
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo = ItemListingPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(LISTING_PHOTOS_UPLOAD_DIR, photo_name)
-			# bulk=False saves the photo instance before adding
-			# since photo already has file, no file will be created, just the model instance
-			# note that this also implicitly does `photo.item_listing = listing`
-			listing.photos.add(photo, bulk=False)  
+			# see https://docs.djangoproject.com/en/3.2/ref/models/relations/#django.db.models.fields.related.RelatedManager.set
+			listing.photos.set(listing_photos, bulk=False, clear=True)
 
 		# remove photos list from session 
 		session.pop(user.username + ITEM_LISTING_SUFFIX)
@@ -286,37 +283,33 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
-		user = self.request.user
-
+		user, listing = self.request.user, self.object
 		context = super().get_context_data(**kwargs)
-		listing = self.object
-		listing_photos = listing.photos.all()
 		
 		# Accesing the listing's city or country won't hit the database
 		#
 		# Exclude current object from list of similar objects and slice queryset
 		# note that we can't filter queryset after slice has been taken
-		similar_listings = ItemListing.objects.select_related(
-			'city__country'
-		).prefetch_related(
-			'photos'
-		).filter(
-			city=listing.city, sub_category=listing.sub_category
-		).exclude(id=listing.id).only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
+		similar_listings = ItemListing.objects \
+			.select_related('city__country') \
+			.prefetch_related('photos') \
+			.filter(city=listing.city, sub_category=listing.sub_category) \
+			.exclude(id=listing.id) \
+			.only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
 		for sim_listing in similar_listings:
 			first_photos.append(sim_listing.photos.first())
 		
-		context['photos'] = listing_photos
+		context['photos'] = listing.photos.all()
 		context['contact_numbers'] = listing.contact_numbers.all()
 		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['first_photos'] = first_photos
 		context['similar_listings'] = similar_listings
 		context['can_edit_item'] = False if user.is_anonymous else can_edit_listing(user, listing)
 		context['can_delete_item'] = False if user.is_anonymous else can_delete_listing(user, listing)
-		
+
 		return context
 
 
@@ -396,8 +389,7 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
-		user = request.user
-		photos_list = request.session.get(user.username + AD_LISTING_SUFFIX, [])
+		user, photos_list = request.user, request.session.get(user.username + AD_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
 		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
@@ -437,24 +429,23 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				listing.slug_en = slugify(listing.title_en)
 
-		listing.poster = user
-		listing.original_language = current_lang
-		listing.save()
-		
-		# add phone numbers to listing(phone_numbers is a queryset)
-		phone_numbers = form.cleaned_data['contact_numbers']
-		listing.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+		with transaction.atomic():
+			listing.poster = user
+			listing.original_language = current_lang
+			listing.save()
+			listing.contact_numbers.add(*form.cleaned_data['contact_numbers'])
 
-		# create photo instances pointing to the pre-created photos.
-		photos_list = session.get(user.username + AD_LISTING_SUFFIX, []) 
-		for photo_name in photos_list:
-			photo = AdListingPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
+			# create photo instances pointing to the pre-created photos.
+			photos_list = session.get(user.username + AD_LISTING_SUFFIX, []) 
+			listing_photos = []
+			for photo_name in photos_list:
+				photo = AdListingPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
+				listing_photos.append(photo)
+
 			# bulk=False saves the photo instance before adding
-			listing.photos.add(photo, bulk=False)  
+			listing.photos.add(*listing_photos, bulk=False)
 
 		# remove photos list from session 
 		# pop() default is empty list since adverts mustn't have photos
@@ -525,39 +516,30 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(listing, trans_field, result_dict['translatedText'])
 
-		listing.update_language = current_lang	
-		listing.save()
-		
-		## add phone numbers to listing(phone_numbers is a queryset)
-		# first clear all listing's phone numbers
-		listing.contact_numbers.clear()
+		with transaction.atomic():
+			listing.update_language = current_lang	
+			listing.save()
+			listing.contact_numbers.set(form.cleaned_data['contact_numbers'], clear=True)
 
-		phone_numbers = form.cleaned_data['contact_numbers']
-		listing.contact_numbers.add(*[
-			phone_number.id for phone_number in phone_numbers
-		])
+			# Update photos
+			photos_list = session.get(user.username + AD_LISTING_SUFFIX, [])
+			listing_photos = []
 
-		## reconstruct photos
-		photos_list = session.get(user.username + AD_LISTING_SUFFIX, [])
+			# create photo instances pointing to the pre-created photos 
+			# recall that these photos are already in the file system
+			for photo_name in photos_list:
+				photo = AdListingPhoto()
+				# path to file (relative path from MEDIA_ROOT)
+				photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
+				listing_photos.append(photo)
 
-		# first clear all photos of instance
-		listing.photos.clear()
-
-		# create photo instances pointing to the pre-created photos 
-		# recall that these photos are already in the file system
-		for photo_name in photos_list:
-			photo = AdListingPhoto()
-			# path to file (relative path from MEDIA_ROOT)
-			photo.file.name = os.path.join(AD_PHOTOS_UPLOAD_DIR, photo_name)
-			# bulk=False saves the photo instance before adding
-			# since photo already has file, no file will be created, just the model instance
-			# note that this also implicitly does `photo.item_listing = listing`
-			listing.photos.add(photo, bulk=False)  
+			listing.photos.set(listing_photos, bulk=False, clear=True)
 
 		# remove photos list from session 
-		session.pop(user.username + AD_LISTING_SUFFIX)
+		session.pop(user.username + AD_LISTING_SUFFIX, [])
 
-		# Don't call the super() method here - you will end up saving the form twice. Instead handle the redirect yourself.
+		# Don't call the super() method here - you will end up saving the form twice. 
+		# Instead handle the redirect yourself.
 		return redirect(listing)
 
 
@@ -575,16 +557,15 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 
 	def get_context_data(self, **kwargs):
 		NUM_LISTINGS = 5
-		user, context = self.request.user, super().get_context_data(**kwargs)
-
-		listing = self.object
-		listing_photos = listing.photos.all()
-		similar_listings = AdListing.objects.select_related(
-			'sub_category', 'city__country'
-		).prefetch_related('photos').filter(
-			city=listing.city,
-			category=listing.category
-		).exclude(id=listing.id).only('title', 'pricing', 'posted_datetime')[:NUM_LISTINGS]
+		user, listing = self.request.user, self.object
+		context = super().get_context_data(**kwargs)
+		
+		similar_listings = AdListing.objects \
+			.select_related('sub_category', 'city__country') \
+			.prefetch_related('photos') \
+			.filter(city=listing.city, category=listing.category) \
+			.exclude(id=listing.id) \
+			.only('title', 'pricing', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -595,7 +576,7 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			else:
 				first_photos.append(None)
 
-		context['photos'] = listing_photos
+		context['photos'] = listing.photos.all()
 		context['contact_numbers'] = listing.contact_numbers.all()
 		context['bookmarkers'] = listing.bookmarkers.only('id')
 		context['similar_listings'] = similar_listings

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import F, Q
 from django.db.models.query import Prefetch
 from django.shortcuts import get_object_or_404, redirect
@@ -23,19 +24,19 @@ from core.constants import (
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.models import Institution
 from core.utils import should_redirect, translate_text
-from .forms import (
+from ..forms import (
 	AcademicQuestionForm, DiscussQuestionForm, AcademicAnswerForm,
 	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
 	DiscussCommentForm
 )
 from notifications.models import Notification
 from notifications.signals import notify
-from .mixins import (
+from ..mixins import (
 	CanEditQuestionMixin, CanDeleteQuestionMixin,
 	CanEditAnswerMixin, CanDeleteAnswerMixin,
 	CanEditCommentMixin, CanDeleteCommentMixin
 )
-from .models import (
+from ..models import (
 	DiscussComment, Subject, AcademicQuestion, DiscussQuestion,
 	AcademicQuestionComment, AcademicAnswerComment,
 	TaggedAcademicQuestion, AcademicAnswer, TaggedDiscussQuestion, 
@@ -53,8 +54,8 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 	model = AcademicQuestion
 
 	def form_valid(self, form):
-		self.object = form.save(commit=False)
-		question, poster = self.object, self.request.user
+		question = self.object = form.save(commit=False)
+		poster = self.request.user
 		current_lang = get_language()
 
 		## TRANSLATION (successfully translate before saving any object.)
@@ -84,14 +85,16 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 			elif trans_lang == 'en':
 				question.slug_en = slugify(question.title_en)
 
-		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
-		poster.save(update_fields=['site_points'])
-		
-		question.poster = poster
-		question.original_language = current_lang
-		question.save()	
-		# save m2m fields(such as tags, upvoters, ..) since we used commit=False
-		form.save_m2m()
+		with transaction.atomic():
+			poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
+			poster.save(update_fields=['site_points'])
+			
+			question.poster = poster
+			question.original_language = current_lang
+			question.save()	
+
+			# save m2m fields(such as tags, upvoters, ..) since we used commit=False
+			form.save_m2m()
 
 		return redirect(question)
 
@@ -234,9 +237,7 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 	template_name = 'qa_site/academicquestion_update.html'
 
 	def form_valid(self, form):
-		print("cleaned_data", form.cleaned_data)
 		question = form.save(commit=False)
-		followers = question.followers.all()
 		current_lang = get_language()
 		changed_data = form.changed_data
 
@@ -267,15 +268,15 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(question, trans_field, result_dict['translatedText'])
 
-		question.update_language = current_lang
-		question.save()
+		with transaction.atomic():
+			question.update_language = current_lang
+			question.save()
 
-		if 'tags' in changed_data:
-			question.tags.set(*form.cleaned_data['tags'])
-		# print(question.tags.all())
+			if 'tags' in changed_data:
+				question.tags.set(form.cleaned_data['tags'], clear=True)
 
 		# notify users that are following this question
-		for follower in followers:
+		for follower in question.followers.all():
 			notify.send(
 				sender=follower,  # just use follower as sender,
 				recipient=follower, 
@@ -367,10 +368,8 @@ class DiscussQuestionCreate(LoginRequiredMixin, CreateView):
 	template_name = 'qa_site/discussquestion_form.html'
 
 	def form_valid(self, form):
-		self.object = form.save(commit=False)
-		discuss_question, poster = self.object, self.request.user
-		discuss_question.school = form.cleaned_data['school']
-		current_lang = get_language()
+		question = self.object = form.save(commit=False)
+		poster, current_lang = self.request.user, get_language()
 
 		## TRANSLATION
 		if settings.ENABLE_GOOGLE_TRANSLATE:
@@ -383,23 +382,25 @@ class DiscussQuestionCreate(LoginRequiredMixin, CreateView):
 			# fields that need to be translated. (see translation.py)
 			# ommit slug because google corrects the slug to appropriate string b4 translating.
 			# see demo in google translate .
-			field_values = [getattr(discuss_question, field) for field in translatable_fields]
+			field_values = [getattr(question, field) for field in translatable_fields]
 			trans_results = translate_text(field_values, trans_lang)
 			
 			# each dict in trans_results contains keys: 
 			# `input`, `translatedText`, `detectedSourceLanguage`
 			for trans_field, result_dict in zip(translate_fields, trans_results):
-				setattr(discuss_question, trans_field, result_dict['translatedText'])
+				setattr(question, trans_field, result_dict['translatedText'])
 
-		poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
-		poster.save(update_fields=['site_points'])
+		with transaction.atomic():
+			poster.site_points = F('site_points') + ASK_QUESTION_POINTS_CHANGE
+			poster.save(update_fields=['site_points'])
 
-		discuss_question.poster = poster
-		discuss_question.original_language = get_language()
-		discuss_question.save()	
-		form.save_m2m()
+			question.school = form.cleaned_data['school']
+			question.poster = poster
+			question.original_language = current_lang
+			question.save()	
+			form.save_m2m()
 
-		return redirect(discuss_question)
+		return redirect(question)
 
 
 class DiscussQuestionDelete(GetObjectMixin, CanDeleteQuestionMixin, DeleteView):
@@ -435,7 +436,6 @@ class DiscussQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 	def form_valid(self, form):
 		question = form.save(commit=False)
-		followers = question.followers.all()
 		current_lang = get_language()
 		changed_data = form.changed_data
 
@@ -466,15 +466,15 @@ class DiscussQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 				for trans_field, result_dict in zip(translate_fields, trans_results):
 					setattr(question, trans_field, result_dict['translatedText'])
 
-		question.update_language = current_lang
-		question.save()
+		with transaction.atomic():
+			question.update_language = current_lang
+			question.save()
 
-		if 'tags' in changed_data:
-			question.tags.set(*form.cleaned_data['tags'])
-		# print(question.tags.all())
+			if 'tags' in changed_data:
+				question.tags.set(form.cleaned_data['tags'], clear=True)
 
 		# notify users that are following this question
-		for follower in followers:
+		for follower in question.followers.all():
 			notify.send(
 				sender=follower,  # just use follower as sender,
 				recipient=follower, 

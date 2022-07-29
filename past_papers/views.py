@@ -74,9 +74,9 @@ class PastPaperCreate(LoginRequiredMixin, CreateView):
 
 	def form_valid(self, form):
 		request = self.request
-		self.object = form.save(commit=False)
+		past_paper = self.object = form.save(commit=False)
 		session, user = request.session, request.user
-		past_paper = self.object
+		
 		past_paper.poster = user
 		past_paper.language = get_language()
 	
