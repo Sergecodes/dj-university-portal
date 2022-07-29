@@ -584,7 +584,13 @@
 		<div class="mt-3 mb-5 d-flex justify-content-evenly">
 			<div>
 				<div class="footer-select-wrp js-footer-select-wrp" style="width: 252px;">
-					<select class="footer-select js-footer-select--country">
+					{# Create hidden form that will be used to submit country choice #}
+					<form id="footer-country-form" class="d-none" action="{% url 'core:set-session-country' %}" method="post">
+						{% csrf_token %}
+						{# pass current url to view #}
+						<input type="hidden" name="next" value="{{ request.path }}" />
+					</form>
+					<select name="country_code" class="footer-select js-footer-select--country" form="footer-country-form">
 						{% if session_country %}
 							<option value="{{ session_country.code }}">
 								{{ session_country.name }}
@@ -596,26 +602,13 @@
 						{% endif %}
 
 						{# Display general country code as first option #}
-						<option 
-							value="---" 
-							data-url="{% url 'core:set-session-country' %}?next={{ request.path }}"
-							{% if not session_country %} selected {% endif %}
-						>
+						<option value="---" {% if not session_country %} selected {% endif %}>
 							{% trans 'No particular country' %}
 						</option>
 						{% for country in countries %}
-							{% comment %} 
-							If country is already selected, clicking on it shouldn't
-							activate the link. So add data-url attribute to the option;
-							we can't add the a tag because options can only contain texts.
-							{% endcomment %}
 							<option 
 								value="{{ country.code }}" 
-								{% if country.code != session_country.code %} 
-								data-url="{% url 'core:set-session-country' country.code %}?next={{ request.path }}"
-								{% else %}
-								selected
-								{% endif %}
+								{% if country.code == session_country.code %} selected {% endif %}
 							>
 								{{ country }}
 							</option>
@@ -673,7 +666,7 @@
 	
 	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
 	<!-- <script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script> -->
-	<script>
+	{% comment %} <script>
 		/* load selectize files if no other instance is present */
 		if (typeof Selectize === 'undefined') {
 			var head = document.getElementsByTagName('head')[0];
@@ -689,7 +682,7 @@
 			css.href = "{% static 'css/selectize.bootstrap5.min.css' %}";
 			head.appendChild(css);
 		}
-	</script>
+	</script> {% endcomment %}
 	{% block extra_js %}
 	{% endblock %}
 </body>

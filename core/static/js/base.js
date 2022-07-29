@@ -617,10 +617,13 @@ function initFooterSelects() {
 	}
 
 	function handleCountryClick(option, e) {
-		// Only change url if clicked option is different from currently selected
+		// Trigger country form submit
 		var select = option.parentElement;
-		if (select.selectedIndex != option.index)
-			location.href = option.dataset.url;
+		if (select.selectedIndex != option.index) {
+			var countryForm = document.querySelector('#footer-country-form');
+			select.selectedIndex = option.index;
+			countryForm.submit();
+		}
 	}
 
 	function handleLangClick(option, e) {

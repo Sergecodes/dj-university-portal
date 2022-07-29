@@ -315,7 +315,10 @@ def get_category_search_results(request, category):
 	})
 
 
-def set_session_country(request, country_code=None):
+@require_POST
+def set_session_country(request):
+	country_code = request.POST.get('country_code')
+	
 	# Store user's selected country in session 
 	if country_code:
 		request.session['country_code'] = country_code
@@ -324,9 +327,9 @@ def set_session_country(request, country_code=None):
 		# so specify default as None
 		request.session.pop('country_code', None)
 
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
-	
+
 	return redirect('/')
 
 
