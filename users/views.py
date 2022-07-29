@@ -7,9 +7,9 @@ from django.contrib.auth.views import (
 	PasswordResetView as BasePasswordResetView
 )
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
-from django.db import transaction
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
@@ -17,7 +17,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -74,6 +74,7 @@ class UserCreate(CreateView):
 		mail_subject = _('Activate your account')
 		message = render_to_string('users/auth/email_confirm.html', {
 			'user': new_user,
+			'scheme': request.scheme,
 			'domain': get_current_site(request).domain,
 			'uid': urlsafe_base64_encode(force_bytes(new_user.pk)),
 			'token': account_activation_token.make_token(new_user)
@@ -93,15 +94,20 @@ class UserCreate(CreateView):
 			}
 			phone_numbers_list.append(phone_number_dict)
 
-		# TODO: don't store this in session. If it's stored in session, then there's no means
-		# to use an email different from the one used to sign up. i.e. if link is sent to 
+		# Don't store this in session, in cache is better. 
+		# If it's stored in session, then there's no means to use an email 
+		# different from the one used to sign up. i.e. if link is sent to 
 		# an email not on the device used for registration, this session key will not be set;
 		# where as user has registered!
 		#
 		# Since we don't want to save in the database until the user has confirmed their account,
-		# we could store the phone number list in the cache; and use a very
-		# unique cache key
-		request.session[PHONE_NUMBERS_KEY] = phone_numbers_list
+		# we could store the phone number list in the cache
+		cache.set(
+			f'user_{new_user.pk}_{PHONE_NUMBERS_KEY}', 
+			phone_numbers_list, 
+			timeout=settings.PASSWORD_RESET_TIMEOUT
+			# ref https://docs.djangoproject.com/en/3.2/ref/settings/#password-reset-timeout
+		)
 
 		return HttpResponse(
 			_(
@@ -127,10 +133,21 @@ def activate_account(request, uidb64, token):
 		user = None
 	
 	if user is not None and account_activation_token.check_token(user, token):
-		# first retrieve(try to retrieve) phone numbers from session
-		# TODO update this based on previous todo
-		phone_numbers = request.session.pop(PHONE_NUMBERS_KEY, [])
-		# phone numbers should normally be registered..
+		# First verify if user has already confirmed account
+		if user.is_active:
+			return HttpResponse(
+			_(
+				'You have already confirmed your account. <br>'
+				'Click <a href="{}">here</a> to go to the home page.'.format(
+					# Use the current language so as to prevent redirecting 
+					request.scheme + '://' + get_current_site(request).domain + '/' + get_language() + '/'
+				)
+			)
+		)
+
+		# first retrieve(try to retrieve) phone numbers from cache
+		phone_numbers = cache.get(f'user_{user.pk}_{PHONE_NUMBERS_KEY}')
+		
 		if not phone_numbers:
 			return HttpResponseBadRequest(_('No phone numbers registered.'))
 

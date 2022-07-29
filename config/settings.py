@@ -18,17 +18,21 @@ USE_CONSOLE_EMAIL = config('USE_CONSOLE_EMAIL', default=True, cast=bool)
 
 # DB
 USE_PROD_DB = config('USE_PROD_DB', default=False, cast=bool)
-DB_NAME = config('DB_NAME')
-DB_USER = config('DB_USER')
-DB_PASSWORD = config('DB_PASSWORD')
-DB_HOST = config('DB_HOST')
-DB_PORT = config('DB_PORT')
+DEV_DB_NAME = config('DEV_DB_NAME')
+DEV_DB_USER = config('DEV_DB_USER')
+DEV_DB_PASSWORD = config('DEV_DB_PASSWORD')
+DEV_DB_HOST = config('DEV_DB_HOST')
+DEV_DB_PORT = config('DEV_DB_PORT')
 
 # AWS
 USE_S3 = config('USE_S3', default=False, cast=bool)
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+
+# Redis
+USE_PROD_REDIS = config('USE_PROD_REDIS', default=False, cast=bool)
+DEV_REDIS_URL = config('DEV_REDIS_URL')
 
 # Misc
 ENABLE_GOOGLE_TRANSLATE = config('USE_GOOGLE_TRANSLATE', default=False, cast=bool)
@@ -131,13 +135,46 @@ else:
 	DATABASES = {
 		'default': {
 			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': DB_NAME,
-			'USER': DB_USER,
-			'PASSWORD': DB_PASSWORD,
-			'HOST': DB_HOST,
-			'PORT': DB_PORT,
+			'NAME': DEV_DB_NAME,
+			'USER': DEV_DB_USER,
+			'PASSWORD': DEV_DB_PASSWORD,
+			'HOST': DEV_DB_HOST,
+			'PORT': DEV_DB_PORT,
 		}
 	}
+
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
+# Caching (https://github.com/jazzband/django-redis, https://docs.djangoproject.com/en/3.2/topics/cache/)
+if USE_PROD_REDIS:
+	pass
+else:
+	CACHES = {
+		'default': {
+			'BACKEND': 'django_redis.cache.RedisCache',
+			'LOCATION': DEV_REDIS_URL,
+			'OPTIONS': {
+				'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+			}
+		}
+	}
+
+	# CACHES = {
+	# 	'default': {
+	# 		'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+	# 		'LOCATION': 'cache_table',
+	# 	}
+	# }
+	# python manage.py createcachetable --dry-run
+
+	# CACHES = {
+	# 	'default': {
+	# 		'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+	# 		'TIMEOUT': 300,  # The default(300s = 5mins)
+	# 		# 'TIMEOUT': 60 * 60 * 24,  # 86400(s)=24h
+	# 	}
+	# }
 
 
 # Password validation

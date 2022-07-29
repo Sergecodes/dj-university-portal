@@ -643,11 +643,6 @@ a.dropdown-item:focus {
     /* display is initially none */
 }
 
-.claim-msg-wrp,
-.contact-details {
-    display: none;
-}
-
 .number-box-wrp {
     width: 30%;
 }

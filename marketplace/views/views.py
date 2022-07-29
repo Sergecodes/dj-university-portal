@@ -295,7 +295,7 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 			.prefetch_related('photos') \
 			.filter(city=listing.city, sub_category=listing.sub_category) \
 			.exclude(id=listing.id) \
-			.only('title', 'price', 'posted_datetime')[:NUM_LISTINGS]
+			.only('city', 'title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
@@ -561,11 +561,11 @@ class AdListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		context = super().get_context_data(**kwargs)
 		
 		similar_listings = AdListing.objects \
-			.select_related('sub_category', 'city__country') \
+			.select_related('category', 'city__country') \
 			.prefetch_related('photos') \
 			.filter(city=listing.city, category=listing.category) \
 			.exclude(id=listing.id) \
-			.only('title', 'pricing', 'posted_datetime')[:NUM_LISTINGS]
+			.only('category', 'city', 'title', 'pricing', 'posted_datetime')[:NUM_LISTINGS]
 
 		# get first photos of each similar listing
 		first_photos = []
