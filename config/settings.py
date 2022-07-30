@@ -455,15 +455,16 @@ THUMBNAIL_ALIASES = {
 	# width and height are required for size
 	'': {
 		# sharpen makes the image brighter(sharper)
-		'thumb': {'size': (2000, 500), 'sharpen': True, },
-		'sm_thumb': {'size': (1300, 300), 'sharpen': True, },
+		'thumb': {'size': (1800, 500), 'sharpen': True, },
+		'sm_thumb': {'size': (1100, 300), 'sharpen': True, },
 
 		# don't over compress past paper photos...
 		# use one thumb alias for past paper to ensure consistency in pdf file
-		'pp_thumb': {'size': (2500, 900), 'sharpen': True, },
+		'pp_thumb': {'size': (2300, 700), 'sharpen': True, },
 	}
 }
 THUMBNAIL_DEFAULT_STORAGE = DEFAULT_FILE_STORAGE
+THUMBNAIL_NAMER = 'easy_thumbnails.namers.hashed'
 THUMBNAIL_PRESERVE_EXTENSIONS = True
 
 

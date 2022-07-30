@@ -389,7 +389,8 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 
 	def get_form_kwargs(self, **kwargs):
 		form_kwargs, request = super().get_form_kwargs(**kwargs), self.request
-		user, photos_list = request.user, request.session.get(user.username + AD_LISTING_SUFFIX, [])
+		user = request.user
+		photos_list = request.session.get(user.username + AD_LISTING_SUFFIX, [])
 
 		form_kwargs['user'] = user
 		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)

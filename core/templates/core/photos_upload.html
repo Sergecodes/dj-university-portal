@@ -114,7 +114,7 @@
 	});
 
 	/* 2. INITIALIZE THE FILE UPLOAD COMPONENT */
-	var $modalProgress = $('.js-modal-progress'), $progressBar = $('.js-progress-bar');
+	var $modalProgress = $('.js-modal-progress').first(), $progressBar = $('.js-progress-bar');
 	var $gallery = $('.js-gallery');
 
 	// don't cache $('.js-file-upload'). if u do so, this plugin won't work (photos won't be uploaded)
@@ -140,11 +140,11 @@
 			}
 
 			// show modal when uploading process starts
-			$modalProgress.first().modal("show");
+			$modalProgress.modal("show");
 		},
 		stop: function (e) {  
 			// when uploading has terminated, hide the modal */
-			$modalProgress.first().modal("hide");
+			$modalProgress.modal("hide");
 		},
 		progressall: function (e, data) { 
 			// update the progress bar
@@ -162,26 +162,25 @@
 				return false;
 			}
 			
-			if (result.is_valid) {
-				$gallery.append(
-					"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
-						<img \
-							src='" + result.url + "' \
-							class='photo-wrp__img' \
-							data-filename='" + encodeURIComponent(result.filename) + "' \
-						> \
-						<button  \
-							type='button' \
-							class='btn-close js-remove-photo' \
-							aria-label='" + "{% trans 'Delete' %}" + "' \
-						></button> \
-					</div>"
-				);
-			} else {
-				if (result.error) {
-					alert(result.error);
-				}
-			}
+			$gallery.append(
+				"<div class='col-4 col-lg-3 my-2 photo-wrp js-photo-wrp'> \
+					<img \
+						src='" + result.url + "' \
+						class='photo-wrp__img' \
+						data-filename='" + encodeURIComponent(result.filename) + "' \
+					> \
+					<button  \
+						type='button' \
+						class='btn-close js-remove-photo' \
+						aria-label='" + "{% trans 'Delete' %}" + "' \
+					></button> \
+				</div>"
+			);
+		},
+		fail: function (e, data) {
+			console.log(data);
+			$modalProgress.modal("hide");
+			alert(data.jqXHR.responseJSON.error);
 		}
 	});
 
@@ -219,8 +218,8 @@
 					$this.closest('.js-photo-wrp').remove();
 				}
 			},
-			error: function() {
-				if (result.is_anonymous) {
+			error: function(err) {
+				if (err.is_anonymous) {
 					displayToast('LOGIN_REQUIRED');
 					return false;
 				} else {

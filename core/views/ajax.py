@@ -67,10 +67,10 @@ class PhotoUploadView(View):
 		if request.user.is_anonymous:
 			return JsonResponse({
 					'is_valid': False, 
-					# 'error': _('User is not authenticated'), 
+					'error': _('User is not authenticated'), 
 					'is_anonymous': True
 				},
-				# status=401  # Unauthorized, anonymous user
+				status=401  # Unauthorized, anonymous user
 			)
 
 		if form_for == 'item_listing':
@@ -163,14 +163,18 @@ class PhotoUploadView(View):
 				'filename': cryptocode.encrypt(photo_session_name, SECRET_KEY)
 			}
 
+			return JsonResponse(data)
+
 		# eg. when user submits wrong file type..
 		else:
+			print(form.errors)
 			data = {
 				'is_valid': False, 
-				'error': _('Invalid file, upload a valid image(PNG or JPEG).')
+				'error': form.errors.as_json()
+				# 'error': _('Invalid file, upload a valid image(PNG or JPEG).')
 			}
 
-		return JsonResponse(data)
+			return JsonResponse(data, status=400)
 
 	def delete(self, request):
 		"""Called when a photo is deleted. Removes photo from list of photos."""
