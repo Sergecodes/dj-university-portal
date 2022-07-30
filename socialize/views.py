@@ -20,7 +20,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import DetailView, DeleteView
 from django.views.generic.base import TemplateView
 
-from core.constants import TEST_ACCOUNT_USERNAME, CREATE_SOCIAL_PROFILE_POINTS_CHANGE
+from core.constants import TEST_ACCOUNT_USERNAME, GENDERS, CREATE_SOCIAL_PROFILE_POINTS_CHANGE
 from core.mixins import IncrementViewCountMixin
 from core.models import City
 from core.utils import get_random_profiles, translate_text
@@ -241,7 +241,8 @@ class SocialProfileFilter(filters.FilterSet):
 
 	GENDERS = (
 		('M', _('A guy')),
-		('F', _('A lady'))
+		('F', _('A lady')),
+		('NB', _('Other'))
 	)
 
 	LANGUAGE_CHOICES = (
@@ -355,7 +356,7 @@ class SocialProfileFilter(filters.FilterSet):
 
 	def filter_gender(self, queryset, name, value):
 		# don't bother filtering if gender is invalid
-		if value not in ('M', 'F'):
+		if value not in [entry[0] for entry in GENDERS]:
 			return queryset
 		return queryset.filter(gender=value)
 
@@ -414,7 +415,7 @@ class SocialProfileDetail(
 		context['profile_info'] = {
 			_('Speciality'): profile.speciality,
 			_('City'): profile.city.name,
-			_('Gender'): profile.gender,
+			_('Gender'): f'{profile.get_gender_display()}({profile.gender})',
 			_('Aged between'): profile.age_range,
 			_('A little about me'): about_me if (about_me := profile.about_me) else _('Not provided'),
 			_('My hobbies and interests'): hobbies if (hobbies := profile.hobbies) else _('Not provided'),

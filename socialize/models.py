@@ -211,11 +211,6 @@ class SocialProfile(models.Model):
 		"""Get user's age from birth_date"""
 		time_delta = timezone.now().date() - self.birth_date
 		return int(time_delta.days / 365)
-		
-	@property
-	def actual_gender(self):
-		"""Get full representation of user's gender"""
-		return _('Male') if self.gender == 'M' else _('Female')
 
 	@property
 	def age_range(self):

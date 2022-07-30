@@ -218,12 +218,12 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		# but it's marked disabled so it shouldn't be sent.
 		# it will be gotten from the object instance
 		# frontend prevention is done and this is for backend
-		if request.POST.get('email'):
-			# email was sent, errror
-			form.add_error(
-				'email', 
-				ValidationError(_("You can't change your email address"))
-			)
+		# if request.POST.get('email'):
+		# 	# email was sent, errror
+		# 	form.add_error(
+		# 		'email', 
+		# 		ValidationError(_("You can't change your email address"))
+		# 	)
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)

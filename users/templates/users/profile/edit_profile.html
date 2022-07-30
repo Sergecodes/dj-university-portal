@@ -120,8 +120,8 @@
 	});
 
 	// insert user email in input box
-	var $realEmail = $("input[type='email']").first();
-	$realEmail.val("{{ user.email }}");
+	{% comment %} var $realEmail = $("input[type='email']").first();
+	$realEmail.val("{{ user.email }}"); {% endcomment %}
 
 	/* Arrange formset table */
 	$('.formset_row').formset({

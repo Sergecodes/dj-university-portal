@@ -19,7 +19,8 @@ EXTERNAL_LINK_ICON = '<i class="fas fa-external-link-alt ms-2" aria-hidden="true
 
 GENDERS = (
 	('M', _('Male')), 
-	('F', _('Female'))   
+	('F', _('Female')),
+	('NB', _('Non-binary'))
 )
 
 

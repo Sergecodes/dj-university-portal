@@ -90,21 +90,22 @@ class UserUpdateForm(forms.ModelForm):
 	the user, but replaces the password field with admin's
 	password hash display field.
 	"""
+	pass
 	# not useful since password field won't be displayed in the form.
 	# password = ReadOnlyPasswordHashField()
 	
 	# set email field as disabled so it won't be submitted and will be uninteractabe
 	# & readonly so user won't be able to edit it, but can copy it and click on it
 	# this also sets some desired styles from Bootstrap
-	email = forms.EmailField(
-		label=_('Email address'),
-		# disabled means browser should not send any form data for this field
-		widget=forms.EmailInput(attrs={'disabled': '', 'readonly': ''}),
-		help_text=_("Email can't be changed"),
-		# since disabled is set, browser won't send any form data back for this field
-		# so set required to False
-		required=False   # see https://stackoverflow.com/a/1424453/
-	)
+	# email = forms.EmailField(
+	# 	label=_('Email address'),
+	# 	# disabled means browser should not send any form data for this field
+	# 	widget=forms.EmailInput(attrs={'disabled': '', 'readonly': ''}),
+	# 	help_text=_("Email can't be changed"),
+	# 	# since disabled is set, browser won't send any form data back for this field
+	# 	# so set required to False
+	# 	required=False   # see https://stackoverflow.com/a/1424453/
+	# )
 
 	class Meta:
 		model = User
@@ -113,16 +114,19 @@ class UserUpdateForm(forms.ModelForm):
 			'first_language': forms.RadioSelect(),
 			'gender': forms.RadioSelect(),
 		}
+		help_texts = {
+			'email': _("Enter a valid and correct email address, we wont send a verification code")
+		}
 
-	def clean_email(self):
-		# since email isn't submitted with form, upon update,
-		# the email is set to an empty string since it's value wasn't sent.
-		# this is to reset the email
+	# def clean_email(self):
+	# 	# since email isn't submitted with form, upon update,
+	# 	# the email is set to an empty string since it's value wasn't sent.
+	# 	# this is to reset the email
 
-		# instance refers to the User object concerned
-		instance = self.instance
-		if instance and instance.pk and instance.email:
-			return instance.email
+	# 	# instance refers to the User object concerned
+	# 	instance = self.instance
+	# 	if instance and instance.pk and instance.email:
+	# 		return instance.email
 
 
 class PhoneNumberForm(forms.ModelForm):
