@@ -5,6 +5,7 @@ from django.forms import model_to_dict
 from django.http import JsonResponse 
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.decorators.cache import never_cache
 from django.views.generic import ListView
 
@@ -45,8 +46,12 @@ class UnreadNotificationsList(NotificationViewList):
 
 ## added
 @login_required	
-def mark_post_notifs_as_read(request, category, obj_id, app_name, model_name):
+@require_POST
+def mark_post_notifs_as_read(request):
+	category, obj_id = request.POST['category'], request.POST['obj_id']
+	app_name, model_name = request.POST['app_name'], request.POST['model_name']
 	model = apps.get_model(app_name, model_name)
+
 	post_category_notifs = request.user.notifications.filter(
 		target_object_id=obj_id,
 		target_content_type=ContentType.objects.get_for_model(model),
@@ -54,20 +59,21 @@ def mark_post_notifs_as_read(request, category, obj_id, app_name, model_name):
 	)
 	post_category_notifs.mark_all_as_read()
 	
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 
 	return redirect('notifications:unread')
 
 
 @login_required
-def mark_all_post_notifs_as_read(request, category):
+@require_POST
+def mark_all_post_notifs_as_read(request):
 	category_notifs = request.user.notifications.filter(
-		category=category  
+		category=request.POST['category']  
 	)
 	category_notifs.mark_all_as_read()
 	
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
@@ -75,8 +81,12 @@ def mark_all_post_notifs_as_read(request, category):
 
 ## added
 @login_required	
-def delete_post_notifs(request, category, obj_id, app_name, model_name):
+@require_POST
+def delete_post_notifs(request):
+	category, obj_id = request.POST['category'], request.POST['obj_id']
+	app_name, model_name = request.POST['app_name'], request.POST['model_name']
 	model = apps.get_model(app_name, model_name)
+
 	post_category_notifs = request.user.notifications.filter(
 		target_object_id=obj_id,
 		target_content_type=ContentType.objects.get_for_model(model),
@@ -84,7 +94,7 @@ def delete_post_notifs(request, category, obj_id, app_name, model_name):
 	)
 	post_category_notifs.delete()
 	
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
@@ -92,13 +102,14 @@ def delete_post_notifs(request, category, obj_id, app_name, model_name):
 
 ## added
 @login_required	
-def delete_all_post_notifs(request, category):
+@require_POST
+def delete_all_post_notifs(request):
 	category_notifs = request.user.notifications.filter(
-		category=category
+		category=request.POST['category']
 	)
 	category_notifs.delete()
 	
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
@@ -106,9 +117,12 @@ def delete_all_post_notifs(request, category):
 
 ## added
 @login_required
-def mark_category_as_read(request, category):
+@require_POST
+def mark_category_as_read(request):
+	category = request.POST['category']
 	request.user.notifications.filter(category=category).mark_all_as_read()
-	if next_url := request.GET.get('next'):
+
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
@@ -116,49 +130,59 @@ def mark_category_as_read(request, category):
 
 ## added
 @login_required
-def delete_category_notifs(request, category):
+@require_POST
+def delete_category_notifs(request):
+	category = request.POST['category']
 	request.user.notifications.filter(category=category).delete()
-	if next_url := request.GET.get('next'):
+
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
 
 
 @login_required
+@require_POST
 def mark_all_as_read(request):
 	request.user.notifications.mark_all_as_read()
-	if next_url := request.GET.get('next'):
+	
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 		
 	return redirect('notifications:unread')
 
 
 @login_required
-def mark_as_read(request, id):
-	notification = get_object_or_404(Notification, recipient=request.user, id=id)
+@require_POST
+def mark_as_read(request):
+	notif_id = request.POST['notif_id']
+	notification = get_object_or_404(Notification, recipient=request.user, id=notif_id)
 	notification.mark_as_read()
 
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 
 	return redirect('notifications:unread')
 
 
 @login_required
-def mark_as_unread(request, id):
-	notification = get_object_or_404(Notification, recipient=request.user, id=id)
+@require_POST
+def mark_as_unread(request):
+	notif_id = request.POST['notif_id']
+	notification = get_object_or_404(Notification, recipient=request.user, id=notif_id)
 	notification.mark_as_unread()
 
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 
 	return redirect('notifications:unread')
 
 
 @login_required
-def delete(request, id):
-	notification = get_object_or_404(
-		Notification, recipient=request.user, id=id)
+@require_POST
+def delete(request):
+	notif_id = request.POST['notif_id']
+	notification = get_object_or_404(Notification, recipient=request.user, id=notif_id)
 
 	if settings.get_config()['SOFT_DELETE']:
 		notification.deleted = True
@@ -166,7 +190,7 @@ def delete(request, id):
 	else:
 		notification.delete()
 
-	if next_url := request.GET.get('next'):
+	if next_url := request.POST.get('next'):
 		return redirect(next_url)
 
 	return redirect('notifications:all')

@@ -1,5 +1,3 @@
-keyword = school
-include_files = requested_items/*,lost_or_found/*,marketplace/*
 
 source /home/sergeman/.virtualenvs/univ-portal-env/bin/activate
 
