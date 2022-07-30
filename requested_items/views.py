@@ -18,6 +18,7 @@ from functools import reduce
 
 from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, REQUESTED_ITEM_SUFFIX
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
+from core.models import Country
 from core.utils import get_photos, should_redirect, translate_text
 from .forms import RequestedItemForm
 from .mixins import (
@@ -41,6 +42,20 @@ class RequestedItemCreate(LoginRequiredMixin, CreateView):
 		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
+
+	def post(self, request, *args, **kwargs):
+		self.object, form = None, self.get_form()
+
+		# Validate that city belongs to country
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
+			
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			return self.form_invalid(form)
 
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user
@@ -126,7 +141,23 @@ class RequestedItemUpdate(GetObjectMixin, CanEditRequestedItemMixin, UpdateView)
 		form_kwargs['country_or_code'] = request.session.get('country_code', user.country)
 		form_kwargs['initial_photos'] = get_photos(photos_list, REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
+		
 		return form_kwargs
+
+	def post(self, request, *args, **kwargs):
+		self.object = self.get_object()
+		form = self.get_form()
+
+		# Validate that city belongs to country
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
+
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			return self.form_invalid(form)
 
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user

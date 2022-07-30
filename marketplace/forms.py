@@ -182,11 +182,13 @@ class AdListingForm(forms.ModelForm):
 	)
 	country = forms.ModelChoiceField(
 		queryset=Country.objects.all(),
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-country' })
 	)
 	city = forms.ModelChoiceField(
 		queryset=City.objects.none(), 
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-city' })
 	)
 	# queryset will be obtained from user's list of phone number, defined in form's __init__ method
 	contact_numbers = forms.ModelMultipleChoiceField(

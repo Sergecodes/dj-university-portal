@@ -1,5 +1,8 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, HTML, Submit
+from crispy_forms.layout import (
+	Layout, Row, Column,
+	Fieldset, HTML, Submit
+)
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
@@ -24,11 +27,13 @@ class LostItemForm(forms.ModelForm):
 	)
 	country = forms.ModelChoiceField(
 		queryset=Country.objects.all(),
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={'class': 'js-country'})
 	)
 	city = forms.ModelChoiceField(
 		queryset=None, 
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={'class': 'js-city'})
 	)
 
 	class Meta:
@@ -65,8 +70,11 @@ class LostItemForm(forms.ModelForm):
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Lost Item Information'),
-				'country',
-				'city',
+				Row(
+					Column('country', css_class='form-group col-md-6'),
+					Column('city', css_class='form-group col-md-6'),
+					css_class='form-row'
+				),
 				'item_lost',
 				'item_description',
 				PhotoFormLayout(extra_context={
@@ -76,7 +84,8 @@ class LostItemForm(forms.ModelForm):
 				}),  
 				'area_lost',
 				'how_lost',
-				'bounty'
+				'bounty',
+				css_class='mb-2'
 			),
 			Fieldset(_("Poster's Information"),
 				'contact_email',
@@ -116,11 +125,13 @@ class FoundItemForm(forms.ModelForm):
 	)
 	country = forms.ModelChoiceField(
 		queryset=Country.objects.all(),
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={'class': 'js-country'})
 	)
 	city = forms.ModelChoiceField(
 		queryset=None, 
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={'class': 'js-city'})
 	)
 
 	class Meta: 
@@ -161,11 +172,15 @@ class FoundItemForm(forms.ModelForm):
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
 			Fieldset(_('Found Item Information'),
-				'country',
-				'city',
+				Row(
+					Column('country', css_class='form-group col-md-6'),
+					Column('city', css_class='form-group col-md-6'),
+					css_class='form-row'
+				),
 				'item_found',
 				'area_found',
-				'how_found'
+				'how_found',
+				css_class='mb-2'
 			),
 			Fieldset(_("Poster's Information"),
 				'contact_email',

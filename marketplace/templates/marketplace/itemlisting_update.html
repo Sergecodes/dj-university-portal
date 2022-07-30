@@ -46,32 +46,36 @@
 		'D': "{% trans 'An item that does not function as intended and is not fully operational. This includes items that are defective in ways that render them difficult to use, items that require service or repair, or items missing essential components.' %}"
 	};
 	// get help text of initial listing condition
-	$(window).on('load', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
+	$window.on('load', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
 
 	var $condition = $('.js-condition');
 	$condition.on('change', {conditions: CONDITIONS_AND_HELP_TEXTS}, insertConditionHelpText);
 	$condition.on('change', {}, onConditionChange);
 
-	// Fill sub category options with initial value of category
-	$(window).on(
-		'load', 
-		{ url: "{% url 'marketplace:get-item-subcategories' %}" }, 
-		insertItemSubCategories
-	);
-
-	// Fill cities options with initial value of city
+	var getSubCategoriesUrl = "{% url 'marketplace:get-item-subcategories' %}";
 	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
-	$window.on(
-		'load',
-		{ url: getCitiesUrl },
-		insertCities
-	);
+
+	{% if not form.errors %}
+		// Fill sub category options with initial value of category
+		$window.on(
+			'load', 
+			{ url: getSubCategoriesUrl }, 
+			insertItemSubCategories
+		);
+
+		// Fill cities options with initial value of city
+		$window.on(
+			'load',
+			{ url: getCitiesUrl },
+			insertCities
+		);
+	{% endif %}
 
 	// attach change event listener to item category(main category)
 	var $category = $('.js-category');
 	$category.on(
 		'change', 
-		{ url: "{% url 'marketplace:get-item-subcategories' %}" }, 
+		{ url: getSubCategoriesUrl }, 
 		insertItemSubCategories
 	);
 

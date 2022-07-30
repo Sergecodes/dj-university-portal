@@ -23,10 +23,12 @@ class RequestedItemForm(forms.ModelForm):
 	country = forms.ModelChoiceField(
 		queryset=Country.objects.all(),
 		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-country' })
 	)
 	city = forms.ModelChoiceField(
 		queryset=None, 
-		empty_label=None
+		empty_label=None,
+		widget=forms.Select(attrs={ 'class': 'js-city' })
 	)
 	contact_numbers = forms.ModelMultipleChoiceField(
 		queryset=None, 
@@ -97,7 +99,7 @@ class RequestedItemForm(forms.ModelForm):
 		if update:
 			self.helper.add_input(Submit('submit', _('Update'), css_class="d-block btn-success"))
 		else:
-			self.helper.add_input(Submit('submit', _('Post'), css_class="d-block btn-success"))
+			self.helper.add_input(Submit('submit', _('Request item'), css_class="d-block btn-success"))
 
 
 

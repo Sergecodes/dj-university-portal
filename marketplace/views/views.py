@@ -397,6 +397,21 @@ class AdListingCreate(LoginRequiredMixin, CreateView):
 		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		return form_kwargs
 
+	def post(self, request, *args, **kwargs):
+		self.object, form = None, self.get_form()
+
+		# Validate that city belongs to country
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
+			
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			# print(form.errors)
+			return self.form_invalid(form)
+
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user
 		self.object = form.save(commit=False)
@@ -484,6 +499,24 @@ class AdListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		form_kwargs['initial_photos'] = get_photos(photos_list, AD_PHOTOS_UPLOAD_DIR)
 		form_kwargs['update'] = True
 		return form_kwargs
+
+	def post(self, request, *args, **kwargs):
+		# NOTE !! ALWAYS set self.object BEFORE making a form with self.get_form()
+		# when overriding post method.
+		self.object = self.get_object()
+		form = self.get_form()
+
+		# Validate that city belongs to country
+		country_pk = request.POST.get('country')
+		country = get_object_or_404(Country, pk=country_pk)
+		city_field = form.fields['city']
+		city_field.queryset = country.cities.all()
+
+		if form.is_valid():
+			return self.form_valid(form)
+		else:
+			# print(form.errors)
+			return self.form_invalid(form)
 
 	def form_valid(self, form):
 		session, user = self.request.session, self.request.user

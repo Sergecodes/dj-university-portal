@@ -29,7 +29,9 @@ User = get_user_model()
  
 class PastPaperPhoto(models.Model, PhotoModelMixin):
 	"""
-	These photos should be periodically removed from storage, since after upload they are practically useless since they are used solely to generate the pdf file containing these photos...
+	These photos should be periodically removed from storage, 
+	since after upload they are practically useless since they are used solely 
+	to generate the pdf file containing these photos...
 	"""
 	file = ThumbnailerImageField(
 		thumbnail_storage=STORAGE, 
@@ -111,9 +113,6 @@ class PastPaper(models.Model):
 	MASTERS = 'MS' 
 	DOCTORATE = 'PhD'
 
-	# use lists(mutable) instead of tuples.
-	# so as to enable copying it withoud needing to cast it.
-	# eg. see SocialProfileForm init method
 	# TODO add others
 	LEVELS = [
 		(ORDINARY_LEVEL, 'Ordinary Level'),

@@ -43,7 +43,6 @@ class AcademicQuestionForm(forms.ModelForm):
 		}
 
 	def clean_tags(self):
-		print(self.cleaned_data)
 		tags = self.cleaned_data['tags']
 
 		try:

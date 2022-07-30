@@ -266,7 +266,10 @@ class AcademicQuestion(Question):
 		related_name='academic_questions',
 		related_query_name='academic_question',
 		null=True, blank=True,
-		help_text=_('Allow this field empty if your subject is not present.')
+		help_text=_(
+			'Allow this field empty if your subject is not present <br>'
+			"You may add the subject's name after the question title."
+		)
 	)
 	poster = models.ForeignKey(
 		User,

@@ -34,7 +34,7 @@
 {% block extra_js %}
 <script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
 <script>
-	var $window = $(window);
+	// $window is set in base.js file
 	var $form = $("[name='item-listing-form']");
 	$form.dirty({
 		preventLeaving: true,
@@ -56,21 +56,24 @@
 	$condition.on('change', { conditions: CONDITIONS_AND_HELP_TEXTS }, insertConditionHelpText);
 	$condition.on('change', {}, onConditionChange);
 
-	// Fill sub category options with initial value of category
 	var getSubCategoriesUrl = "{% url 'marketplace:get-item-subcategories' %}";
-	$window.on(
-		'load', 
-		{ url: getSubCategoriesUrl }, 
-		insertItemSubCategories
-	);
-
-	// Fill cities options with initial value of city
 	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
-	$window.on(
-		'load',
-		{ url: getCitiesUrl },
-		insertCities
-	);
+
+	{% if not form.errors %}
+		// Fill sub category options with initial value of category
+		$window.on(
+			'load', 
+			{ url: getSubCategoriesUrl }, 
+			insertItemSubCategories
+		);
+
+		// Fill cities options with initial value of city
+		$window.on(
+			'load',
+			{ url: getCitiesUrl },
+			insertCities
+		);
+	{% endif %}
 
 	// attach change event listener to item category(main category)
 	var $category = $('.js-category');

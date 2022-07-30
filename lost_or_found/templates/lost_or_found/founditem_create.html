@@ -33,5 +33,24 @@
 		// note that some(most) browsers will display their own message.
 		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
 	});
+
+	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
+
+	{% if not form.errors %}
+		// Fill cities options with initial value of city
+		$window.on(
+			'load',
+			{ url: getCitiesUrl },
+			insertCities
+		);
+	{% endif %}
+
+	// attach change event listener to country
+	var $country = $('.js-country');
+	$country.on(
+		'change',
+		{ url: getCitiesUrl },
+		insertCities
+	);
 </script>
 {% endblock %}

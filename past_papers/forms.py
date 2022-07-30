@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit
+from crispy_forms.layout import Layout, Submit, Row, Column
 from django import forms
 from django.utils.translation import gettext_lazy as _
 # from easy_thumbnails.widgets import ImageClearableFileInput
@@ -61,7 +61,10 @@ class PastPaperForm(forms.ModelForm):
 		}
 		help_texts = {
 			'title': _('Please include the class and subject name in the title.'),
-			'written_date': _('Optional. When this question paper was written. <br> Just the month and year will suffice, you can enter any day.'),
+			'written_date': _(
+				'Optional. When this question paper was written. <br> '
+				'Just the month and year will suffice, you can enter any day.'
+			),
 			'level': _('The level for which the paper was set.'),
 			'subject': _('Select the subject. Allow empty if the subject is not in the list.'),
 		}
@@ -73,14 +76,17 @@ class PastPaperForm(forms.ModelForm):
 
 		country = get_country(country_or_code)
 		self.fields['country'].initial = country.pk
-		# self.fields['subject'].empty_label = None
+		self.fields['country'].empty_label = None
 
 		self.helper = FormHelper()
 		self.helper.layout = Layout(
-			'country', 
-			'type',
-			'level',
-			'subject', 
+			Row(
+				Column('country', css_class='form-group col-md-6'),
+				Column('type', css_class='form-group col-md-6'),
+				Column('level', css_class='form-group col-md-6'),
+				Column('subject', css_class='form-group col-md-6'),
+				css_class='form-row'
+			),
 			'written_date',
 			'title',
 			'file',
