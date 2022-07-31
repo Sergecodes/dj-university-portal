@@ -34,6 +34,7 @@ better still check the width and height of the image... (maybe sum of W and H)
 enlarge the image...
 - restrict length of text fields... (also in models; eg via clean method)
 - if user is authed, on header, change profile icon to his profile image. 
+- verify on frontend that required contact-number field has been entered, before submitting form
 - add a page in the site to explain how non-univ students can use it ...?
 - on social profile create form, interested relationship should be multiple select (multiple values should be permitted).
 (updaet models, displaying & filtering accordingly)

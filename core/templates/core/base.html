@@ -24,10 +24,10 @@
 	<link rel="stylesheet" href="{% static 'css/fa5-all.min.css' %}">
 	<link rel="stylesheet" href="{% static 'css/normalize-v8.0.1.min.css' %}">
 	{% comment %} <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"> {% endcomment %}
-	{% comment %} <link rel="stylesheet" href="{% static 'minified/css/all.min.css' %}"> {% endcomment %}
 
 	<link rel="stylesheet" href="{% static 'css/colors.css' %}">
 	<link rel="stylesheet" href="{% static 'css/all.css' %}">
+	{% comment %} <link rel="stylesheet" href="{% static 'css/all.min.css' %}"> {% endcomment %}
 	{% block extra_css %}
 	{% endblock extra_css %}
 
@@ -665,7 +665,7 @@
 	{% endblock %}
 	
 	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
-	<!-- <script type="text/javascript" src="{% static 'minified/js/base.min.js' %}"></script> -->
+	<!-- <script type="text/javascript" src="{% static 'js/base.min.js' %}"></script> -->
 	{% comment %} <script>
 		/* load selectize files if no other instance is present */
 		if (typeof Selectize === 'undefined') {

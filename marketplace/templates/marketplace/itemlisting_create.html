@@ -9,10 +9,6 @@
 	<title>{% trans 'Create your item listing' %} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}"> -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -32,7 +28,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
+<script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
 	// $window is set in base.js file
 	var $form = $("[name='item-listing-form']");

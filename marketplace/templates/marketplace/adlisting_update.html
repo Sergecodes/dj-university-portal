@@ -8,10 +8,6 @@
 	<title>{% trans 'Edit advert listing' %} | CamerSchools</title>
 {% endblock %}
 
-{% block extra_css %}
-	<!-- <link rel="stylesheet" href="{% static 'minified/css/marketplace.min.css' %}"> -->
-{% endblock extra_css %}
-
 {% block institution_searchbox %}
 {% endblock %}
 
@@ -29,7 +25,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'minified/js/jquery.dirty.min.js' %}"></script>
+<script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
 	var $form = $("[name='ad-listing-form']");
 	$form.dirty({
