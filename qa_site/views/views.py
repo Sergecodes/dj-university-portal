@@ -290,7 +290,11 @@ class AcademicQuestionUpdate(GetObjectMixin, CanEditQuestionMixin, UpdateView):
 
 class AcademicQuestionFilter(filters.FilterSet):
 	title = filters.CharFilter(label=_('Keywords'), method='filter_title')
-	tags = filters.CharFilter(label=_('Tags'), method='filter_tags')
+	tags = filters.CharFilter(
+		label=_('Tags'), 
+		method='filter_tags', 
+		help_text='Space separated tags. eg. tag1 tag2'
+	)
 
 	class Meta:
 		model = AcademicQuestion
@@ -491,7 +495,11 @@ class DiscussQuestionFilter(filters.FilterSet):
 	# which will occur occasionally 
 	# TODO use postgres text search 
 	content = filters.CharFilter(label=_('Keywords'), method='filter_content')
-	tags = filters.CharFilter(label=_('Tags'), method='filter_tags')
+	tags = filters.CharFilter(
+		label=_('Tags'), 
+		method='filter_tags',
+		help_text='Space separated tags. eg. tag1 tag2'
+	)
 
 	class Meta:
 		model = DiscussQuestion

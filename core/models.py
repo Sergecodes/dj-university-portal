@@ -166,16 +166,6 @@ class Comment(models.Model):
 	def is_parent(self):
 		return True if self.parent is None else False
 
-	@property
-	def parent_object(self):
-		"""
-		Get post under which comment belongs, used to get the url of post that contains comment.
-		"""
-		# if comment is for answer
-		if hasattr(self, 'answer'):
-			return self.answer.question
-		return self.question
-
 	class Meta:
 		abstract = True
 

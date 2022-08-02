@@ -194,7 +194,7 @@ class PhotoUploadView(View):
 		# in normal circumstances, this shouldn't be the case
 		if not encoded_photo_name and not form_for:
 			return JsonResponse(
-				{'deleted': False, 'error': _('Invalid GET params')},
+				{'deleted': False, 'error': _('Invalid query params')},
 				status=400  # BadRequest
 			)
 		

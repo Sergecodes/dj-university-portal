@@ -312,38 +312,42 @@ class User(AbstractUser):
 
 		return (True, '')
 
-	def add_question_comment(self, question, new_comment):
+	def add_question_comment(self, question, new_comment, parent=None):
 		"""Add comment to question."""
 		# question_type can be 'academic' or 'discuss'
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
 		new_comment.poster = self
+		new_comment.parent = parent
 		new_comment.question = question
 		new_comment.original_language = get_language()
 		new_comment.save()
 
 		# notify question poster and users that are following this question
-		notify.send(
-			sender=self, 
-			recipient=question.poster, 
-			verb=_('commented on your question'),
-			target=question,
-			category=Notification.ACTIVITY
-		)
-		for follower in question.followers.all():
+		# if comment is a direct comment on question
+		if parent is None:
 			notify.send(
-				sender=self,
-				recipient=follower, 
-				verb=_('performed an activity under the question'),
+				sender=self, 
+				recipient=question.poster, 
+				verb=_('commented on your question'),
 				target=question,
-				category=Notification.FOLLOWING
+				category=Notification.ACTIVITY
 			)
+			for follower in question.followers.all():
+				notify.send(
+					sender=self,
+					recipient=follower, 
+					verb=_('performed an activity under the question'),
+					target=question,
+					category=Notification.FOLLOWING
+				)
 	
-	def add_answer_comment(self, answer, new_comment):
+	def add_answer_comment(self, answer, new_comment, parent=None):
 		"""Add comment to answer."""
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
 		new_comment.poster = self
+		new_comment.parent = parent
 		new_comment.answer = answer
 		new_comment.original_language = get_language()
 		new_comment.save()

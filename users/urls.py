@@ -2,7 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from . import views
+from .views import views, ajax
 
 app_name = 'users'
 

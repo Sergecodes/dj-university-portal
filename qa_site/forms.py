@@ -158,5 +158,6 @@ class DiscussCommentForm(forms.ModelForm):
 
 	class Meta:
 		model = DiscussComment
-		fields = ['content', 'parent', ]
+		fields = ['content', ]
+
 

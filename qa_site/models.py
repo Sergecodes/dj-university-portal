@@ -21,18 +21,18 @@ from .managers import TaggableManager
 User = get_user_model()
 
 
-class AcademicComment(Comment):
-	content = RichTextField(_('Content'), config_name='add_academic_comment')
-	# comments have just votes (no upvotes & downvotes)
-	# vote_count = models.PositiveIntegerField(default=0)
+class QaSiteComment(Comment):
+	pass
 
-	class Meta:
-		abstract = True
-
-	def __str__(self):
-		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
-		# while you're at it, see the answer with textwrap.shorten ..
-		return filters.truncatewords(remove_tags(self.content), 10)
+	@property
+	def parent_object(self):
+		"""
+		Get post under which comment belongs, used to get the url of post that contains comment.
+		"""
+		# if comment is for answer
+		if hasattr(self, 'answer'):
+			return self.answer.question
+		return self.question
 
 	@property
 	def upvote_count(self):
@@ -51,6 +51,23 @@ class AcademicComment(Comment):
 		if (timezone.now() - self.posted_datetime) > COMMENT_CAN_EDIT_TIME_LIMIT:
 			return False
 		return True
+
+	class Meta:
+		abstract = True
+
+
+class AcademicComment(QaSiteComment):
+	content = RichTextField(_('Content'), config_name='add_academic_comment')
+	# comments have just votes (no upvotes & downvotes)
+	# vote_count = models.PositiveIntegerField(default=0)
+
+	class Meta:
+		abstract = True
+
+	def __str__(self):
+		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
+		# while you're at it, see the answer with textwrap.shorten ..
+		return filters.truncatewords(remove_tags(self.content), 10)
 
 
 class AcademicQuestionComment(AcademicComment):
@@ -345,7 +362,7 @@ class Subject(models.Model):
 		return self.name
 
 
-class DiscussComment(Comment):
+class DiscussComment(QaSiteComment):
 	content = RichTextField(_('Content'), config_name='add_discuss_comment')
 	question = models.ForeignKey(
 		'DiscussQuestion',

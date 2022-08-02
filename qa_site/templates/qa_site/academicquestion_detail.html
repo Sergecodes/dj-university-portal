@@ -10,18 +10,19 @@
 {% get_current_language as LANGUAGE_CODE %}
 
 {% block title %}
-	<title>{{ question.title }} | CamerSchools</title>
+<title>{{ question.title }} | CamerSchools</title>
 {% endblock %}
 
 {% block extra_css %}
-	<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/highlight.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/jquery-comments.css' %}">
 {% endblock %}
 
 {% block extra_script_pre %}
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/highlight.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/highlight.min.js' %}"></script>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -218,7 +219,7 @@
 				<div class="d-inline mx-2 question-reaction-downvote">
 					<a 
 						role="button" 
-						class="text-decoration-none  js-downvote" 
+						class="text-decoration-none js-downvote" 
 						data-thread="question" 
 						data-id="{{ question.id }}"
 						data-poster-id="{{ question.poster_id }}"
@@ -403,9 +404,9 @@
 					</div>
 				</div>
 				{% endwith %}
-			{% comment %} {% empty %}
-				<p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> {% endcomment %}
-			{% endfor %}
+			{# {% empty %} #}
+				{# <p class="border-top border-bottom my-2 py-2">{% trans 'No comment' %}</p> #}
+			{% endfor %} 
 			
 			<a 
 				role="button" 
@@ -700,7 +701,6 @@
 </div>
 {% endblock content %}
 
-
 {% block extra_js %}
 <script>
 	// call highlight js to highligt code on page
@@ -976,6 +976,76 @@
 	});
 
 
+	/** FOLLOWING **/
+	// do this only if user isn't owner of question
+	{% if user.id != question.poster_id %}
+		// no need to complicate following by creating another template and script
+		// besides it is used in only two templates; (both questions detail templates)
+		$('.js-follow-button').click(function(event) {
+			// if user isn't logged in
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return false;
+			}
+
+			var $this = $(this);
+			var id = parseInt(this.dataset.id, 10);
+			var url = "{% url 'qa_site:academic-follow-toggle' %}";
+			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
+			
+			// if user is trying to undo the follow
+			if ($this.hasClass('js-selected')) {
+				var voteAction = 'recall-follow';
+
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['unfollowed']) {
+							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
+							$followUnfollowSpan.text({{ follow_text }});
+							displayToast('FOLLOW_TOGGLE', false);
+
+						} else {
+							console.error(result);
+							displayToast('ERROR_OCCURRED');
+						}
+					}
+				});
+
+			} else {
+				// if user is following question
+				var voteAction = 'follow';
+
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['followed']) {
+							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
+							$followUnfollowSpan.text({{ unfollow_text }});
+							displayToast('FOLLOW_TOGGLE', true);
+						} else {
+							console.error(result);
+							displayToast('ERROR_OCCURRED');
+						}
+					}
+				});
+			}
+		});
+	{% endif %}
+</script>
+<script>
 	/** FOLLOWING **/
 	// do this only if user isn't owner of question
 	{% if user.id != question.poster_id %}

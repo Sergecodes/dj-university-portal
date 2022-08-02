@@ -1,11 +1,16 @@
 """Basically for views that return a JsonResponse"""
-
+import json
+from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
+from django.utils.translation import get_language, gettext_lazy as _
+from django.views import View
+from django.views.decorators.http import require_POST, require_GET
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
@@ -13,13 +18,16 @@ from core.constants import (
 )
 from notifications.models import Notification
 from notifications.signals import notify
+from ..forms import DiscussCommentForm
 from ..models import (
 	DiscussQuestion, AcademicQuestion, AcademicAnswer,
 	DiscussComment, AcademicQuestionComment, AcademicAnswerComment
 )
 
+User = get_user_model()
 
-def downvote_post(user, post, type, for_html=False):
+
+def _downvote_post(user, post, type, for_html=False):
 	"""Helper function to redirect to question or answer downvote"""
 	if type == 'question':
 		return user.downvote_question(post, for_html=for_html)
@@ -27,6 +35,159 @@ def downvote_post(user, post, type, for_html=False):
 		return user.downvote_answer(post, for_html=for_html)
 	else:
 		raise ValueError("Invalid post type")
+
+
+def _parse_discuss_comment(comment: DiscussComment):
+	"""Parse discuss comment for appropriately using in jquery-comments"""
+	poster = comment.poster
+	obj = {
+		'id': comment.id,
+		'parent': comment.parent_id,
+		'created': comment.posted_datetime,
+		'modified': comment.last_modified,
+		'content': comment.content,
+		'creator': poster.id,
+		'fullname': poster.full_name,
+		'created_by_admin': False,
+		'created_by_current_user': user.id == poster.id,
+		'upvote_count': comment.upvote_count,
+		'user_has_upvoted': False if user.is_anonymous else user in comment.upvoters.only('id'),
+		'is_new': False
+	}
+	try:
+		obj['profile_picture_url'] = poster.social_profile.profile_image.url
+	except AttributeError:
+		obj['profile_picture_url'] = ''
+
+	pings = {}
+	for user in comment.users_mentioned.only('id', 'full_name', 'username').all():
+		pings[user.id] = user.full_name
+
+	# pings should be an empty array if no ping is present else
+	# it should be an object of pings
+	obj['pings'] = [] if len(pings) == 0 else pings
+
+	return obj
+
+
+@require_GET
+def get_discuss_comments(request):
+	"""
+	Get discuss comments to display in frontend (using jquery-comments).
+	see https://viima.github.io/jquery-comments/
+	"""
+	all_users = User.active.all()
+
+	comments = DiscussComment.objects \
+		.select_related('parent', 'poster__social_profile') \
+		.prefetch_related(
+			Prefetch('users_mentioned', queryset=all_users.only('id', 'full_name', 'username')),
+			Prefetch('upvoters', queryset=all_users.only('id'))
+		) \
+		.all()
+
+	result = [_parse_discuss_comment(comment) for comment in comments]
+	return JsonResponse(result)
+
+
+@method_decorator(login_required, name='post')
+@method_decorator(login_required, name='put')
+@method_decorator(login_required, name='delete')
+class JQueryDiscussCommentView(View):
+	def get(self, request, id):
+		comment = get_object_or_404(DiscussComment, pk=id)
+		return JsonResponse(_parse_discuss_comment(comment))
+
+	def post(self, request):
+		# When posting, send content, question_id & optional parent_id
+		POST, user = request.POST, request.user
+		parent_id = POST.get('parent_id')
+		question = get_object_or_404(DiscussQuestion, pk=POST['question_id'])
+		parent = get_object_or_404(DiscussComment, pk=parent_id) if parent_id else None
+
+		form = DiscussCommentForm(POST)
+
+		if form.is_valid():
+			comment = form.save(commit=False)
+			user.add_question_comment(question, comment, parent)
+			return JsonResponse(_parse_discuss_comment(comment), status=201)
+		else:
+			return JsonResponse(form.errors.as_json(), status=400)
+
+	def put(self, request, id):
+		PUT, user = json.loads(request.body), request.user
+		content = PUT['content']
+		comment = get_object_or_404(DiscussComment, pk=id)	
+
+		if not user.can_edit_comment(comment):
+			return JsonResponse({
+				'success': False,
+				'message': _('You are not permitted to edit this comment')
+			}, status=403)
+
+		if content == comment.content:
+			return JsonResponse({
+				'success': False,
+				'message': _("This comment's content hasn't changed")
+			}, 400)
+
+		comment.update_language = get_language()
+		comment.save()
+		return JsonResponse(_parse_discuss_comment(comment))
+
+	def delete(self, request, id):
+		DELETE, user = json.loads(request.body), request.user
+		comment = get_object_or_404(DiscussComment, pk=id)
+
+		if not user.can_delete_comment(comment):
+			return JsonResponse({
+				'message': _('You are not permitted to delete this comment')
+			}, status=403)
+
+		comment.delete()
+		return JsonResponse(status=204)
+
+
+@require_GET
+def get_users_mentioned(request, question_id):
+	"""Get all users mentioned in academic or discuss question post"""
+	model_name = request.GET['model_name']
+
+	if model_name not in ['AcademicQuestion', 'DiscussQuestion']:
+		return JsonResponse({
+			'success': False,
+			'message': _('Invalid model type')
+		}, status=400)
+
+	qstn_model = apps.get_model('qa_site', model_name)
+	question = get_object_or_404(qstn_model, pk=question_id)
+
+	if model_name == 'AcademicQuestion':
+		qstns = qstn_model.objects.prefetch_related(
+			Prefetch('comments', AcademicQuestionComment.objects.only('id', 'users_mentioned')),
+			Prefetch('answers__comments', AcademicAnswerComment.objects.only('id', 'users_mentioned')),
+		)
+		users = User.objects.none()
+
+		for question in qstns:
+			for comment in question.comments.all():
+				users |= comment.users_mentioned.all()
+
+			for answer in question.answers.all():
+				for comment in answer.comments.all():
+					users |= comment.users_mentioned.all()
+
+	elif model_name == 'DiscussQuestion':
+		qstns = qstn_model.objects.prefetch_related(
+			Prefetch('comments', DiscussComment.objects.only('id', 'users_mentioned'))
+		)
+		users = User.objects.none()
+
+		for question in qstns:
+			for comment in question.comments.all():
+				users |= comment.users_mentioned.all()
+
+	return JsonResponse({ 'users': users.distinct() })
 
 
 @login_required
@@ -98,7 +259,7 @@ def vote_academic_thread(request):
 					}, status=200)
 
 				elif vote_type == 'down':
-					downvote_result = downvote_post(user, object, thread_type, for_html=True)
+					downvote_result = _downvote_post(user, object, thread_type, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
@@ -301,7 +462,7 @@ def vote_discuss_thread(request):
 						}, status=200)
 
 				elif vote_type == 'down':
-					downvote_result = downvote_post(user, object, thread_type, for_html=True)
+					downvote_result = _downvote_post(user, object, thread_type, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
@@ -526,3 +687,5 @@ def discuss_question_follow_toggle(request):
 		return JsonResponse({'unfollowed': True}, status=200)
 	else:
 		return JsonResponse({'error': _('Invalid action')}, status=400)
+
+

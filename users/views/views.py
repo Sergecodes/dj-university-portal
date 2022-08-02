@@ -23,11 +23,11 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import PHONE_NUMBERS_KEY, TEST_ACCOUNT_EMAIL, TEST_ACCOUNT_USERNAME
 from qa_site.models import AcademicAnswer, DiscussComment
-from users.models import PhoneNumber
-from .forms import (
+from users.forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
 	UserCreationForm, UserUpdateForm
 )
+from users.models import PhoneNumber
 
 account_activation_token = PasswordResetTokenGenerator()
 User = get_user_model()

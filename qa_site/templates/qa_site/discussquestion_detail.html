@@ -87,7 +87,6 @@
 					You are now following this question. You'll receive notifications when there's activity on this post.
 				{% endblocktrans %} <br>
 				{% trans 'Click' %}
-				{# TODO go to section where following tags are. (use hashtag ) #}
 				<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
 				{% trans 'to see the questions you are following' %}.
 			</p>
@@ -325,7 +324,7 @@
 		</section>
 
 		<!-- We'll consider ancestor comments as answers -->
-		<section class="px-3 question-answers">
+		{% comment %} <section class="px-3 question-answers">
 			<div class="d-flex answers-header">
 				<span class="answers-header__count">
 					{{ num_comments }} {% trans 'Comment' %}{{ num_comments|pluralize }}
@@ -551,14 +550,15 @@
 				<!-- don't separate this 2 elements, dependency in script... -->
 				<form class="d-none mt-2" method="post">
 					{% csrf_token %}
-					{% comment %} {{ answer_form.media }} {% endcomment %}
 					{{ answer_form|crispy }}
 					
 					<input type="hidden" name="question_id" value="{{ question.id }}">
 					<input type="submit" class="btn btn-purple" name="add_answer" value="{% trans 'Post Answer' %}">
 				</form>
 			</div>
-		</section>
+		</section> {% endcomment %}
+		<section id="question-comments"></section>
+
 		{% endwith %}
 	</article>
 
@@ -606,7 +606,237 @@
 
 
 {% block extra_js %}
+<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
+<script src="{% static 'js/jquery-comments.min.js' %}"></script>
 <script>
+	/* Get current user's id.. */
+	// if user isn't logged in, user.id and userPoints will be "None"
+	var userId = "{{ user.id }}", userPoints = "{{ user.site_points }}";
+	var requiredDownvotePoints = {{ required_downvote_points }};
+	userId = (userId == "None" ? null : userId);
+	var csrfToken = "{{ csrf_token }}";
+
+	/** FOLLOWING **/
+	// do this only if user isn't owner of question
+	{% if user.id != question.poster_id %}
+		// no need to complicate following by creating another template and script
+		// besides it is used in only two templates; (both questions detail templates)
+		$('.js-follow-button').click(function(event) {
+			// if user isn't logged in
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return false;
+			}
+
+			var $this = $(this);
+			var id = parseInt(this.dataset.id, 10);
+			var url = "{% url 'qa_site:discuss-follow-toggle' %}";
+			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
+			
+			// if user is trying to undo the follow
+			if ($this.hasClass('js-selected')) {
+				var voteAction = 'recall-follow';
+
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['unfollowed']) {
+							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
+							$followUnfollowSpan.text({{ follow_text }});
+							displayToast('FOLLOW_TOGGLE', false);
+
+						} else {
+							console.error(result);
+							displayToast('ERROR_OCCURRED');
+						}
+					}
+				});
+
+			} else {
+				// if user is following question
+				var voteAction = 'follow';
+
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: {id: id, action: voteAction},
+					dataType: 'json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function(result) {
+						if (result['followed']) {
+							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
+							$followUnfollowSpan.text({{ unfollow_text }});
+							displayToast('FOLLOW_TOGGLE', true);
+						} else {
+							console.error(result);
+							displayToast('ERROR_OCCURRED');
+						}
+					}
+				});
+			}
+		});
+	{% endif %}
+</script>
+<script>
+	{# jquery-comments config, https://viima.github.io/jquery-comments #}
+	var commonInfo = {
+		textareaPlaceholderText: "{% trans 'Add a comment' %}",
+		newestText: "{% trans 'Newest' %}",
+		oldestText: "{% trans 'Oldest' %}",
+		popularText: "{% trans 'Popular' %}",
+		attachmentsText: "{% trans 'Attachments' %}",
+		sendText: "{% trans 'Comment' %}",
+		replyText: "{% trans 'Reply' %}",
+		editText: "{% trans 'Edit' %}",
+		editedText: "{% trans 'Edited' %}",
+		youText: "{% trans 'You' %}",
+		saveText: "{% trans 'Save' %}",
+		deleteText: "{% trans 'Delete' %}",
+		viewAllRepliesText: "{% trans 'View all' %} " + __replyCount__ + " {% trans 'replies' %} ",
+		hideRepliesText: "{% trans 'Hide replies' %}",
+		noCommentsText: "{% trans 'No comments' %}",
+		noAttachmentsText: "{% trans 'No attachments' %}",
+		attachmentDropText: "{% trans 'Drop files here' %}",
+		roundProfilePictures: true,
+		profilePictureUrl: (function() {
+			{% with profile_image = user.social_profile.profile_image %}
+			var url = "{% if profile_image %} profile_image.url {% endif %}";
+			{% endwith %}
+			console.log("profile image url", url);
+			return url;
+		})(),
+		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
+		enablePinging: true,
+		_parseComment: function(data) {
+			// Convert pings to human readable format
+			$(Object.keys(data.pings)).each(function(index, userId) {
+				var username = data.pings[userId];
+				var pingText = '@' + username;
+				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
+			});
+	
+			return data;
+		},
+		_getUsers: await (function() {
+			return $.ajax({
+				type: 'get',
+				url: "{% url 'qa_site:get-users-mentioned' question.id %}?model_name='AcademicQuestion'",
+				success: function(data, status, jqXHR) {
+					var users = data;
+					console.log(users);
+				},
+				error: function(jqXHR, status, error) {
+					console.error(error);
+				}
+			})
+		})(),
+		searchUsers: function(term, success, error) {
+			var users = this._getUsers;
+			setTimeout(function() {
+				success(users.filter(function(user) {
+					var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
+					var isNotSelf = user.id != userId;
+					return containsSearchTerm && isNotSelf;
+				}));
+		 	}, 500);
+		},
+
+	};
+
+	$('#question-comments').comments({
+		...commonInfo,
+		getComments: function(success, error) {
+			$.ajax({
+				type: 'get',
+				url: "{% url 'qa_site:get-academic-comments' 'question' %}",
+				success: function(commentsArray) {
+					success(commentsArray);
+				},
+				error: error
+			});
+		},
+		postComment: function(commentJSON, success, error) {
+			$.ajax({
+				type: 'post',
+				url: '/api/comments/',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				data: {
+					
+				},
+				success: function(comment) {
+					success(this._parseComment(comment))
+				},
+				error: error
+			});
+		},
+		putComment: function(commentJSON, success, error) {
+			$.ajax({
+				type: 'put',
+				url: '/api/comments/' + commentJSON.id,
+				data: commentJSON,
+				success: function(comment) {
+					success(this._parseComment(comment))
+				},
+				error: error
+			});
+		},
+		deleteComment: function(commentJSON, success, error) {
+			$.ajax({
+				type: 'delete',
+				url: '/api/comments/' + commentJSON.id,
+				success: success,
+				error: error
+			});
+		},
+		upvoteComment: function(commentJSON, success, error) {
+			var commentURL = '/api/comments/' + commentJSON.id;
+			var upvotesURL = commentURL + '/upvotes/';
+	  
+			if(commentJSON.userHasUpvoted) {
+				$.ajax({
+					type: 'post',
+					url: upvotesURL,
+					data: {
+						comment: commentJSON.id
+					},
+					success: function() {
+						success(commentJSON)
+					},
+					error: error
+				});
+			} else {
+				$.ajax({
+					type: 'delete',
+					url: upvotesURL + upvoteId,
+					success: function() {
+						success(commentJSON)
+					},
+					error: error
+				});
+			}
+		},
+		pingClicked: function(ping) {
+			alert(ping);
+		},
+		timeFormatter: function(time) {
+			return new Date(time).toLocaleDateString();
+		},
+
+	});
+</script>
+
+{% comment %} <script>
 	// reduce margin of paragraphs so as to use less space..
 	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
 
@@ -947,5 +1177,5 @@
 		});
 	{% endif %}
 
-</script>
+</script> {% endcomment %}
 {% endblock %}
