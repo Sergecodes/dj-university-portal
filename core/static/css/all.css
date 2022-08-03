@@ -85,6 +85,11 @@ a.dropdown-item:focus {
     border-color: #198754;
 }
 
+/* bootstrap toasts should be opaque */
+.toast {
+    z-index: 9999;
+}
+
 /* change color(fill) of small round circle; %23198754 => #198754(bootstrap success) */
 .form-switch .form-check-input:focus {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23198754'/%3e%3c/svg%3e");

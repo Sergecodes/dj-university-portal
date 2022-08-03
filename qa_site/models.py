@@ -35,6 +35,10 @@ class QaSiteComment(Comment):
 		return self.question
 
 	@property
+	def reply_count(self):
+		return self.replies.count()
+
+	@property
 	def upvote_count(self):
 		return self.upvoters.count()
 
@@ -46,7 +50,7 @@ class QaSiteComment(Comment):
 	def is_within_edit_timeframe(self):
 		"""
 		Verify if comment is within edition time_frame
-		(posted_datetime is less than COMMENT_CAN_EDIT_TIME_LIMIT(5 minutes) old)
+		(posted_datetime is less than COMMENT_CAN_EDIT_TIME_LIMIT(10 minutes) old)
 		"""
 		if (timezone.now() - self.posted_datetime) > COMMENT_CAN_EDIT_TIME_LIMIT:
 			return False

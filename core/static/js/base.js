@@ -472,34 +472,28 @@ function displayToast(type, param) {
 		throw `${type} is an invalid toast type`;
 	}
 
-	var $myToast;
+	var $myToast, errorCSS = {
+		'color': '#842029',
+		'border-color': '#f5c2c7',
+	};
 	
 	if (type == 'LOGIN_REQUIRED') {
 		$myToast = $('.js-login-required-toast').first();
 
 		// reset styles alert-danger styles since apparently, some toast styles override them. 
-		$myToast.css({
-			'color': '#842029',
-			'border-color': '#f5c2c7'
-		});
+		$myToast.css(errorCSS);
 
 	} else if (type == 'SELF_VOTE') {
 		$myToast = $('.js-self-vote-toast').first();
 
 		// reset styles alert-danger styles since apparently, some toast styles override them. 
-		$myToast.css({
-			'color': '#842029',
-			'border-color': '#f5c2c7'
-		});
+		$myToast.css(errorCSS);
 
 	} else if (type == 'ERROR_OCCURRED') {
 		$myToast = $('.js-error-occurred-toast').first();
 
 		// reset styles alert-danger styles since apparently, some toast styles override them. 
-		$myToast.css({
-			'color': '#842029',
-			'border-color': '#f5c2c7'
-		});
+		$myToast.css(errorCSS);
 
 	} else if (type == 'BOOKMARK_TOGGLE') {
 		var bookmarkAdded = param;
@@ -528,10 +522,7 @@ function displayToast(type, param) {
 		$myToast = $('.js-custom-error-toast').first();
 
 		// reset styles alert-danger styles since apparently, some toast styles override them. 
-		$myToast.css({
-			'color': '#842029',
-			'border-color': '#f5c2c7'
-		});
+		$myToast.css(errorCSS);
 
 		var $msgWrp = $('.js-toast-message');
 		$msgWrp.html(message);

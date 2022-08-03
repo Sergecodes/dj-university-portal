@@ -22,6 +22,7 @@
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script> {% endcomment %}
 
+	<script src="{% static 'js/moment-with-locales.js' %}"></script>
 	<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
 	{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
 	<script src="{% static 'js/jquery-comments.js' %}"></script>
@@ -696,10 +697,14 @@
 	{% endif %}
 </script>
 <script>
+	{% if LANGUAGE_CODE != 'en' %}
+	moment.locale('{{ LANGUAGE_CODE }}');
+	{% endif %}
+
 	var usersMentioned = [];
 	$.ajax({
 		type: 'GET',
-		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=DiscussQuestion",
+		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=DiscussQuestion&for_jquery=1",
 		success: function(result, status, jqXHR) {
 			console.log(result);
 			usersMentioned = result.data;
@@ -737,32 +742,47 @@
 		})(),
 		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
 		enablePinging: true,
+		_permissions: {},
 		_parseComment: function(data) {
 			// Convert pings to human readable format
 			$(Object.keys(data.pings)).each(function(index, userId) {
 				var username = data.pings[userId];
 				var pingText = '@' + username;
 				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
-			});
-	
+			}); 
+			
 			return data;
 		},
 		searchUsers: function(term, success, error) {;
 			// setTimeout(function() {
 			success(usersMentioned.filter(function(user) {
-				var containsSearchTerm = user.username.toLowerCase().indexOf(term.toLowerCase()) != -1;
+				// This library expects the attribute to be named 'fullname',
+				// however, the fullname in this case refers to the user's username; 
+				// which is what we want
+				var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
 				var isNotSelf = user.id != userId;
 				return containsSearchTerm && isNotSelf;
 			}));
 		 	// }, 500);
 		},
 		getComments: function(success, error) {
+			var that = this;
 			$.ajax({
 				type: 'GET',
 				url: "{% url 'qa_site:discuss-comments-cl' %}",
 				success: function(result) {
 					console.log(result);
-					success(result.data);
+					var data = result.data;
+
+					for (var comment of data) {
+						that._permissions[comment.id] = {
+							cannotUpdate: false,
+							cannotUpdateMessage: '',
+							cannotDelete: false,
+							cannotDeleteMessage: '',
+						};
+					}
+					success(data);
 				},
 				error: error
 			});
@@ -781,19 +801,35 @@
 					content: commentJSON.content
 				},
 				success: function(result) {
-					console.log(that);
-					success(that._parseComment(result.data));
+					var data = result.data;
+
+					// Add permission to list of permissions
+					that._permissions[data.id] = {
+						cannotUpdate: false,
+						cannotUpdateMessage: '',
+						cannotDelete: false,
+						cannotDeleteMessage: ''
+					};
+					success(that._parseComment(data));
 				},
 				error: error
 			});
 		},
 		putComment: function(commentJSON, success, error) {
-			var that = this;
+			var that = this, id = commentJSON.id;
+			var permission = that._permissions[id];
+			
+			// Verify if comment can be changed
+			if (permission.cannotUpdate) {
+				displayToast('CUSTOM_ERROR', permission.cannotUpdateMessage);
+				return error();
+			} 
+
 			$.ajax({
 				type: 'PUT',
 				// use cl instead of cud then append id...
 				// since javascript vars do not work in python
-				url: "{% url 'qa_site:discuss-comments-cl' %}" + commentJSON.id + '/',
+				url: "{% url 'qa_site:discuss-comments-cl' %}" + id + '/',
 				data: JSON.stringify({
 					content: commentJSON.content
 				}),
@@ -803,67 +839,102 @@
 				success: function(result) {
 					success(that._parseComment(result.data));
 				},
-				error: error
+				error: function(jqXHR, status, ajaxError) {
+					if (jqXHR.status === 403) {
+						var response = jqXHR.responseJSON;
+						displayToast('CUSTOM_ERROR', response.message);
+						// Mark that comment can't be edited
+						permission.cannotUpdate = true;
+						permission.cannotUpdateMessage = response.message;
+					}
+					error();
+				}
 			});
 		},
 		deleteComment: function(commentJSON, success, error) {
+			var that = this, id = commentJSON.id;
+			var permission = that._permissions[id];
+
+			console.log(that._permissions, id)
+			
+			// Verify if comment can be deleted
+			if (permission.cannotDelete) {
+				displayToast('CUSTOM_ERROR', permission.cannotDeleteMessage);
+				return error();
+			} 
+
 			$.ajax({
 				type: 'DELETE',
-				url: "{% url 'qa_site:discuss-comments-cl' %}" + commentJSON.id + '/',
+				url: "{% url 'qa_site:discuss-comments-cl' %}" + id + '/',
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
-				success: success,
-				error: error
+				success: success, // No need to bother removing the comment from list of permissions...
+				error: function (jqXHR, status, ajaxError) {
+					if (jqXHR.status === 403) {
+						var response = jqXHR.responseJSON;
+						displayToast('CUSTOM_ERROR', response.message);
+						// Mark that comment can't be deleted
+						permission.cannotDelete = true;
+						permission.cannotDeleteMessage = response.message;
+					}
+					error();
+				}
 			});
 		},
 		upvoteComment: function(commentJSON, success, error) {
 			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
 	  
-			// Recalling upvote
-			if(commentJSON.userHasUpvoted) {
-				$.ajax({
-					type: 'POST',
-					url: upvotesURL,
-					data: {
-						id: commentJSON.id, 
-						vote_type: 'up', 
-						thread_type: 'comment', 
-						action: 'recall-vote'
-					},
-					beforeSend: function (xhr) {
-						xhr.setRequestHeader("X-CSRFToken", csrfToken);
-					},
-					success: function() {
-						success(commentJSON);
-					},
-					error: error
-				});
+			// If user is creator of commnet, he can't vote
+			if (userId == commentJSON.creator) {
+				displayToast('SELF_VOTE');
+				error();
 			} else {
-				$.ajax({
-					type: 'POST',
-					url: upvotesURL,
-					data: {
-						id: commentJSON.id, 
-						vote_type: 'up', 
-						thread_type: 'comment', 
-						action: 'vote'
-					},
-					beforeSend: function (xhr) {
-						xhr.setRequestHeader("X-CSRFToken", csrfToken);
-					},
-					success: function() {
-						success(commentJSON);
-					},
-					error: error
-				});
+				// Recalling upvote
+				if(commentJSON.userHasUpvoted) {
+					$.ajax({
+						type: 'POST',
+						url: upvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'up', 
+							thread_type: 'comment', 
+							action: 'recall-vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							success(commentJSON);
+						},
+						error: error
+					});
+				} else {
+					$.ajax({
+						type: 'POST',
+						url: upvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'up', 
+							thread_type: 'comment', 
+							action: 'vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							success(commentJSON);
+						},
+						error: error
+					});
+				}
 			}
 		},
 		pingClicked: function(ping) {
 			alert(ping);
 		},
 		timeFormatter: function(time) {
-			return new Date(time).toLocaleDateString();
+			return moment(time).fromNow();
 		},
 
 	});

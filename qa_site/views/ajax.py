@@ -14,7 +14,9 @@ from django.views.decorators.http import require_POST, require_GET
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
-	THRESHOLD_POINTS
+	THRESHOLD_POINTS, COMMENT_CAN_EDIT_TIME_LIMIT,
+	COMMENT_CAN_EDIT_UPVOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
+	ANSWER_CAN_DELETE_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT
 )
 from notifications.models import Notification
 from notifications.signals import notify
@@ -52,7 +54,7 @@ def _parse_discuss_comment(current_user, comment: DiscussComment):
 		'created_by_current_user': user.id == poster.id,
 		'upvote_count': comment.upvote_count,
 		'user_has_upvoted': False if user.is_anonymous else user in comment.upvoters.only('id'),
-		'is_new': False
+		'is_new': False,
 	}
 	try:
 		obj['profile_picture_url'] = poster.social_profile.profile_image.url
@@ -115,34 +117,82 @@ class JQueryDiscussCommentDetail(View):
 		return JsonResponse({ 'data': _parse_discuss_comment(request.user, comment) })
 
 	def put(self, request, id):
-		print(request.body)
 		PUT, user = json.loads(request.body), request.user
-		content = PUT['content']
+		content, success = PUT['content'], True
 		comment = get_object_or_404(DiscussComment, pk=id)	
 
-		if not user.can_edit_comment(comment):
+		if comment.parent_id is None:
+			if not user.can_edit_answer(comment):
+				success = False
+
+				if user.id == comment.poster_id:
+					message = _(
+						"Comments that have more than {} likes cannot be edited"
+							.format(ANSWER_CAN_EDIT_VOTE_LIMIT)
+					)
+				else:
+					message = _("You are not permitted to edit this comment")
+		else:
+			if not user.can_edit_comment(comment):
+				success = False
+
+				if user.id == comment.poster_id:
+					message = _(
+						"Replies that have lasted longer than {} minutes "
+						"or that have more than {} likes cannot be edited" \
+						.format(COMMENT_CAN_EDIT_TIME_LIMIT.seconds // 60, COMMENT_CAN_EDIT_UPVOTE_LIMIT)
+					)
+				else:
+					message = _('You are not permitted to edit this comment')
+
+		if success == False:
 			return JsonResponse({
 				'success': False,
-				'message': _('You are not permitted to edit this comment')
+				'message': message
 			}, status=403)
 
 		if content == comment.content:
 			return JsonResponse({
 				'success': False,
 				'message': _("This comment's content hasn't changed")
-			})
+			}, status=400)
 
+		comment.content = content
 		comment.update_language = get_language()
 		comment.save()
 		return JsonResponse({ 'data': _parse_discuss_comment(user, comment) })
 
 	def delete(self, request, id):
-		user = request.user
+		user, success = request.user, True
 		comment = get_object_or_404(DiscussComment, pk=id)
 
-		if not user.can_delete_comment(comment):
+		if comment.parent_id is None:
+			if not user.can_delete_answer(comment):
+				success = False
+
+				if user.id == comment.poster_id:
+					message = _(
+						"Comments that have more than {} likes cannot be deleteed"
+							.format(ANSWER_CAN_DELETE_VOTE_LIMIT)
+					)
+				else:
+					message = _("You are not permitted to delete this comment")
+		else:
+			if not user.can_delete_comment(comment):
+				success = False
+
+				if user.id == comment.poster_id:
+					message = _(
+						"Replies that have more than {} likes cannot be DELETED" \
+						.format(COMMENT_CAN_DELETE_UPVOTE_LIMIT)
+					)
+				else:
+					message = _('You are not permitted to DELETE this comment')
+
+		if success == False:
 			return JsonResponse({
-				'message': _('You are not permitted to delete this comment')
+				'success': False,
+				'message': message
 			}, status=403)
 
 		comment.delete()
@@ -153,6 +203,10 @@ class JQueryDiscussCommentDetail(View):
 def get_users_mentioned(request, question_id):
 	"""Get all users mentioned in academic or discuss question post"""
 	model_name = request.GET['model_name']
+	try:
+		for_jquery = bool(int(request.GET.get('for_jquery', 0)))
+	except TypeError:
+		for_jquery = False
 
 	if model_name not in ['AcademicQuestion', 'DiscussQuestion']:
 		return JsonResponse({
@@ -165,18 +219,30 @@ def get_users_mentioned(request, question_id):
 
 	if model_name == 'AcademicQuestion':
 		qstns = qstn_model.objects.prefetch_related(
-			Prefetch('comments', AcademicQuestionComment.objects.only('id', 'users_mentioned')),
-			Prefetch('answers__comments', AcademicAnswerComment.objects.only('id', 'users_mentioned')),
+			Prefetch(
+				'comments', 
+				AcademicQuestionComment.objects.only('id', 'users_mentioned')
+			),
+			Prefetch(
+				'answers__comments', 
+				AcademicAnswerComment.objects.only('id', 'users_mentioned')
+			),
 		)
 		users = User.objects.none()
 
 		for question in qstns:
 			for comment in question.comments.all():
-				users |= comment.users_mentioned.all()
+				if for_jquery:
+					users |= comment.users_mentioned.select_related('social_profile').all()
+				else:
+					users |= comment.users_mentioned.all()
 
 			for answer in question.answers.all():
 				for comment in answer.comments.all():
-					users |= comment.users_mentioned.all()
+					if for_jquery:
+						users |= comment.users_mentioned.select_related('social_profile').all()
+					else:
+						users |= comment.users_mentioned.all()
 
 	elif model_name == 'DiscussQuestion':
 		qstns = qstn_model.objects.prefetch_related(
@@ -186,9 +252,29 @@ def get_users_mentioned(request, question_id):
 
 		for question in qstns:
 			for comment in question.comments.all():
-				users |= comment.users_mentioned.all()
+				if for_jquery:
+					users |= comment.users_mentioned.select_related('social_profile').all()
+				else:
+					users |= comment.users_mentioned.all()
 
-	return JsonResponse({ 'data': list(users.distinct()) })
+	if not for_jquery:
+		result = list(users.distinct().values())
+	else:
+		result = []
+		for user in users.distinct():
+			obj = {
+				'id': user.id,
+				'fullname': user.username,
+				'email': user.email
+			}
+			try:
+				obj['profile_picture_url'] = user.social_profile.profile_image.url
+			except AttributeError:
+				obj['profile_picture_url'] = ''
+
+			result.append(obj)
+
+	return JsonResponse({ 'data': result })
 
 
 @login_required

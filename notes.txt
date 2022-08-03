@@ -12,6 +12,9 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
+- parse users mentioned from comments. (see rml)
+- make academic question similar to discuss question ...
+- in jquery-comments, clicking on replied message arrow should highlight the parent comment!
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
 - change full name validator (frontend nd backend)
@@ -30,10 +33,14 @@ better still check the width and height of the image... (maybe sum of W and H)
 
 
 - change text in toast after bookmarking social profile 
-- after uploading image, there should be an eye icon on it. upon which clicking should 
-enlarge the image...
+- update taggit-selectize. should not call backend upon typing every letter!!
+- after uploading image in listing pages, there should be an eye icon on it. 
+upon which clicking should enlarge the image...
 - restrict length of text fields... (also in models; eg via clean method)
+- add through models (follow, bookmark, upvote, downvote) then add datetime fields
+so as to keep track of when these actions are done
 - if user is authed, on header, change profile icon to his profile image. 
+- add attractive and pleasant modal when new users visit the site(homepage) for their first time.
 - verify on frontend that required contact-number field has been entered, before submitting form
 - add a page in the site to explain how non-univ students can use it ...?
 - on social profile create form, interested relationship should be multiple select (multiple values should be permitted).
