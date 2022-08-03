@@ -382,6 +382,15 @@ class DiscussComment(QaSiteComment):
 		related_query_name='upvoted_discuss_comment',
 		blank=True
 	)
+	users_mentioned = models.ManyToManyField(
+		User,
+		related_name='discuss_comments_mentioned',
+		related_query_name='discuss_comment_mentioned',
+		blank=True
+	)
+
+	def __str__(self):
+		return self.content
 
 	class Meta:
 		verbose_name = _('Discuss Comment')

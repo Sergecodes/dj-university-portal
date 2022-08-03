@@ -594,11 +594,11 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		context = super().get_context_data(**kwargs)
 		question, user, all_users = self.object, self.request.user, User.objects.active()
 
-		comments = question.comments.prefetch_related(
-			'replies',
-			Prefetch('upvoters', queryset=all_users.only('id')),
-		)
-		answers = comments.filter(parent__isnull=True)
+		# comments = question.comments.prefetch_related(
+		# 	'replies',
+		# 	Prefetch('upvoters', queryset=all_users.only('id')),
+		# )
+		# answers = comments.filter(parent__isnull=True)
 
 		# initialize comment and answer forms
 		answer_form = DiscussCommentForm()
@@ -623,7 +623,7 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 			id__in=related_items_ids
 		).only('content') \
 		.prefetch_related(
-			Prefetch('comments', queryset=DiscussComment.objects.defer('content')),
+			# Prefetch('comments', queryset=DiscussComment.objects.defer('content')),
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id'))
 		) \
@@ -631,9 +631,9 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		
 		context['question_tags'] = question_tags
 		context['related_qstns'] = related_qstns
-		context['answers'] = answers
-		context['num_answers'] = answers.count()
-		context['num_comments'] = comments.count()
+		# context['answers'] = answers
+		# context['num_answers'] = answers.count()
+		# context['num_comments'] = comments.count()
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)

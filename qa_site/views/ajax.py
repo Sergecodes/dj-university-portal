@@ -37,9 +37,9 @@ def _downvote_post(user, post, type, for_html=False):
 		raise ValueError("Invalid post type")
 
 
-def _parse_discuss_comment(comment: DiscussComment):
+def _parse_discuss_comment(current_user, comment: DiscussComment):
 	"""Parse discuss comment for appropriately using in jquery-comments"""
-	poster = comment.poster
+	poster, user = comment.poster, current_user
 	obj = {
 		'id': comment.id,
 		'parent': comment.parent_id,
@@ -47,7 +47,7 @@ def _parse_discuss_comment(comment: DiscussComment):
 		'modified': comment.last_modified,
 		'content': comment.content,
 		'creator': poster.id,
-		'fullname': poster.full_name,
+		'fullname': poster.username,
 		'created_by_admin': False,
 		'created_by_current_user': user.id == poster.id,
 		'upvote_count': comment.upvote_count,
@@ -60,8 +60,8 @@ def _parse_discuss_comment(comment: DiscussComment):
 		obj['profile_picture_url'] = ''
 
 	pings = {}
-	for user in comment.users_mentioned.only('id', 'full_name', 'username').all():
-		pings[user.id] = user.full_name
+	for user in comment.users_mentioned.only('id', 'username').all():
+		pings[user.id] = user.username
 
 	# pings should be an empty array if no ping is present else
 	# it should be an object of pings
@@ -70,33 +70,25 @@ def _parse_discuss_comment(comment: DiscussComment):
 	return obj
 
 
-@require_GET
-def get_discuss_comments(request):
-	"""
-	Get discuss comments to display in frontend (using jquery-comments).
-	see https://viima.github.io/jquery-comments/
-	"""
-	all_users = User.active.all()
-
-	comments = DiscussComment.objects \
-		.select_related('parent', 'poster__social_profile') \
-		.prefetch_related(
-			Prefetch('users_mentioned', queryset=all_users.only('id', 'full_name', 'username')),
-			Prefetch('upvoters', queryset=all_users.only('id'))
-		) \
-		.all()
-
-	result = [_parse_discuss_comment(comment) for comment in comments]
-	return JsonResponse(result)
-
-
 @method_decorator(login_required, name='post')
-@method_decorator(login_required, name='put')
-@method_decorator(login_required, name='delete')
-class JQueryDiscussCommentView(View):
-	def get(self, request, id):
-		comment = get_object_or_404(DiscussComment, pk=id)
-		return JsonResponse(_parse_discuss_comment(comment))
+class JQueryDiscussCommentList(View):
+	def get(self, request):
+		"""
+		Get discuss comments to display in frontend (using jquery-comments).
+		see https://viima.github.io/jquery-comments/
+		"""
+		all_users = User.objects.active()
+
+		comments = DiscussComment.objects \
+			.select_related('parent', 'poster__social_profile') \
+			.prefetch_related(
+				Prefetch('users_mentioned', queryset=all_users.only('id', 'username')),
+				Prefetch('upvoters', queryset=all_users.only('id'))
+			) \
+			.all()
+
+		result = [_parse_discuss_comment(request.user, comment) for comment in comments]
+		return JsonResponse({ 'data': result })
 
 	def post(self, request):
 		# When posting, send content, question_id & optional parent_id
@@ -110,11 +102,20 @@ class JQueryDiscussCommentView(View):
 		if form.is_valid():
 			comment = form.save(commit=False)
 			user.add_question_comment(question, comment, parent)
-			return JsonResponse(_parse_discuss_comment(comment), status=201)
+			return JsonResponse({ 'data': _parse_discuss_comment(user, comment) }, status=201)
 		else:
-			return JsonResponse(form.errors.as_json(), status=400)
+			return JsonResponse({ 'data': form.errors.as_json() }, status=400)
+
+
+@method_decorator(login_required, name='put')
+@method_decorator(login_required, name='delete')
+class JQueryDiscussCommentDetail(View):
+	def get(self, request, id):
+		comment = get_object_or_404(DiscussComment, pk=id)
+		return JsonResponse({ 'data': _parse_discuss_comment(request.user, comment) })
 
 	def put(self, request, id):
+		print(request.body)
 		PUT, user = json.loads(request.body), request.user
 		content = PUT['content']
 		comment = get_object_or_404(DiscussComment, pk=id)	
@@ -129,14 +130,14 @@ class JQueryDiscussCommentView(View):
 			return JsonResponse({
 				'success': False,
 				'message': _("This comment's content hasn't changed")
-			}, 400)
+			})
 
 		comment.update_language = get_language()
 		comment.save()
-		return JsonResponse(_parse_discuss_comment(comment))
+		return JsonResponse({ 'data': _parse_discuss_comment(user, comment) })
 
 	def delete(self, request, id):
-		DELETE, user = json.loads(request.body), request.user
+		user = request.user
 		comment = get_object_or_404(DiscussComment, pk=id)
 
 		if not user.can_delete_comment(comment):
@@ -145,7 +146,7 @@ class JQueryDiscussCommentView(View):
 			}, status=403)
 
 		comment.delete()
-		return JsonResponse(status=204)
+		return JsonResponse({ 'success': True }, status=204)
 
 
 @require_GET
@@ -187,7 +188,7 @@ def get_users_mentioned(request, question_id):
 			for comment in question.comments.all():
 				users |= comment.users_mentioned.all()
 
-	return JsonResponse({ 'users': users.distinct() })
+	return JsonResponse({ 'data': list(users.distinct()) })
 
 
 @login_required
@@ -225,7 +226,7 @@ def vote_academic_thread(request):
 		return JsonResponse({
 			'success': False,
 			'message': _("You can't add a like or dislike to your own post.")
-		}, status=200)
+		}, status=403)
 
 	if thread_type == 'question' or thread_type == 'answer':
 		# verify if user has already upvoted and downvoted question or answer
@@ -405,17 +406,15 @@ def vote_discuss_thread(request):
 	This view handles upvotes and downvotes for questions, answers and comments of discussion questions.
 	"""
 	user, POST = request.user, request.POST
-	thread_id, thread_type = POST.get('id'), POST.get('thread_type')
-	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
+	thread_id, thread_type = POST['id'], POST['thread_type']
+	vote_action, vote_type = POST['action'], POST['vote_type']
 	# print(POST)
 
 	# possible thread types are {question, answer, answer-comment(reply to answer)}
 	if thread_type == 'question':
 		object = get_object_or_404(DiscussQuestion, pk=thread_id)
-	elif thread_type == 'answer':
-		object = get_object_or_404(DiscussComment.objects.filter(parent__isnull=True), pk=thread_id)
-	elif thread_type == 'answer-comment':
-		object = get_object_or_404(DiscussComment.objects.filter(parent__isnull=False), pk=thread_id)
+	elif thread_type == 'comment':
+		object = get_object_or_404(DiscussComment, pk=thread_id)
 	else:
 		return JsonResponse({
 			'success': False,
@@ -430,9 +429,9 @@ def vote_discuss_thread(request):
 		return JsonResponse({
 			'success': False,
 			'message': _("You can't add a like or dislike to your own post.")
-		}, status=200)
+		}, status=403)
 
-	if thread_type == 'question' or thread_type == 'answer':
+	if thread_type == 'question':
 		# verify if user has already upvoted and downvoted question or answer
 		already_upvoted = user in object.upvoters.only('id')
 		already_downvoted = user in object.downvoters.only('id')
@@ -553,8 +552,8 @@ def vote_discuss_thread(request):
 	# only upvotes are supported on comments
 	# no notifications sent to owner of comment
 	# 
-	# Only answer-comment for discusions
-	elif thread_type == 'answer-comment':
+	# Only comment for discusions
+	elif thread_type == 'comment':
 		already_upvoted = user in object.upvoters.only('id')
 
 		if vote_action == 'vote':

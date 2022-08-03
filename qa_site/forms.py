@@ -146,15 +146,17 @@ class DiscussQuestionForm(forms.ModelForm):
 
 
 class DiscussCommentForm(forms.ModelForm):
-	# a ckeditor will be generated from this on the frontent
-	content = forms.CharField(
-		widget= CKEditorWidget(
-			config_name='add_discuss_comment',
-		),
-		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
-		label='',
-		required=True
-	)
+	pass
+	# a ckeditor will be generated from this on the frontend.
+	#
+	# content = forms.CharField(
+	# 	widget= CKEditorWidget(
+	# 		config_name='add_discuss_comment',
+	# 	),
+	# 	help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
+	# 	label='',
+	# 	required=True
+	# )
 
 	class Meta:
 		model = DiscussComment

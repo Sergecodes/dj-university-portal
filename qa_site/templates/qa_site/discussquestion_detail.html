@@ -13,10 +13,18 @@
 	<title>{{ question|safe }} | CamerSchools</title>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/jquery-comments.css' %}">
+{% endblock %}
+
 {% block extra_script_pre %}
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+	{% comment %} <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script> {% endcomment %}
+
+	<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
+	{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
+	<script src="{% static 'js/jquery-comments.js' %}"></script>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -323,240 +331,7 @@
 			{% endif %}
 		</section>
 
-		<!-- We'll consider ancestor comments as answers -->
-		{% comment %} <section class="px-3 question-answers">
-			<div class="d-flex answers-header">
-				<span class="answers-header__count">
-					{{ num_comments }} {% trans 'Comment' %}{{ num_comments|pluralize }}
-				</span>
-				{# TODO insert order_by dropdown form here (like myschool ...) #}
-				<div></div>
-			</div>
-			<div class="answers-list">
-				{% for answer in answers %}
-					{# answer-layout #}
-					<div class="pt-2 pb-3 px-2 mb-3 border">
-						{% with original_lang=answer.original_language %}
-						<div 
-							class="mt-3 mb-4 answer-content" 
-							{% if answer|should_attribute:LANGUAGE_CODE %} 
-							lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" 
-							{% endif %}
-						>
-							{{ answer.content|safe }}
-							{% include 'core/google_attribution.html' with object=answer %}
-						</div>
-						{% endwith %}
-						
-						<div class="mt-3 mb-3 answer-reaction">
-							<div class="d-inline mx-2 answer-reaction-upvote">
-								<a 
-									role="button" 
-									class="text-decoration-none  js-upvote"
-									data-id="{{ answer.id }}" 
-									data-poster-id="{{ answer.poster_id }}"
-									data-thread="answer" 
-									title="{% trans 'Vote this answer UP if it is useful. (click again to undo)' %}"
-								>
-									{% if user in answer.upvoters.all %}
-										<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
-										{% trans 'Liked' %}
-									{% else %}
-										<i class="far fa-thumbs-up" aria-hidden="true"></i>
-										{% trans 'Like' %}
-									{% endif %}
-								</a>
-								<span class="ms-1 text-success">{{ answer.upvote_count }}</span>
-							</div>
-							<div class="d-inline mx-2 answer-reaction-downvote">
-								<a 
-									role="button" 
-									class="text-decoration-none  js-downvote" 
-									data-thread="answer"
-									data-id="{{ answer.id }}"
-									data-poster-id="{{ answer.poster_id }}"
-									title="{% trans 'Vote this answer DOWN if it is not useful. (click again to undo)' %}"
-								>
-									{% if user in answer.downvoters.all %}
-										<i class="fas fa-thumbs-down js-selected" aria-hidden="true"></i>
-										{% trans 'Disliked' %}
-									{% else %}
-										<i class="far fa-thumbs-down" aria-hidden="true"></i>
-										{% trans 'Dislike' %}
-									{% endif %}
-								</a>
-								<span class="ms-1 text-danger">{{ answer.downvote_count }}</span>
-							</div>
-							<!-- flag area -->
-							<!-- this is the flag parent wrapper -->
-							{% if user.id != answer.poster_id %}
-							<span class="ms-3">
-								{% if user.is_anonymous %}
-									<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
-										{% trans 'Report post' %}
-										<span>
-											{% include "flag/flag_icon.html" %}
-										</span>
-									</a>
-								{% else %}
-									<span class="link-danger js-flagHelper" role="button">
-										{% if user|has_flagged:answer %} 
-											{% trans 'Remove flag' %}
-										{% else %} 
-											{% trans 'Report post' %} 
-										{% endif %}
-									</span> 
-									{% render_flag_form answer user request %}
-								{% endif %}
-							</span>
-							{% endif %}
-						</div>	
-
-						<!-- edit and delete area -->
-						{% if user|can_edit_answer:answer or user|can_delete_answer:answer %}
-							<div class="mb-4">
-								{% if user|can_edit_answer:answer %}
-									<div class="d-inline mx-2">
-										<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-answer-update' pk=answer.pk %}">
-											<i class="fas fa-edit me-1" aria-hidden="true"></i>
-											{% trans 'Edit answer' %}
-										</a>
-									</div>
-								{% endif %}
-								{% if user|can_delete_answer:answer %}
-									<div class="d-inline mx-2">
-										<a class="text-decoration-none link-danger" href="{% url 'qa_site:academic-answer-delete' pk=answer.pk %}">
-											<i class="fas fa-trash-alt me-1" aria-hidden="true"></i>
-											{% trans 'Delete answer' %}
-										</a>
-									</div>
-								{% endif %}
-							</div>
-						{% endif %}
-
-						{# answer comments here #}
-						<div class="px-3 answer-comments">
-							{% for comment in answer.replies.all %}
-								{% with comment_poster=comment.poster %}
-								<div class="d-flex border-top border-bottom pt-2 pb-1 answer-comment">
-									<span class="text-muted">
-										{% if comment.vote_count %}
-											{{ comment.vote_count }}
-										{% else %}
-											&nbsp;&nbsp;
-										{% endif %}
-									</span>
-									<div class="d-inline-flex flex-column align-items-center">
-										<a 
-											role="button" 
-											class="mx-2 pb-1  js-upvote" 
-											data-id="{{ comment.id }}" 
-											data-poster-id="{{ comment.poster_id }}"
-											data-thread="answer-comment"
-											title="{% trans 'This comment adds something useful to the post' %}"
-										>
-											{% if user in comment.upvoters.all %}
-												<i class="fas fa-thumbs-up js-selected" aria-hidden="true"></i>
-												<span class="visually-hidden">{% trans 'Liked' %}</span>
-											{% else %}
-												<i class="far fa-thumbs-up" aria-hidden="true"></i>
-												<span class="visually-hidden">{% trans 'Like' %}</span>
-											{% endif %}
-										</a>
-										<!-- flag form -->
-										{% if user != comment_poster %}
-											{% if user.is_anonymous %}
-												<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none" aria-label="{% trans 'Report post' %}" title="{% trans 'Report post' %}">
-													<span>
-														{% include "flag/flag_icon.html" %}
-													</span>
-												</a>
-											{% else %}
-												{% render_flag_form comment user request display_title=True %}
-											{% endif %}
-										{% endif %}
-										
-										{# if user can see flag form, he can't edit -- since only non post owner can see flag form and only post owner can potentially edit #}
-										{% if user.is_authenticated %}
-											<!-- edit icon button -->
-											{% if user|can_edit_comment:comment %}
-												{# open in new tab so that user can still easily access question info without pressing back button, etc... #}
-												<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-answer-comment-update' pk=comment.pk %}" target="_blank" title="{% trans 'Edit comment' %}"
-												>
-													<i class="far fa-edit" aria-hidden="true"></i>
-													<span class="visually-hidden">{% trans 'Edit' %}</span>
-												</a>
-											{% endif %}
-
-											<!-- delete icon button -->
-											{% if user|can_delete_comment:comment %}
-												<a class="link-danger mx-2 pb-1" href="{% url 'qa_site:academic-answer-comment-delete' pk=comment.pk %}" title="{% trans 'Delete comment' %}"
-												>
-													<i class="fas fa-trash-alt" aria-hidden="true"></i>
-													<span class="visually-hidden">{% trans 'Delete' %}</span>
-												</a>
-											{% endif %}
-										{% endif %}
-									</div>
-									<div class="ms-3 js-comment-wrp">
-										{{ comment.content|safe }}
-										<span>-</span>
-										{% if comment_poster.has_social_profile %}
-											<a 
-												href="{{ comment_poster.get_absolute_url }}"
-												class="ms-1 me-2 px-1 bg-info opacity-75 text-decoration-none border-bottom-dotted"
-												{% if comment_poster == question_poster %}
-													title="{% trans 'This is the user who asked the question' %}"
-												{% endif %}
-											> 
-												{{ comment_poster.username }}
-											</a>
-										{% else %}
-										<span class="px-1 bg-info opacity-75" title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">{{ comment_poster.username }}</span>
-										{% endif %}
-										<span class="ms-2 small text-muted">{{ comment.posted_datetime }}</span>
-									</div>
-								</div>
-								{% endwith %}
-							{% endfor %}
-							
-							<a 
-								role="button" 
-								class=" text-decoration-none d-inline-block pt-4 mb-3 js-add-answer-comment"
-								title="{% trans 'Use comments to ask for more information or suggest improvements. Avoid answering questions in comments' %}"
-							>
-								{% trans 'Add a comment' %}
-							</a>
-							<!-- don't separate these 2 elements, dependency in script... -->
-							<form class="d-none mt-2" method="post">
-								{% csrf_token %}
-								{{ ans_comment_form|crispy }}
-								
-								<input type="hidden" name="question_id" value="{{ question.id }}">
-								<input type="hidden" name="answer_id" value="{{ answer.id }}">
-								<input type="submit" class="btn btn-sm btn-purple" name="add_answer_comment" value="{% trans 'Add comment' %}">
-							</form>
-						</div>
-					</div>
-				{% endfor %}
-
-				{# add answer section #}
-				<a 
-					role="button" 
-					class="text-decoration-none d-inline-block mt-3 mb-3 js-add-answer"
-				>
-					{% trans 'Answer this question to share your idea/opinion' %}
-				</a>
-				<!-- don't separate this 2 elements, dependency in script... -->
-				<form class="d-none mt-2" method="post">
-					{% csrf_token %}
-					{{ answer_form|crispy }}
-					
-					<input type="hidden" name="question_id" value="{{ question.id }}">
-					<input type="submit" class="btn btn-purple" name="add_answer" value="{% trans 'Post Answer' %}">
-				</form>
-			</div>
-		</section> {% endcomment %}
+		{# container for jquery-comments #}
 		<section id="question-comments"></section>
 
 		{% endwith %}
@@ -606,9 +381,6 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
-{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
-<script src="{% static 'js/jquery-comments.min.js' %}"></script>
 <script>
 	/* Get current user's id.. */
 	// if user isn't logged in, user.id and userPoints will be "None"
@@ -616,227 +388,6 @@
 	var requiredDownvotePoints = {{ required_downvote_points }};
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
-
-	/** FOLLOWING **/
-	// do this only if user isn't owner of question
-	{% if user.id != question.poster_id %}
-		// no need to complicate following by creating another template and script
-		// besides it is used in only two templates; (both questions detail templates)
-		$('.js-follow-button').click(function(event) {
-			// if user isn't logged in
-			if (!userId) {
-				displayToast('LOGIN_REQUIRED');
-				return false;
-			}
-
-			var $this = $(this);
-			var id = parseInt(this.dataset.id, 10);
-			var url = "{% url 'qa_site:discuss-follow-toggle' %}";
-			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
-			
-			// if user is trying to undo the follow
-			if ($this.hasClass('js-selected')) {
-				var voteAction = 'recall-follow';
-
-				$.ajax({
-					url: url,
-					type: 'POST',
-					data: {id: id, action: voteAction},
-					dataType: 'json',
-					beforeSend: function (xhr) {
-						xhr.setRequestHeader("X-CSRFToken", csrfToken);
-					},
-					success: function(result) {
-						if (result['unfollowed']) {
-							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
-							$followUnfollowSpan.text({{ follow_text }});
-							displayToast('FOLLOW_TOGGLE', false);
-
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
-					}
-				});
-
-			} else {
-				// if user is following question
-				var voteAction = 'follow';
-
-				$.ajax({
-					url: url,
-					type: 'POST',
-					data: {id: id, action: voteAction},
-					dataType: 'json',
-					beforeSend: function (xhr) {
-						xhr.setRequestHeader("X-CSRFToken", csrfToken);
-					},
-					success: function(result) {
-						if (result['followed']) {
-							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
-							$followUnfollowSpan.text({{ unfollow_text }});
-							displayToast('FOLLOW_TOGGLE', true);
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
-					}
-				});
-			}
-		});
-	{% endif %}
-</script>
-<script>
-	{# jquery-comments config, https://viima.github.io/jquery-comments #}
-	var commonInfo = {
-		textareaPlaceholderText: "{% trans 'Add a comment' %}",
-		newestText: "{% trans 'Newest' %}",
-		oldestText: "{% trans 'Oldest' %}",
-		popularText: "{% trans 'Popular' %}",
-		attachmentsText: "{% trans 'Attachments' %}",
-		sendText: "{% trans 'Comment' %}",
-		replyText: "{% trans 'Reply' %}",
-		editText: "{% trans 'Edit' %}",
-		editedText: "{% trans 'Edited' %}",
-		youText: "{% trans 'You' %}",
-		saveText: "{% trans 'Save' %}",
-		deleteText: "{% trans 'Delete' %}",
-		viewAllRepliesText: "{% trans 'View all' %} " + __replyCount__ + " {% trans 'replies' %} ",
-		hideRepliesText: "{% trans 'Hide replies' %}",
-		noCommentsText: "{% trans 'No comments' %}",
-		noAttachmentsText: "{% trans 'No attachments' %}",
-		attachmentDropText: "{% trans 'Drop files here' %}",
-		roundProfilePictures: true,
-		profilePictureUrl: (function() {
-			{% with profile_image = user.social_profile.profile_image %}
-			var url = "{% if profile_image %} profile_image.url {% endif %}";
-			{% endwith %}
-			console.log("profile image url", url);
-			return url;
-		})(),
-		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
-		enablePinging: true,
-		_parseComment: function(data) {
-			// Convert pings to human readable format
-			$(Object.keys(data.pings)).each(function(index, userId) {
-				var username = data.pings[userId];
-				var pingText = '@' + username;
-				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
-			});
-	
-			return data;
-		},
-		_getUsers: await (function() {
-			return $.ajax({
-				type: 'get',
-				url: "{% url 'qa_site:get-users-mentioned' question.id %}?model_name='AcademicQuestion'",
-				success: function(data, status, jqXHR) {
-					var users = data;
-					console.log(users);
-				},
-				error: function(jqXHR, status, error) {
-					console.error(error);
-				}
-			})
-		})(),
-		searchUsers: function(term, success, error) {
-			var users = this._getUsers;
-			setTimeout(function() {
-				success(users.filter(function(user) {
-					var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
-					var isNotSelf = user.id != userId;
-					return containsSearchTerm && isNotSelf;
-				}));
-		 	}, 500);
-		},
-
-	};
-
-	$('#question-comments').comments({
-		...commonInfo,
-		getComments: function(success, error) {
-			$.ajax({
-				type: 'get',
-				url: "{% url 'qa_site:get-academic-comments' 'question' %}",
-				success: function(commentsArray) {
-					success(commentsArray);
-				},
-				error: error
-			});
-		},
-		postComment: function(commentJSON, success, error) {
-			$.ajax({
-				type: 'post',
-				url: '/api/comments/',
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("X-CSRFToken", csrfToken);
-				},
-				data: {
-					
-				},
-				success: function(comment) {
-					success(this._parseComment(comment))
-				},
-				error: error
-			});
-		},
-		putComment: function(commentJSON, success, error) {
-			$.ajax({
-				type: 'put',
-				url: '/api/comments/' + commentJSON.id,
-				data: commentJSON,
-				success: function(comment) {
-					success(this._parseComment(comment))
-				},
-				error: error
-			});
-		},
-		deleteComment: function(commentJSON, success, error) {
-			$.ajax({
-				type: 'delete',
-				url: '/api/comments/' + commentJSON.id,
-				success: success,
-				error: error
-			});
-		},
-		upvoteComment: function(commentJSON, success, error) {
-			var commentURL = '/api/comments/' + commentJSON.id;
-			var upvotesURL = commentURL + '/upvotes/';
-	  
-			if(commentJSON.userHasUpvoted) {
-				$.ajax({
-					type: 'post',
-					url: upvotesURL,
-					data: {
-						comment: commentJSON.id
-					},
-					success: function() {
-						success(commentJSON)
-					},
-					error: error
-				});
-			} else {
-				$.ajax({
-					type: 'delete',
-					url: upvotesURL + upvoteId,
-					success: function() {
-						success(commentJSON)
-					},
-					error: error
-				});
-			}
-		},
-		pingClicked: function(ping) {
-			alert(ping);
-		},
-		timeFormatter: function(time) {
-			return new Date(time).toLocaleDateString();
-		},
-
-	});
-</script>
-
-{% comment %} <script>
 	// reduce margin of paragraphs so as to use less space..
 	$('.js-comment-wrp').children('p').css('margin-bottom', '.2rem');
 
@@ -849,16 +400,8 @@
 		// $('.js-flag-report-icon').first().click();
 	});
 
-
-	// set unique id on upcoming ckeditor instances 
-	var $ansCommentEditors = $('.js-answerComment');
-	for (var i = 0; i < $ansCommentEditors.length; i++) {
-		var editor = $ansCommentEditors[i];
-		editor.setAttribute('id', uid());
-	}
-
-	// possible thread types are {question, answer, answer-comment}
-	var THREAD_TYPES = ["question", "answer", "answer-comment"];
+	// possible thread types are {question, comment}
+	var THREAD_TYPES = ["question", "comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
 
 	/* Get current user's id.. */
@@ -867,10 +410,6 @@
 	var requiredDownvotePoints = {{ required_downvote_points }};
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
-
-	// enable username to be directly after comment
-	$('.js-comment-wrp').children().css('display', 'inline');
-
 
 	function onVote(event) {
 		// if user isn't logged in
@@ -900,32 +439,12 @@
 	$upvoteTriggerer.click(onVote);
 	$downvoteTriggerer.click(onVote);
 
-	// hide button and display forms when button is clicked
-	$('.js-add-answer-comment, .js-add-answer').click(function(event) {
-		// console.log(event.target == this);  true !
-
-		// if current user isn't logged in
-		if (!userId) {
-			event.stopImmediatePropagation();
-			displayToast('LOGIN_REQUIRED');
-			return false;
-		}
-
-		var $this = $(this);
-		// remove bootstrap class from element(class is used with the !important keyword 
-		// so we need to remove it for the hide() method to work)
-		$this.removeClass('d-inline-block');  
-		$this.hide();
-		var $form = $this.next();
-		$form.removeClass('d-none');
-	});
-
 	/* UPVOTES */
 	$upvoteTriggerer.click(function() {
 		var $this = $(this);
 		var $icon = $this.children('i'), id = parseInt(this.dataset.id, 10);
 		
-		// possible thread types are {question, answer, question-comment, answer-comment}
+		// possible thread types are {question, comment}
 		var voteType = 'up', threadType = this.dataset.thread;
 		var url = "{% url 'qa_site:discuss-thread-vote' %}";
 
@@ -947,7 +466,7 @@
 						$icon.removeClass('fas js-selected').addClass('far');
 
 						// update number of votes
-						if (threadType == 'answer-comment') {
+						if (threadType == 'comment') {
 							// update vote count
 							// span comes before vote icon for comments
 							var $voteCounter = $this.parent().prev();
@@ -992,7 +511,7 @@
 						// remove far class and set to fas
 						$icon.removeClass('far').addClass('fas js-selected');
 
-						if (threadType == 'answer-comment') {
+						if (threadType == 'comment') {
 							// update vote count
 							// span comes before vote icon for comments
 							var $voteCounter = $this.parent().prev();
@@ -1107,7 +626,6 @@
 
 	});
 
-
 	/** FOLLOWING **/
 	// do this only if user isn't owner of question
 	{% if user.id != question.poster_id %}
@@ -1176,6 +694,179 @@
 			}
 		});
 	{% endif %}
+</script>
+<script>
+	var usersMentioned = [];
+	$.ajax({
+		type: 'GET',
+		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=DiscussQuestion",
+		success: function(result, status, jqXHR) {
+			console.log(result);
+			usersMentioned = result.data;
+		},
+		error: function(jqXHR, status, error) {
+			console.error(error);
+		}
+	});
 
-</script> {% endcomment %}
+	{# jquery-comments config, https://viima.github.io/jquery-comments #}
+	$('#question-comments').comments({
+		textareaPlaceholderText: "{% trans 'Add a comment' %}",
+		newestText: "{% trans 'Newest' %}",
+		oldestText: "{% trans 'Oldest' %}",
+		popularText: "{% trans 'Popular' %}",
+		attachmentsText: "{% trans 'Attachments' %}",
+		sendText: "{% trans 'Comment' %}",
+		replyText: "{% trans 'Reply' %}",
+		editText: "{% trans 'Edit' %}",
+		editedText: "{% trans 'Edited' %}",
+		youText: "{% trans 'You' %}",
+		saveText: "{% trans 'Save' %}",
+		deleteText: "{% trans 'Delete' %}",
+		viewAllRepliesText: "{% trans 'View all' %} " + "__replyCount__" + " {% trans 'replies' %} ",
+		hideRepliesText: "{% trans 'Hide replies' %}",
+		noCommentsText: "{% trans 'No comments' %}",
+		noAttachmentsText: "{% trans 'No attachments' %}",
+		attachmentDropText: "{% trans 'Drop files here' %}",
+		roundProfilePictures: true,
+		profilePictureUrl: (function() {
+			{% with profile_image=user.social_profile.profile_image %}
+			var url = "{% if profile_image %}{{ profile_image.url }}{% endif %}";
+			{% endwith %}
+			return url;
+		})(),
+		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
+		enablePinging: true,
+		_parseComment: function(data) {
+			// Convert pings to human readable format
+			$(Object.keys(data.pings)).each(function(index, userId) {
+				var username = data.pings[userId];
+				var pingText = '@' + username;
+				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
+			});
+	
+			return data;
+		},
+		searchUsers: function(term, success, error) {;
+			// setTimeout(function() {
+			success(usersMentioned.filter(function(user) {
+				var containsSearchTerm = user.username.toLowerCase().indexOf(term.toLowerCase()) != -1;
+				var isNotSelf = user.id != userId;
+				return containsSearchTerm && isNotSelf;
+			}));
+		 	// }, 500);
+		},
+		getComments: function(success, error) {
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'qa_site:discuss-comments-cl' %}",
+				success: function(result) {
+					console.log(result);
+					success(result.data);
+				},
+				error: error
+			});
+		},
+		postComment: function(commentJSON, success, error) {
+			var that = this;
+			$.ajax({
+				type: 'POST',
+				url: "{% url 'qa_site:discuss-comments-cl' %}",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				data: {
+					parent_id: commentJSON.parent,
+					question_id: {{ question.id }},
+					content: commentJSON.content
+				},
+				success: function(result) {
+					console.log(that);
+					success(that._parseComment(result.data));
+				},
+				error: error
+			});
+		},
+		putComment: function(commentJSON, success, error) {
+			var that = this;
+			$.ajax({
+				type: 'PUT',
+				// use cl instead of cud then append id...
+				// since javascript vars do not work in python
+				url: "{% url 'qa_site:discuss-comments-cl' %}" + commentJSON.id + '/',
+				data: JSON.stringify({
+					content: commentJSON.content
+				}),
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				success: function(result) {
+					success(that._parseComment(result.data));
+				},
+				error: error
+			});
+		},
+		deleteComment: function(commentJSON, success, error) {
+			$.ajax({
+				type: 'DELETE',
+				url: "{% url 'qa_site:discuss-comments-cl' %}" + commentJSON.id + '/',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				success: success,
+				error: error
+			});
+		},
+		upvoteComment: function(commentJSON, success, error) {
+			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
+	  
+			// Recalling upvote
+			if(commentJSON.userHasUpvoted) {
+				$.ajax({
+					type: 'POST',
+					url: upvotesURL,
+					data: {
+						id: commentJSON.id, 
+						vote_type: 'up', 
+						thread_type: 'comment', 
+						action: 'recall-vote'
+					},
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function() {
+						success(commentJSON);
+					},
+					error: error
+				});
+			} else {
+				$.ajax({
+					type: 'POST',
+					url: upvotesURL,
+					data: {
+						id: commentJSON.id, 
+						vote_type: 'up', 
+						thread_type: 'comment', 
+						action: 'vote'
+					},
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader("X-CSRFToken", csrfToken);
+					},
+					success: function() {
+						success(commentJSON);
+					},
+					error: error
+				});
+			}
+		},
+		pingClicked: function(ping) {
+			alert(ping);
+		},
+		timeFormatter: function(time) {
+			return new Date(time).toLocaleDateString();
+		},
+
+	});
+</script>
+
 {% endblock %}

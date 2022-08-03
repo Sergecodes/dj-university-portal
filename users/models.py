@@ -565,7 +565,7 @@ class User(AbstractUser):
 		"""
 		To test if a user can edit an comment.
 		- Only poster can edit comment
-		- After 5 minutes, comments can't be edited.
+		- After 10 minutes, comments can't be edited.
 		- Comments with 5 upvotes and above can't be edited
 		"""
 					

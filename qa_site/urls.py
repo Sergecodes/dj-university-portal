@@ -128,10 +128,10 @@ ajax_patterns = [
 	path('academic-question/bookmark/', ajax.academic_question_bookmark_toggle, name='academic-bookmark-toggle'),
 	path('academic-question/follow/', ajax.academic_question_follow_toggle, name='academic-follow-toggle'),
 	path('discuss-question/follow/', ajax.discuss_question_follow_toggle, name='discuss-follow-toggle'),
+	path('users-mentioned/<int:question_id>/', ajax.get_users_mentioned, name='users-mentioned'),
 
-	path('discuss-comments/<int:id>/', ajax.JQueryDiscussCommentView.as_view(), name='discuss-comment-pud'),
-	path('discuss-comments/', ajax.get_discuss_comments, name='discuss-comments'),
-	path('users-mentioned/<int:question_id>/', ajax.get_users_mentioned, name='users-mentioned')
+	path('discuss-comments/<int:id>/', ajax.JQueryDiscussCommentDetail.as_view(), name='discuss-comment-rud'),
+	path('discuss-comments/', ajax.JQueryDiscussCommentList.as_view(), name='discuss-comments-cl'), # cl: create, list
 ]
 
 
