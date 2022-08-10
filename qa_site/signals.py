@@ -1,36 +1,42 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.db.models.signals import m2m_changed, post_save
-from django.dispatch import receiver
-from django.utils.translation import gettext_lazy as _
-from notifications.signals import notify
+# from django.core.exceptions import ValidationError
+# from django.db.models.signals import m2m_changed, pre_save, post_save
+# from django.dispatch import receiver
+# from django.utils.translation import gettext_lazy as _
+# from notifications.signals import notify
 
-from core.constants import MAX_TAGS_PER_QUESTION
-from .models import (
-	DiscussQuestion, AcademicQuestionComment, 
-	AcademicAnswerComment, DiscussComment,
-)
+# from core.constants import MAX_TAGS_PER_QUESTION
+# from .models import (
+# 	DiscussQuestion, AcademicQuestionComment, 
+# 	AcademicAnswerComment, DiscussComment,
+# )
+from .utils import extract_mentions
 
 User = get_user_model()
 
 
-# @receiver(post_save, sender=AcademicQuestionComment)
-def comment_posted(sender, instance, created, **kwargs):
-	"""Send notifications to users mentioned in this comment"""
-	# print('comment_posted signal called')
-	# if comment is new
-	if created:    
-		# TODO get mentioned users and send notifications to them
-		pass
+def set_users_mentioned(sender, instance, created, **kwargs):
+	# Note that update_fields will always be in kwargs since it is a part of the 
+	# function parameters, but it will be None(it won't be an empty list )
+	# if it does not contain any fields.
+	# So if the field is None, set it to an empty list
+	update_fields = kwargs.get('update_fields')
+	if not update_fields:
+		update_fields = []
 
-	# if comment was updated
-	else:
-		# update mentioned users. (comment.users_mentioned.set(list of newly mentioned users))
-		# notify newly mentioned users
-		# there's no much problem in modifying newly mentioned users
-		# since after 5 minutes, comment can't be edited.
-		pass
-	
+	comment = instance
+
+	if created or 'content' in update_fields:
+		mentioned_users = []
+
+		for username in extract_mentions(comment.content):
+			try:
+				mentioned_users.append(User.objects.get(username=username))
+			except User.DoesNotExist:
+				pass
+
+		comment.users_mentioned.set(mentioned_users, clear=True)
+
 
 # def tags_changed(sender, instance, action, **kwargs):
 # 	"""Limit number of tags per school question"""

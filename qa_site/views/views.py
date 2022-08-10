@@ -662,10 +662,10 @@ class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
 		if 'content' in form.changed_data:
 			comment = form.save(commit=False)
 			comment.update_language = get_language()
-			comment.save()
+			# Set update_fields since it will be used in post_save signal
+			comment.save(update_fields=['content', 'update_language'])
 
 		return redirect(self.get_success_url())
-
 
 class AcademicQuestionCommentUpdate(CommentUpdate):
 	model = AcademicQuestionComment
@@ -676,12 +676,12 @@ class AcademicAnswerCommentUpdate(CommentUpdate):
 class DiscussCommentUpdate(CommentUpdate):
 	model = DiscussComment
 
+
 class CommentDelete(GetObjectMixin, CanDeleteCommentMixin, DeleteView):
 	template_name = 'qa_site/misc/comment_confirm_delete.html'
 
 	def get_success_url(self):
 		return self.get_object().parent_object.get_absolute_url()
-
 
 class AcademicQuestionCommentDelete(CommentDelete):
 	model = AcademicQuestionComment

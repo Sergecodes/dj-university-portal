@@ -46,14 +46,12 @@ class UserCreationForm(BaseUserCreationForm):
 		labels = {
 			'email': _('Email address')
 		}
-		help_texts = {
-			'email': _("You won't be able to change your email.")
-		}
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		# remove autofocus set by superclass on `username_field` (email)
 		self.fields['email'].widget.attrs.pop('autofocus')
+		self.fields['country'].empty_label = None
 
 		# set class on password field
 		# this can't be done on the Meta.widgets object because
@@ -106,6 +104,11 @@ class UserUpdateForm(forms.ModelForm):
 	# 	# so set required to False
 	# 	required=False   # see https://stackoverflow.com/a/1424453/
 	# )
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		self.fields['country'].empty_label = None
 
 	class Meta:
 		model = User

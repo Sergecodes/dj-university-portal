@@ -56,7 +56,7 @@ class PhoneNumber(models.Model):
 	number = models.CharField(
 		_('Phone number'),
 		max_length=20,  # filler value since CharFields must define a max_length attribute
-		help_text=_('Enter mobile number <b>(without +237)</b>')
+		help_text=_('Enter mobile number')
 	)
 	can_whatsapp = models.BooleanField(_('Works with WhatsApp'), default=False)
 	owner = models.ForeignKey(
