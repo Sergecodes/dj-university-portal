@@ -86,11 +86,11 @@
 							{% with poster=requested_item.poster %} 
 								{% if poster.has_social_profile %}
 									<a class="text-decoration-none" href="{{ poster.get_absolute_url }}">
-										{{ poster.full_name }}
+										{{ poster.username }}
 									</a> 
 								{% else %}
 									<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
-										{{ poster.full_name }}
+										{{ poster.username }}
 									</span> 
 								{% endif %} 
 							{% endwith %}
@@ -185,7 +185,7 @@
 		<section class="contact-details">
 			<h4 class="text-success">
 				{% trans 'Contact' %} 
-				{{ requested_item.poster.full_name }}
+				{{ requested_item.poster.username }}
 			</h4>
 			<div class="fs-4 px-3 mb-3 shadow-sm rounded number-box-wrp">
 				{% for phone_number in contact_numbers %} 

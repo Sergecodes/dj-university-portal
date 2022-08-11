@@ -255,7 +255,7 @@ class SocialProfileFilter(filters.FilterSet):
 	interested_relations.pop(0)
 
 	name = filters.CharFilter(
-		field_name='user__full_name', 
+		field_name='user__username', 
 		label=_('Search by name:'), 
 		lookup_expr='icontains'
 	)

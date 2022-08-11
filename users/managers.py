@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import (
 	IS_BAD_USER_POINTS, PENALIZE_FLAGGED_USER_POINTS_CHANGE,
 )
-from core.utils import parse_full_name
 from notifications.models import Notification
 from notifications.signals import notify
 
@@ -39,7 +38,6 @@ class UserManager(BaseUserManager, Manager):
 		self, 
 		email, 
 		username, 
-		full_name, 
 		password, 
 		gender, 
 		first_language, 
@@ -57,8 +55,6 @@ class UserManager(BaseUserManager, Manager):
 			raise ValueError(_('The username must be set'))
 		if not password:
 			raise ValueError(_('The password must be set'))
-		if not full_name:
-			raise ValueError(_('The full name must be set'))
 		if not gender:
 			raise ValueError(_('The gender must be set'))
 		if not first_language:
@@ -73,8 +69,7 @@ class UserManager(BaseUserManager, Manager):
 		
 		user = self.model(
 			email=email, 
-			username=username, 
-			full_name=parse_full_name(full_name), 
+			username=username,  
 			gender=gender,
 			first_language=first_language,
 			country=country,
@@ -93,7 +88,6 @@ class UserManager(BaseUserManager, Manager):
 		self, 
 		email, 
 		username, 
-		full_name, 
 		password, 
 		gender, 
 		first_language, 
@@ -102,7 +96,7 @@ class UserManager(BaseUserManager, Manager):
 		**extra_fields
 	):
 		""" 
-		Create and save a SuperUser with the given email, name, full name, password etc... 
+		Create and save a SuperUser with the given email, name, username, password etc... 
 		"""
 
 		extra_fields.setdefault('is_staff', True)
@@ -120,7 +114,6 @@ class UserManager(BaseUserManager, Manager):
 		return self.create_user(
 			email=email, 
 			username=username, 
-			full_name=full_name, 
 			gender=gender,
 			password=password,
 			first_language=first_language,

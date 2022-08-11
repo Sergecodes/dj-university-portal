@@ -163,7 +163,6 @@
 							<div class="px-4 py-2">
 								<a href="{% url 'users:profile-dashboard' %}" class=" header-profile-info" role="button">
 									<span class="d-block">{{ user.username }}</span>
-									<span class="small text-dark fw-bold">{{ user.full_name|truncatechars:18 }}</span>
 								</a>
 							</div>
 							<hr class="dropdown-divider">
@@ -304,7 +303,6 @@
 								<div class="px-4 py-2">
 									<a href="{% url 'users:profile-dashboard' %}" class="link-profile header-profile-info">
 										<span class="d-block">{{ user.username }}</span>
-										<span class="small text-dark">{{ user.full_name|truncatechars:18 }}</span>
 									</a>
 								</div>
 								<hr class="dropdown-divider">

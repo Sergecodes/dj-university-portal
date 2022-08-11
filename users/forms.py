@@ -33,12 +33,10 @@ class UserCreationForm(BaseUserCreationForm):
 	class Meta:
 		model = User
 		fields = [
-			'full_name', 'username', 'email', 
-			'password1', 'country', 'first_language', 'gender', 
+			'username', 'email', 'password1', 'country', 'first_language', 'gender', 
 		]
 		# localized_fields = ('birth_date', )
 		widgets = {
-			'full_name': forms.TextInput(attrs={'placeholder': 'Ex. Paul Biya'}),
 			# use radio boxes instead of the default select menu
 			'first_language': forms.RadioSelect(),
 			'gender': forms.RadioSelect(),
@@ -112,7 +110,7 @@ class UserUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model = User
-		fields = ['email', 'full_name', 'username', 'country', 'first_language', 'gender', ]
+		fields = ['email', 'username', 'country', 'first_language', 'gender', ]
 		widgets = {
 			'first_language': forms.RadioSelect(),
 			'gender': forms.RadioSelect(),

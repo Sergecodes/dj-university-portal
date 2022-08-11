@@ -81,11 +81,11 @@
 										class="text-decoration-none" 
 										href="{{ poster.get_absolute_url }}"
 									>
-										{{ poster.full_name }}
+										{{ poster.username }}
 									</a>
 								{% else %}
 									<span title="{% blocktrans %} User doesn't have a social profile {% endblocktrans %}">
-										{{ poster.full_name }}
+										{{ poster.username }}
 									</span>
 								{% endif %}
 								<span class="text-muted">&nbsp; - &nbsp;{{ found_item.posted_datetime|naturaltime }}</span>

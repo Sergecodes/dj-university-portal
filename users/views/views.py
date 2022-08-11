@@ -426,7 +426,7 @@ class BookmarkedSocialProfiles(LoginRequiredMixin, UserPassesTestMixin, Template
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		user = self.request.user
-		fields = ('user_id', 'user__username', 'user__full_name' )
+		fields = ('user_id', 'user__username', )
 		context['bookmarked_profiles'] = user.bookmarked_social_profiles.only(*fields)
 
 		return context

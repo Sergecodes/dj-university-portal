@@ -32,7 +32,7 @@
 						{% with profile_user=profile.user %}
 						<div class="mb-3">
 							<a href="{{ profile.get_absolute_url }}" class="text-decoration-none">
-								{{ profile_user.full_name }} ({{ profile_user.username }})
+								{{ profile_user.username }} ({{ profile_user.username }})
 							</a>
 						</div>
 						{% endwith %}

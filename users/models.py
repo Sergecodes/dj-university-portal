@@ -19,7 +19,7 @@ from core.constants import (
 from core.fields import NormalizedEmailField
 from core.models import Country
 from core.utils import parse_phone_number, translate_text
-from core.validators import FullNameValidator, UsernameValidator
+from core.validators import UsernameValidator
 from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
@@ -44,7 +44,6 @@ def get_dummy_user():
 		defaults={
 			'password': password, 
 			'is_active': False,
-			'full_name': 'Deleted User'
 		}
 	)[0]
 
@@ -119,16 +118,6 @@ class User(AbstractUser):
 		## https://www.postgresql.org/docs/current/collation.html#COLLATION-NONDETERMINISTIC
 		# db_collation='case_insensitive'  # TODO Implement this
 	)
-	full_name = models.CharField(
-		_('Full name'),
-		max_length=25,
-		help_text=_(
-			'Enter a valid full name. It should be two or three of your names separated by a space ' 
-			'and each name may contain only letters or hyphens. <br>'
-			'No name should start or end with a hyphen, and no name should contain only hyphens.'
-		),
-		validators=[FullNameValidator()]
-	)
 	first_language = models.CharField(
 		_('First language'),
 		choices=settings.LANGUAGES,
@@ -176,7 +165,7 @@ class User(AbstractUser):
 
 	USERNAME_FIELD = 'email'
 	# USERNAME_FIELD and password are required by default
-	REQUIRED_FIELDS = ['username', 'full_name']   
+	REQUIRED_FIELDS = ['username', ]   
 
 	objects = UserManager()
 	active = ActiveUserManager()
@@ -189,7 +178,7 @@ class User(AbstractUser):
 		]
 	
 	def __str__(self):
-		return f'{self.username}, {self.full_name}'
+		return f'{self.username}'
 
 	@property
 	def can_withdraw(self):

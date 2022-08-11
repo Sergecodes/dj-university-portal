@@ -462,18 +462,6 @@ def get_edit_profile_url(user):
 	# return reverse('users:edit-profile', kwargs={'username': user.username}) + '#phoneSection'
 
 
-def parse_full_name(full_name):
-	"""
-	Ensure full names are separated only with one space. 
-	eg. 'John     Wick' => 'John Wick'
-	"""
-	# get list of names
-	names_list = full_name.split()
-	parsed_name = ' '.join(names_list)
-	
-	return parsed_name
-
-
 def parse_phone_number(tel):
 	"""
 	Appropriately print a phone number.

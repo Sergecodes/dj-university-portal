@@ -20,28 +20,6 @@ class UsernameValidator(RegexValidator):
 	flags = 0
 
 
-class FullNameValidator(RegexValidator):
-	"""
-	First validator to be run on full names. 
-	- Full name can contain only letters and hyphens.
-	- It consists of two or three names separated by space(s).
-	- Shouldn't start or end with hyphens and no name should contain only hyphens
-	"""
-	# the following regex ensures that 
-	# - no name should only contain hyphens
-	# - no name should start or end with a hyphen
-	# see stackoverflow.com/q/8383213/python-regex-for-hyphenated-words/
-	# regex = r'\A[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*\Z'
-	# prev_regex = r'\A[A-ZÀ-Ÿa-z-]+[\s]+[A-ZÀ-Ÿa-z-]+[\s]+[A-ZÀ-Ÿa-z-]\Z'
-	regex = r'\A(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]+(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]*(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)*\Z'
-	message = _(
-		'Enter a valid full name. It should be two or three names separated by a space '
-		'and each name may contain only letters or hyphens. \n'
-		'No name should start or end with a hyphen, and no name should contain only hyphens.'
-	)
-	flags = 0
-
-
 def validate_question_tags(tags: list, max_length):
 	n = len(tags)
 	if n > max_length:

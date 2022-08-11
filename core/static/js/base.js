@@ -166,17 +166,6 @@ function validateUsername(username) {
 	return /^[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}$/.test(username);
 }
 
-/**
- * Verify if full name is valid.
- * Full name rules:
-	- Full name can contain only letters and hyphens.
-	- It consists of two or three names separated by space(s).
-	- Shouldn't start or end with hyphens and no name should contain only hyphens
- */
-function validateFullName(fullName) {
-	return /^(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]+(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)+[\s]*(?:[A-ZÀ-Ÿa-z]+(?:-[A-ZÀ-Ÿa-z]+)*)*$/.test(fullName);
-}
-
 /** 
  * Called when the signup or login forms are submitted. 
  * This is to ensure that at least one phone number supports WhatsApp
@@ -188,16 +177,7 @@ function signupAndEditSubmit(e) {
 	$container.text("");
 
 	var form = e.target, data = e.data;
-	var usernameOkay = false, fullNameOkay = false;
-	var phoneNumOkay = false, passwordOkay = false;
-
-	/* Full name validation here */
-	var fullName = form.full_name.value;
-	if (!validateFullName(fullName)) {
-		$container.append("<p>" + data.fullNameError + "</p>");
-	} else {
-		fullNameOkay = true;
-	}
+	var usernameOkay = false, phoneNumOkay = false, passwordOkay = false;
 
 	/* Username validation here */
 	var username = form.username.value;
@@ -270,7 +250,7 @@ function signupAndEditSubmit(e) {
 	}
 
 	// add alert styles if there were any errors
-	if (!phoneNumOkay || !passwordOkay || !fullNameOkay || !usernameOkay) {
+	if (!phoneNumOkay || !passwordOkay || !usernameOkay) {
 		e.preventDefault();
 
 		$container.addClass('alert alert-danger');

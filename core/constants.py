@@ -26,7 +26,6 @@ GENDERS = (
 
 TEST_ACCOUNT_EMAIL = 'test@gmail.com'
 TEST_ACCOUNT_USERNAME = 'test-user'
-TEST_ACCOUNT_FULL_NAME = 'Test Account'
 TEST_ACCOUNT_PASSWORD = 'a random password'
 
 
