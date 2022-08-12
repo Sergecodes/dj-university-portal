@@ -37,16 +37,16 @@ def process_flagging_request(*, user, model_obj, data):
 
     Returns:
         [dict]: response has three keys:
-            `status`(int): Non-zero indicates the request failed due to `ValidationError`.
+            `status`(int): zero indicates the request failed due to `ValidationError`.
             `msg`(str): response, success message in case request succeeds, reason for
             failure if it doesn't.
 
             **This key will only be present when request succeeds.**
             `flag`(int): Non-Zero(1) indicates that flag is created.
     """
-    # to avoit circular import errors
+    # To avoid circular import errors
     FlagInstance = apps.get_model('flagging', 'FlagInstance')
-    response = {'status': 1}
+    response = { 'status': 0 }  # 0 for failure, non-zero(1) for success 
 
     try:
         result = FlagInstance.objects.set_flag(user, model_obj, **data)
@@ -57,7 +57,7 @@ def process_flagging_request(*, user, model_obj, data):
             response['msg'] = _(
                 'The content has been flagged successfully. '
                 'A moderator will review it shortly.'
-                )
+            )
             response['flag'] = 1
         else:
             # if flag instance was deleted
@@ -67,12 +67,9 @@ def process_flagging_request(*, user, model_obj, data):
             else:
                 response['msg'] = msg
 
-        response.update({
-            'status': 0
-        })
+        response.update({ 'status': 1 })
+
     except ValidationError as e:
-        response.update({
-            'msg': e.messages
-        })
+        response.update({ 'msg': e.messages })
 
     return response

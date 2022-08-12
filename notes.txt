@@ -30,6 +30,7 @@ Use a thumbnail alias 'small_photo_thumb' and perform a size check during photo 
 better still check the width and height of the image... (maybe sum of W and H)
 - when user is logged in, reduce size of notifs and my account section on mobile.
 - validate uploaded past paper file type
+- jquery blockUI: https://jquery.malsup.com/block/
 
 
 - change text in toast after bookmarking social profile 

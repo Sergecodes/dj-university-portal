@@ -936,6 +936,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const submitFlagForm = function (ele, action = 'add') {
 		var flagEle, info = null, reason = null;
+
 		if (action !== 'add') {
 			action = 'remove';
 			flagEle = ele;
@@ -956,6 +957,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		};
 		if (reason) { data['reason'] = reason; };
 		if (info) { data['info'] = info; };
+
 		const query = convertDataToURLQuery(data);
 		headers['X-CSRFToken'] = csrf;
 		fetch(url, {
@@ -978,7 +980,6 @@ document.addEventListener('DOMContentLoaded', function () {
 					hideModal(modal);
 					flagEle.removeEventListener('click', showModal);
 					flagEle.addEventListener('click', removeFlag);
-
 				} else {
 					action = 'remove';
 					flagEle.removeEventListener('click', removeFlag);
@@ -1000,29 +1001,36 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	};
 
-	const prepareFlagModal = function (flagEle, parent = null) {
+	const prepareFlagModal = function (flagEle, parent=null) {
 		if (!parent) {
 			parent = flagEle.nextElementSibling.parentElement;
-		};
+		}
+
 		const modal = parent.querySelector('.flag-report-modal');
 		flagEle.addEventListener('click', showModal);
+
 		const span = parent.querySelector(".report-modal-close");
 		span.onclick = function () {
 			hideModal(modal);
 		};
+
 		// when the user clicks on the last reason , open the info box
 		const flagForm = parent.querySelector('.report-modal-form');
 		const lastFlagReason = flagForm.querySelector('.last-flag-reason');
 		const flagInfo = flagForm.querySelector('.report-modal-form-info');
 		flagForm.onchange = function (event) {
-			if (event.target.value === lastFlagReason.value) {
+			// Display info textarea if last input checkbox was clicked or last focus
+			// was from textarea
+			if (event.target.value === lastFlagReason.value || event.target == flagInfo) {
 				flagInfo.required = true;
 				flagInfo.style.display = "block";
+				flagInfo.focus();
 			} else {
 				flagInfo.style.display = "none";
-				flagInfo.removeAttribute('required');  // added. 
-			};
+				flagInfo.removeAttribute('required');  
+			}
 		};
+
 		// add flag
 		flagForm.onsubmit = function (event) {
 			event.preventDefault();
@@ -1033,11 +1041,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	const parents = document.getElementsByClassName("report-modal-form-combined");
 	for (const parent of parents) {
 		const modal = parent.querySelector('.flag-report-modal');
-		// When the user clicks anywhere outside of the modal, close it
+		// When the user clicks anywhere outside of the main modal, close it.
 		window.onclick = function (event) {
+			// modal will be full width so we know target will be from modal
 			if (event.target == modal) {
 				hideModal(modal);
-			};
+			}
 		};
 
 		const flagEle = parent.querySelector(".flag-report-icon");
@@ -1046,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			prepareFlagModal(flagEle, parent);
 		} else {
 			flagEle.addEventListener('click', removeFlag);
-		};
+		}
 	};
 });
 

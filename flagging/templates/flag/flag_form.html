@@ -10,7 +10,7 @@ Before modifying any element, be 100% sure that it won't disrupt the js function
 {# we must've already verified in the invoking template whether this form should be displayed or not #}
 {# so we just display the template with no further conditions #}
 
-{# this element will be used to in the script #}
+{# this element will be used in the script #}
 <span class="d-none js-first-child"></span>
 <span class="d-none js-flag-alert-msg">{% trans 'The report request could not be processed. Please refresh the page and try again.' %}</span>
 <span class="d-none js-remove-flag">{% trans 'Remove flag' %}</span>
@@ -25,7 +25,7 @@ Before modifying any element, be 100% sure that it won't disrupt the js function
 		role="button"
 	>
 		{# span element; don't even dare modify this :) #}
-		<span {% if display_title %}title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}>
+		<span {% if display_title %} title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}>
 			{% include "flag/flag_icon.html" %}
 		</span>
 	</div>
@@ -35,8 +35,8 @@ Before modifying any element, be 100% sure that it won't disrupt the js function
 			<span class="report-modal-close">&times;</span>
 			<div class="report-modal-flag-form">
 				<form class="m-2 p-1 report-modal-form">
-					<div class="flag-modal-title">{% trans "Report this post" %}</div>
 					{% csrf_token %}
+					<div class="flag-modal-title">{% trans "Report this post" %}</div>
 					<div>
 						<div class="report-modal-form-reasons">
 							{% for reason in flag_reasons  %}
@@ -46,7 +46,8 @@ Before modifying any element, be 100% sure that it won't disrupt the js function
 									type="radio"
 									value="{{ reason.value }}"
 									class="form-check-input my-2 flag-reason {% if forloop.last %} last-flag-reason {% endif %}"
-									name="reason" required
+									name="reason" 
+									required
 								>
 								<label class="form-check-label" for="{{ reason.reason }}-{{ random_uid }}">{{ reason.reason }}</label>
 							</div>

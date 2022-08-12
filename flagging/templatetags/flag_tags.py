@@ -32,22 +32,6 @@ def render_flag_form(obj, user, request, display_title=False):
     Usage: `{% render_flag_form post user request %}`
     """
 
-    ## verify if flag form should be displayed
-    ## no need for this, since we already determine this in the parent(invoking) template
-    # obj_model_name = get_model_name(obj)
-
-    # SocialProfiles can't be flagged
-    # if obj_model_name == 'SocialProfile':
-    #     should_display = False
-    # elif user.is_anonymous:
-    #     should_display = False
-
-    # # user can't flag his own post
-    # elif hasattr(obj, 'poster_id') and obj.poster_id != user.id:
-    #     should_display = True
-    # else:
-    #     should_display = False
-
     return {
         # generate random id for each modal
         # which will be used in areas where there are inputs linked to labels via ids. 
@@ -57,7 +41,7 @@ def render_flag_form(obj, user, request, display_title=False):
         'model_name': get_model_name(obj),
         'model_id': obj.id,
         'user': user,
-        'has_flagged': has_flagged(user, obj),
+        'has_flagged': False if user.is_anonymous else Flag.objects.has_flagged(user, obj),
         'num_flags': Flag.objects.get_flag(obj).count,
         'flag_reasons': FlagInstance.reasons,
         'request': request,

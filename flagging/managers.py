@@ -35,24 +35,26 @@ class FlagManager(models.Manager):
 
 class FlagInstanceManager(models.Manager):
     def _clean_reason(self, reason):
+        """Validate and return the reason"""
         err = ValidationError(
-                _('%(reason)s is an invalid reason'),
-                params={'reason': reason},
-                code='invalid'
-                )
+            _('%(reason)s is an invalid reason'),
+            params={'reason': reason},
+            code='invalid'
+        )
         try:
             reason = int(reason)
             if reason in self.model.reason_values:
                 return reason
             raise err
-
         except (ValueError, TypeError):
             raise err
 
     def _clean(self, reason, info):
+        """Validate and return reason and info"""
         cleaned_reason = self._clean_reason(reason)
         cleaned_info = None
 
+        # If reason is "Something else", ensure that `info` has also been passed
         if cleaned_reason == self.model.reason_values[-1]:
             cleaned_info = info
             if not cleaned_info:
@@ -81,22 +83,21 @@ class FlagInstanceManager(models.Manager):
 
         cleaned_reason, cleaned_info = self._clean(reason, info)
         try:
-            self.create(flag=flag, user=user, reason=cleaned_reason, info=cleaned_info)
+            self.create(flag=flag, user=user, reason=cleaned_reason, info=cleaned_info or '')
             return {'created': True}
-
-        except IntegrityError:
+        except IntegrityError as err:
+            print(err)
             raise ValidationError(
-                    _('This content has already been flagged by the user (%(user)s)'),
-                    params={'user': user},
-                    code='invalid'
-                )
+                _('IntegrityError, perhaps this content has already been flagged by the user (%(user)s)'),
+                params={'user': user},
+                code='invalid'
+            )
 
     def delete_flag(self, user, flag):
         """Delete flag(the flag instance - FlagInstance)"""
         try:
             self.get(user=user, flag=flag).delete()
             return {'deleted': True}
-
         except self.model.DoesNotExist:
             raise ValidationError(
                 _('This content has not been flagged by the user (%(user)s)'),

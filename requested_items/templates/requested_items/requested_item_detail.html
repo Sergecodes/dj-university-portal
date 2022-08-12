@@ -145,7 +145,7 @@
 					{% else %} 
 						{# this span shouldn't be removed ! #} {# js needs an element with class js-flagHelper #}
 						<span class="link-danger js-flagHelper" role="button">
-							{% if has_flagged %} 
+							{% if user|has_flagged:requested_item %} 
 								{% trans 'Remove flag' %}
 							{% else %} 
 								{% trans 'Report post' %} 
