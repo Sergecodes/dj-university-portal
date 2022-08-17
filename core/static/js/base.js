@@ -446,7 +446,7 @@ function displayToast(type, param) {
 	var VALID_TOASTS = [
 		'LOGIN_REQUIRED', 'SELF_VOTE', 'ERROR_OCCURRED', 
 		'FOLLOW_TOGGLE', 'CUSTOM_SUCCESS', 'CUSTOM_ERROR',
-		'BOOKMARK_TOGGLE', 
+		'BOOKMARK_TOGGLE', 'FLAG_SUCCESS', 'FLAG_ERROR', 
 	];
 	if (!VALID_TOASTS.includes(type)) {
 		throw `${type} is an invalid toast type`;
@@ -506,6 +506,21 @@ function displayToast(type, param) {
 
 		var $msgWrp = $('.js-toast-message');
 		$msgWrp.html(message);
+
+	} else if (type == 'FLAG_SUCCESS') {
+		var message = param;
+		$myToast = $('.js-flag-success-toast').first();
+
+		var $msgWrp = $('.js-toast-message');
+		$msgWrp.html(message);
+
+	} else if (type == 'FLAG_ERROR') {
+		var message = param;
+		$myToast = $('.js-flag-error-toast').first();
+
+		var $msgWrp = $('.js-toast-message');
+		$msgWrp.html(message);
+
 	}
 
 	var bsToast = new bootstrap.Toast($myToast[0]);
@@ -634,6 +649,9 @@ function initFooterSelects() {
 			c.innerHTML = option.innerHTML;
 
 			if (selElmnt.classList.contains('js-footer-select--country')) {
+				// set the `this` object as the this object in the handler, and pass the option
+				// as an argument. The event object will be the next argument.
+				// Binding is necessary because we want to pass an argument(option) to the handler
 				c.addEventListener("click", handleCountryClick.bind(this, option));
 			} else if (selElmnt.classList.contains('js-footer-select--language')) {
 				c.addEventListener('click', handleLangClick.bind(this, option));
@@ -790,253 +808,208 @@ $('.js-bookmark-button').click(function (event) {
 
 
 /** FLAGGING */
-document.addEventListener('DOMContentLoaded', function () {
-	'use strict';
 
-	var headers = {
-		'X-Requested-With': 'XMLHttpRequest',
-		'Content-Type': 'application/x-www-form-urlencoded'
-	};
+var headers = {
+	'X-Requested-With': 'XMLHttpRequest',
+	'Content-Type': 'application/x-www-form-urlencoded'
+};
 
-	const fadeOut = function (element, duration) {
-		var interval = 10;//ms
-		var opacity = 1.0;
-		var targetOpacity = 0.0;
-		var timer = setInterval(function () {
-			if (opacity <= targetOpacity) {
-				opacity = targetOpacity;
-				clearInterval(timer);
-			}
-			element.style.opacity = opacity;
-			opacity -= 1.0 / ((1000 / interval) * duration);
-		}, interval);
-	};
+const toggleClass = function (element, addClass, removeClass, action) {
+	if (action === 'add') {
+		element.classList.add(...addClass);
+		element.classList.remove(...removeClass);
+	} else {
+		element.classList.remove(...addClass);
+		element.classList.add(...removeClass);
+	}
+};
 
-	const fadeIn = function (element, duration) {
-		var interval = 20;//ms
-		var opacity = 0.0;
-		var targetOpacity = 1.0;
-		var timer = setInterval(function () {
-			if (opacity >= targetOpacity) {
-				opacity = targetOpacity;
-				clearInterval(timer);
-			}
-			element.style.opacity = opacity;
-			opacity += 1.0 / ((1000 / interval) * duration);
-		}, interval);
-	};
+const toggleText = function (element, action) {
+	// Element that contains flag 
+	var textSpan = document.querySelector('.js-flagHelper');
 
-	const toggleClass = function (element, addClass, removeClass, action) {
-		if (action === 'add') {
-			element.classList.add(...addClass);
-			element.classList.remove(...removeClass);
+	// `textSpan` will be null if no text is present. 
+	// (such as flags near comments where no text is present)
+	if (textSpan) {
+		if (action == 'add') {
+			var text = document.querySelector('.js-remove-flag').textContent;
+			textSpan.textContent = text;
 		} else {
-			element.classList.remove(...addClass);
-			element.classList.add(...removeClass);
+			var text = document.querySelector('.js-report-content').textContent;
+			textSpan.textContent = text;
 		}
-	};
+	}
+};
 
-	const toggleText = function (element, action) {
-		// element that contains flag 
-		// const spanEle = element.querySelector('span');
-		// var textSpan = spanEle.querySelector('span');
-		var textSpan = (document.querySelector('.js-first-child')).previousElementSibling;
+const toggleTitle = function (element, action) {
+	// element that contains flag 
+	const spanEle = element.querySelector('span');
 
-		// `textSpan` will be null if no text is present. 
-		// (such as flags near comments where no text is present)
-		if (textSpan) {
-			if (action == 'add') {
-				var text = document.querySelector('.js-remove-flag').textContent;
-				textSpan.textContent = text;
-			} else {
-				var text = document.querySelector('.js-report-content').textContent;
-				textSpan.textContent = text;
-			}
-		}
-	};
-
-	const toggleTitle = function (element, action) {
-		// element that contains flag 
-		const spanEle = element.querySelector('span');
-
-		// if element previously had a title, update the title
-		if (spanEle.hasAttribute('title')) {
-			if (action == 'add') {
-				var text = document.querySelector('.js-remove-flag').textContent;
-				spanEle.setAttribute('title', text);
-			} else {
-				var text = document.querySelector('.js-report-content').textContent;
-				spanEle.setAttribute('title', text);
-			}
-		}
-	};
-
-	const createInfoElement = function (responseEle, status, msg, duration = 2) {
-		switch (status) {
-			case -1:
-				status = "danger";
-				break;
-			case 0:
-				status = "success";
-				break;
-			case 1:
-				status = "warning";
-				break;
-		}
-		const cls = 'alert-' + status;
-		const temp = document.createElement('div');
-		temp.classList.add('h6');
-		temp.classList.add('alert');
-		temp.classList.add(cls);
-		temp.innerHTML = msg;
-		responseEle.prepend(temp);
-		fixToTop(temp);
-		fadeIn(temp, duration);
-		setTimeout(() => {
-			fadeOut(temp, duration);
-		}, duration * 1000);
-
-		setTimeout(() => {
-			temp.remove();
-		}, 2000 * duration);
-	};
-
-	const fixToTop = function (div) {
-		const top = 200;
-		const isFixed = div.style.position === 'fixed';
-		if (div.scrollTop > top && !isFixed) {
-			div.setAttribute('style', "{'position': 'fixed', 'top': '0px'}");
-		}
-		if (div.scrollTop < top && isFixed) {
-			div.setAttribute('style', "{'position': 'static', 'top': '0px'}");
-		}
-
-	};
-
-	const hideModal = function (modal) {
-		modal.style.display = 'none';
-		modal.querySelector('form').reset();
-		modal.querySelector('textarea').style.display = 'none';
-	};
-
-	const showModal = function (e) {
-		const modal = e.currentTarget.nextElementSibling;
-		modal.style.display = "block";
-	};
-
-	const removeFlag = function (e) {
-		submitFlagForm(e.currentTarget, 'remove');
-	};
-
-	const convertDataToURLQuery = function (data) {
-		return Object.keys(data).map(function (key) {
-			return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
-		}).join('&');
-	};
-
-	const submitFlagForm = function (ele, action = 'add') {
-		var flagEle, info = null, reason = null;
-
-		if (action !== 'add') {
-			action = 'remove';
-			flagEle = ele;
+	// if element previously had a title, update the title
+	if (spanEle.hasAttribute('title')) {
+		if (action == 'add') {
+			var text = document.querySelector('.js-remove-flag').textContent;
+			spanEle.setAttribute('title', text);
 		} else {
-			flagEle = ele.closest('.report-modal-form-combined').firstElementChild;
-			reason = ele.querySelector('input[name="reason"]:checked').value;
-			info = ele.querySelector('textarea').value;
+			var text = document.querySelector('.js-report-content').textContent;
+			spanEle.setAttribute('title', text);
 		}
-		const url = flagEle.getAttribute('data-url');
-		const appName = flagEle.getAttribute('data-app-name');
-		const modelName = flagEle.getAttribute('data-model-name');
-		const modelId = flagEle.getAttribute('data-model-id');
-		const csrf = flagEle.getAttribute('data-csrf');
-		const data = {
-			'app_name': appName,
-			'model_name': modelName,
-			'model_id': modelId,
-		};
-		if (reason) { data['reason'] = reason; };
-		if (info) { data['info'] = info; };
+	}
+};
 
-		const query = convertDataToURLQuery(data);
-		headers['X-CSRFToken'] = csrf;
-		fetch(url, {
-			'method': 'post',
-			'headers': headers,
-			'body': query,
-		}).then(function (response) {
-			return response.json();
-		}).then(function (response) {
+const hideModal = function (modal) {
+	modal.style.display = 'none';
+	modal.querySelector('form').reset();
+	modal.querySelector('textarea').style.display = 'none';
+};
+
+const showModal = function (e) {
+	const modal = e.currentTarget.nextElementSibling;
+	modal.style.display = "block";
+};
+
+const removeFlag = function (e) {
+	submitFlagForm(e.currentTarget, 'remove');
+};
+
+const convertDataToURLQuery = function (data) {
+	return Object.keys(data).map(function (key) {
+		return encodeURIComponent(key) + '=' + encodeURIComponent(data[key]);
+	}).join('&');
+};
+
+const submitFlagForm = function (ele, action = 'add') {
+	var flagEle, info = null, reason = null;
+
+	if (action !== 'add') {
+		action = 'remove';
+		flagEle = ele;
+	} else {
+		flagEle = ele.closest('.report-modal-form-combined').firstElementChild;
+		reason = ele.querySelector('input[name="reason"]:checked').value;
+		var textarea = ele.querySelector('textarea');
+		info = textarea.value.trim();
+
+		// If last reason is chosen but info is empty
+		if (reason == '100') {
+			if (info == '') {
+				textarea.focus();
+				return;
+			}
+		}
+	}
+
+	const url = flagEle.getAttribute('data-url');
+	const appName = flagEle.getAttribute('data-app-name');
+	const modelName = flagEle.getAttribute('data-model-name');
+	const modelId = flagEle.getAttribute('data-model-id');
+	const csrf = flagEle.getAttribute('data-csrf');
+	const data = {
+		'app_name': appName,
+		'model_name': modelName,
+		'model_id': modelId,
+	};
+	if (reason) { data['reason'] = reason; };
+	if (info) { data['info'] = info; };
+
+	const query = convertDataToURLQuery(data);
+	headers['X-CSRFToken'] = csrf;
+	fetch(url, {
+		'method': 'post',
+		'headers': headers,
+		'body': query,
+	}).then(function (response) {
+		return response.json();
+	}).then(function (response) {
+		if (response) {
 			const addClass = ['user-has-flagged', 'fas'];
 			const removeClass = ['user-has-not-flagged', 'far'];
 			const flagIcon = flagEle.querySelector('.flag-icon');
 
-			if (response) {
-				createInfoElement(flagEle.parentElement, response.status, response.msg);
-				const modal = flagEle.nextElementSibling;
-				var action;
-				if (response.flag === 1) {
-					action = 'add';
-					hideModal(modal);
-					flagEle.removeEventListener('click', showModal);
-					flagEle.addEventListener('click', removeFlag);
-				} else {
-					action = 'remove';
-					flagEle.removeEventListener('click', removeFlag);
-					flagEle.addEventListener('click', showModal);
-					prepareFlagModal(flagEle);
-				}
+			// Display toast alert to user
+			// status is set in backend
+			switch (response.status) {
+				case 0:
+					displayToast("FLAG_ERROR", response.msg);
+					break;
+				case 1:
+					displayToast("FLAG_SUCCESS", response.msg);
+					break;
+			}
 
+			const modal = flagEle.nextElementSibling;
+			var action;
+			if (response.flag === 1) {
+				action = 'add';
+				hideModal(modal);
+				flagEle.removeEventListener('click', showModal);
+				flagEle.addEventListener('click', removeFlag);
+			} else {
+				action = 'remove';
+				flagEle.removeEventListener('click', removeFlag);
+				flagEle.addEventListener('click', showModal);
+				prepareFlagModal(flagEle);
+			}
+
+			// For cases like discuss & academic comments
+			var reportIcon = document.querySelector('.js-flag-report-icon');
+			var modelName = reportIcon.dataset.modelName;
+			var subModelNames = ['DiscussComment', 'AcademicQuestionComment', 'AcademicAnswerComment'];
+			if (!subModelNames.includes(modelName)) {
 				toggleClass(flagIcon, addClass, removeClass, action);
 				toggleText(flagEle, action);
 				toggleTitle(flagEle, action);
 			}
-		}).catch(function (error) {
-			console.error(error);
-
-			// get flag error message
-			var alertMsg = document.querySelector('.js-flag-alert-msg').textContent;
-			// Note: toast(.js-custom-error-toast) must be in html 
-			displayToast('CUSTOM_ERROR', alertMsg);
-		});
-	};
-
-	const prepareFlagModal = function (flagEle, parent=null) {
-		if (!parent) {
-			parent = flagEle.nextElementSibling.parentElement;
 		}
+	}).catch(function (error) {
+		console.error(error);
 
-		const modal = parent.querySelector('.flag-report-modal');
-		flagEle.addEventListener('click', showModal);
+		// get flag error message
+		var alertMsg = document.querySelector('.js-flag-alert-msg').textContent;
+		// Note: toast(.js-custom-error-toast) must be in html 
+		displayToast('FLAG_ERROR', alertMsg);
+	});
+};
 
-		const span = parent.querySelector(".report-modal-close");
-		span.onclick = function () {
-			hideModal(modal);
-		};
+const prepareFlagModal = function (flagEle, parent=null) {
+	if (!parent) {
+		parent = flagEle.nextElementSibling.parentElement;
+	}
 
-		// when the user clicks on the last reason , open the info box
-		const flagForm = parent.querySelector('.report-modal-form');
-		const lastFlagReason = flagForm.querySelector('.last-flag-reason');
-		const flagInfo = flagForm.querySelector('.report-modal-form-info');
-		flagForm.onchange = function (event) {
-			// Display info textarea if last input checkbox was clicked or last focus
-			// was from textarea
-			if (event.target.value === lastFlagReason.value || event.target == flagInfo) {
-				flagInfo.required = true;
-				flagInfo.style.display = "block";
-				flagInfo.focus();
-			} else {
-				flagInfo.style.display = "none";
-				flagInfo.removeAttribute('required');  
-			}
-		};
+	const modal = parent.querySelector('.flag-report-modal');
+	flagEle.addEventListener('click', showModal);
 
-		// add flag
-		flagForm.onsubmit = function (event) {
-			event.preventDefault();
-			submitFlagForm(flagForm, 'add');
-		};
+	const span = parent.querySelector(".report-modal-close");
+	span.onclick = function () {
+		hideModal(modal);
 	};
+
+	// when the user clicks on the last reason , open the info box
+	const flagForm = parent.querySelector('.report-modal-form');
+	const lastFlagReason = flagForm.querySelector('.last-flag-reason');
+	const flagInfo = flagForm.querySelector('.report-modal-form-info');
+	flagForm.onchange = function (event) {
+		// Display info textarea if last input checkbox was clicked or last focus
+		// was from textarea
+		if (event.target.value === lastFlagReason.value || event.target == flagInfo) {
+			flagInfo.required = true;
+			flagInfo.style.display = "block";
+			flagInfo.focus();
+		} else {
+			flagInfo.style.display = "none";
+			flagInfo.removeAttribute('required');  
+		}
+	};
+
+	// add flag
+	flagForm.onsubmit = function (event) {
+		event.preventDefault();
+		submitFlagForm(flagForm, 'add');
+	};
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+	'use strict';
 
 	const parents = document.getElementsByClassName("report-modal-form-combined");
 	for (const parent of parents) {

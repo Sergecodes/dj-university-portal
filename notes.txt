@@ -12,9 +12,8 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- enable flagging comments (discuss question)
 - in jquery-comments, clicking on replied message arrow should highlight the parent comment!
-- make academic question similar to discuss question(if so, enable disliking answers)
+- make academic question similar to discuss question(also enable disliking answers)
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
 - change full name validator (frontend nd backend)
@@ -34,6 +33,7 @@ better still check the width and height of the image... (maybe sum of W and H)
 
 
 - change text in toast after bookmarking social profile 
+- change follow/unfollow text after question is followed or unfollowed(without needing to refresh page).
 - update taggit-selectize. should not call backend upon typing every letter!!
 - after uploading image in listing pages, there should be an eye icon on it. 
 upon which clicking should enlarge the image...

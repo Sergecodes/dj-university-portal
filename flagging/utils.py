@@ -46,11 +46,11 @@ def process_flagging_request(*, user, model_obj, data):
     """
     # To avoid circular import errors
     FlagInstance = apps.get_model('flagging', 'FlagInstance')
-    response = { 'status': 0 }  # 0 for failure, non-zero(1) for success 
+    response = { 'status': 0, }  # 0 for failure, non-zero(1) for success 
 
     try:
         result = FlagInstance.objects.set_flag(user, model_obj, **data)
-        created, msg = result.get('created'), result.get('msg')
+        created, msg = result.get('created'), result.get('msg', '')
 
         # if new flag(flag instance) was created
         if created:
@@ -59,16 +59,15 @@ def process_flagging_request(*, user, model_obj, data):
                 'A moderator will review it shortly.'
             )
             response['flag'] = 1
+            response['status'] = 1
         else:
             # if flag instance was deleted
             if result.get('deleted'):
                 response['msg'] = _('The content has been unflagged successfully.')
+                response['status'] = 1
             # if flag instance wasn't created (say if user flagged his own post)
             else:
                 response['msg'] = msg
-
-        response.update({ 'status': 1 })
-
     except ValidationError as e:
         response.update({ 'msg': e.messages })
 

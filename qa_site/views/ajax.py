@@ -18,6 +18,7 @@ from core.constants import (
 	COMMENT_CAN_EDIT_UPVOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT
 )
+from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
 from ..forms import DiscussCommentForm
@@ -55,6 +56,8 @@ def _parse_discuss_comment(current_user, comment: DiscussComment):
 		'upvote_count': comment.upvote_count,
 		'user_has_upvoted': False if user.is_anonymous else user in comment.upvoters.only('id'),
 		'is_new': False,
+		# extra
+		'has_flagged': False if user.is_anonymous else Flag.objects.has_flagged(user, comment),
 	}
 	try:
 		obj['profile_picture_url'] = poster.social_profile.profile_image.url

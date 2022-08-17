@@ -34,14 +34,6 @@
 
 {% block content %}
 <!-- toasts -->
-<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body js-toast-message">
-			{# message will be inserted here via js #}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body js-toast-message">
@@ -103,7 +95,7 @@
 		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
 	</div>
 </div>
-<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>	
@@ -274,6 +266,7 @@
 								</span>
 							</a>
 						{% else %}
+							{# js-flagHelper will be used in scripts to modify the flag text after flagging or unflagging #}
 							<span class="link-danger js-flagHelper" role="button">
 								{% if user|has_flagged:question %} 
 									{% trans 'Remove flag' %}
@@ -316,7 +309,7 @@
 			{% if user != question_poster %}
 				{% trans 'to unfollow this question (stop getting notifications when anyone posts a new answer to this question).' as unfollow_text %}
 				{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' as follow_text %}
-				<p>
+				<p class="mt-4 mb-5">
 					<a data-id="{{ question.id }}" role="button" class="btn btn-sm {% if is_following %} btn-secondary js-selected {% else %} btn-outline-secondary {% endif %} js-follow-button">
 						{% trans 'Click here' %} 
 						<i class="fas fa-bullseye" aria-hidden="true"></i>
@@ -714,6 +707,27 @@
 		}
 	});
 
+	/* Prepare flagging */
+	const COMMENT_MODEL_NAME = 'DiscussComment';
+	var flagModal = document.querySelector('.js-flag-report-modal');
+	var reportIcon = document.querySelector('.js-flag-report-icon');
+	var modalClose = document.querySelector('.report-modal-close');
+	var initModelName = reportIcon.dataset.modelName, initModelId = reportIcon.dataset.modelId;
+
+	var flagSuccessToast = document.querySelector('.js-flag-success-toast');
+
+	/** Reset data attributes of flag modal after modal is closed */
+	function resetFlagModal(ev) {
+		// ev.target will equal ev.currentTarget when the click is done outside the modal content
+		if (ev.target == modalClose || ev.target == ev.currentTarget) {
+			reportIcon.dataset.modelName = initModelName;
+			reportIcon.dataset.modelId = initModelId;
+		}
+	}
+
+	flagModal.addEventListener('click', resetFlagModal);
+	modalClose.addEventListener('click', resetFlagModal);
+
 	{# jquery-comments config, https://viima.github.io/jquery-comments #}
 	$('#question-comments').comments({
 		textareaPlaceholderText: "{% trans 'Add a comment' %}",
@@ -742,6 +756,7 @@
 		})(),
 		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
 		enablePinging: true,
+		_comments: [],
 		_permissions: {},
 		_parseComment: function(data) {
 			// Convert pings to human readable format
@@ -765,6 +780,105 @@
 			}));
 		 	// }, 500);
 		},
+		_flagComment: function(comment, event) {
+			var that = this;
+			// console.log(this);
+			// console.log(comment);
+			// console.log(event);
+			
+			// Display modal and update reportIcon attributes & flag button
+			flagModal.style.display = 'block';
+			reportIcon.dataset.modelId = comment.id;
+			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
+
+			function onSuccess(ev) {
+				var icon = event.target;
+				var btn = icon.parentElement;
+				icon.setAttribute('class', 'fa-flag fas');
+				btn.setAttribute('title', "{% trans 'Remove flag' %}");
+				// Normally, we just have to remove the flagComment event listener.
+				// But since we used bind() to add the event, there is no simple way to remove the binded
+				// function since bind() creates a new function. 
+				// So lets just clone the previous button (event listeners won't be attached) then replace it
+				var newBtn = btn.cloneNode(true);  // true for deep cloning (with child nodes)
+				btn.replaceWith(newBtn);
+				newBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+
+				// Remove the event listener after executing it.
+				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
+			}
+				
+			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
+		},
+		_unflagComment: function(comment, event) {
+			var that = this;
+			// Update reportIcon attributes
+			reportIcon.dataset.modelId = comment.id;
+			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
+
+			submitFlagForm(reportIcon, 'remove');
+
+			function onSuccess(ev) {
+				// Set reportIcon attributes back to original & update flag button
+				reportIcon.dataset.modelName = initModelName;
+				reportIcon.dataset.modelId = initModelId;
+
+				var icon = event.target;
+				var btn = icon.parentElement;
+				icon.setAttribute('class', 'fa-flag far');
+				btn.setAttribute('title', "{% trans 'Report comment' %}");
+
+				var newBtn = btn.cloneNode(true);  
+				btn.replaceWith(newBtn);
+				newBtn.addEventListener('click', that._flagComment.bind(that, comment));
+				
+				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
+			}
+
+			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
+
+			// Wait for some little time before removing the event listener.
+			// We need to remove it to prevent calling it again for this same comment. 
+			// i.e if we don't remove it, it will be called for previous attached comments
+			/* 
+			setTimeout(function() {
+				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
+			}, 1000);
+			*/
+		},
+		refresh: function() {
+			var $comments = $('#question-comments li.comment');
+			var that = this;
+			$comments.each(function () {
+				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
+				var comment = that._comments.find(obj => obj.id === commentId);
+
+				// Enagle flagging only if comment is not poster's (is not editable)
+				var $action = $this.find('.actions').first();
+				if ($action.find('.action.edit').length == 0) { 
+					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
+					var flagClass = 'fa-flag ' + (comment.has_flagged ? 'fas' : 'far');
+					var separatorStr = `
+						<span class="separator" style="vertical-align: text-bottom;">.</span> 
+					`;
+					var flagBtn = document.createElement("button");
+					flagBtn.setAttribute("class", "action text-danger js-commentFlagBtn");
+					flagBtn.setAttribute('title', flagTitle);
+					flagBtn.innerHTML = `<i class="${flagClass}"></i>`;
+
+					if (comment.has_flagged) {
+						// set the `that` object as the this object in that handler, and pass the comment
+						// as an argument.
+						// Binding is necessary since we want to pass an argument(comment) to the handler
+						flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+					} else {
+						flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+					}
+					
+					$action.append(separatorStr, flagBtn);
+				}
+			});
+		},	
 		getComments: function(success, error) {
 			var that = this;
 			$.ajax({
@@ -782,6 +896,7 @@
 							cannotDeleteMessage: '',
 						};
 					}
+					that._comments = data;
 					success(data);
 				},
 				error: error
@@ -930,8 +1045,8 @@
 				}
 			}
 		},
-		pingClicked: function(ping) {
-			alert(ping);
+		pingClicked: function(userId) {
+			alert(userId);
 		},
 		timeFormatter: function(time) {
 			return moment(time).fromNow();

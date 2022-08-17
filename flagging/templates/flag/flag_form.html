@@ -1,18 +1,32 @@
-<!-- This template overrides the default form used by django-flag-app. -->
+{# This template overrides the default form used by django-flag-app. #}
+
 <!-- the flag_form.html and flag_icon.html templates used by django-flag-app have been modified, same as the flag.css section. -->
-{% comment %} NOTE: Any class on any of these templates should not be removed! 
-This may disrupt the javascript functionality. To restyle an element, 
-comment out its style in the flag.css stylesheet. 
-Before modifying any element, be 100% sure that it won't disrupt the js functionality. {% endcomment %}
-{# ensure modal and files are in html template #}
+{# Before modifying any element, be 100% sure that it won't disrupt the js functionality. #}
+{# ENSURE flag modal and js-flagHelper span are in html template #}
 {% load i18n %}
 
-{# we must've already verified in the invoking template whether this form should be displayed or not #}
-{# so we just display the template with no further conditions #}
+<!-- toasts -->
+<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
+<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+	<div class="d-flex">
+		<div class="toast-body js-toast-message">
+			{# message will be inserted here via js #}
+		</div>
+		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+	</div>
+</div>
 
-{# this element will be used in the script #}
-<span class="d-none js-first-child"></span>
-<span class="d-none js-flag-alert-msg">{% trans 'The report request could not be processed. Please refresh the page and try again.' %}</span>
+
+<span class="d-none js-flag-alert-msg">
+	{% trans 'The report request could not be processed. Please refresh the page and try again.' %}
+</span>
 <span class="d-none js-remove-flag">{% trans 'Remove flag' %}</span>
 <span class="d-none js-report-content">{% trans 'Report post' %}</span>
 <div class="d-inline report-modal-form-combined">
@@ -24,7 +38,7 @@ Before modifying any element, be 100% sure that it won't disrupt the js function
 		data-csrf="{{ csrf_token }}"
 		role="button"
 	>
-		{# span element; don't even dare modify this :) #}
+		{# main span element (icon) #}
 		<span {% if display_title %} title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}>
 			{% include "flag/flag_icon.html" %}
 		</span>
