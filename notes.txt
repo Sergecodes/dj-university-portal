@@ -12,7 +12,6 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- in jquery-comments, clicking on replied message arrow should highlight the parent comment!
 - make academic question similar to discuss question(also enable disliking answers)
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)

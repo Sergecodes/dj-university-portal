@@ -119,6 +119,14 @@ a.dropdown-item:focus {
     border-left: 1px solid #999 !important;
 }
 
+/** jquery-comments */
+.jquery-comments .textcomplete-item .email {
+    visibility: hidden;   /* hide email in autocomplete users list */
+}
+
+.jquery-comments .tag.ping {
+    cursor: default;
+}
 
 /** images on listing (list) pages */
 .post-img {

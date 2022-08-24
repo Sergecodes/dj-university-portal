@@ -47,6 +47,10 @@ class QaSiteComment(Comment):
 		return self.upvote_count
 
 	@property
+	def score(self):
+		return self.vote_count
+
+	@property
 	def is_within_edit_timeframe(self):
 		"""
 		Verify if comment is within edition time_frame

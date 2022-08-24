@@ -22,6 +22,8 @@
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script> {% endcomment %}
 
+	{# https://github.com/naugtur/insertionQuery #}
+	<script src="{% static 'js/insQ.min.js' %}"></script>
 	<script src="{% static 'js/moment-with-locales.js' %}"></script>
 	<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
 	{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
@@ -748,6 +750,7 @@
 		noAttachmentsText: "{% trans 'No attachments' %}",
 		attachmentDropText: "{% trans 'Drop files here' %}",
 		roundProfilePictures: true,
+		enableDeletingCommentWithReplies: true,
 		profilePictureUrl: (function() {
 			{% with profile_image=user.social_profile.profile_image %}
 			var url = "{% if profile_image %}{{ profile_image.url }}{% endif %}";
@@ -759,7 +762,7 @@
 		_comments: [],
 		_permissions: {},
 		_parseComment: function(data) {
-			// Convert pings to human readable format
+			// Convert pings to appropriate format
 			$(Object.keys(data.pings)).each(function(index, userId) {
 				var username = data.pings[userId];
 				var pingText = '@' + username;
@@ -768,8 +771,7 @@
 			
 			return data;
 		},
-		searchUsers: function(term, success, error) {;
-			// setTimeout(function() {
+		searchUsers: function(term, success, error) {
 			success(usersMentioned.filter(function(user) {
 				// This library expects the attribute to be named 'fullname',
 				// however, the fullname in this case refers to the user's username; 
@@ -778,7 +780,6 @@
 				var isNotSelf = user.id != userId;
 				return containsSearchTerm && isNotSelf;
 			}));
-		 	// }, 500);
 		},
 		_flagComment: function(comment, event) {
 			var that = this;
@@ -836,24 +837,46 @@
 			}
 
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
-
-			// Wait for some little time before removing the event listener.
-			// We need to remove it to prevent calling it again for this same comment. 
-			// i.e if we don't remove it, it will be called for previous attached comments
-			/* 
-			setTimeout(function() {
-				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
-			}, 1000);
-			*/
 		},
 		refresh: function() {
 			var $comments = $('#question-comments li.comment');
 			var that = this;
+
+			/** Function to Highlight parent comment when share icon is hovered */
+			function enableHighlightParent(comment, replyToSpan) {
+				if (comment && replyToSpan) {
+					// console.log(comment) shows that comment.parent is sometimes null 
+					// i.e in cases like the first reply, this sometimes print the parent comment...
+					// so in cases where the parent comment is present, we add the event listener
+					var parentId = comment.parent;
+					if (parentId !== null) {
+						replyToSpan.addEventListener('mouseover', function(ev) {
+							var parentCommentWrp = document.querySelector(`#question-comments [data-id='${parentId}'] .comment-wrapper`);
+							parentCommentWrp.style.backgroundColor = 'lightgray';
+
+							// After some time, set color back to initial
+							setTimeout(function() {
+								parentCommentWrp.style.backgroundColor = 'initial';
+							}, 1500);
+						});
+					}
+				}
+			}
+
 			$comments.each(function () {
 				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
 				var comment = that._comments.find(obj => obj.id === commentId);
 
-				// Enagle flagging only if comment is not poster's (is not editable)
+				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
+				var link = document.createElement("a");
+				link.setAttribute("name", `comment-${comment.id}`);
+				this.firstChild.before(link);
+
+				// Highlight parent comment when share icon is hovered
+				var replySpan = this.querySelector('.reply-to');
+				enableHighlightParent(comment, replySpan);
+
+				// Enagle flagging only if comment is not poster's (Edit button is not present)
 				var $action = $this.find('.actions').first();
 				if ($action.find('.action.edit').length == 0) { 
 					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
@@ -876,6 +899,53 @@
 					}
 					
 					$action.append(separatorStr, flagBtn);
+				} else {
+					// Else prevent or make upvote button for current user invalid.
+					// (If Edit button is present, that means comment belongs to the current user)
+					var $upvoteBtn = $action.children('.action.upvote').first();
+					var $thumbsUpIcon = $upvoteBtn.children('i').first();
+					$thumbsUpIcon.css('cursor', 'default');
+
+					// No need to remove error toast telling user that he can't vote for his post;
+					// the user should know what is happening.
+					// Also, apparently, after clicking the upvote button, the cursor turns back to
+					// pointer. No need to bother changing it back to default.
+				}
+			});
+
+			// Listen to when new comment is added, so as to enable highlighting its parent
+			insertionQ('li.comment.by-current-user').every(function (ele) {
+				var commentId = parseInt(ele.dataset.id, 10);
+				var comment = that._comments.find(obj => obj.id === commentId);
+				var replySpan = ele.querySelector('.reply-to');
+				enableHighlightParent(comment, replySpan);
+			});
+
+			// Listen to when reply is about to be added; so as to appropriately place 
+			// commenting field on page.
+			// ALGORITHM: After commenting field is added, if it isn't in viewport, find the hyperlink
+			// before it and go to the link. If no link is present, create one then link to it.
+			insertionQ('.data-container .commenting-field').every(function (ele) {
+				if (!isElementInViewport(ele)) {
+					var prevElement = ele.previousSibling, href;
+					if (prevElement.nodeName.toLowerCase() !== 'a') {
+						href = uid().replace('id', '');  // uid() function is in base.js
+						var link = document.createElement('a');
+						link.setAttribute("name", href);
+						ele.insertAdjacentElement('beforebegin', link);
+					} else {
+						href = prevElement.getAttribute('name');
+					}
+
+					// If the hash has already been set, resetting it to the same value won't have
+					// any effect (won't scroll to the link). So we clear it then set it to the link. 
+					// To clear it without scrolling, we use the replaceState(or pushState) function...
+					if (location.hash.replace('#', '') == href) {
+						history.replaceState({}, '', location.pathname);
+					}
+
+					location.hash = href;
+					ele.querySelector('.textarea').focus();
 				}
 			});
 		},	
@@ -913,24 +983,28 @@
 				data: {
 					parent_id: commentJSON.parent,
 					question_id: {{ question.id }},
-					content: commentJSON.content
+					content: that._parseComment(commentJSON).content
 				},
 				success: function(result) {
 					var data = result.data;
 
-					// Add permission to list of permissions
+					// Add comment to list of comments & permission to list of permissions
+					that._comments.push(data);
 					that._permissions[data.id] = {
 						cannotUpdate: false,
 						cannotUpdateMessage: '',
 						cannotDelete: false,
 						cannotDeleteMessage: ''
 					};
+
 					success(that._parseComment(data));
 				},
 				error: error
 			});
 		},
 		putComment: function(commentJSON, success, error) {
+			// After trying a PUT request, if it fails, we store the result in the
+			// permissions array so as to prevent subsequent requests.
 			var that = this, id = commentJSON.id;
 			var permission = that._permissions[id];
 			
@@ -946,7 +1020,7 @@
 				// since javascript vars do not work in python
 				url: "{% url 'qa_site:discuss-comments-cl' %}" + id + '/',
 				data: JSON.stringify({
-					content: commentJSON.content
+					content: that._parseComment(commentJSON).content
 				}),
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
@@ -970,8 +1044,6 @@
 			var that = this, id = commentJSON.id;
 			var permission = that._permissions[id];
 
-			console.log(that._permissions, id)
-			
 			// Verify if comment can be deleted
 			if (permission.cannotDelete) {
 				displayToast('CUSTOM_ERROR', permission.cannotDeleteMessage);
@@ -998,15 +1070,19 @@
 			});
 		},
 		upvoteComment: function(commentJSON, success, error) {
+			// In this function, commentJSON.user_has_upvoted is set to its opposite. 
+			// i.e. if the original commentJSON had it to false, in this function, it is set to true
+			// and vice versa. 
+			var hadUpvoted = !(commentJSON.user_has_upvoted);
 			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
-	  
+
 			// If user is creator of commnet, he can't vote
 			if (userId == commentJSON.creator) {
 				displayToast('SELF_VOTE');
-				error();
+				return error();
 			} else {
 				// Recalling upvote
-				if(commentJSON.userHasUpvoted) {
+				if(hadUpvoted) {
 					$.ajax({
 						type: 'POST',
 						url: upvotesURL,
@@ -1046,7 +1122,7 @@
 			}
 		},
 		pingClicked: function(userId) {
-			alert(userId);
+			
 		},
 		timeFormatter: function(time) {
 			return moment(time).fromNow();

@@ -103,7 +103,6 @@ class JQueryDiscussCommentList(View):
 		parent = get_object_or_404(DiscussComment, pk=parent_id) if parent_id else None
 
 		form = DiscussCommentForm(POST)
-
 		if form.is_valid():
 			comment = form.save(commit=False)
 			user.add_question_comment(question, comment, parent)
@@ -231,7 +230,8 @@ def get_users_mentioned(request, question_id):
 				AcademicAnswerComment.objects.only('id', 'users_mentioned')
 			),
 		)
-		users = User.objects.none()
+		# Add question poster
+		users = User.objects.filter(id=question.poster_id)
 
 		for question in qstns:
 			for comment in question.comments.all():
@@ -251,7 +251,7 @@ def get_users_mentioned(request, question_id):
 		qstns = qstn_model.objects.prefetch_related(
 			Prefetch('comments', DiscussComment.objects.only('id', 'users_mentioned'))
 		)
-		users = User.objects.none()
+		users = User.objects.filter(id=question.poster_id)
 
 		for question in qstns:
 			for comment in question.comments.all():

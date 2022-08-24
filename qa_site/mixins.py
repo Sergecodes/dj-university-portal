@@ -20,7 +20,7 @@ class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 		# and the test_func is always called before this function
 		question = self.object
 
-		if self.user != question.poster:
+		if self.user.id != question.poster_id:
 			return _("You can only edit your own questions.")
 
 		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
@@ -38,7 +38,7 @@ class CanEditAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 	def get_permission_denied_message(self):
 		answer = self.object
 
-		if self.user != answer.poster:
+		if self.user.id != answer.poster_id:
 			return _("You can only edit your own answers.")
 
 		if answer.vote_count > ANSWER_CAN_EDIT_VOTE_LIMIT:
@@ -56,7 +56,7 @@ class CanEditCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 	def get_permission_denied_message(self):
 		comment = self.object
 
-		if self.user != comment.poster:
+		if self.user.id != comment.poster_id:
 			return _("You can only edit your own comments.")
 
 		if comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT:
@@ -84,7 +84,7 @@ class CanDeleteQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if user.is_mod:
 			return _("Moderators can only delete flagged questions")
 
-		if user != question.poster:
+		if user.id != question.poster_id:
 			return _("You can only delete your own questions.")
 
 		if question.vote_count > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
@@ -105,7 +105,7 @@ class CanDeleteAnswerMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if user.is_mod:
 			return _("Moderators can only delete flagged answers")
 
-		if user != answer.poster:
+		if user.id != answer.poster_id:
 			return _("You can only delete your own answers.")
 
 		if answer.vote_count > ANSWER_CAN_DELETE_VOTE_LIMIT:
@@ -126,7 +126,7 @@ class CanDeleteCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if user.is_mod:
 			return _("Moderators can delete only flagged comments.")
 
-		if user != comment.poster:
+		if user.id != comment.poster_id:
 			return _("You can only delete your own comments.")
 
 		if comment.upvote_count > COMMENT_CAN_DELETE_UPVOTE_LIMIT:
