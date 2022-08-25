@@ -2,7 +2,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import (
-	PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT,
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
 	PAST_PAPER_CAN_DELETE_TIME_LIMIT
 )
@@ -46,7 +45,8 @@ class CanDeletePastPaperMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if not past_paper.is_within_delete_timeframe: 
 			return _(
 				# use str() to convert the timedelta object to a convenient value
-				"You can't delete papers that are more than {} minutes old.".format(str(PAST_PAPER_CAN_DELETE_TIME_LIMIT))
+				"You can't delete papers that are more than {} minutes old." \
+					.format(str(PAST_PAPER_CAN_DELETE_TIME_LIMIT))
 			)
 			
 		return super().get_permission_denied_message()
@@ -67,7 +67,8 @@ class CanEditPastPaperCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if not comment.is_within_edit_timeframe: 
 			return _(
 				# use str() to convert the timedelta object to a convenient value
-				"You can't edit comments that are more than {} minutes old.".format(str(PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT))
+				"You can't edit comments that are more than {} minutes old." \
+					.format(str(PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT))
 			)
 
 		return super().get_permission_denied_message()
@@ -85,12 +86,6 @@ class CanDeletePastPaperCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if user.id != comment.poster_id:
 			return _("You can delete only your comments.")
-
-		if not comment.is_within_delete_timeframe: 
-			return _(
-				# use str() to convert the timedelta object to a convenient value
-				"You can't delete comments that are more than {} minutes old.".format(str(PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT))
-			)
 			
 		return super().get_permission_denied_message()
 

@@ -14,8 +14,7 @@ from django.views.decorators.http import require_POST, require_GET
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
-	THRESHOLD_POINTS, COMMENT_CAN_EDIT_TIME_LIMIT,
-	COMMENT_CAN_EDIT_UPVOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
+	THRESHOLD_POINTS, COMMENT_CAN_EDIT_UPVOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT
 )
 from flagging.models import Flag
@@ -140,9 +139,8 @@ class JQueryDiscussCommentDetail(View):
 
 				if user.id == comment.poster_id:
 					message = _(
-						"Replies that have lasted longer than {} minutes "
-						"or that have more than {} likes cannot be edited" \
-						.format(COMMENT_CAN_EDIT_TIME_LIMIT.seconds // 60, COMMENT_CAN_EDIT_UPVOTE_LIMIT)
+						"Replies that have more than {} likes cannot be edited" \
+						.format(COMMENT_CAN_EDIT_UPVOTE_LIMIT)
 					)
 				else:
 					message = _('You are not permitted to edit this comment')

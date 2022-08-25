@@ -6,12 +6,10 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.template import defaultfilters as filters
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.models import TagBase, TaggedItemBase
 
-from core.constants import COMMENT_CAN_EDIT_TIME_LIMIT
 from core.models import Institution, Comment
 from core.templatetags.app_extras import remove_tags
 from flagging.models import Flag
@@ -49,16 +47,6 @@ class QaSiteComment(Comment):
 	@property
 	def score(self):
 		return self.vote_count
-
-	@property
-	def is_within_edit_timeframe(self):
-		"""
-		Verify if comment is within edition time_frame
-		(posted_datetime is less than COMMENT_CAN_EDIT_TIME_LIMIT(10 minutes) old)
-		"""
-		if (timezone.now() - self.posted_datetime) > COMMENT_CAN_EDIT_TIME_LIMIT:
-			return False
-		return True
 
 	class Meta:
 		abstract = True

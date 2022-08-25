@@ -554,13 +554,11 @@ class User(AbstractUser):
 		"""
 		To test if a user can edit an comment.
 		- Only poster can edit comment
-		- After 10 minutes, comments can't be edited.
 		- Comments with 5 upvotes and above can't be edited
 		"""
 					
 		# first verify if comment can be edited
-		if (comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT) or \
-			not comment.is_within_edit_timeframe:
+		if comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT:
 			return False
 
 		# now verify if user is poster
@@ -625,7 +623,7 @@ class User(AbstractUser):
 	def can_edit_past_paper_comment(self, comment):
 		"""
 		To test if user can edit past paper comment
-		- After 10mins, comment can't be edited
+		- After 30mins, comment can't be edited
 		- Only poster can edit comment
 		"""
 					
@@ -644,7 +642,6 @@ class User(AbstractUser):
 		To test if user can delete past paper comment
 		- staff can delete any comment
 		- moderators can delete flagged comments
-		- After 10mins, comment can't be deleted by poster
 		- poster can delete comment; other users nope.
 		"""
 					
@@ -654,9 +651,6 @@ class User(AbstractUser):
 		# if it is flagged, moderator can delete.
 		if self.is_mod and Flag.objects.is_flagged(comment):
 			return True
-		
-		if not comment.is_within_delete_timeframe:
-			return False
 			
 		if self.id == comment.poster_id:
 			return True

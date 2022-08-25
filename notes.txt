@@ -12,6 +12,10 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
+- fix errors on page that are displayed when user is anonymous
+- change follow text after following question
+- clicking on ping should link to social profile if user has one
+
 - make academic question similar to discuss question(also enable disliking answers)
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)

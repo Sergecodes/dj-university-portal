@@ -160,7 +160,7 @@
 						In any case, you will be notified when any of your post is deemed inappropriate by other users so you know what action to take yourself before we take matters in our own hands.
 						<br>
 						We can remove any post we deem inappropriate, with or without the poster's consent. You can edit or delete anything you post, except in the <b>questions and past papers</b> sections. <br>
-						For the <b>past papers</b> section, you can no longer delete an uploaded paper after {{ cannot_del_paper_time }} minutes, and any comment made under a past paper can't be edited nor deleted after {{ cannot_touch_paper_comment_time }} minutes. <br>
+						For the <b>past papers</b> section, you can no longer delete an uploaded paper after {{ cannot_del_paper_time }} minutes, and any comment made under a past paper can't be edited after {{ cannot_edit_paper_comment_time }} minutes. <br>
 						For the <b>questions</b> section, see below.
 						{% endblocktrans %}
 					</p>
@@ -214,7 +214,7 @@
 							</li>
 							<li>
 								{% blocktrans %}
-								Comments: <b>Only</b> the poster of a comment can edit it. However, comments with more than {{ cannot_edit_comment_vote }} votes can't be edited and after {{ cannot_edit_comment_time }} minutes, comments can't be edited. 
+								Comments: <b>Only</b> the poster of a comment can edit it. However, comments with more than {{ cannot_edit_comment_vote }} votes can't be edited. 
 								{% endblocktrans %}
 							</li>
 						</ul>

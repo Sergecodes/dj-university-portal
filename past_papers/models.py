@@ -13,8 +13,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 from core.constants import (
 	PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR,
 	PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
-	PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT,
-	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT, 
+	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT,
 )
 from core.models import Country
 from core.fields import DynamicStorageFileField
@@ -87,15 +86,6 @@ class Comment(models.Model):
 		Verify if past paper comment is within edition time_frame
 		"""
 		if (timezone.now() - self.posted_datetime) > PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT:
-			return False
-		return True
-
-	@property
-	def is_within_delete_timeframe(self):
-		"""
-		Verify if past paper comment is within deletion time_frame
-		"""
-		if (timezone.now() - self.posted_datetime) > PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT:
 			return False
 		return True
 

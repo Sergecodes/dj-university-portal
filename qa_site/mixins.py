@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import (
 	MAX_ANSWERS_PER_USER_PER_QUESTION, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT,
 	QUESTION_CAN_EDIT_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT,
-	COMMENT_CAN_EDIT_TIME_LIMIT, COMMENT_CAN_EDIT_UPVOTE_LIMIT,
-	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
+	COMMENT_CAN_EDIT_UPVOTE_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
+	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, 
 	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
 )
 
@@ -23,9 +23,14 @@ class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 		if self.user.id != question.poster_id:
 			return _("You can only edit your own questions.")
 
-		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
+		if question.vote_count > QUESTION_CAN_EDIT_VOTE_LIMIT or \
+			question.num_answers > QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT:
 			return _(
-				"You can only edit questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. \n You may post a new question.".format(QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT)
+				"You can only edit questions with less than {} votes"
+				"(number of likes - number of dislikes) or less than {} answers. \n "
+				"You may post a new question.".format(
+					QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT
+				)
 			)
 		return super().get_permission_denied_message()
 
@@ -61,13 +66,8 @@ class CanEditCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT:
 			return _(
-				"You can only edit comments with less than {} likes. You may post a new comment.".format(COMMENT_CAN_EDIT_UPVOTE_LIMIT)
-			)
-		
-		# if comment is not in edit timeframe
-		if not comment.is_within_edit_timeframe:
-			return _(
-				"You can only edit comments that are less than {} minutes old.".format(COMMENT_CAN_EDIT_TIME_LIMIT)
+				"You can only edit comments with less than {} likes. "
+				"You may post a new comment.".format(COMMENT_CAN_EDIT_UPVOTE_LIMIT)
 			)
 
 		return super().get_permission_denied_message()

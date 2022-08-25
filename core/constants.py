@@ -95,13 +95,11 @@ MAX_ITEM_PHOTOS_LENGTH = 8
 	# upload past paper: +5 points (TODO ensure file paper is unique upon posting... ?)
 UPLOAD_PAPER_POINTS_CHANGE = +5
 # after this period, past paper can't be deleted
-# NOTE that past paper can't be edited !
-# no stress me for di manipulate papers and pdf them :)
+# NOTE that past paper can't be edited; no stress me for di manipulate papers and pdf them :)
 PAST_PAPER_CAN_DELETE_TIME_LIMIT = timedelta(minutes=30)
-# after this number of minutes, comment can't be edited/deleted
-PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT = timedelta(minutes=10)
-PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT
-PAST_PAPER_COMMENT_CAN_DELETE_TIME_LIMIT = PAST_PAPER_COMMENT_CAN_TOUCH_LIMIT
+# after this number of minutes, comment can't be edited.
+# (comments can always be deleted)
+PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=30)
 
 
 ## QA_SITE APP ##
@@ -155,8 +153,6 @@ QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT = 1
 QUESTION_CAN_EDIT_VOTE_LIMIT = 2
 # answers with vote_count > this value can't be edited
 ANSWER_CAN_EDIT_VOTE_LIMIT = 4
-# after this number of minutes, comment can't be edited
-COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=10)
 # after this number of votes(upvotes), comment can't be edited
 COMMENT_CAN_EDIT_UPVOTE_LIMIT = 4
 
