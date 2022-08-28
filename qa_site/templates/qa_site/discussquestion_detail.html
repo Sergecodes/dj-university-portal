@@ -47,7 +47,7 @@
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
 	<div class="d-flex">
 		<div class="toast-body">
-			{% trans 'You need to be logged in to perform this operation.' %} 
+			{% trans 'You need to be logged in to perform this action.' %} 
 			<p class="text-dark mt-1 mb-0">
 				{% trans 'Click' %} 
 				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
@@ -259,7 +259,7 @@
 				<!-- flag area -->
 				{# if question belongs to user, don't display follow widget. #}
 				{% if user != question_poster %}
-					<div class="d-inline ms-2">
+					<div class="d-inline float-end opacity-75">
 						{% if user.is_anonymous %}
 							<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
 								{% trans 'Report post' %}
@@ -276,7 +276,6 @@
 									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
-							{% render_flag_form question user request %}
 						{% endif %}
 					</div>
 				{% endif %}
@@ -711,24 +710,28 @@
 
 	/* Prepare flagging */
 	const COMMENT_MODEL_NAME = 'DiscussComment';
-	var flagModal = document.querySelector('.js-flag-report-modal');
-	var reportIcon = document.querySelector('.js-flag-report-icon');
-	var modalClose = document.querySelector('.report-modal-close');
-	var initModelName = reportIcon.dataset.modelName, initModelId = reportIcon.dataset.modelId;
 
-	var flagSuccessToast = document.querySelector('.js-flag-success-toast');
+	// If user is unauthed, these query-selectors will yield null
+	if (userId) {
+		var flagModal = document.querySelector('.js-flag-report-modal');
+		var reportIcon = document.querySelector('.js-flag-report-icon');
+		var modalClose = document.querySelector('.report-modal-close');
+		var initModelName = reportIcon.dataset.modelName, initModelId = reportIcon.dataset.modelId;
 
-	/** Reset data attributes of flag modal after modal is closed */
-	function resetFlagModal(ev) {
-		// ev.target will equal ev.currentTarget when the click is done outside the modal content
-		if (ev.target == modalClose || ev.target == ev.currentTarget) {
-			reportIcon.dataset.modelName = initModelName;
-			reportIcon.dataset.modelId = initModelId;
+		var flagSuccessToast = document.querySelector('.js-flag-success-toast');
+
+		/** Reset data attributes of flag modal after modal is closed */
+		function resetFlagModal(ev) {
+			// ev.target will equal ev.currentTarget when the click is done outside the modal content
+			if (ev.target == modalClose || ev.target == ev.currentTarget) {
+				reportIcon.dataset.modelName = initModelName;
+				reportIcon.dataset.modelId = initModelId;
+			}
 		}
-	}
 
-	flagModal.addEventListener('click', resetFlagModal);
-	modalClose.addEventListener('click', resetFlagModal);
+		flagModal.addEventListener('click', resetFlagModal);
+		modalClose.addEventListener('click', resetFlagModal);
+	}
 
 	{# jquery-comments config, https://viima.github.io/jquery-comments #}
 	$('#question-comments').comments({
@@ -863,7 +866,7 @@
 				}
 			}
 
-			$comments.each(function () {
+			$comments.each(function (idx) {
 				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
 				var comment = that._comments.find(obj => obj.id === commentId);
 
@@ -885,20 +888,43 @@
 						<span class="separator" style="vertical-align: text-bottom;">.</span> 
 					`;
 					var flagBtn = document.createElement("button");
-					flagBtn.setAttribute("class", "action text-danger js-commentFlagBtn");
-					flagBtn.setAttribute('title', flagTitle);
-					flagBtn.innerHTML = `<i class="${flagClass}"></i>`;
+					flagBtn.setAttribute("class", "action text-danger w-100");
+					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;
+					
+					// Create dropdown menu.
+					// Normally a 'dropdown' class is also needed(for positioning), but apparently 
+					// in this case adding it will cause problems. 
+					var dropdown = document.createElement("div");
+					dropdown.setAttribute('class', 'd-inline');
+					dropdown.innerHTML = `
+						<button type="button" class="float-end" id="comment-${idx}-menu" data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa fa-ellipsis-v"></i>	
+						</button>
+						<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${idx}-menu">
+						</ul>
+					`;
 
-					if (comment.has_flagged) {
-						// set the `that` object as the this object in that handler, and pass the comment
-						// as an argument.
-						// Binding is necessary since we want to pass an argument(comment) to the handler
-						flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+					if (userId) {
+						if (comment.has_flagged) {
+							// set the `that` object as the this object in that handler, and pass the comment
+							// as an argument.
+							// Binding is necessary since we want to pass an argument(comment) to the handler
+							flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+						} else {
+							flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+						}
 					} else {
-						flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+						// If user is unauthed, display login required toast.
+						flagBtn.addEventListener('click', displayToast.bind(this, 'LOGIN_REQUIRED'));
 					}
 					
-					$action.append(separatorStr, flagBtn);
+					// $action.append(separatorStr, flagBtn);
+					var menu = dropdown.querySelector('ul');
+					var flagLi = document.createElement('li');
+					flagLi.appendChild(flagBtn);
+					menu.appendChild(flagLi);
+
+					$action.append(dropdown);
 				} else {
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
@@ -973,6 +999,11 @@
 			});
 		},
 		postComment: function(commentJSON, success, error) {
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return error();
+			}
+
 			var that = this;
 			$.ajax({
 				type: 'POST',
@@ -1070,13 +1101,18 @@
 			});
 		},
 		upvoteComment: function(commentJSON, success, error) {
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return error();
+			}
+
 			// In this function, commentJSON.user_has_upvoted is set to its opposite. 
 			// i.e. if the original commentJSON had it to false, in this function, it is set to true
 			// and vice versa. 
 			var hadUpvoted = !(commentJSON.user_has_upvoted);
 			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
 
-			// If user is creator of commnet, he can't vote
+			// If user is creator of comment, he can't vote
 			if (userId == commentJSON.creator) {
 				displayToast('SELF_VOTE');
 				return error();
@@ -1122,7 +1158,8 @@
 			}
 		},
 		pingClicked: function(userId) {
-			
+			// todo: For all users(users mentioned), if userId is of user that has social profile,
+			// redirect.
 		},
 		timeFormatter: function(time) {
 			return moment(time).fromNow();

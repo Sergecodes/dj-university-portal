@@ -102,12 +102,6 @@ a.dropdown-item:focus {
 /* style bootstrap tooltips  */
 .share-tooltip .tooltip-inner {
     max-width: 100%;
-    /* use alongside data-container="body" */
-    background-color: #444;
-}
-
-.bs-tooltip-bottom .tooltip-arrow::before {
-    border-bottom-color: #444;
 }
 
 /** taggit_selectize */
