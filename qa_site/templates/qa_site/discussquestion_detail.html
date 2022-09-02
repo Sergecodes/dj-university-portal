@@ -278,6 +278,14 @@
 							</span> 
 						{% endif %}
 					</div>
+				{% else %}
+					{% comment %} 
+					Normally flag form shouldn't be displayed if current user is poster, but we need
+					to in this case due to the comment section... (flagging form need to be rendered on the page).
+					{% endcomment %}
+					<span class="ms-2">
+						| {% render_flag_form question user request False %}
+					</span>
 				{% endif %}
 			</div>
 			
@@ -380,7 +388,7 @@
 	/* Get current user's id.. */
 	// if user isn't logged in, user.id and userPoints will be "None"
 	var userId = "{{ user.id }}", userPoints = "{{ user.site_points }}";
-	var requiredDownvotePoints = {{ required_downvote_points }};
+	var requiredDownvotePoints = {{ required_downvote_points }}, posterId = {{ question.poster_id }};
 	userId = (userId == "None" ? null : userId);
 	var csrfToken = "{{ csrf_token }}";
 	// reduce margin of paragraphs so as to use less space..
@@ -398,13 +406,6 @@
 	// possible thread types are {question, comment}
 	var THREAD_TYPES = ["question", "comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
-
-	/* Get current user's id.. */
-	// if user isn't logged in, user.id and userPoints will be "None"
-	var userId = "{{ user.id }}", userPoints = "{{ user.site_points }}";
-	var requiredDownvotePoints = {{ required_downvote_points }};
-	userId = (userId == "None" ? null : userId);
-	var csrfToken = "{{ csrf_token }}";
 
 	function onVote(event) {
 		// if user isn't logged in
@@ -691,6 +692,8 @@
 	{% endif %}
 </script>
 <script>
+	const PAGE_URL = "{{ request.build_absolute_uri }}";
+
 	{% if LANGUAGE_CODE != 'en' %}
 	moment.locale('{{ LANGUAGE_CODE }}');
 	{% endif %}
@@ -711,7 +714,7 @@
 	/* Prepare flagging */
 	const COMMENT_MODEL_NAME = 'DiscussComment';
 
-	// If user is unauthed, these query-selectors will yield null
+	// Question poster & anonymous users can't flag
 	if (userId) {
 		var flagModal = document.querySelector('.js-flag-report-modal');
 		var reportIcon = document.querySelector('.js-flag-report-icon');
@@ -760,7 +763,7 @@
 			{% endwith %}
 			return url;
 		})(),
-		currentUserIsAdmin: {% if user.is_staff %} true {% else %} false {% endif %},
+		currentUserIsAdmin: false,
 		enablePinging: true,
 		_comments: [],
 		_permissions: {},
@@ -871,15 +874,71 @@
 				var comment = that._comments.find(obj => obj.id === commentId);
 
 				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
-				var link = document.createElement("a");
-				link.setAttribute("name", `comment-${comment.id}`);
-				this.firstChild.before(link);
+				var linkEl = document.createElement("a");
+				var linkHref = `comment-${comment.id}`;
+				linkEl.setAttribute("name", linkHref);
+				this.firstChild.before(linkEl);
 
 				// Highlight parent comment when share icon is hovered
 				var replySpan = this.querySelector('.reply-to');
 				enableHighlightParent(comment, replySpan);
 
-				// Enagle flagging only if comment is not poster's (Edit button is not present)
+				// Prepare share item(tooltip)
+				var commentLink = PAGE_URL + '#' + linkHref;
+				const WHATSAPP_SHARER = 'https://wa.me/', FACEBOOK_SHARER = 'https://www.facebook.com/sharer/sharer.php';
+				const TWITTER_SHARER ='https://www.twitter.com/intent/tweet', TWITTER_HANDLE = 'camerschools';
+				var shareBtn = document.createElement('button');
+				shareBtn.innerHTML = '{% trans "Share comment" %} <i class="fas fa-share ms-1" aria-hidden="true"></i>';
+				setAttributes(shareBtn, {
+					'class': "w-100 mt-2 link-secondary no-style-button js-share-tooltip js-comment-share-tooltip",
+					'data-bs-toggle': 'tooltip',
+					'data-bs-trigger': 'click',
+					'data-bs-custom-class': "share-tooltip",
+					'data-bs-html': "true",
+					'data-bs-container': "body",
+					'title': `
+						<h6 class="text-nowrap mt-2">{% trans "Share a link to this comment" %}</h6>
+						<input class="form-control mb-3 py-1 js-link-input" type="text" value="${commentLink}" title="${commentLink}" readonly>
+						<div class="text-start mb-2">
+							<button class="no-style-button text-purple js-copy-button">{% trans 'Copy link' %}</button>
+							<a class="text-decoration-none link-secondary mx-3" href="${FACEBOOK_SHARER}?u=${commentLink}&t={{ title }}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on Facebook' %}</span>
+								<i class="fab fa-facebook-square fa-lg" aria-hidden="true"></i>
+							</a>
+							<a class="text-decoration-none me-3" href="${TWITTER_SHARER}?url=${commentLink}&via={{ TWITTER_HANDLE }}&text={{ title }}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on Twitter' %}</span>
+								<i class="fab fa-twitter-square fa-lg" aria-hidden="true"></i>
+							</a>
+							<a class="text-decoration-none link-success" href="${WHATSAPP_SHARER}?text=${commentLink}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on WhatsApp' %}</span>
+								<i class="fab fa-whatsapp fa-lg" aria-hidden="true"></i>
+							</a>
+						</div>
+						<button type="button" class="btn-close btn-close-white" onclick="shareCloseBtnClick()" aria-label="{% trans 'Close' %}"></button>					
+					`
+				});
+
+				// Create dropdown menu.
+				// Normally a 'dropdown' class is also needed(for positioning), but apparently 
+				// in this case adding it will cause problems...
+				var dropdown = document.createElement("div");
+				dropdown.setAttribute('class', 'd-inline');
+				dropdown.innerHTML = `
+					<button type="button" class="float-end" id="comment-${idx}-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-ellipsis-v"></i>	
+					</button>
+					<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${idx}-menu-btn">
+					</ul>
+				`;
+
+				var menu = dropdown.querySelector('ul');
+
+				// Add share to menu
+				var shareLi = document.createElement('li');
+				shareLi.appendChild(shareBtn);
+				menu.appendChild(shareLi);
+
+				// Enable flagging only if comment is not poster's (Edit button is not present)
 				var $action = $this.find('.actions').first();
 				if ($action.find('.action.edit').length == 0) { 
 					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
@@ -888,21 +947,8 @@
 						<span class="separator" style="vertical-align: text-bottom;">.</span> 
 					`;
 					var flagBtn = document.createElement("button");
-					flagBtn.setAttribute("class", "action text-danger w-100");
-					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;
-					
-					// Create dropdown menu.
-					// Normally a 'dropdown' class is also needed(for positioning), but apparently 
-					// in this case adding it will cause problems. 
-					var dropdown = document.createElement("div");
-					dropdown.setAttribute('class', 'd-inline');
-					dropdown.innerHTML = `
-						<button type="button" class="float-end" id="comment-${idx}-menu" data-bs-toggle="dropdown" aria-expanded="false">
-							<i class="fa fa-ellipsis-v"></i>	
-						</button>
-						<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${idx}-menu">
-						</ul>
-					`;
+					flagBtn.setAttribute("class", "mt-3 mb-2 text-danger w-100");
+					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;	
 
 					if (userId) {
 						if (comment.has_flagged) {
@@ -917,14 +963,11 @@
 						// If user is unauthed, display login required toast.
 						flagBtn.addEventListener('click', displayToast.bind(this, 'LOGIN_REQUIRED'));
 					}
-					
-					// $action.append(separatorStr, flagBtn);
-					var menu = dropdown.querySelector('ul');
+
+					// Add flag to menu
 					var flagLi = document.createElement('li');
 					flagLi.appendChild(flagBtn);
 					menu.appendChild(flagLi);
-
-					$action.append(dropdown);
 				} else {
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
@@ -937,7 +980,25 @@
 					// Also, apparently, after clicking the upvote button, the cursor turns back to
 					// pointer. No need to bother changing it back to default.
 				}
+
+				$action.append(dropdown);
 			});
+
+			// Initialize new comment share button tooltips,
+			// use default allowList to allow button elements ()
+			bootstrap.Tooltip.Default.allowList.button = ['onclick'];
+			initTooltips();
+
+			// Add listeners for copy button
+			var commentTooltips = document.querySelectorAll('.js-comment-share-tooltip'); 
+			for (var i = 0; i < commentTooltips.length; i++) {
+				commentTooltips[i].addEventListener('inserted.bs.tooltip', function() {
+					// `this` refers to the element containing the tooltip (Share button in this case)
+					var tooltip = bootstrap.Tooltip.getInstance(this);
+					var copyBtn = tooltip.tip.querySelector('.js-copy-button');
+					copyBtn.addEventListener('click', onCopyLink);
+				});
+			}
 
 			// Listen to when new comment is added, so as to enable highlighting its parent
 			insertionQ('li.comment.by-current-user').every(function (ele) {
@@ -1167,5 +1228,4 @@
 
 	});
 </script>
-
 {% endblock %}

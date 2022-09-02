@@ -21,7 +21,7 @@ freeprivacypolicy.com  (cool)
 - change full name validator (frontend nd backend)
 - enable unique username (collation)
 - redirect to previous page upon logout
-
+- display delete/edit buttons in dropdown menu for all posts in all apps.
 
 ** TO DO:
 - on ckeditor page, when image is about to uploaded, clicking on "Browse server" opens a new window to the admin page. Prevent this.
@@ -187,3 +187,35 @@ class UserActivity(models.Model):
 	remove all entries where entry.datetime.date() < timezone.now().date
 '''
 
+
+			// The aim here is to make the comment tooltip not change position(not go to top left of screen)
+			// after scrolling. This happens because the "Share button" along with the dropdown 's
+			// positions is set to absolute and its display to none.
+			// So to fix this, we set the menu's display back to initial but also set its visibility to 
+			// hidden so it won't be visible.
+			function addMenuObserver(menuList) {
+				var el = menuList;
+				var previousDisplay = getComputedStyle(el).display;
+				var observer = new MutationObserver(function(mutations) {
+					mutations.forEach(function(mutation) {
+						if (mutation.attributeName !== 'style') return;
+	
+						var currentDisplay = getComputedStyle(el).display;
+						var currentVisible = getComputedStyle(el).visibility;
+						if (currentDisplay !== previousDisplay) {
+							if (previousDisplay !== 'none' && currentDisplay === 'none') {
+								console.log("display is none");
+								// el.style.display = "block";
+								// el.style.visibility = 'hidden';
+							} else if (previousDisplay === 'none' && currentDisplay !== 'none') {
+								console.log("display is not none");
+
+							}
+
+							previousDisplay = getComputedStyle(el).display;
+						}
+					});
+				});
+				
+				observer.observe(menuList, { attributes: true });
+			}

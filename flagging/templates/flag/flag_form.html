@@ -39,8 +39,10 @@
 		role="button"
 	>
 		{# main span element (icon) #}
-		<span {% if display_title %} title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}>
-			{% include "flag/flag_icon.html" %}
+		<span {% if display_title %} title="{% if has_flagged %} {% trans 'Remove flag' %} {% else %} {% trans 'Report post' %} {% endif %}" {% endif %}> 
+			<span class="{% if not display_icon %} d-none {% endif %}">
+				{% include "flag/flag_icon.html" %} 
+			</span>
 		</span>
 	</div>
 	{# use text-start to conteract text-end in question detail templates #}
@@ -81,7 +83,9 @@
 {% if user.is_mod %}
 	{# mod can see number of flags on post #}
 	<span class="text-danger fw-bold ms-2">
-		({{ num_flags }} {% trans 'flag' %}{{ num_flags|pluralize }})
+		{% if display_icon %}({% endif %}
+		{{ num_flags }} {% trans 'flag' %}{{ num_flags|pluralize }}
+		{% if display_icon %}){% endif %}
 	</span>
 {% endif %}
 

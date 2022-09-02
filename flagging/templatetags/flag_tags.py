@@ -24,7 +24,7 @@ def has_flagged(user, obj):
 
 
 @register.inclusion_tag('flag/flag_form.html')
-def render_flag_form(obj, user, request, display_title=False):
+def render_flag_form(obj, user, request, display_icon=True, display_title=False):
     """
     A template tag used for adding flag form in templates 
     to render the flag form for a post model inside the app posts
@@ -45,6 +45,7 @@ def render_flag_form(obj, user, request, display_title=False):
         'num_flags': Flag.objects.get_flag(obj).count,
         'flag_reasons': FlagInstance.reasons,
         'request': request,
+        'display_icon': display_icon,
         'display_title': display_title,
     }
     

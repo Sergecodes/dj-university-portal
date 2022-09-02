@@ -154,6 +154,16 @@ function isElementInViewport(el) {
 	);
 }
 
+function setAttributes(el, attrs) {
+	if (el instanceof jQuery) {
+		el = el[0];
+	}
+
+	for (var key in attrs) {
+		el.setAttribute(key, attrs[key]);
+	}
+}
+
 /** 
  * Generate a random id 
  * Used in the academic and school detail pages for ckeditor instances */
@@ -575,7 +585,7 @@ function init() {
 function initTooltips() {
 	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 	var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-		return new bootstrap.Tooltip(tooltipTriggerEl)
+		return bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
 	});
 }
 
