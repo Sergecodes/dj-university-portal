@@ -33,7 +33,6 @@
 {% block institution_searchbox %}
 {% endblock %}
 
-
 {% block content %}
 <!-- toasts -->
 <div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
@@ -259,9 +258,9 @@
 				<!-- flag area -->
 				{# if question belongs to user, don't display follow widget. #}
 				{% if user != question_poster %}
-					<div class="d-inline float-end opacity-75">
+					<div class="d-inline float-end">
 						{% if user.is_anonymous %}
-							<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none">
+							<a href="{{ login_url }}?next={{ request.get_full_path }}" class="link-danger text-decoration-none opacity-75">
 								{% trans 'Report post' %}
 								<span>
 									{% include "flag/flag_icon.html" %}
@@ -269,13 +268,16 @@
 							</a>
 						{% else %}
 							{# js-flagHelper will be used in scripts to modify the flag text after flagging or unflagging #}
-							<span class="link-danger js-flagHelper" role="button">
+							<span class="link-danger opacity-75 js-flagHelper" role="button">
 								{% if user|has_flagged:question %} 
 									{% trans 'Remove flag' %}
 								{% else %} 
 									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
+							<div class="d-inline-block opacity-75">
+								{% render_flag_form question user request %}
+							</div>
 						{% endif %}
 					</div>
 				{% else %}
@@ -315,9 +317,7 @@
 
 			<!-- follow area -->
 			{# if question belongs to user, don't display follow widget. #}
-			{% if user != question_poster %}
-				{% trans 'to unfollow this question (stop getting notifications when anyone posts a new answer to this question).' as unfollow_text %}
-				{% trans 'to follow this question (get notifications when anyone posts a new answer to this question).' as follow_text %}
+			{% if user != question_poster %}				
 				<p class="mt-4 mb-5">
 					<a data-id="{{ question.id }}" role="button" class="btn btn-sm {% if is_following %} btn-secondary js-selected {% else %} btn-outline-secondary {% endif %} js-follow-button">
 						{% trans 'Click here' %} 
@@ -654,7 +654,7 @@
 					success: function(result) {
 						if (result['unfollowed']) {
 							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
-							$followUnfollowSpan.text({{ follow_text }});
+							$followUnfollowSpan.text('{{ follow_text }}');
 							displayToast('FOLLOW_TOGGLE', false);
 
 						} else {
@@ -679,7 +679,7 @@
 					success: function(result) {
 						if (result['followed']) {
 							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
-							$followUnfollowSpan.text({{ unfollow_text }});
+							$followUnfollowSpan.text('{{ unfollow_text }}');
 							displayToast('FOLLOW_TOGGLE', true);
 						} else {
 							console.error(result);

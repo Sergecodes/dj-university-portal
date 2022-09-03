@@ -201,7 +201,8 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		context['no_slug_url'] = question.get_absolute_url(with_slug=False)
 		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
 		context['can_delete_question'] = False if user.is_anonymous else user.can_delete_question(question)
-		
+		context['unfollow_text'] = _('to unfollow this question (stop getting notifications when anyone posts a new answer to this question).')
+		context['follow_text'] = _('to follow this question (get notifications when anyone posts a new answer to this question).')
 		return context
 
 
@@ -638,7 +639,8 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
 		context['can_delete_question'] = False if user.is_anonymous else user.can_delete_question(question)
-
+		context['unfollow_text'] = _('to unfollow this question (stop getting notifications when anyone posts a new answer to this question).')
+		context['follow_text'] = _('to follow this question (get notifications when anyone posts a new answer to this question).')
 		return context
 
 
