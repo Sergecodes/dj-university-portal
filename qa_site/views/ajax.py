@@ -3,6 +3,7 @@ import json
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import F
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
@@ -159,7 +160,7 @@ class JQueryDiscussCommentDetail(View):
 
 		comment.content = content
 		comment.update_language = get_language()
-		comment.save()
+		comment.save(update_fields=['content', 'update_language'])
 		return JsonResponse({ 'data': _parse_discuss_comment(user, comment) })
 
 	def delete(self, request, id):
@@ -263,10 +264,13 @@ def get_users_mentioned(request, question_id):
 	else:
 		result = []
 		for user in users.distinct():
+			start_url = request.scheme + '://' + get_current_site(request).domain
 			obj = {
 				'id': user.id,
 				'fullname': user.username,
-				'email': user.email
+				'email': user.email,
+				# extra
+				'social_profile_url': start_url + user.social_profile.get_absolute_url() if user.has_social_profile else ''
 			}
 			try:
 				obj['profile_picture_url'] = user.social_profile.profile_image.url

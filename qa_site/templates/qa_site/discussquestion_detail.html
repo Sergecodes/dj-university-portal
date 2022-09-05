@@ -1219,8 +1219,13 @@
 			}
 		},
 		pingClicked: function(userId) {
-			// todo: For all users(users mentioned), if userId is of user that has social profile,
-			// redirect.
+			// For all users(users mentioned), if userId is of user that has social profile
+			// go to social profile.
+			userId = parseInt(userId, 10);
+			var user = usersMentioned.find(user => user.id === userId);
+			if (user.social_profile_url) {
+				location.href = user.social_profile_url;
+			}
 		},
 		timeFormatter: function(time) {
 			return moment(time).fromNow();
