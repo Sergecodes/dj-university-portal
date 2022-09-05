@@ -18,16 +18,16 @@
 {% endblock %}
 
 {% block extra_script_pre %}
-	{% comment %} <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-	<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script> {% endcomment %}
+{% comment %} <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script> {% endcomment %}
 
-	{# https://github.com/naugtur/insertionQuery #}
-	<script src="{% static 'js/insQ.min.js' %}"></script>
-	<script src="{% static 'js/moment-with-locales.js' %}"></script>
-	<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
-	{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
-	<script src="{% static 'js/jquery-comments.js' %}"></script>
+{# https://github.com/naugtur/insertionQuery #}
+<script src="{% static 'js/insQ.min.js' %}"></script>
+<script src="{% static 'js/moment-with-locales.js' %}"></script>
+<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
+<script src="{% static 'js/jquery-comments.js' %}"></script>
 {% endblock %}
 
 {% block institution_searchbox %}
@@ -319,10 +319,10 @@
 			{# if question belongs to user, don't display follow widget. #}
 			{% if user != question_poster %}				
 				<p class="mt-4 mb-5">
-					<a data-id="{{ question.id }}" role="button" class="btn btn-sm {% if is_following %} btn-secondary js-selected {% else %} btn-outline-secondary {% endif %} js-follow-button">
+					<button data-id="{{ question.id }}" class="btn btn-sm {% if is_following %} btn-secondary js-selected {% else %} btn-outline-secondary {% endif %} js-follow-button">
 						{% trans 'Click here' %} 
 						<i class="fas fa-bullseye" aria-hidden="true"></i>
-					</a> 
+					</button> 
 					<span class="js-follow-unfollow-text">
 						{% if is_following %}
 							{{ unfollow_text }}
@@ -982,6 +982,14 @@
 				}
 
 				$action.append(dropdown);
+			});
+
+			/** Make pings with social profile's cursor pointer */
+			document.querySelectorAll('input.tag.ping').forEach(function (ele) {
+				var user = usersMentioned.find(user => '@' + user.fullname === ele.value);
+				if (user.social_profile_url) {
+					ele.style.cursor = 'pointer';
+				}
 			});
 
 			// Initialize new comment share button tooltips,

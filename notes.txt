@@ -12,10 +12,10 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- change follow text after following question
-- clicking on ping should link to social profile if user has one
-
 - make academic question similar to discuss question(also enable disliking answers)
+- for pings with social profiles, cursor should be pointer.
+- fix ckeditor display too.
+
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
 - change full name validator (frontend nd backend)
