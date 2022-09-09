@@ -978,7 +978,7 @@ const submitFlagForm = function (ele, action = 'add') {
 			// For cases like discuss & academic comments
 			var reportIcon = document.querySelector('.js-flag-report-icon');
 			var modelName = reportIcon.dataset.modelName;
-			var subModelNames = ['DiscussComment', 'AcademicQuestionComment', 'AcademicAnswerComment'];
+			var subModelNames = ['DiscussComment', 'AcademicComment'];
 			if (!subModelNames.includes(modelName)) {
 				toggleClass(flagIcon, addClass, removeClass, action);
 				toggleText(flagEle, action);

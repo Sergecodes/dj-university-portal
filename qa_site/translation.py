@@ -1,9 +1,8 @@
 from modeltranslation.translator import register, TranslationOptions as TransOptions
 
 from .models import (
-	Subject, AcademicAnswer, AcademicAnswerComment,
+	Subject, AcademicComment, DiscussComment,
 	AcademicQuestion, DiscussQuestion, QuestionTag,
-	AcademicQuestionComment, DiscussComment
 )
 
 
@@ -28,20 +27,8 @@ class DiscussQuestionTransOptions(TransOptions):
 	# required_languages = ('en', 'fr') 
 
 
-@register(AcademicAnswer)
-class AcademicAnswerTransOptions(TransOptions):
-	fields = ('content', )
-	# required_languages = ('en', 'fr')
-
-
-@register(AcademicAnswerComment)
-class AcademicAnswerCommentTransOptions(TransOptions):
-	fields = ('content', )
-	# required_languages = ('en', 'fr')
-
-
-@register(AcademicQuestionComment)
-class AcademicQuestionCommentTransOptions(TransOptions):
+@register(AcademicComment)
+class AcademicCommentTransOptions(TransOptions):
 	fields = ('content', )
 	# required_languages = ('en', 'fr')
 

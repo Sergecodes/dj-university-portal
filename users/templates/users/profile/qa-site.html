@@ -183,7 +183,7 @@
 				<section class="mb-4">
 					<h4 class="text-success mb-3">
 						{% trans 'My Answers' %}
-						{% with aca_count=academic_answers.count discuss_count=ancestor_discuss_comments.count %}
+						{% with aca_count=ancestor_academic_comments.count discuss_count=ancestor_discuss_comments.count %}
 						<span class="text-muted small">
 							(
 							{% trans 'Academic' %} - {{ aca_count }}
@@ -193,13 +193,13 @@
 						</span>
 						{% endwith %}
 					</h4>
-					{% for answer in academic_answers %}
+					{% for comment in ancestor_academic_comments %}
 						<div class="mb-2">
-							<a href="{{ answer.question.get_absolute_url }}" class="text-decoration-none">
-								{{ answer.content|remove_tags|truncatewords:50|safe }}
+							<a href="{{ comment.question.get_absolute_url }}" class="text-decoration-none">
+								{{ comment.content|remove_tags|truncatewords:50|safe }}
 							</a>
 							<span class="small text-muted mx-2">
-								{% trans 'Answered' %} {{ answer.posted_datetime|naturaltime }}
+								{% trans 'Answered' %} {{ comment.posted_datetime|naturaltime }}
 							</span>
 						</div>
 					{% empty %}
@@ -223,7 +223,7 @@
 						</div>
 					{% empty %}
 						<div class="alert alert-purple" role="alert">
-							{% trans 'You have not answered any discussion question yet.' %} <br>
+							{% trans 'You have not commented on any discussion question yet.' %} <br>
 							{% trans 'Click' %}
 							<a href="{% url 'qa_site:discuss-question-list' %}">{% trans 'here' %}</a>
 							{% trans 'to see some questions.' %}

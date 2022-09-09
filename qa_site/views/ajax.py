@@ -15,29 +15,18 @@ from django.views.decorators.http import require_POST, require_GET
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
-	THRESHOLD_POINTS, COMMENT_CAN_EDIT_UPVOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
-	ANSWER_CAN_DELETE_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT
+	THRESHOLD_POINTS, COMMENT_CAN_EDIT_VOTE_LIMIT, 
+	COMMENT_CAN_DELETE_VOTE_LIMIT, 
 )
 from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
-from ..forms import DiscussCommentForm
+from ..forms import DiscussCommentForm, AcademicCommentForm
 from ..models import (
-	DiscussQuestion, AcademicQuestion, AcademicAnswer,
-	DiscussComment, AcademicQuestionComment, AcademicAnswerComment
+	DiscussQuestion, AcademicQuestion, DiscussComment, AcademicComment
 )
 
 User = get_user_model()
-
-
-def _downvote_post(user, post, type, for_html=False):
-	"""Helper function to redirect to question or answer downvote"""
-	if type == 'question':
-		return user.downvote_question(post, for_html=for_html)
-	elif type == 'answer':
-		return user.downvote_answer(post, for_html=for_html)
-	else:
-		raise ValueError("Invalid post type")
 
 
 def _parse_discuss_comment(current_user, comment: DiscussComment):
@@ -76,15 +65,21 @@ def _parse_discuss_comment(current_user, comment: DiscussComment):
 
 
 @method_decorator(login_required, name='post')
-class JQueryDiscussCommentList(View):
-	def get(self, request):
+class JQueryCommentList(View):
+	"""
+	In all request, `model_name` refers to the name of the comment model.
+	It should be AcademicComment or DiscussComment.
+	"""
+	def get(self, request, model_name):
 		"""
-		Get discuss comments to display in frontend (using jquery-comments).
-		see https://viima.github.io/jquery-comments/
+		Get discuss/academic comments to display in frontend (using jquery-comments).
+		see https://viima.github.io/jquery-comments/.
+		`model_name` can be AcademicComment | DiscussComment
 		"""
 		all_users = User.objects.active()
+		comment_model = apps.get_model('qa_site', model_name)
 
-		comments = DiscussComment.objects \
+		comments = comment_model.objects \
 			.select_related('parent', 'poster__social_profile') \
 			.prefetch_related(
 				Prefetch('users_mentioned', queryset=all_users.only('id', 'username')),
@@ -95,14 +90,17 @@ class JQueryDiscussCommentList(View):
 		result = [_parse_discuss_comment(request.user, comment) for comment in comments]
 		return JsonResponse({ 'data': result })
 
-	def post(self, request):
+	def post(self, request, model_name):
 		# When posting, send content, question_id & optional parent_id
+		comment_model = apps.get_model('qa_site', model_name)
+		qstn_model = AcademicQuestion if model_name == 'AcademicComment' else DiscussQuestion
+
 		POST, user = request.POST, request.user
 		parent_id = POST.get('parent_id')
-		question = get_object_or_404(DiscussQuestion, pk=POST['question_id'])
-		parent = get_object_or_404(DiscussComment, pk=parent_id) if parent_id else None
+		question = get_object_or_404(qstn_model, pk=POST['question_id'])
+		parent = get_object_or_404(comment_model, pk=parent_id) if parent_id else None
 
-		form = DiscussCommentForm(POST)
+		form = DiscussCommentForm(POST) if model_name == 'DiscussComent' else AcademicCommentForm(POST)
 		if form.is_valid():
 			comment = form.save(commit=False)
 			user.add_question_comment(question, comment, parent)
@@ -113,24 +111,26 @@ class JQueryDiscussCommentList(View):
 
 @method_decorator(login_required, name='put')
 @method_decorator(login_required, name='delete')
-class JQueryDiscussCommentDetail(View):
-	def get(self, request, id):
-		comment = get_object_or_404(DiscussComment, pk=id)
+class JQueryCommentDetail(View):
+	def get(self, request, model_name, id):
+		comment_model = apps.get_model('qa_site', model_name)
+		comment = get_object_or_404(comment_model, pk=id)
 		return JsonResponse({ 'data': _parse_discuss_comment(request.user, comment) })
 
-	def put(self, request, id):
+	def put(self, request, model_name, id):
 		PUT, user = json.loads(request.body), request.user
 		content, success = PUT['content'], True
-		comment = get_object_or_404(DiscussComment, pk=id)	
+		comment_model = apps.get_model('qa_site', model_name)
+		comment = get_object_or_404(comment_model, pk=id)	
 
-		if comment.parent_id is None:
-			if not user.can_edit_answer(comment):
+		if comment.is_reply:
+			if not user.can_edit_comment(comment):
 				success = False
 
 				if user.id == comment.poster_id:
 					message = _(
-						"Comments that have more than {} likes cannot be edited"
-							.format(ANSWER_CAN_EDIT_VOTE_LIMIT)
+						"Comments that have more than a score of {} cannot be edited"
+							.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
 					)
 				else:
 					message = _("You are not permitted to edit this comment")
@@ -140,8 +140,8 @@ class JQueryDiscussCommentDetail(View):
 
 				if user.id == comment.poster_id:
 					message = _(
-						"Replies that have more than {} likes cannot be edited" \
-						.format(COMMENT_CAN_EDIT_UPVOTE_LIMIT)
+						"Replies that have more than a score of {} cannot be edited" \
+						.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
 					)
 				else:
 					message = _('You are not permitted to edit this comment')
@@ -163,18 +163,19 @@ class JQueryDiscussCommentDetail(View):
 		comment.save(update_fields=['content', 'update_language'])
 		return JsonResponse({ 'data': _parse_discuss_comment(user, comment) })
 
-	def delete(self, request, id):
+	def delete(self, request, model_name, id):
 		user, success = request.user, True
-		comment = get_object_or_404(DiscussComment, pk=id)
+		comment_model = apps.get_model('qa_site', model_name)
+		comment = get_object_or_404(comment_model, pk=id)
 
 		if comment.parent_id is None:
-			if not user.can_delete_answer(comment):
+			if not user.can_delete_comment(comment):
 				success = False
 
 				if user.id == comment.poster_id:
 					message = _(
 						"Comments that have more than {} likes cannot be deleteed"
-							.format(ANSWER_CAN_DELETE_VOTE_LIMIT)
+							.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
 					)
 				else:
 					message = _("You are not permitted to delete this comment")
@@ -185,7 +186,7 @@ class JQueryDiscussCommentDetail(View):
 				if user.id == comment.poster_id:
 					message = _(
 						"Replies that have more than {} likes cannot be DELETED" \
-						.format(COMMENT_CAN_DELETE_UPVOTE_LIMIT)
+						.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
 					)
 				else:
 					message = _('You are not permitted to DELETE this comment')
@@ -209,55 +210,27 @@ def get_users_mentioned(request, question_id):
 	except TypeError:
 		for_jquery = False
 
-	if model_name not in ['AcademicQuestion', 'DiscussQuestion']:
-		return JsonResponse({
-			'success': False,
-			'message': _('Invalid model type')
-		}, status=400)
+	# if model_name not in ['AcademicComment', 'DiscussComment']:
+	# 	return JsonResponse({
+	# 		'success': False,
+	# 		'message': _('Invalid model type')
+	# 	}, status=400)
 
-	qstn_model = apps.get_model('qa_site', model_name)
+	comment_model = apps.get_model('qa_site', model_name)
+	qstn_model = DiscussQuestion if model_name == 'DiscussComment' else AcademicQuestion
 	question = get_object_or_404(qstn_model, pk=question_id)
 
-	if model_name == 'AcademicQuestion':
-		qstns = qstn_model.objects.prefetch_related(
-			Prefetch(
-				'comments', 
-				AcademicQuestionComment.objects.only('id', 'users_mentioned')
-			),
-			Prefetch(
-				'answers__comments', 
-				AcademicAnswerComment.objects.only('id', 'users_mentioned')
-			),
-		)
-		# Add question poster
-		users = User.objects.filter(id=question.poster_id)
+	qstns = qstn_model.objects.prefetch_related(
+		Prefetch('comments', comment_model.objects.only('id', 'users_mentioned'))
+	)
+	users = User.objects.filter(id=question.poster_id)
 
-		for question in qstns:
-			for comment in question.comments.all():
-				if for_jquery:
-					users |= comment.users_mentioned.select_related('social_profile').all()
-				else:
-					users |= comment.users_mentioned.all()
-
-			for answer in question.answers.all():
-				for comment in answer.comments.all():
-					if for_jquery:
-						users |= comment.users_mentioned.select_related('social_profile').all()
-					else:
-						users |= comment.users_mentioned.all()
-
-	elif model_name == 'DiscussQuestion':
-		qstns = qstn_model.objects.prefetch_related(
-			Prefetch('comments', DiscussComment.objects.only('id', 'users_mentioned'))
-		)
-		users = User.objects.filter(id=question.poster_id)
-
-		for question in qstns:
-			for comment in question.comments.all():
-				if for_jquery:
-					users |= comment.users_mentioned.select_related('social_profile').all()
-				else:
-					users |= comment.users_mentioned.all()
+	for question in qstns:
+		for comment in question.comments.all():
+			if for_jquery:
+				users |= comment.users_mentioned.select_related('social_profile').all()
+			else:
+				users |= comment.users_mentioned.all()
 
 	if not for_jquery:
 		result = list(users.distinct().values())
@@ -294,15 +267,11 @@ def vote_academic_thread(request):
 	vote_action, vote_type = POST.get('action'), POST.get('vote_type')
 	# print(POST)
 	
-	# possible thread types are {question, answer, question-comment, answer-comment}
+	# possible thread types are {question, comment}
 	if thread_type == 'question':
 		object = get_object_or_404(AcademicQuestion, pk=thread_id)
-	elif thread_type == 'answer':
-		object = get_object_or_404(AcademicAnswer, pk=thread_id)
-	elif thread_type == 'question-comment':
-		object = get_object_or_404(AcademicQuestionComment, pk=thread_id)
-	elif thread_type == 'answer-comment':
-		object = get_object_or_404(AcademicAnswerComment, pk=thread_id)
+	elif thread_type == 'comment':
+		object = get_object_or_404(AcademicComment, pk=thread_id)
 	else:
 		return JsonResponse({
 			'success': False,
@@ -319,8 +288,8 @@ def vote_academic_thread(request):
 			'message': _("You can't add a like or dislike to your own post.")
 		}, status=403)
 
-	if thread_type == 'question' or thread_type == 'answer':
-		# verify if user has already upvoted and downvoted question or answer
+	if thread_type == 'question':
+		# verify if user has already upvoted and downvoted question 
 		# only id is important 
 		already_upvoted = user in object.upvoters.only('id')
 		already_downvoted = user in object.downvoters.only('id')
@@ -328,7 +297,7 @@ def vote_academic_thread(request):
 		# if vote is new (not retracting a previous vote)
 		# in frontend, voters won't be displayed.
 		if vote_action == 'vote':
-			# if user has no previous vote on the question or answer
+			# if user has no previous vote on the question 
 			if not already_upvoted and not already_downvoted:
 				if vote_type == 'up':
 					object.upvoters.add(user)
@@ -351,7 +320,7 @@ def vote_academic_thread(request):
 					}, status=200)
 
 				elif vote_type == 'down':
-					downvote_result = _downvote_post(user, object, thread_type, for_html=True)
+					downvote_result = user.downvote_question(object, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
@@ -361,7 +330,7 @@ def vote_academic_thread(request):
 						return JsonResponse({
 							'success': False,
 							'message': downvote_result[1]
-						}, status=200)
+						}, status=400)
 
 					# send notification to post owner
 					notify.send(
@@ -389,7 +358,7 @@ def vote_academic_thread(request):
 					return JsonResponse({
 						'success': False,
 						'message': _('You have already liked this post. \n Remove the like to be able to add a dislike.')
-					}, status=200)
+					}, status=400)
 				
 				# if existing vote is a downvote
 				# tell user to remove the downvote first
@@ -397,7 +366,7 @@ def vote_academic_thread(request):
 					return JsonResponse({
 						'success': False,
 						'message': _('You have already disliked this post.\n Remove the dislike to be able to add a like.')
-					}, status=200)
+					}, status=400)
 
 		# if user is retracting a vote
 		# no notification sent
@@ -443,32 +412,58 @@ def vote_academic_thread(request):
 			}, status=400)
 	
 	# only upvotes are supported on comments
-	elif thread_type == 'question-comment' or thread_type == 'answer-comment':
+	elif thread_type == 'comment':
 		already_upvoted = user in object.upvoters.only('id')
+		already_downvoted = user in object.downvoters.only('id')
 
 		# if user is adding new vote
 		if vote_action == 'vote':
-			# if user hasn't yet upvoted
-			if not already_upvoted:
+			# if user has no previous vote on the question 
+			if not already_upvoted and not already_downvoted:
 				if vote_type == 'up':
 					object.upvoters.add(user)
 					return JsonResponse({
 						'success': True,
 						'message': _('Added like')
 					}, status=200)
+				elif vote_type == 'down':
+					downvote_result = user.downvote_comment(object, for_html=True)
+
+					if not downvote_result[0]:
+						return JsonResponse({
+							'success': False,
+							'message': downvote_result[1]
+						}, status=400)
+
+					return JsonResponse({
+						'success': True,
+						'message': _('Added dislike')
+					}, status=200)
 				else:
 					return JsonResponse({
 						'success': False,
 						'message': _('Unknown vote type')
 					}, status=400)
-			# bad action. if user has already upvoted, the action should be 'recall-vote'
+			
+			# if user has existing vote on the comment
 			else:
-				return JsonResponse({
-					'success': False,
-					'message': _('Bad action, already voted. Use `recall-vote` as the vote_action.')
-				}, status=400)
+				# if existing vote is an upvote 
+				# tell user to remove the upvote first
+				if already_upvoted:
+					return JsonResponse({
+						'success': False,
+						'message': _('You have already liked this comment. \n Remove the like to be able to add a dislike.')
+					}, status=400)
+				
+				# if existing vote is a downvote
+				# tell user to remove the downvote first
+				elif already_downvoted:	
+					return JsonResponse({
+						'success': False,
+						'message': _('You have already disliked this comment.\n Remove the dislike to be able to add a like.')
+					}, status=400)
 
-		# if user is retraction vote
+		# if user is retracting vote
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up' and already_upvoted:
 				object.upvoters.remove(user)
@@ -476,13 +471,18 @@ def vote_academic_thread(request):
 					'success': True,
 					'message': _('Removed like')
 				}, status=200)
-			# only upvotes are supported for comments.
+			elif vote_type == 'down' and already_downvoted:
+				object.downvoters.remove(user)
+				return JsonResponse({
+					'success': True,
+					'message': _('Removed dislike')
+				}, status=200)
 			else:
 				return JsonResponse({
 					'success': False,
 					'message': _('Unknown vote type or no vote to recall')
 				}, status=400)
-		# invalid action, action can either be 'vote' or 'recall-vote'
+		# invalid action(action should either be 'vote' or 'recall-vote')
 		else:
 			return JsonResponse({
 				'success': False,
@@ -501,7 +501,7 @@ def vote_discuss_thread(request):
 	vote_action, vote_type = POST['action'], POST['vote_type']
 	# print(POST)
 
-	# possible thread types are {question, answer, answer-comment(reply to answer)}
+	# possible thread types are {question, comment}
 	if thread_type == 'question':
 		object = get_object_or_404(DiscussQuestion, pk=thread_id)
 	elif thread_type == 'comment':
@@ -552,7 +552,7 @@ def vote_discuss_thread(request):
 						}, status=200)
 
 				elif vote_type == 'down':
-					downvote_result = _downvote_post(user, object, thread_type, for_html=True)
+					downvote_result = user.downvote_question(object, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
@@ -562,7 +562,7 @@ def vote_discuss_thread(request):
 						return JsonResponse({
 							'success': False,
 							'message': downvote_result[1]
-						}, status=200)
+						}, status=400)
 
 					# send notification to post owner
 					notify.send(
@@ -589,13 +589,13 @@ def vote_discuss_thread(request):
 					return JsonResponse({
 						'success': False,
 						'message': _('You have already liked this post. \n Remove the like to be able to add a dislike.')
-					}, status=200)
+					}, status=400)
 
 				elif already_downvoted:	
 					return JsonResponse({
 						'success': False,
 						'message': _('You have already disliked this post. \n Remove the dislike to be able to add a like.')
-					}, status=200)
+					}, status=400)
 				# no need to add an else condition; 
 				# all cases have already been taken care of.
 
@@ -764,18 +764,18 @@ def discuss_question_follow_toggle(request):
 
 	# user can't follow his own question
 	if user.id == question.poster_id:
-		return JsonResponse({'error': _("You can't follow your own question")}, status=403)
+		return JsonResponse({'message': _("You can't follow your own question")}, status=403)
 
 	# if user is following
 	if action == 'follow':
 		question.followers.add(user)
-		return JsonResponse({'followed': True}, status=200)
+		return JsonResponse({'success': True}, status=200)
 
 	# if user is unfollowing
 	elif action == 'recall-follow':
 		question.followers.remove(user)
-		return JsonResponse({'unfollowed': True}, status=200)
+		return JsonResponse({'success': True}, status=200)
 	else:
-		return JsonResponse({'error': _('Invalid action')}, status=400)
+		return JsonResponse({'message': _('Invalid action')}, status=400)
 
 

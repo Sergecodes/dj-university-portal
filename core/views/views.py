@@ -11,13 +11,10 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic.base import TemplateView
 
 from core.constants import (
-	ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE, ANSWER_CAN_DELETE_VOTE_LIMIT, 
-	ANSWER_CAN_EDIT_VOTE_LIMIT, ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, 
-	ASK_QUESTION_POINTS_CHANGE, COMMENT_CAN_DELETE_UPVOTE_LIMIT, 
-	COMMENT_CAN_EDIT_UPVOTE_LIMIT, INITIAL_POINTS, 
-	MAX_ANSWERS_PER_USER_PER_QUESTION, PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
-	REQUIRED_DOWNVOTE_POINTS, PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT,
-	POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, 
+	ASK_QUESTION_POINTS_CHANGE, COMMENT_CAN_DELETE_VOTE_LIMIT, 
+	COMMENT_CAN_EDIT_VOTE_LIMIT, PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT,
+	PAST_PAPER_CAN_DELETE_TIME_LIMIT, INITIAL_POINTS,
+	REQUIRED_DOWNVOTE_POINTS, POST_DOWNVOTE_POINTS_CHANGE, POST_UPVOTE_POINTS_CHANGE, 
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
 )
@@ -27,8 +24,7 @@ from marketplace.models import ItemListing, AdListing
 from notifications.models import Notification
 from past_papers.models import PastPaper
 from qa_site.models import (
-	AcademicQuestion, DiscussComment, 
-	DiscussQuestion, AcademicAnswer
+	AcademicQuestion, AcademicComment, DiscussQuestion, DiscussComment
 )
 from requested_items.models import RequestedItem
 
@@ -43,10 +39,10 @@ class HomePageView(TemplateView):
 
 		## questions ##
 		academic_questions = AcademicQuestion.objects \
+			.select_related('subject') \
 			.prefetch_related(
 				Prefetch(
-					'answers', 
-					queryset=AcademicAnswer.objects.only('id')
+					'comments', queryset=AcademicComment.objects.only('id')
 				)
 			)[:NUM_QUESTIONS]
 		discuss_questions = DiscussQuestion.objects \
@@ -158,13 +154,13 @@ class HomePageView(TemplateView):
 		academic_questions = AcademicQuestion.objects.annotate(
 			total_votes=Count('upvoters', distinct=True)-Count('downvoters', distinct=True)
 		).prefetch_related(
-			Prefetch('answers', queryset=AcademicAnswer.objects.all().only('id'))
+			Prefetch('comments', queryset=AcademicComment.objects.only('id'))
 		).filter(total_votes__gt=0)[:NUM_QUESTIONS]
 
 		discuss_questions = DiscussQuestion.objects.annotate(
 			total_votes=Count('upvoters', distinct=True)-Count('downvoters', distinct=True)
 		).prefetch_related(
-			Prefetch('comments', queryset=DiscussComment.objects.all().only('id'))
+			Prefetch('comments', queryset=DiscussComment.objects.only('id'))
 		).filter(total_votes__gt=0)[:NUM_QUESTIONS]
 		'''
 
@@ -346,20 +342,15 @@ class SiteUsageInfoView(TemplateView):
 		context['upvote_points'] = POST_UPVOTE_POINTS_CHANGE
 		context['downvote_points'] = abs(POST_DOWNVOTE_POINTS_CHANGE)
 		context['downvote_req_points'] = REQUIRED_DOWNVOTE_POINTS
-		context['aca_ans_points'] = ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
-		context['school_ans_points'] = ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
-		context['max_answers'] = MAX_ANSWERS_PER_USER_PER_QUESTION
 		context['cannot_del_paper_time'] = get_minutes(PAST_PAPER_CAN_DELETE_TIME_LIMIT)
 		context['cannot_edit_paper_comment_time'] = get_minutes(PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT)
 		context['cannot_edit_qstn_vote'] = QUESTION_CAN_EDIT_VOTE_LIMIT
 		context['cannot_edit_qstn_ans_count'] = QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT
-		context['cannot_edit_ans_vote'] = ANSWER_CAN_EDIT_VOTE_LIMIT
-		context['cannot_edit_comment_vote'] = COMMENT_CAN_EDIT_UPVOTE_LIMIT
-		context['cannot_del_comment_vote'] = COMMENT_CAN_DELETE_UPVOTE_LIMIT
+		context['cannot_edit_comment_vote'] = COMMENT_CAN_EDIT_VOTE_LIMIT
+		context['cannot_del_comment_vote'] = COMMENT_CAN_DELETE_VOTE_LIMIT
 		context['cannot_del_qstn_vote'] = QUESTION_CAN_DELETE_VOTE_LIMIT
 		context['cannot_del_qstn_ans_count'] = QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT
-		context['cannot_del_ans_vote'] = ANSWER_CAN_DELETE_VOTE_LIMIT
-		
+	
 		return context
 
 

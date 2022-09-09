@@ -7,8 +7,7 @@ from django.contrib.auth import get_user_model
 
 # from core.constants import MAX_TAGS_PER_QUESTION
 # from .models import (
-# 	DiscussQuestion, AcademicQuestionComment, 
-# 	AcademicAnswerComment, DiscussComment,
+# 	DiscussQuestion, AcademicComment, DiscussComment,
 # )
 from .utils import extract_mentions
 

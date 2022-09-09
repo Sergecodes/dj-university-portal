@@ -1,4 +1,4 @@
-from ckeditor.widgets import CKEditorWidget
+# from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 from django.core.exceptions import ValidationError
@@ -7,8 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import MAX_TAGS_PER_QUESTION, MAX_TAGS_PER_DISCUSSION
 from core.validators import validate_question_tags as validate_tags
 from .models import (
-	AcademicAnswer, AcademicAnswerComment, AcademicQuestion, 
-	DiscussQuestion, AcademicQuestionComment, DiscussComment
+	AcademicQuestion, DiscussQuestion, AcademicComment, DiscussComment
 )
 
 
@@ -53,61 +52,21 @@ class AcademicQuestionForm(forms.ModelForm):
 			return tags
 		
 
-class AcademicAnswerForm(forms.ModelForm):
-	content = forms.CharField(
-		# use ckeditor widget due to server upload image functionality. 
-		# server upload doesn't work with dynamically created instances via js.
-		widget=CKEditorUploadingWidget(
-			config_name='add_academic_answer',
-			attrs={'id': 'addAnswerWidget'}
-		),
-		label=_('Your Answer'),
-		required=True
-	)
+class AcademicCommentForm(forms.ModelForm):
+	pass
+	# a ckeditor will be generated from this on the frontend.
+	#
+	# content = forms.CharField(
+	# 	widget= CKEditorWidget(
+	# 		config_name='add_academic_comment',
+	# 	),
+	# 	help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
+	# 	label='',
+	# 	required=True
+	# )
 
 	class Meta:
-		model = AcademicAnswer
-		fields = ['content', ]
-
-
-class AcademicQuestionCommentForm(forms.ModelForm):
-	content = forms.CharField(
-		widget= CKEditorWidget(
-			config_name='add_academic_comment', 
-			# attrs={
-			# 	'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-			# 	# # set unique id for ckeditor widget 
-			# 	# # this id ain't even required.
-			# 	# 'id': 'addQuestionCommentArea'		
-			# }
-		),
-		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
-		label='',
-		required=True
-	)
-
-	class Meta:
-		model = AcademicQuestionComment
-		fields = ['content', ]
-
-
-class AcademicAnswerCommentForm(forms.ModelForm):
-	content = forms.CharField(
-		widget= CKEditorWidget(
-			config_name='add_academic_comment', 
-			attrs={
-				'placeholder': _('Use comments to ask for more information or suggest improvements.'),
-				# use this class
-				'class': 'js-answerComment'
-			}
-		),
-		help_text=_("Comments are used to ask for clarification or to point out problems in the post."),
-		label='',
-		required=True
-	)
-
-	class Meta:
-		model = AcademicAnswerComment
+		model = AcademicComment
 		fields = ['content', ]
 
 

@@ -414,13 +414,6 @@
 	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
 	var $upvoteTriggerer = $('.js-upvote'), $downvoteTriggerer = $('.js-downvote');
 
-	/* Get current user's id.. */
-	// if user isn't logged in, user.id and userPoints will be "None"
-	var userId = "{{ user.id }}", userPoints = "{{ user.site_points }}";
-	var requiredDownvotePoints = {{ required_downvote_points }};
-	userId = (userId == "None" ? null : userId);
-	var csrfToken = "{{ csrf_token }}";
-
 	/** for general checks to do before proceeding to upvoting or downvoting */
 	function onVote(event) {
 		// if user isn't logged in
@@ -450,26 +443,6 @@
 	$upvoteTriggerer.click(onVote);
 	$downvoteTriggerer.click(onVote);
 
-	// hide button and display forms when button is clicked
-	$('.js-add-question-comment, .js-add-answer-comment, .js-add-answer').click(function(event) {
-		// console.log(event.target == this);  true !
-
-		// if current user isn't logged in
-		if (!userId) {
-			event.stopImmediatePropagation();
-			displayToast('LOGIN_REQUIRED');
-			return false;
-		}
-
-		var $this = $(this);
-		// remove bootstrap class from element(class is used with the !important keyword 
-		// so we need to remove it for the hide() method for it to work)
-		$this.removeClass('d-inline-block');  
-		$this.hide();
-		var $form = $this.next();
-		$form.removeClass('d-none');
-	});
-
 	/* UPVOTES */
 	$upvoteTriggerer.click(function() {
 		var $this = $(this);
@@ -492,40 +465,22 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
+					// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+					$icon.removeClass('fas js-selected').addClass('far');
 
-						// update number of votes
-						if (threadType == 'question-comment' || threadType == 'answer-comment') {
-							// update vote count
-							// span comes before vote icon for comments
-							var $voteCounter = $this.parent().prev();
-							var prevCount = parseInt($voteCounter.text(), 10);
-
-							// if no vote was on comment(if the voteCounter is empty)
-							if (Number.isNaN(prevCount)) {
-								$voteCounter.text('1');
-							} else {
-								$voteCounter.text(prevCount - 1);
-							}
-							
-						} else {
-							var $voteCounter = $this.next();
-							var prevCount = parseInt($voteCounter.text(), 10);
-							$voteCounter.text(prevCount - 1);
-							
-							// update text
-							var textNode = $icon[0].nextSibling;
-							textNode.textContent = " {% trans 'Like' %}";
-						}
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update number of votes
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount - 1);
+					
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Like' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
-
 		} else {
 			// if user is adding a new vote
 			var voteAction = 'vote';
@@ -538,42 +493,20 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
+					// remove far class and set to fas
+					$icon.removeClass('far').addClass('fas js-selected');
 
-						if (threadType == 'question-comment' || threadType == 'answer-comment') {
-							// update vote count
-							// span comes before vote icon for comments
-							var $voteCounter = $this.parent().prev();
-							var prevCount = parseInt($voteCounter.text(), 10);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount + 1);
 
-							// if no vote was on comment(if the voteCounter is empty)
-							// set vote count to 1
-							if (Number.isNaN(prevCount)) {
-								$voteCounter.text('1');
-							} else {
-								$voteCounter.text(prevCount + 1);
-							}
-						} else {
-							// update count
-							var $voteCounter = $this.next();
-							var prevCount = parseInt($voteCounter.text(), 10);
-							$voteCounter.text(prevCount + 1);
-
-							// update text
-							var textNode = $icon[0].nextSibling;
-							textNode.textContent = " {% trans 'Liked' %}";
-						}
-					} else {
-						// console.log(response);
-						var msg = response['message'];
-						// console.log({{ msg|linebreaksbr }}); 
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Liked' %}";
 				},
-				error: function() {
-					console.error("Error");
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
 		}
@@ -598,32 +531,28 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
+					// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+					$icon.removeClass('fas js-selected').addClass('far');
 
-						// update count
-						var $voteCounter = $this.next();
-						var prevCount = parseInt($voteCounter.text(), 10);
-						$voteCounter.text(prevCount - 1);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount - 1);
 
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Dislike' %}";
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Dislike' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
-
 		} else {
 			// if user is adding a new downvote
 			var voteAction = 'vote';
 
 			// user should have number of points required
 			// the isNumeric func is in the js file
-			console.log(isNumeric(userPoints));
 			if (isNumeric(userPoints) && userPoints < requiredDownvotePoints) {
 				var toastMsg = {% blocktrans %} "You need at least <strong>{{ required_downvote_points }} points</strong> to be able to add a dislike." {% endblocktrans %};
 				displayToast('CUSTOM_ERROR', toastMsg);
@@ -638,26 +567,23 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
+					// remove far class and set to fas
+					$icon.removeClass('far').addClass('fas js-selected');
 
-						// update count
-						var $voteCounter = $this.next();
-						var prevCount = parseInt($voteCounter.text(), 10);
-						$voteCounter.text(prevCount + 1);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount + 1);
 
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Disliked' %}";
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Disliked' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
 		}
-
 	});
 
 	/** FOLLOWING **/
@@ -690,18 +616,14 @@
 						xhr.setRequestHeader("X-CSRFToken", csrfToken);
 					},
 					success: function(result) {
-						if (result['unfollowed']) {
-							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
-							$followUnfollowSpan.text('{{ follow_text }}');
-							displayToast('FOLLOW_TOGGLE', false);
-
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
+						$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
+						$followUnfollowSpan.text('{{ follow_text }}');
+						displayToast('FOLLOW_TOGGLE', false);
+					},
+					error: function(jqXHR, status, error) {
+						displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 					}
 				});
-
 			} else {
 				// if user is following question
 				var voteAction = 'follow';
@@ -715,18 +637,566 @@
 						xhr.setRequestHeader("X-CSRFToken", csrfToken);
 					},
 					success: function(result) {
-						if (result['followed']) {
-							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
-							$followUnfollowSpan.text('{{ unfollow_text }}');
-							displayToast('FOLLOW_TOGGLE', true);
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
+						$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
+						$followUnfollowSpan.text('{{ unfollow_text }}');
+						displayToast('FOLLOW_TOGGLE', true);
+					},
+					error: function(jqXHR, status, error) {
+						displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 					}
 				});
 			}
 		});
 	{% endif %}
+</script>
+<script>
+	const PAGE_URL = "{{ request.build_absolute_uri }}";
+
+	{% if LANGUAGE_CODE != 'en' %}
+	moment.locale('{{ LANGUAGE_CODE }}');
+	{% endif %}
+
+	var usersMentioned = [];
+	$.ajax({
+		type: 'GET',
+		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=AcademicComment&for_jquery=1",
+		success: function(result, status, jqXHR) {
+			console.log(result);
+			usersMentioned = result.data;
+		},
+		error: function(jqXHR, status, error) {
+			console.error(error);
+		}
+	});
+
+	/* Prepare flagging */
+	const COMMENT_MODEL_NAME = 'AcademicComment';
+
+	// Question poster & anonymous users can't flag
+	if (userId) {
+		var flagModal = document.querySelector('.js-flag-report-modal');
+		var reportIcon = document.querySelector('.js-flag-report-icon');
+		var modalClose = document.querySelector('.report-modal-close');
+		var initModelName = reportIcon.dataset.modelName, initModelId = reportIcon.dataset.modelId;
+
+		var flagSuccessToast = document.querySelector('.js-flag-success-toast');
+
+		/** Reset data attributes of flag modal after modal is closed */
+		function resetFlagModal(ev) {
+			// ev.target will equal ev.currentTarget when the click is done outside the modal content
+			if (ev.target == modalClose || ev.target == ev.currentTarget) {
+				reportIcon.dataset.modelName = initModelName;
+				reportIcon.dataset.modelId = initModelId;
+			}
+		}
+
+		flagModal.addEventListener('click', resetFlagModal);
+		modalClose.addEventListener('click', resetFlagModal);
+	}
+
+	{# jquery-comments config, https://viima.github.io/jquery-comments #}
+	$('#question-comments').comments({
+		textareaPlaceholderText: "{% trans 'Add an answer or comment' %}",
+		newestText: "{% trans 'Newest' %}",
+		oldestText: "{% trans 'Oldest' %}",
+		popularText: "{% trans 'Popular' %}",
+		attachmentsText: "{% trans 'Attachments' %}",
+		sendText: "{% trans 'Send' %}",
+		replyText: "{% trans 'Reply' %}",
+		editText: "{% trans 'Edit' %}",
+		editedText: "{% trans 'Edited' %}",
+		youText: "{% trans 'You' %}",
+		saveText: "{% trans 'Save' %}",
+		deleteText: "{% trans 'Delete' %}",
+		viewAllRepliesText: "{% trans 'View all' %} " + "__replyCount__" + " {% trans 'replies' %} ",
+		hideRepliesText: "{% trans 'Hide replies' %}",
+		noCommentsText: "{% trans 'No comments' %}",
+		noAttachmentsText: "{% trans 'No attachments' %}",
+		attachmentDropText: "{% trans 'Drop files here' %}",
+		roundProfilePictures: true,
+		enableDeletingCommentWithReplies: true,
+		profilePictureUrl: (function() {
+			{% with profile_image=user.social_profile.profile_image %}
+			var url = "{% if profile_image %}{{ profile_image.url }}{% endif %}";
+			{% endwith %}
+			return url;
+		})(),
+		currentUserIsAdmin: false,
+		enablePinging: true,
+		_comments: [],
+		_permissions: {},
+		_parseComment: function(data) {
+			// Convert pings to appropriate format
+			$(Object.keys(data.pings)).each(function(index, userId) {
+				var username = data.pings[userId];
+				var pingText = '@' + username;
+				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
+			}); 
+			
+			return data;
+		},
+		searchUsers: function(term, success, error) {
+			success(usersMentioned.filter(function(user) {
+				// This library expects the attribute to be named 'fullname',
+				// however, the fullname in this case refers to the user's username; 
+				// which is what we want
+				var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
+				var isNotSelf = user.id != userId;
+				return containsSearchTerm && isNotSelf;
+			}));
+		},
+		_flagComment: function(comment, event) {
+			var that = this;
+			// console.log(this);
+			// console.log(comment);
+			// console.log(event);
+			
+			// Display modal and update reportIcon attributes & flag button
+			flagModal.style.display = 'block';
+			reportIcon.dataset.modelId = comment.id;
+			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
+
+			function onSuccess(ev) {
+				var icon = event.target;
+				var btn = icon.parentElement;
+				icon.setAttribute('class', 'fa-flag fas');
+				btn.setAttribute('title', "{% trans 'Remove flag' %}");
+				// Normally, we just have to remove the flagComment event listener.
+				// But since we used bind() to add the event, there is no simple way to remove the binded
+				// function since bind() creates a new function. 
+				// So lets just clone the previous button (event listeners won't be attached) then replace it
+				var newBtn = btn.cloneNode(true);  // true for deep cloning (with child nodes)
+				btn.replaceWith(newBtn);
+				newBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+
+				// Remove the event listener after executing it.
+				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
+			}
+				
+			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
+		},
+		_unflagComment: function(comment, event) {
+			var that = this;
+			// Update reportIcon attributes
+			reportIcon.dataset.modelId = comment.id;
+			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
+
+			submitFlagForm(reportIcon, 'remove');
+
+			function onSuccess(ev) {
+				// Set reportIcon attributes back to original & update flag button
+				reportIcon.dataset.modelName = initModelName;
+				reportIcon.dataset.modelId = initModelId;
+
+				var icon = event.target;
+				var btn = icon.parentElement;
+				icon.setAttribute('class', 'fa-flag far');
+				btn.setAttribute('title', "{% trans 'Report comment' %}");
+
+				var newBtn = btn.cloneNode(true);  
+				btn.replaceWith(newBtn);
+				newBtn.addEventListener('click', that._flagComment.bind(that, comment));
+				
+				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
+			}
+
+			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
+		},
+		refresh: function() {
+			var $comments = $('#question-comments li.comment');
+			var that = this;
+
+			/** Function to Highlight parent comment when share icon is hovered */
+			function enableHighlightParent(comment, replyToSpan) {
+				if (comment && replyToSpan) {
+					// console.log(comment) shows that comment.parent is sometimes null 
+					// i.e in cases like the first reply, this sometimes print the parent comment...
+					// so in cases where the parent comment is present, we add the event listener
+					var parentId = comment.parent;
+					if (parentId !== null) {
+						replyToSpan.addEventListener('mouseover', function(ev) {
+							var parentCommentWrp = document.querySelector(`#question-comments [data-id='${parentId}'] .comment-wrapper`);
+							parentCommentWrp.style.backgroundColor = 'lightgray';
+
+							// After some time, set color back to initial
+							setTimeout(function() {
+								parentCommentWrp.style.backgroundColor = 'initial';
+							}, 1500);
+						});
+					}
+				}
+			}
+
+			$comments.each(function (idx) {
+				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
+				var comment = that._comments.find(obj => obj.id === commentId);
+
+				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
+				var linkEl = document.createElement("a");
+				var linkHref = `comment-${comment.id}`;
+				linkEl.setAttribute("name", linkHref);
+				this.firstChild.before(linkEl);
+
+				// Highlight parent comment when share icon is hovered
+				var replySpan = this.querySelector('.reply-to');
+				enableHighlightParent(comment, replySpan);
+
+				// Prepare share item(tooltip)
+				var commentLink = PAGE_URL + '#' + linkHref;
+				const WHATSAPP_SHARER = 'https://wa.me/', FACEBOOK_SHARER = 'https://www.facebook.com/sharer/sharer.php';
+				const TWITTER_SHARER ='https://www.twitter.com/intent/tweet', TWITTER_HANDLE = 'camerschools';
+				var shareBtn = document.createElement('button');
+				shareBtn.innerHTML = '{% trans "Share comment" %} <i class="fas fa-share ms-1" aria-hidden="true"></i>';
+				setAttributes(shareBtn, {
+					'class': "w-100 mt-2 link-secondary no-style-button js-share-tooltip js-comment-share-tooltip",
+					'data-bs-toggle': 'tooltip',
+					'data-bs-trigger': 'click',
+					'data-bs-custom-class': "share-tooltip",
+					'data-bs-html': "true",
+					'data-bs-container': "body",
+					'title': `
+						<h6 class="text-nowrap mt-2">{% trans "Share a link to this comment" %}</h6>
+						<input class="form-control mb-3 py-1 js-link-input" type="text" value="${commentLink}" title="${commentLink}" readonly>
+						<div class="text-start mb-2">
+							<button class="no-style-button text-purple js-copy-button">{% trans 'Copy link' %}</button>
+							<a class="text-decoration-none link-secondary mx-3" href="${FACEBOOK_SHARER}?u=${commentLink}&t={{ title }}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on Facebook' %}</span>
+								<i class="fab fa-facebook-square fa-lg" aria-hidden="true"></i>
+							</a>
+							<a class="text-decoration-none me-3" href="${TWITTER_SHARER}?url=${commentLink}&via={{ TWITTER_HANDLE }}&text={{ title }}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on Twitter' %}</span>
+								<i class="fab fa-twitter-square fa-lg" aria-hidden="true"></i>
+							</a>
+							<a class="text-decoration-none link-success" href="${WHATSAPP_SHARER}?text=${commentLink}" target="_blank">
+								<span class="visually-hidden">{% trans 'Share on WhatsApp' %}</span>
+								<i class="fab fa-whatsapp fa-lg" aria-hidden="true"></i>
+							</a>
+						</div>
+						<button type="button" class="btn-close btn-close-white" onclick="shareCloseBtnClick()" aria-label="{% trans 'Close' %}"></button>					
+					`
+				});
+
+				// Create dropdown menu.
+				// Normally a 'dropdown' class is also needed(for positioning), but apparently 
+				// in this case adding it will cause problems...
+				var dropdown = document.createElement("div");
+				dropdown.setAttribute('class', 'd-inline');
+				dropdown.innerHTML = `
+					<button type="button" class="float-end" id="comment-${idx}-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa fa-ellipsis-v"></i>	
+					</button>
+					<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${idx}-menu-btn">
+					</ul>
+				`;
+
+				var menu = dropdown.querySelector('ul');
+
+				// Add share to menu
+				var shareLi = document.createElement('li');
+				shareLi.appendChild(shareBtn);
+				menu.appendChild(shareLi);
+
+				// Enable flagging only if comment is not poster's (Edit button is not present)
+				var $action = $this.find('.actions').first();
+				if ($action.find('.action.edit').length == 0) { 
+					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
+					var flagClass = 'fa-flag ' + (comment.has_flagged ? 'fas' : 'far');
+					var separatorStr = `
+						<span class="separator" style="vertical-align: text-bottom;">.</span> 
+					`;
+					var flagBtn = document.createElement("button");
+					flagBtn.setAttribute("class", "mt-3 mb-2 text-danger w-100");
+					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;	
+
+					if (userId) {
+						if (comment.has_flagged) {
+							// set the `that` object as the this object in that handler, and pass the comment
+							// as an argument.
+							// Binding is necessary since we want to pass an argument(comment) to the handler
+							flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+						} else {
+							flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+						}
+					} else {
+						// If user is unauthed, display login required toast.
+						flagBtn.addEventListener('click', displayToast.bind(this, 'LOGIN_REQUIRED'));
+					}
+
+					// Add flag to menu
+					var flagLi = document.createElement('li');
+					flagLi.appendChild(flagBtn);
+					menu.appendChild(flagLi);
+				} else {
+					// Else prevent or make upvote button for current user invalid.
+					// (If Edit button is present, that means comment belongs to the current user)
+					var $upvoteBtn = $action.children('.action.upvote').first();
+					var $thumbsUpIcon = $upvoteBtn.children('i').first();
+					$thumbsUpIcon.css('cursor', 'default');
+
+					// No need to remove error toast telling user that he can't vote for his post;
+					// the user should know what is happening.
+					// Also, apparently, after clicking the upvote button, the cursor turns back to
+					// pointer. No need to bother changing it back to default.
+				}
+
+				$action.append(dropdown);
+			});
+
+			/** Make pings with social profile's cursor pointer */
+			document.querySelectorAll('input.tag.ping').forEach(function (ele) {
+				var user = usersMentioned.find(user => '@' + user.fullname === ele.value);
+				if (user.social_profile_url) {
+					ele.style.cursor = 'pointer';
+				}
+			});
+
+			// Initialize new comment share button tooltips,
+			// use default allowList to allow button elements ()
+			bootstrap.Tooltip.Default.allowList.button = ['onclick'];
+			initTooltips();
+
+			// Add listeners for copy button
+			var commentTooltips = document.querySelectorAll('.js-comment-share-tooltip'); 
+			for (var i = 0; i < commentTooltips.length; i++) {
+				commentTooltips[i].addEventListener('inserted.bs.tooltip', function() {
+					// `this` refers to the element containing the tooltip (Share button in this case)
+					var tooltip = bootstrap.Tooltip.getInstance(this);
+					var copyBtn = tooltip.tip.querySelector('.js-copy-button');
+					copyBtn.addEventListener('click', onCopyLink);
+				});
+			}
+
+			// Listen to when new comment is added, so as to enable highlighting its parent
+			insertionQ('li.comment.by-current-user').every(function (ele) {
+				var commentId = parseInt(ele.dataset.id, 10);
+				var comment = that._comments.find(obj => obj.id === commentId);
+				var replySpan = ele.querySelector('.reply-to');
+				enableHighlightParent(comment, replySpan);
+			});
+
+			// Listen to when reply is about to be added; so as to appropriately place 
+			// commenting field on page.
+			// ALGORITHM: After commenting field is added, if it isn't in viewport, find the hyperlink
+			// before it and go to the link. If no link is present, create one then link to it.
+			insertionQ('.data-container .commenting-field').every(function (ele) {
+				if (!isElementInViewport(ele)) {
+					var prevElement = ele.previousSibling, href;
+					if (prevElement.nodeName.toLowerCase() !== 'a') {
+						href = uid().replace('id', '');  // uid() function is in base.js
+						var link = document.createElement('a');
+						link.setAttribute("name", href);
+						ele.insertAdjacentElement('beforebegin', link);
+					} else {
+						href = prevElement.getAttribute('name');
+					}
+
+					// If the hash has already been set, resetting it to the same value won't have
+					// any effect (won't scroll to the link). So we clear it then set it to the link. 
+					// To clear it without scrolling, we use the replaceState(or pushState) function...
+					if (location.hash.replace('#', '') == href) {
+						history.replaceState({}, '', location.pathname);
+					}
+
+					location.hash = href;
+					ele.querySelector('.textarea').focus();
+				}
+			});
+		},	
+		getComments: function(success, error) {
+			var that = this;
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}",
+				success: function(result) {
+					console.log(result);
+					var data = result.data;
+
+					for (var comment of data) {
+						that._permissions[comment.id] = {
+							cannotUpdate: false,
+							cannotUpdateMessage: '',
+							cannotDelete: false,
+							cannotDeleteMessage: '',
+						};
+					}
+					that._comments = data;
+					success(data);
+				},
+				error: error
+			});
+		},
+		postComment: function(commentJSON, success, error) {
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return error();
+			}
+
+			var that = this;
+			$.ajax({
+				type: 'POST',
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				data: {
+					parent_id: commentJSON.parent,
+					question_id: {{ question.id }},
+					content: that._parseComment(commentJSON).content
+				},
+				success: function(result) {
+					var data = result.data;
+
+					// Add comment to list of comments & permission to list of permissions
+					that._comments.push(data);
+					that._permissions[data.id] = {
+						cannotUpdate: false,
+						cannotUpdateMessage: '',
+						cannotDelete: false,
+						cannotDeleteMessage: ''
+					};
+
+					success(that._parseComment(data));
+				},
+				error: error
+			});
+		},
+		putComment: function(commentJSON, success, error) {
+			// After trying a PUT request, if it fails, we store the result in the
+			// permissions array so as to prevent subsequent requests.
+			var that = this, id = commentJSON.id;
+			var permission = that._permissions[id];
+			
+			// Verify if comment can be changed
+			if (permission.cannotUpdate) {
+				displayToast('CUSTOM_ERROR', permission.cannotUpdateMessage);
+				return error();
+			} 
+
+			$.ajax({
+				type: 'PUT',
+				// use cl instead of cud then append id...
+				// since javascript vars do not work in python
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + id + '/',
+				data: JSON.stringify({
+					content: that._parseComment(commentJSON).content
+				}),
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				success: function(result) {
+					success(that._parseComment(result.data));
+				},
+				error: function(jqXHR, status, ajaxError) {
+					if (jqXHR.status === 403) {
+						var response = jqXHR.responseJSON;
+						displayToast('CUSTOM_ERROR', response.message);
+						// Mark that comment can't be edited
+						permission.cannotUpdate = true;
+						permission.cannotUpdateMessage = response.message;
+					}
+					error();
+				}
+			});
+		},
+		deleteComment: function(commentJSON, success, error) {
+			var that = this, id = commentJSON.id;
+			var permission = that._permissions[id];
+
+			// Verify if comment can be deleted
+			if (permission.cannotDelete) {
+				displayToast('CUSTOM_ERROR', permission.cannotDeleteMessage);
+				return error();
+			} 
+
+			$.ajax({
+				type: 'DELETE',
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + id + '/',
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				success: success, // No need to bother removing the comment from list of permissions...
+				error: function (jqXHR, status, ajaxError) {
+					if (jqXHR.status === 403) {
+						var response = jqXHR.responseJSON;
+						displayToast('CUSTOM_ERROR', response.message);
+						// Mark that comment can't be deleted
+						permission.cannotDelete = true;
+						permission.cannotDeleteMessage = response.message;
+					}
+					error();
+				}
+			});
+		},
+		upvoteComment: function(commentJSON, success, error) {
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return error();
+			}
+
+			// In this function, commentJSON.user_has_upvoted is set to its opposite. 
+			// i.e. if the original commentJSON had it to false, in this function, it is set to true
+			// and vice versa. 
+			var hadUpvoted = !(commentJSON.user_has_upvoted);
+			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
+
+			// If user is creator of comment, he can't vote
+			if (userId == commentJSON.creator) {
+				displayToast('SELF_VOTE');
+				return error();
+			} else {
+				// Recalling upvote
+				if(hadUpvoted) {
+					$.ajax({
+						type: 'POST',
+						url: upvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'up', 
+							thread_type: 'comment', 
+							action: 'recall-vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							success(commentJSON);
+						},
+						error: error
+					});
+				} else {
+					$.ajax({
+						type: 'POST',
+						url: upvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'up', 
+							thread_type: 'comment', 
+							action: 'vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							success(commentJSON);
+						},
+						error: error
+					});
+				}
+			}
+		},
+		pingClicked: function(userId) {
+			// For all users(users mentioned), if userId is of user that has social profile
+			// go to social profile.
+			userId = parseInt(userId, 10);
+			var user = usersMentioned.find(user => user.id === userId);
+			if (user.social_profile_url) {
+				location.href = user.social_profile_url;
+			}
+		},
+		timeFormatter: function(time) {
+			return moment(time).fromNow();
+		},
+
+	});
 </script>
 {% endblock %}

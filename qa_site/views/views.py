@@ -2,15 +2,12 @@ import django_filters as filters
 from django_filters.views import FilterView
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import F, Q
 from django.db.models.query import Prefetch
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views.generic import DetailView
@@ -24,22 +21,15 @@ from core.constants import (
 from core.mixins import GetObjectMixin, IncrementViewCountMixin
 from core.models import Institution
 from core.utils import should_redirect, translate_text
-from ..forms import (
-	AcademicQuestionForm, DiscussQuestionForm, AcademicAnswerForm,
-	AcademicQuestionCommentForm, AcademicAnswerCommentForm,
-	DiscussCommentForm
-)
 from notifications.models import Notification
 from notifications.signals import notify
+from ..forms import AcademicQuestionForm, DiscussQuestionForm
 from ..mixins import (
 	CanEditQuestionMixin, CanDeleteQuestionMixin,
-	CanEditAnswerMixin, CanDeleteAnswerMixin,
-	CanEditCommentMixin, CanDeleteCommentMixin
 )
 from ..models import (
-	DiscussComment, Subject, AcademicQuestion, DiscussQuestion,
-	AcademicQuestionComment, AcademicAnswerComment,
-	TaggedAcademicQuestion, AcademicAnswer, TaggedDiscussQuestion, 
+	Subject, AcademicQuestion, DiscussQuestion, 
+	TaggedAcademicQuestion, TaggedDiscussQuestion, 
 )
 
 User = get_user_model()
@@ -99,47 +89,10 @@ class AcademicQuestionCreate(LoginRequiredMixin, CreateView):
 		return redirect(question)
 
 
-@method_decorator(login_required, name='post')
 class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = AcademicQuestion
 	context_object_name = 'question'
 
-	def post(self, request, *args, **kwargs):
-		"""Handle submission of forms such as comments and answers."""
-		POST, user = request.POST, request.user
-		question = get_object_or_404(AcademicQuestion, id=POST.get('question_id'))
-
-		# if question comment form was submitted
-		if 'add_question_comment' in POST:
-			comment_form = AcademicQuestionCommentForm(POST)
-			# remember if form isn't valid form will be populated with errors..
-			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
-			if comment_form.is_valid():
-				comment = comment_form.save(commit=False)
-				user.add_question_comment(question, comment)
-
-		elif 'add_answer_comment' in POST:
-			comment_form = AcademicAnswerCommentForm(POST)
-			if comment_form.is_valid():
-				comment = comment_form.save(commit=False)
-				answer = get_object_or_404(AcademicAnswer, id=POST.get('answer_id'))
-				user.add_answer_comment(answer, comment)
-
-		elif 'add_answer' in POST:
-			answer_form = AcademicAnswerForm(POST)
-			if answer_form.is_valid():
-				answer = answer_form.save(commit=False)
-				added_result = user.add_answer(question, answer, 'academic')
-
-				# if answer wasn't added 
-				# (if user has attained number of answers limit)
-				if not added_result[0]:
-					raise PermissionDenied(added_result[1])
-
-		# redirect to get request. (SEE Post/Redirect/Get)
-		# instead of simply returning to get (return get(self,...))
-		return redirect(question)
-	
 	def get(self, request, *args, **kwargs):
 		if should_redirect(object := self.get_object(), kwargs.get('slug')):
 			return redirect(object, permanent=True)
@@ -151,23 +104,6 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 		NUM_RELATED_QSTNS = 4
 		context = super().get_context_data(**kwargs)
 		question, user, all_users = self.object, self.request.user, User.objects.active()
-
-		# initialize comment and answer forms
-		qstn_comment_form = AcademicQuestionCommentForm()
-		answer_form = AcademicAnswerForm()
-		ans_comment_form = AcademicAnswerCommentForm()
-
-		context['qstn_comment_form'] = qstn_comment_form
-		context['ans_comment_form'] = ans_comment_form
-		context['answer_form'] = answer_form
-		
-		answers = question.answers.prefetch_related(
-			'comments', 
-			Prefetch('upvoters', queryset=all_users.only('id'))
-		).all()
-		comments = question.comments.prefetch_related(
-			Prefetch('upvoters', queryset=all_users.only('id'))
-		).all()
 
 		## RELATED QUESTIONS
 		related_items = TaggedAcademicQuestion.objects.none()
@@ -185,16 +121,13 @@ class AcademicQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView
 			id__in=related_items_ids
 		).only('title') \
 		.prefetch_related(
-			Prefetch('answers', queryset=AcademicAnswer.objects.defer('content')),
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id'))
 		) \
 		.order_by('-posted_datetime')[:NUM_RELATED_QSTNS]
 		
 		context['question_tags'] = question_tags
-		context['answers'] = answers
-		context['comments'] = comments
-		context['num_answers'] = answers.count()
+		context['num_comments'] = question.comments.count()
 		context['related_qstns'] = related_qstns
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
@@ -565,26 +498,9 @@ class DiscussQuestionList(FilterView):
 		return context
 
 
-@method_decorator(login_required, name='post')
 class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 	model = DiscussQuestion
 	context_object_name = 'question'
-
-	def post(self, request, *args, **kwargs):
-		"""Handle submission of forms such as comments and answers."""
-		POST, user = request.POST, request.user
-		question = get_object_or_404(DiscussQuestion, id=POST.get('question_id'))
-
-		# if question comment form was submitted
-		if 'add_question_comment' in POST:
-			comment_form = DiscussCommentForm(POST)
-			# remember if form isn't valid form will be populated with errors..
-			# can use `return self.form_invalid(form)` to rerender and populate form with errs.
-			if comment_form.is_valid():
-				comment = comment_form.save(commit=False)
-				user.add_question_comment(question, comment)
-
-		return redirect(question)
 
 	def get(self, request, *args, **kwargs):
 		self.set_view_count()
@@ -595,19 +511,6 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		context = super().get_context_data(**kwargs)
 		question, user, all_users = self.object, self.request.user, User.objects.active()
 
-		# comments = question.comments.prefetch_related(
-		# 	'replies',
-		# 	Prefetch('upvoters', queryset=all_users.only('id')),
-		# )
-		# answers = comments.filter(parent__isnull=True)
-
-		# initialize comment and answer forms
-		answer_form = DiscussCommentForm()
-		ans_comment_form = DiscussCommentForm()
-
-		context['answer_form'] = answer_form
-		context['ans_comment_form'] = ans_comment_form
-		
 		## RELATED QUESTIONS
 		related_items = TaggedDiscussQuestion.objects.none()
 		question_tags = question.tags.all()
@@ -624,7 +527,6 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 			id__in=related_items_ids
 		).only('content') \
 		.prefetch_related(
-			# Prefetch('comments', queryset=DiscussComment.objects.defer('content')),
 			Prefetch('upvoters', queryset=all_users.only('id')),
 			Prefetch('downvoters', queryset=all_users.only('id'))
 		) \
@@ -632,9 +534,7 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		
 		context['question_tags'] = question_tags
 		context['related_qstns'] = related_qstns
-		# context['answers'] = answers
-		# context['num_answers'] = answers.count()
-		# context['num_comments'] = comments.count()
+		context['num_comments'] = question.comments.count()
 		context['is_following'] = user in question.followers.only('id')
 		context['required_downvote_points'] = REQUIRED_DOWNVOTE_POINTS
 		context['can_edit_question'] = False if user.is_anonymous else user.can_edit_question(question)
@@ -643,125 +543,4 @@ class DiscussQuestionDetail(GetObjectMixin, IncrementViewCountMixin, DetailView)
 		context['follow_text'] = _('to follow this question (get notifications when anyone posts a new answer to this question).')
 		return context
 
-
-## EDIT AND DELETE ANSWER AND COMMENT ##
-
-## COMMENT UPDATE AND DELETE
-# due to the CanEditCommentMixin, this class needs to be used only with comments
-class CommentUpdate(GetObjectMixin, CanEditCommentMixin, UpdateView):
-	# set fields to update.
-	# if you use the form_class attribute instead, 
-	# you will manually need to save/update some fields
-	fields = ['content']
-	template_name = 'qa_site/misc/comment_edit.html'
-
-	def get_success_url(self):
-		return self.get_object().parent_object.get_absolute_url()
-
-	def form_valid(self, form):
-		# if comment was modified, save it.
-		# print(form.changed_data)
-		if 'content' in form.changed_data:
-			comment = form.save(commit=False)
-			comment.update_language = get_language()
-			# Set update_fields since it will be used in post_save signal
-			comment.save(update_fields=['content', 'update_language'])
-
-		return redirect(self.get_success_url())
-
-class AcademicQuestionCommentUpdate(CommentUpdate):
-	model = AcademicQuestionComment
-
-class AcademicAnswerCommentUpdate(CommentUpdate):
-	model = AcademicAnswerComment
-
-class DiscussCommentUpdate(CommentUpdate):
-	model = DiscussComment
-
-
-class CommentDelete(GetObjectMixin, CanDeleteCommentMixin, DeleteView):
-	template_name = 'qa_site/misc/comment_confirm_delete.html'
-
-	def get_success_url(self):
-		return self.get_object().parent_object.get_absolute_url()
-
-class AcademicQuestionCommentDelete(CommentDelete):
-	model = AcademicQuestionComment
-
-class AcademicAnswerCommentDelete(CommentDelete):
-	model = AcademicAnswerComment
-
-class DiscussCommentDelete(CommentDelete):
-	model = DiscussComment
-
-
-## ANSWER UPDATE AND DELETE
-class AnswerUpdate(GetObjectMixin, CanEditAnswerMixin, UpdateView):
-	# set fields to update.
-	# if you use the form_class attribute instead, 
-	# you will manually need to save/update some fields
-	fields = ['content']
-	template_name = 'qa_site/misc/answer_edit.html'
-
-	def form_valid(self, form):
-		answer = form.save(commit=False)
-		question = answer.question
-
-		if 'content' in form.changed_data:
-			current_lang = get_language()
-
-			## TRANSLATION
-			if settings.ENABLE_GOOGLE_TRANSLATE:
-				# get language to translate to
-				trans_lang = 'fr' if current_lang == 'en' else 'en'
-				translated_content = translate_text(answer.content, trans_lang)['translatedText']
-				setattr(answer, f'content_{trans_lang}', translated_content)
-
-			answer.update_language = current_lang
-			answer.save()
-
-			# notify users that are following this answer's question
-			for follower in question.followers.all():
-				notify.send(
-					sender=follower,  # just use follower as sender,
-					recipient=follower, 
-					verb=_('There was an activity on the question'),
-					target=question,
-					category=Notification.FOLLOWING
-				)
-		
-		return redirect(question)
-
-
-class AcademicAnswerUpdate(AnswerUpdate):
-	model = AcademicAnswer
-
-
-class AnswerDelete(GetObjectMixin, CanDeleteAnswerMixin, DeleteView):
-	template_name = 'qa_site/misc/answer_confirm_delete.html'
-	
-	def get_success_url(self):
-		# self.question is set in the delete method below
-		return self.question.get_absolute_url()
-
-	def delete(self, request, *args, **kwargs):
-		self.question = self.get_object().question
-		question = self.question
-
-		# notify users that are following this answer's question
-		for follower in question.followers.all():
-			notify.send(
-				sender=follower,  # just use follower as sender,
-				recipient=follower, 
-				verb=_('There was an activity on the question'),
-				target=question,
-				category=Notification.FOLLOWING
-			)
-
-		# call super method to delete the object etc
-		return super().delete(request, *args, **kwargs)
-
-
-class AcademicAnswerDelete(AnswerDelete):
-	model = AcademicAnswer
 

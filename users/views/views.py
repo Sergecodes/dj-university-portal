@@ -22,7 +22,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from core.constants import PHONE_NUMBERS_KEY, TEST_ACCOUNT_EMAIL, TEST_ACCOUNT_USERNAME
-from qa_site.models import AcademicAnswer, DiscussComment
+from qa_site.models import AcademicComment, DiscussComment
 from users.forms import (
 	PhoneNumberFormset, EditPhoneNumberFormset,
 	UserCreationForm, UserUpdateForm
@@ -345,7 +345,7 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 		context['academic_questions'] = user.academic_questions.prefetch_related(
 			Prefetch('upvoters', queryset=all_users_id),
 			Prefetch('downvoters', queryset=all_users_id),
-			Prefetch('answers', queryset=AcademicAnswer.objects.only('id'))
+			Prefetch('comments', queryset=AcademicComment.objects.only('id'))
 		)
 
 		qstn_fields = ('id', 'poster_id', 'posted_datetime', )
@@ -363,10 +363,9 @@ class QuestionsAndAnswers(LoginRequiredMixin, TemplateView):
 		context['following_discuss_qstns'] = user.following_discuss_questions \
 			.only('content', *qstn_fields)
 
-		context['academic_answers'] = user.academic_answers.select_related(
+		context['ancestor_academic_comments'] = user.academic_comments.select_related(
 			'question'
-		).only('question', *ans_fields)
-
+		).filter(parent__isnull=True).only('question', *ans_fields)
 		context['ancestor_discuss_comments'] = user.discuss_comments.select_related(
 			'question'
 		).filter(parent__isnull=True).only('question', *ans_fields)

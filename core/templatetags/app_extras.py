@@ -22,10 +22,8 @@ register.filter('is_mobile', is_mobile)
 register.filter('parse_tel', parse_phone_number)
 
 ## register qa_site editing and deleting methods
-register.filter(User.can_edit_comment)
-register.filter(User.can_delete_comment)
-register.filter(User.can_edit_answer)
-register.filter(User.can_delete_answer)
+# register.filter(User.can_edit_comment)
+# register.filter(User.can_delete_comment)
 
 ## register past_papers editing and deleting methods..
 # set a name for the filter so it doesn't clash with the User/qa_site methods

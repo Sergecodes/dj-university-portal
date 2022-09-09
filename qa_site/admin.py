@@ -2,21 +2,12 @@ from django.contrib import admin
 from modeltranslation.admin import TranslationAdmin
 
 from .models import (
-    Subject, AcademicAnswer, AcademicAnswerComment, 
+    Subject, AcademicComment, DiscussComment,
     QuestionTag, AcademicQuestion, DiscussQuestion, 
-    AcademicQuestionComment, DiscussComment
 )
 
 
-class AcademicAnswerAdmin(TranslationAdmin):
-    pass
-
-
-class AcademicAnswerCommentAdmin(TranslationAdmin):
-    pass
-
-
-class AcademicQuestionCommentAdmin(TranslationAdmin):
+class AcademicCommentAdmin(TranslationAdmin):
     pass
 
 
@@ -54,7 +45,5 @@ admin.site.register(Subject, SubjectAdmin)
 admin.site.register(DiscussQuestion, DiscussQuestionAdmin)
 admin.site.register(QuestionTag, QuestionTagAdmin)
 admin.site.register(AcademicQuestion, AcademicQuestionAdmin)
-admin.site.register(AcademicAnswer, AcademicAnswerAdmin)
-admin.site.register(AcademicAnswerComment, AcademicAnswerCommentAdmin)
-admin.site.register(AcademicQuestionComment, AcademicQuestionCommentAdmin)
+admin.site.register(AcademicComment, AcademicCommentAdmin)
 admin.site.register(DiscussComment, DiscussCommentAdmin)

@@ -177,25 +177,22 @@
 				</p>
 
 				<dl>
-					<dt>{% trans 'Questions and Answers' %}</dt>
+					<dt>{% trans 'Questions' %}</dt>
 					<dd class="mb-3">
 						{% blocktrans %}
-						By <b>post</b>, we refer to a question or answer. <br>
 						You get {{ ask_qstn_points }} points when you ask a question. 
 						When your post is <b>liked(upvoted)</b>, you get {{ upvote_points }} points. 
 						You are deducted {{ downvote_points }} points when your post is downvoted(disliked). <br>
-						Anyone can upvote a post, but to downvote a post, the user needs to have {{ downvote_req_points }}; this is to ensure a post can be downvoted only by users that have used the website
-						for some time. <br>
-						You get {{ aca_ans_points }} points when you answer an academic question and 
-						{{ school_ans_points }} when you answer a school question. You are not rewarded any point for answering your own questions. However you will be rewarded points when these answers are upvoted. Your answers should be valuable else these points will not be worth much. You may have at most {{ max_answers }} answers per question.
+						Anyone can upvote a post, but to downvote a post, the user needs to have {{ downvote_req_points }}; this is to ensure a post can be downvoted only by users that have used the website for some time. 
 						{% endblocktrans %}
 					</dd>
 
-					<dt>{% trans 'Comments' %}</dt>
+					<dt>{% trans 'Comments & Answers' %}</dt>
 					<dd class="mb-3">
 						{% blocktrans %}
 						Comments are used to ask for clarification and extra info concerning a question or answer, or to add information you think others may find useful.
-						You get no points when you comment on posts. However, the number of upvotes on your comments means a lot. So ensure to contribute positively to questions and answers.
+						Like questions, you get no points when you comment on posts. 
+						However, you are rewarded when your answer and comment are upvoted. 
 						{% endblocktrans %}
 					</dd>
 
@@ -214,7 +211,7 @@
 							</li>
 							<li>
 								{% blocktrans %}
-								Comments: <b>Only</b> the poster of a comment can edit it. However, comments with more than {{ cannot_edit_comment_vote }} votes can't be edited. 
+								Comments: <b>Only</b> the poster of a comment can edit it. However, comments with more than a score of {{ cannot_edit_comment_vote }} can't be edited. 
 								{% endblocktrans %}
 							</li>
 						</ul>

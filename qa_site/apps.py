@@ -8,9 +8,8 @@ class QaSiteConfig(AppConfig):
 
     def ready(self):
         import qa_site.signals
-        from qa_site.models import AcademicQuestionComment, AcademicAnswerComment, DiscussComment
+        from qa_site.models import AcademicComment, DiscussComment
 
-        post_save.connect(qa_site.signals.set_users_mentioned, AcademicQuestionComment)
-        post_save.connect(qa_site.signals.set_users_mentioned, AcademicAnswerComment)
+        post_save.connect(qa_site.signals.set_users_mentioned, AcademicComment)
         post_save.connect(qa_site.signals.set_users_mentioned, DiscussComment)
 

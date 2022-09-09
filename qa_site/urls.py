@@ -39,45 +39,6 @@ academic_question_patterns = [
 	),
 ]
 
-academic_answer_patterns = [
-	path(
-		_('<int:pk>/edit/'), 
-		views.AcademicAnswerUpdate.as_view(), 
-		name='academic-answer-update'
-	),
-	path(
-		_('<int:pk>/delete/'), 
-		views.AcademicAnswerDelete.as_view(), 
-		name='academic-answer-delete'
-	),
-]
-
-academic_question_comment_patterns = [
-	path(
-		_('<int:pk>/edit/'), 
-		views.AcademicQuestionCommentUpdate.as_view(), 
-		name='academic-question-comment-update'
-	),
-	path(
-		_('<int:pk>/delete/'), 
-		views.AcademicQuestionCommentDelete.as_view(), 
-		name='academic-question-comment-delete'
-	),
-]
-
-academic_answer_comment_patterns = [
-	path(
-		_('<int:pk>/edit/'), 
-		views.AcademicAnswerCommentUpdate.as_view(), 
-		name='academic-answer-comment-update'
-	),
-	path(
-		_('<int:pk>/delete/'), 
-		views.AcademicAnswerCommentDelete.as_view(), 
-		name='academic-answer-comment-delete'
-	),
-]
-
 discuss_question_patterns = [
 	path(
 		'',
@@ -108,19 +69,6 @@ discuss_question_patterns = [
 	),
 ]
 
-discuss_comment_patterns = [
-	path(
-		_('<int:pk>/edit/'), 
-		views.DiscussCommentUpdate.as_view(), 
-		name='discuss-question-comment-update'
-	),
-	path(
-		_('<int:pk>/delete/'), 
-		views.DiscussCommentDelete.as_view(), 
-		name='discuss-question-comment-delete'
-	),
-]
-
 ajax_patterns = [
 	path('academic-thread/vote/', ajax.vote_academic_thread, name='academic-thread-vote'),
 	path('discuss-thread/vote/', ajax.vote_discuss_thread, name='discuss-thread-vote'),
@@ -130,8 +78,8 @@ ajax_patterns = [
 	path('discuss-question/follow/', ajax.discuss_question_follow_toggle, name='discuss-follow-toggle'),
 	path('users-mentioned/<int:question_id>/', ajax.get_users_mentioned, name='users-mentioned'),
 
-	path('discuss-comments/<int:id>/', ajax.JQueryDiscussCommentDetail.as_view(), name='discuss-comment-rud'),
-	path('discuss-comments/', ajax.JQueryDiscussCommentList.as_view(), name='discuss-comments-cl'), # cl: create, list
+	path('comments/<str:model_name>/<int:id>/', ajax.JQueryCommentDetail.as_view(), name='comment-rud'),
+	path('comments/<str:model_name>/', ajax.JQueryCommentList.as_view(), name='comments-cl'), # cl: create, list
 ]
 
 
@@ -139,11 +87,7 @@ urlpatterns = [
 	# these paths should come before the url with a slug
 	path('', views.QuestionsExplain.as_view(), name='questions-explain'),
 	path(_('academic-questions/'), include(academic_question_patterns)),
-	path(_('academic-questions/answers/'), include(academic_answer_patterns)),
-	path(_('academic-questions/question-comments/'), include(academic_question_comment_patterns)),
-	path(_('academic-questions/answer-comments/'), include(academic_answer_comment_patterns)),
 	path(_('discussion-questions/'), include(discuss_question_patterns)),
-	path(_('discussion-questions/comments/'), include(discuss_comment_patterns)),
 
 	path('ajax/', include(ajax_patterns))
 ]

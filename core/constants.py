@@ -116,13 +116,10 @@ PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT = timedelta(minutes=30)
 REQUIRED_DOWNVOTE_POINTS = 20  
 # points deducted(added) to poster after their post is downvoted
 POST_DOWNVOTE_POINTS_CHANGE = -4  
+ANSWER_DOWNVOTE_POINTS_CHANGE = -4  # Parent comment for academic post
 # points added to poster after their post is upvoted
 POST_UPVOTE_POINTS_CHANGE = +2   
 ASK_QUESTION_POINTS_CHANGE = +5
-ANSWER_SCHOOL_QUESTION_POINTS_CHANGE = +8
-ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE = +10
-# each user can have max 2 answers per question
-MAX_ANSWERS_PER_USER_PER_QUESTION = 2  
 MAX_TAGS_PER_QUESTION = 5
 MAX_TAGS_PER_DISCUSSION = 5
 
@@ -147,24 +144,20 @@ INVALID_TAG_CHARS = "\"'\|`~!@#$%^&*()}{_+=,<>/?;:"
 
 ## Editing
 # questions with num_answers > this value can't be edited
-QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT = 1
+QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT = 2
 # questions with vote_count > this value can't be edited
 # in other words, only questions with this number of votes and below can be edited
 QUESTION_CAN_EDIT_VOTE_LIMIT = 2
-# answers with vote_count > this value can't be edited
-ANSWER_CAN_EDIT_VOTE_LIMIT = 4
-# after this number of votes(upvotes), comment can't be edited
-COMMENT_CAN_EDIT_UPVOTE_LIMIT = 4
+# after this score, comment can't be edited
+COMMENT_CAN_EDIT_VOTE_LIMIT = 4
 
 ## Deleting
 # questions with num_answers > this value can't be deleted
 QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT = 1
 # questions with vote_count > this value can't be deleted
 QUESTION_CAN_DELETE_VOTE_LIMIT = 2
-# answers with vote_count > this value can't be deleted
-ANSWER_CAN_DELETE_VOTE_LIMIT = 2
-# after this number of votes(upvotes), comment can't be deleted
-COMMENT_CAN_DELETE_UPVOTE_LIMIT = 4
+# after this score, comment can't be deleted
+COMMENT_CAN_DELETE_VOTE_LIMIT = 4
 
 
 ### REQUESTED ITEMS APP ###

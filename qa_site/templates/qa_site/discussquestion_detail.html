@@ -456,41 +456,23 @@
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
-				success: function(response) {
-					if (response['success']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
+				success: function(response, status, jqXHR) {
+					// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+					$icon.removeClass('fas js-selected').addClass('far');
 
-						// update number of votes
-						if (threadType == 'comment') {
-							// update vote count
-							// span comes before vote icon for comments
-							var $voteCounter = $this.parent().prev();
-							var prevCount = parseInt($voteCounter.text(), 10);
-
-							// if no vote was on comment(if the voteCounter is empty)
-							if (Number.isNaN(prevCount)) {
-								$voteCounter.text('1');
-							} else {
-								$voteCounter.text(prevCount - 1);
-							}
-							
-						} else {
-							var $voteCounter = $this.next();
-							var prevCount = parseInt($voteCounter.text(), 10);
-							$voteCounter.text(prevCount - 1);
-							
-							// update text
-							var textNode = $icon[0].nextSibling;
-							textNode.textContent = " {% trans 'Like' %}";
-						}
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update number of votes
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount - 1);
+					
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Like' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
-
 		} else {
 			// if user is adding a new vote
 			var voteAction = 'vote';
@@ -503,40 +485,20 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
+					// remove far class and set to fas
+					$icon.removeClass('far').addClass('fas js-selected');
 
-						if (threadType == 'comment') {
-							// update vote count
-							// span comes before vote icon for comments
-							var $voteCounter = $this.parent().prev();
-							var prevCount = parseInt($voteCounter.text(), 10);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount + 1);
 
-							// if no vote was on comment(if the voteCounter is empty)
-							// set vote count to 1
-							if (Number.isNaN(prevCount)) {
-								$voteCounter.text('1');
-							} else {
-								$voteCounter.text(prevCount + 1);
-							}
-						} else {
-							// update count
-							var $voteCounter = $this.next();
-							var prevCount = parseInt($voteCounter.text(), 10);
-							$voteCounter.text(prevCount + 1);
-
-							// update text
-							var textNode = $icon[0].nextSibling;
-							textNode.textContent = " {% trans 'Liked' %}";
-						}
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Liked' %}";
 				},
-				error: function() {
-					console.error("Error");
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
 		}
@@ -561,25 +523,22 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-						$icon.removeClass('fas js-selected').addClass('far');
+					// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+					$icon.removeClass('fas js-selected').addClass('far');
 
-						// update count
-						var $voteCounter = $this.next();
-						var prevCount = parseInt($voteCounter.text(), 10);
-						$voteCounter.text(prevCount - 1);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount - 1);
 
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Dislike' %}";
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Dislike' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
-
 		} else {
 			// if user is adding a new vote
 			var voteAction = 'vote';
@@ -600,26 +559,23 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(response) {
-					if (response['success']) {
-						// remove far class and set to fas
-						$icon.removeClass('far').addClass('fas js-selected');
+					// remove far class and set to fas
+					$icon.removeClass('far').addClass('fas js-selected');
 
-						// update count
-						var $voteCounter = $this.next();
-						var prevCount = parseInt($voteCounter.text(), 10);
-						$voteCounter.text(prevCount + 1);
+					// update count
+					var $voteCounter = $this.next();
+					var prevCount = parseInt($voteCounter.text(), 10);
+					$voteCounter.text(prevCount + 1);
 
-						// update text
-						var textNode = $icon[0].nextSibling;
-						textNode.textContent = " {% trans 'Disliked' %}";
-					} else {
-						// console.log(response);
-						displayToast('CUSTOM_ERROR', response['message']);
-					}
+					// update text
+					var textNode = $icon[0].nextSibling;
+					textNode.textContent = " {% trans 'Disliked' %}";
+				},
+				error: function(jqXHR, status, error) {
+					displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 				}
 			});
 		}
-
 	});
 
 	/** FOLLOWING **/
@@ -652,15 +608,12 @@
 						xhr.setRequestHeader("X-CSRFToken", csrfToken);
 					},
 					success: function(result) {
-						if (result['unfollowed']) {
-							$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
-							$followUnfollowSpan.text('{{ follow_text }}');
-							displayToast('FOLLOW_TOGGLE', false);
-
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
+						$this.removeClass('js-selected btn-secondary').addClass('btn-outline-secondary');
+						$followUnfollowSpan.text('{{ follow_text }}');
+						displayToast('FOLLOW_TOGGLE', false);
+					},
+					error: function(jqXHR, status, error) {
+						displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 					}
 				});
 
@@ -677,14 +630,12 @@
 						xhr.setRequestHeader("X-CSRFToken", csrfToken);
 					},
 					success: function(result) {
-						if (result['followed']) {
-							$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
-							$followUnfollowSpan.text('{{ unfollow_text }}');
-							displayToast('FOLLOW_TOGGLE', true);
-						} else {
-							console.error(result);
-							displayToast('ERROR_OCCURRED');
-						}
+						$this.removeClass('btn-outline-secondary').addClass('js-selected btn-secondary');
+						$followUnfollowSpan.text('{{ unfollow_text }}');
+						displayToast('FOLLOW_TOGGLE', true);
+					},
+					error: function(jqXHR, status, error) {
+						displayToast('CUSTOM_ERROR', jqXHR.responseJSON['message']);
 					}
 				});
 			}
@@ -701,7 +652,7 @@
 	var usersMentioned = [];
 	$.ajax({
 		type: 'GET',
-		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=DiscussQuestion&for_jquery=1",
+		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=DiscussComment&for_jquery=1",
 		success: function(result, status, jqXHR) {
 			console.log(result);
 			usersMentioned = result.data;
@@ -1048,7 +999,7 @@
 			var that = this;
 			$.ajax({
 				type: 'GET',
-				url: "{% url 'qa_site:discuss-comments-cl' %}",
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}",
 				success: function(result) {
 					console.log(result);
 					var data = result.data;
@@ -1076,7 +1027,7 @@
 			var that = this;
 			$.ajax({
 				type: 'POST',
-				url: "{% url 'qa_site:discuss-comments-cl' %}",
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}",
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
@@ -1118,7 +1069,7 @@
 				type: 'PUT',
 				// use cl instead of cud then append id...
 				// since javascript vars do not work in python
-				url: "{% url 'qa_site:discuss-comments-cl' %}" + id + '/',
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}" + id + '/',
 				data: JSON.stringify({
 					content: that._parseComment(commentJSON).content
 				}),
@@ -1152,7 +1103,7 @@
 
 			$.ajax({
 				type: 'DELETE',
-				url: "{% url 'qa_site:discuss-comments-cl' %}" + id + '/',
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}" + id + '/',
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},

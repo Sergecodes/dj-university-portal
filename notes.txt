@@ -12,9 +12,12 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- make academic question similar to discuss question(also enable disliking answers)
-- for pings with social profiles, cursor should be pointer.
-- fix ckeditor display too.
+- make academic question similar to discuss question(also enable disliking comments)
+
+For academic comments:
+	- fix ckeditor display 
+	- enable disliking
+	- enable uploading images
 
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)
@@ -53,6 +56,7 @@ so as to keep track of when these actions are done
 - editing and creating a new item(that supports photos) pollutes the photos. (since session uses same key for updates and creations) (i don't think it's a big problem lol)
 - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
 - enable translation for question tags, past paper comments(change model and translation.py too) and comments in qa_site
+- display google translate image attribute for jquery comments(discuss/academic comment)
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted)
 highlight each occurrence of keywords in search results page.
 - add following questions on profile-qa page.. when user follows a question, the displayed toast should link to this page
@@ -64,7 +68,6 @@ on listing pages, enable ordering (by date too..)
 - use ajax for username select ... 
 - on dashboard page, hide site points/or amount made and display only on click
 - update dashboard page. is concept of points still valid ?
-- username mentions in comments (questions)
 - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 - display "some users" aside on mobile too.
 - in institution select menu, for each institution, get questions, items, adverts,past papers etc.. for that institution upon clicking.
@@ -95,7 +98,7 @@ jquery validation plugin..
 - eventually students projects. support for ranking too
 
 
-##redirect to next url.. ; use in class based views.  ###
+## redirect to next url.. ; use in class based views.  ###
 def get_success_url(self):
 	try:
 		next = self.request.GET['next']
@@ -130,7 +133,7 @@ this site vs jumia:
 	- users can only perform transaction in  items in univ, hence more security...
 
 
-#case insentitive collation
+# case insensitive collation
 from django.contrib.postgres.operations import CreateCollation
 from django.db import migrations
 

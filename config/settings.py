@@ -372,7 +372,7 @@ CKEDITOR_CONFIGS = {
 		'width': 'auto',
 		'height': '150px',
 	},
-	'add_academic_answer': {
+	'add_academic_comment': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			['Bold', 'Italic', ],
@@ -386,28 +386,6 @@ CKEDITOR_CONFIGS = {
 		'width': 'auto',
 		'extraPlugins': 'codesnippet',
 		# 'uiColor': '#ff3333',
-	},
-	'add_discuss_answer': {
-		'toolbar': 'Custom',
-		'toolbar_Custom': [
-			['Bold', 'Italic', ],
-			['Link', 'Blockquote', 'Image', ],
-			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-			# ['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			['Undo', 'Redo'],
-			['Maximize', 'Preview']
-		],
-		'tabSpaces': 4,
-		'width': 'auto',
-	},
-	'add_academic_comment': {
-		'toolbar': 'Custom',
-		'toolbar_Custom': [
-			# ['Bold', 'Italic', 'EqnEditor', 'Link', 'CodeSnippet'],
-			['Bold', 'Italic', 'Link', 'CodeSnippet'],
-		],
-		'extraPlugins': 'codesnippet',
-		'width': 'auto',
 	},
 	'add_discuss_comment': {
 		'toolbar': 'Custom',

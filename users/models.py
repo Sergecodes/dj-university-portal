@@ -8,13 +8,11 @@ from django.utils.translation import get_language, gettext_lazy as _
 
 from core.constants import (
 	GENDERS, DELETED_USER_EMAIL, REQUIRED_DOWNVOTE_POINTS,
-	MAX_ANSWERS_PER_USER_PER_QUESTION, POST_DOWNVOTE_POINTS_CHANGE,
-	ANSWER_SCHOOL_QUESTION_POINTS_CHANGE, ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE,
-	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, COMMENT_CAN_EDIT_UPVOTE_LIMIT,
-	MAX_ANSWERS_PER_USER_PER_QUESTION, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT,
-	QUESTION_CAN_EDIT_VOTE_LIMIT, ANSWER_CAN_EDIT_VOTE_LIMIT,
-	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
-	ANSWER_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_UPVOTE_LIMIT
+	POST_DOWNVOTE_POINTS_CHANGE, ANSWER_DOWNVOTE_POINTS_CHANGE,
+	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, 
+	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, COMMENT_CAN_EDIT_VOTE_LIMIT,
+	QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, 
+	QUESTION_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_VOTE_LIMIT
 )
 from core.fields import NormalizedEmailField
 from core.models import Country
@@ -231,88 +229,28 @@ class User(AbstractUser):
 		# for now, return 0   # TODO
 		return 0
 
-	## QA_SITE APP
-	def add_answer(self, question, new_answer, question_type):
-		"""Add answer to question."""
-		# question_type can be 'academic' or 'discuss'
-		# note that answer hasn't yet been saved, it's just an Answer() instance.
-		# this must be the case coz the answer doesn't yet have a question.
-
-		question_poster = question.poster
-		
-		answerers_id = []
-		# don't use the same 'answer' parameter in this loop.
-		# for loop scope..
-		for answer in question.answers.all():
-			answerers_id.append(answer.poster_id)
-
-		# if user has already exceeded limit for number of answers to this question
-		# do not add answer
-		if answerers_id.count(self.id) == MAX_ANSWERS_PER_USER_PER_QUESTION:
-			return (
-				False, 
-				_("You can have at most {} answers per question.").format(
-					MAX_ANSWERS_PER_USER_PER_QUESTION
-				)
-			)
-
-		current_lang = get_language()
-
-		## TRANSLATION
-		if settings.ENABLE_GOOGLE_TRANSLATE:
-			# get language to translate to
-			trans_lang = 'fr' if current_lang == 'en' else 'en'
-			translated_content = translate_text(new_answer.content, trans_lang)['translatedText']
-			setattr(new_answer, f'content_{trans_lang}', translated_content)
-
-		with transaction.atomic():
-			new_answer.poster = self
-			new_answer.question = question
-			new_answer.original_language = current_lang
-			new_answer.save()
-
-			# update user's number of points if answerer is not question poster
-			if question_poster != self:
-				if question_type == 'discuss':
-					self.site_points = F('site_points') + ANSWER_SCHOOL_QUESTION_POINTS_CHANGE
-				elif question_type == 'academic':
-					self.site_points = F('site_points') + ANSWER_ACADEMIC_QUESTION_POINTS_CHANGE
-				else:
-					raise ValueError(f"Invalid value for question_type. Value can be either 'academic' or 'discuss' not '{question_type}'.")
-				
-				self.save(update_fields=['site_points'])
-
-		# notify question owner and users that are following this question
-		notify.send(
-			sender=self, 
-			recipient=question_poster, 
-			verb=_('answered your question'),
-			target=question,
-			category=Notification.ACTIVITY
-		)
-		for follower in question.followers.all():
-			notify.send(
-				sender=self, 
-				recipient=follower, 
-				verb=_('performed an activity under the question'),
-				target=question,
-				category=Notification.FOLLOWING
-			)
-
-		return (True, '')
-
 	def add_question_comment(self, question, new_comment, parent=None):
 		"""Add comment to question."""
 		# question_type can be 'academic' or 'discuss'
 		# note that comment hasn't yet been saved, it's just an Comment() instance.
 		# this must be the case coz the comment doesn't yet have a question.
-		new_comment.poster = self
-		new_comment.parent = parent
-		new_comment.question = question
-		new_comment.original_language = get_language()
-		new_comment.save()
+		current_lang = get_language()
+		comment = new_comment
 
-		# notify question poster and users that are following this question
+		## TRANSLATION
+		if settings.ENABLE_GOOGLE_TRANSLATE:
+			# get language to translate to
+			trans_lang = 'fr' if current_lang == 'en' else 'en'
+			translated_content = translate_text(comment.content, trans_lang)['translatedText']
+			setattr(comment, f'content_{trans_lang}', translated_content)
+
+		comment.poster = self
+		comment.parent = parent
+		comment.question = question
+		comment.original_language = current_lang
+		comment.save()
+
+		# Notify question poster and users that are following this question
 		# if comment is a direct comment on question
 		if parent is None:
 			notify.send(
@@ -322,43 +260,23 @@ class User(AbstractUser):
 				target=question,
 				category=Notification.ACTIVITY
 			)
-			for follower in question.followers.all():
-				notify.send(
-					sender=self,
-					recipient=follower, 
-					verb=_('performed an activity under the question'),
-					target=question,
-					category=Notification.FOLLOWING
-				)
-	
-	def add_answer_comment(self, answer, new_comment, parent=None):
-		"""Add comment to answer."""
-		# note that comment hasn't yet been saved, it's just an Comment() instance.
-		# this must be the case coz the comment doesn't yet have a question.
-		new_comment.poster = self
-		new_comment.parent = parent
-		new_comment.answer = answer
-		new_comment.original_language = get_language()
-		new_comment.save()
-
-		question = answer.question
-
-		# notify question poster, answerer and users that are following this question
-		notify.send(
-			sender=self, 
-			recipient=question.poster, 
-			verb=_('commented on an answer to your question'),
-			target=question,
-			category=Notification.ACTIVITY
-		)
-		notify.send(
-			sender=self, 
-			recipient=answer.poster, 
-			verb=_('commented on your answer to the question'),
-			target=question,
-			category=Notification.ACTIVITY
-		)
-		
+		else:
+			# notify question poster, answerer and users that are following this question
+			notify.send(
+				sender=self, 
+				recipient=question.poster, 
+				verb=_('replied to a comment on your question'),
+				target=question,
+				category=Notification.ACTIVITY
+			)
+			notify.send(
+				sender=self, 
+				recipient=parent.poster, 
+				verb=_('replied to your comment on the question'),
+				target=question,
+				category=Notification.ACTIVITY
+			)
+			
 		for follower in question.followers.all():
 			notify.send(
 				sender=self, 
@@ -412,49 +330,53 @@ class User(AbstractUser):
 
 		return (True, question.downvote_count) if output else (True, '')
 
-	def downvote_answer(self, answer, output=False, for_html=False):
-		answer_owner = answer.poster
+	def downvote_comment(self, comment, output=False, for_html=False):
+		poster = comment.poster
 
 		# user can't downvote(vote for his own answer(post))
-		if self == answer_owner:
+		if self == poster:
 			return (
 				False,
-				_("You can't add a dislike to your own answer.")
+				_("You can't add a dislike to your own comment.")
 			)
 
-		# staff can always downvote answer
+		# staff can always downvote comment
 		if not self.is_staff:
 			# user doesn't have enough points to downvote
 			if self.site_points < REQUIRED_DOWNVOTE_POINTS:
 				if for_html:
 					return (
 						False, 
-						_("You need at least <strong>{} points</strong> to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
+						_("You need at least <strong>{} points</strong> to be able to add a dislike to this comment.").format(REQUIRED_DOWNVOTE_POINTS)
 					)
 
 				return (
 					False, 
-					_("You need at least {} points to be able to add a dislike.").format(REQUIRED_DOWNVOTE_POINTS)
+					_("You need at least {} points to be able to add a dislike to this comment.").format(REQUIRED_DOWNVOTE_POINTS)
 				)
 
-		with transaction.atomic():
-			# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
-			owner_points = answer_owner.site_points
-			if owner_points == RESTRICTED_POINTS:
-				owner_points = RESTRICTED_POINTS + 1
-				# first update database so as to flawlessly leverage F expressions
-				answer_owner.save(update_fields=['site_points'])
+		# Handle points only if comment is parent(answer)
+		if comment.is_parent:
+			with transaction.atomic():
+				# see core/constants.py file; comment under `RESTRICTED_POINTS` for explanation.
+				owner_points = poster.site_points
+				if owner_points == RESTRICTED_POINTS:
+					owner_points = RESTRICTED_POINTS + 1
+					# first update database so as to leverage F expressions
+					poster.save(update_fields=['site_points'])
 
-			# penalise question owner for downvote
-			new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
-			if new_points < THRESHOLD_POINTS:
-				new_points = THRESHOLD_POINTS
+				# penalise question owner for downvote
+				new_points = F('site_points') + ANSWER_DOWNVOTE_POINTS_CHANGE
+				if new_points < THRESHOLD_POINTS:
+					new_points = THRESHOLD_POINTS
 
-			answer_owner.site_points = new_points
-			answer_owner.save(update_fields=['site_points'])
-			answer.downvoters.add(self)
+				poster.site_points = new_points
+				poster.save(update_fields=['site_points'])
+				comment.downvoters.add(self)
+		else:
+			comment.downvoters.add(self)
 
-		return (True, answer.downvote_count) if output else (True, '')
+		return (True, comment.downvote_count) if output else (True, '')
 
 	# Verify if user can edit or delete posts ##
 	# NOTE that if any argument is added to any of these functions,
@@ -464,7 +386,7 @@ class User(AbstractUser):
 		Verify if user is permitted to edit question
 		
 		To test if a user can edit a question.
-		- Questions with (3 score or 2 answers) and above can't be edited
+		- Questions with (3 score or 3 answers) and above can't be edited
 		- Only poster can edit question
 		"""
 		
@@ -508,60 +430,16 @@ class User(AbstractUser):
 		
 		return False
 
-	def can_edit_answer(self, answer):
-		"""
-		To test if a user can edit an answer.
-		- Answers with (5 score) and above can't be edited
-		- Only poster can edit answer
-		"""
-					
-		# first verify if answer can be edited
-		if answer.score > ANSWER_CAN_EDIT_VOTE_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if self.id == answer.poster_id:
-			return True
-
-		return False
-
-	def can_delete_answer(self, answer):
-		"""
-		To test if a user can delete an answer.
-		- Staff can delete any answer
-		- Moderator can delete only flagged answers
-		- Poster can delete answer only if it has less than 3 votes
-		"""
-					
-		if self.is_staff:
-			return True
-		
-		# if it is flagged, moderator can delete.
-		if self.is_mod and Flag.objects.is_flagged(answer):
-			return True
-
-		# verify if answer can be deleteed
-		if answer.score > ANSWER_CAN_DELETE_VOTE_LIMIT:
-			return False
-
-		# now verify if user is poster
-		if self.id == answer.poster_id:
-			return True
-
-		return False
-
 	def can_edit_comment(self, comment):
 		"""
 		To test if a user can edit an comment.
 		- Only poster can edit comment
-		- Comments with 5 upvotes and above can't be edited
+		- Comments with 4+ score can't be edited
 		"""
-					
-		# first verify if comment can be edited
-		if comment.upvote_count > COMMENT_CAN_EDIT_UPVOTE_LIMIT:
+		
+		if comment.score > COMMENT_CAN_EDIT_VOTE_LIMIT:
 			return False
 
-		# now verify if user is poster
 		if self.id == comment.poster_id:
 			return True
 
@@ -572,7 +450,7 @@ class User(AbstractUser):
 		To test if a user can delete a comment.
 		- Staff can delete any comment
 		- Moderator can delete only flagged comments
-		- Comments with 5 upvotes and above can't be deleted by mod nor poster.
+		- Comments with 4 upvotes and above can't be deleted by mod nor poster.
 		- Poster can delete comment
 		"""
 					
@@ -584,7 +462,7 @@ class User(AbstractUser):
 			return True
 
 		# verify if comment can be deleted
-		if comment.upvote_count > COMMENT_CAN_DELETE_UPVOTE_LIMIT:
+		if comment.score > COMMENT_CAN_DELETE_VOTE_LIMIT:
 			return False
 
 		# now verify if user is poster

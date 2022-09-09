@@ -23,14 +23,8 @@ class QaSiteComment(Comment):
 	pass
 
 	@property
-	def parent_object(self):
-		"""
-		Get post under which comment belongs, used to get the url of post that contains comment.
-		"""
-		# if comment is for answer
-		if hasattr(self, 'answer'):
-			return self.answer.question
-		return self.question
+	def is_reply(self):
+		return not self.is_parent
 
 	@property
 	def reply_count(self):
@@ -39,10 +33,6 @@ class QaSiteComment(Comment):
 	@property
 	def upvote_count(self):
 		return self.upvoters.count()
-
-	@property
-	def vote_count(self):
-		return self.upvote_count
 
 	@property
 	def score(self):
@@ -54,19 +44,6 @@ class QaSiteComment(Comment):
 
 class AcademicComment(QaSiteComment):
 	content = RichTextField(_('Content'), config_name='add_academic_comment')
-	# comments have just votes (no upvotes & downvotes)
-	# vote_count = models.PositiveIntegerField(default=0)
-
-	class Meta:
-		abstract = True
-
-	def __str__(self):
-		# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
-		# while you're at it, see the answer with textwrap.shorten ..
-		return filters.truncatewords(remove_tags(self.content), 10)
-
-
-class AcademicQuestionComment(AcademicComment):
 	question = models.ForeignKey(
 		'AcademicQuestion',
 		on_delete=models.CASCADE,
@@ -76,125 +53,47 @@ class AcademicQuestionComment(AcademicComment):
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.SET(get_dummy_user),
-		related_name='academic_question_comments',
-		related_query_name='academic_question_comment'
+		related_name='academic_comments',
+		related_query_name='academic_comment'
 	)
 	upvoters = models.ManyToManyField(
 		User,
-		related_name='upvoted_academic_question_comments',
-		related_query_name='upvoted_academic_question_comment',
-		blank=True
-	)
-	users_mentioned = models.ManyToManyField(
-		User,
-		related_name='academic_question_comments_mentioned',
-		related_query_name='academic_question_comment_mentioned',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('Academic Question Comment')
-		verbose_name_plural = _('Academic Question Comments')
-
-
-class AcademicAnswerComment(AcademicComment):
-	answer = models.ForeignKey(
-		'AcademicAnswer',
-		on_delete=models.CASCADE,
-		related_name='comments',
-		related_query_name='comment',
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='academic_answer_comments',
-		related_query_name='academic_answer_comment'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_academic_answer_comments',
-		related_query_name='upvoted_academic_answer_comment',
-		blank=True
-	)
-	users_mentioned = models.ManyToManyField(
-		User,
-		related_name='academic_answer_comments_mentioned',
-		related_query_name='academic_answer_comment_mentioned',
-		blank=True
-	)
-
-	class Meta:
-		verbose_name = _('Academic Answer Comment')
-		verbose_name_plural = _('Academic Answer Comments')
-
-
-class Answer(models.Model):
-	flags = GenericRelation(Flag)
-	posted_datetime = models.DateTimeField(auto_now_add=True)
-	last_modified = models.DateTimeField(auto_now=True)
-	original_language = models.CharField(choices=settings.LANGUAGES, max_length=2, editable=False)
-	update_language = models.CharField(
-		choices=settings.LANGUAGES,
-		max_length=2,
-		editable=False,
-		blank=True
-	)
-	# upvote_count = models.PositiveIntegerField(default=0)
-	# downvote_count = models.PositiveIntegerField(default=0)
-
-	class Meta:
-		abstract = True
-
-	def __str__(self):
-		return filters.truncatewords(remove_tags(self.content), 10)
-
-	@property
-	def parent_object(self):
-		return self.question
-
-	@property 
-	def upvote_count(self):
-		return self.upvoters.count()
-
-	@property 
-	def downvote_count(self):
-		return self.downvoters.count()
-
-	@property
-	def score(self):
-		return self.upvote_count - self.downvote_count
-
-
-class AcademicAnswer(Answer):
-	content = RichTextUploadingField(config_name='add_academic_answer')
-	question = models.ForeignKey(
-		'AcademicQuestion',
-		on_delete=models.CASCADE,
-		related_name='answers',
-		related_query_name='answer'
-	)
-	poster = models.ForeignKey(
-		User,
-		on_delete=models.SET(get_dummy_user),
-		related_name='academic_answers',
-		related_query_name='academic_answer'
-	)
-	upvoters = models.ManyToManyField(
-		User,
-		related_name='upvoted_academic_answers',
-		related_query_name='upvoted_academic_answer',
+		related_name='upvoted_academic_comments',
+		related_query_name='upvoted_academic_comment',
 		blank=True
 	)
 	downvoters = models.ManyToManyField(
 		User,
-		related_name='downvoted_academic_answers',
-		related_query_name='downvoted_academic_answer',
+		related_name='downvoted_academic_comments',
+		related_query_name='downvoted_academic_comment',
+		blank=True
+	)
+	users_mentioned = models.ManyToManyField(
+		User,
+		related_name='academic_comments_mentioned',
+		related_query_name='academic_comment_mentioned',
 		blank=True
 	)
 
+	# def __str__(self):
+		# 	# truncate content: https://stackoverflow.com/questions/2872512/python-truncate-a-long-string
+		# 	# while you're at it, see the answer with textwrap.shorten ..
+		# 	return filters.truncatewords(remove_tags(self.content), 10)
+
+	def __str__(self):
+		return self.content
+
+	@property
+	def downvote_count(self):
+		return self.downvoters.count()
+	
+	@property
+	def vote_count(self):
+		return self.upvote_count - self.downvote_count
+
 	class Meta:
-		verbose_name = _('Academic Question Answer')
-		verbose_name_plural = _('Academic Question Answers')
+		verbose_name = _('Academic Comment')
+		verbose_name_plural = _('Academic Comments')
 
 
 ## see django-taggit docs on how to use a Custom tag
@@ -244,6 +143,11 @@ class Question(models.Model):
 
 	class Meta:
 		abstract = True
+
+	@property
+	def answers(self):
+		"""Return the parent comments as the answers to the question"""
+		return self.comments.filter(parent__isnull=True)
 	
 	@property
 	def num_answers(self):
@@ -388,6 +292,10 @@ class DiscussComment(QaSiteComment):
 	def __str__(self):
 		return self.content
 
+	@property
+	def vote_count(self):
+		return self.upvote_count
+
 	class Meta:
 		verbose_name = _('Discuss Comment')
 		verbose_name_plural = _('Discuss Comments')
@@ -465,11 +373,6 @@ class DiscussQuestion(Question):
 
 	def __str__(self):
 		return filters.truncatewords(remove_tags(self.content), 10)
-
-	@property
-	def answers(self):
-		"""Return the parent comments as the answers to the question"""
-		return self.comments.filter(parent__isnull=True)
 
 	def save(self, *args, **kwargs):
 		self.content = filters.capfirst(self.content)
