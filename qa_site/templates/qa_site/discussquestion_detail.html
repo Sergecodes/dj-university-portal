@@ -275,7 +275,7 @@
 									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
-							<div class="d-inline-block opacity-75">
+							<div class="d-inline-block">
 								{% render_flag_form question user request %}
 							</div>
 						{% endif %}
@@ -718,15 +718,15 @@
 		enablePinging: true,
 		_comments: [],
 		_permissions: {},
-		_parseComment: function(data) {
+		_parseComment: function(comment) {
 			// Convert pings to appropriate format
-			$(Object.keys(data.pings)).each(function(index, userId) {
-				var username = data.pings[userId];
+			$(Object.keys(comment.pings)).each(function(index, userId) {
+				var username = comment.pings[userId];
 				var pingText = '@' + username;
-				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
+				comment.content = comment.content.replace(new RegExp('@' + userId, 'g'), pingText);
 			}); 
 			
-			return data;
+			return comment;
 		},
 		searchUsers: function(term, success, error) {
 			success(usersMentioned.filter(function(user) {
@@ -738,7 +738,7 @@
 				return containsSearchTerm && isNotSelf;
 			}));
 		},
-		_flagComment: function(comment, event) {
+		_onFlagComment: function(comment, event) {
 			var that = this;
 			// console.log(this);
 			// console.log(comment);
@@ -760,7 +760,7 @@
 				// So lets just clone the previous button (event listeners won't be attached) then replace it
 				var newBtn = btn.cloneNode(true);  // true for deep cloning (with child nodes)
 				btn.replaceWith(newBtn);
-				newBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+				newBtn.addEventListener('click', that._onUnflagComment.bind(that, comment));
 
 				// Remove the event listener after executing it.
 				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
@@ -768,7 +768,7 @@
 				
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_unflagComment: function(comment, event) {
+		_onUnflagComment: function(comment, event) {
 			var that = this;
 			// Update reportIcon attributes
 			reportIcon.dataset.modelId = comment.id;
@@ -788,7 +788,7 @@
 
 				var newBtn = btn.cloneNode(true);  
 				btn.replaceWith(newBtn);
-				newBtn.addEventListener('click', that._flagComment.bind(that, comment));
+				newBtn.addEventListener('click', that._onFlagComment.bind(that, comment));
 				
 				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
 			}
@@ -906,9 +906,9 @@
 							// set the `that` object as the this object in that handler, and pass the comment
 							// as an argument.
 							// Binding is necessary since we want to pass an argument(comment) to the handler
-							flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+							flagBtn.addEventListener('click', that._onUnflagComment.bind(that, comment));
 						} else {
-							flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+							flagBtn.addEventListener('click', that._onFlagComment.bind(that, comment));
 						}
 					} else {
 						// If user is unauthed, display login required toast.

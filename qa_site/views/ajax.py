@@ -29,8 +29,8 @@ from ..models import (
 User = get_user_model()
 
 
-def _parse_discuss_comment(current_user, comment: DiscussComment):
-	"""Parse discuss comment for appropriately using in jquery-comments"""
+def _parse_jquery_comment(current_user, comment):
+	"""Parse comment for appropriately using in jquery-comments"""
 	poster, user = comment.poster, current_user
 	obj = {
 		'id': comment.id,
@@ -87,7 +87,7 @@ class JQueryCommentList(View):
 			) \
 			.all()
 
-		result = [_parse_discuss_comment(request.user, comment) for comment in comments]
+		result = [_parse_jquery_comment(request.user, comment) for comment in comments]
 		return JsonResponse({ 'data': result })
 
 	def post(self, request, model_name):
@@ -100,11 +100,11 @@ class JQueryCommentList(View):
 		question = get_object_or_404(qstn_model, pk=POST['question_id'])
 		parent = get_object_or_404(comment_model, pk=parent_id) if parent_id else None
 
-		form = DiscussCommentForm(POST) if model_name == 'DiscussComent' else AcademicCommentForm(POST)
+		form = DiscussCommentForm(POST) if model_name == 'DiscussComment' else AcademicCommentForm(POST)
 		if form.is_valid():
 			comment = form.save(commit=False)
 			user.add_question_comment(question, comment, parent)
-			return JsonResponse({ 'data': _parse_discuss_comment(user, comment) }, status=201)
+			return JsonResponse({ 'data': _parse_jquery_comment(user, comment) }, status=201)
 		else:
 			return JsonResponse({ 'data': form.errors.as_json() }, status=400)
 
@@ -115,7 +115,7 @@ class JQueryCommentDetail(View):
 	def get(self, request, model_name, id):
 		comment_model = apps.get_model('qa_site', model_name)
 		comment = get_object_or_404(comment_model, pk=id)
-		return JsonResponse({ 'data': _parse_discuss_comment(request.user, comment) })
+		return JsonResponse({ 'data': _parse_jquery_comment(request.user, comment) })
 
 	def put(self, request, model_name, id):
 		PUT, user = json.loads(request.body), request.user
@@ -123,28 +123,16 @@ class JQueryCommentDetail(View):
 		comment_model = apps.get_model('qa_site', model_name)
 		comment = get_object_or_404(comment_model, pk=id)	
 
-		if comment.is_reply:
-			if not user.can_edit_comment(comment):
-				success = False
+		if not user.can_edit_comment(comment):
+			success = False
 
-				if user.id == comment.poster_id:
-					message = _(
-						"Comments that have more than a score of {} cannot be edited"
-							.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
-					)
-				else:
-					message = _("You are not permitted to edit this comment")
-		else:
-			if not user.can_edit_comment(comment):
-				success = False
-
-				if user.id == comment.poster_id:
-					message = _(
-						"Replies that have more than a score of {} cannot be edited" \
+			if user.id == comment.poster_id:
+				message = _(
+					"Comments that have more than a score of {} cannot be edited"
 						.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
-					)
-				else:
-					message = _('You are not permitted to edit this comment')
+				)
+			else:
+				message = _("You are not permitted to edit this comment")
 
 		if success == False:
 			return JsonResponse({
@@ -158,10 +146,14 @@ class JQueryCommentDetail(View):
 				'message': _("This comment's content hasn't changed")
 			}, status=400)
 
+		current_lang = get_language()
 		comment.content = content
-		comment.update_language = get_language()
-		comment.save(update_fields=['content', 'update_language'])
-		return JsonResponse({ 'data': _parse_discuss_comment(user, comment) })
+		comment.update_language = current_lang
+		# Without this, the content isn't updated in the current language
+		setattr(comment, f'content_{current_lang}', content)
+		comment.save(update_fields=['content', 'update_language', f'content_{current_lang}'])
+
+		return JsonResponse({ 'data': _parse_jquery_comment(user, comment) })
 
 	def delete(self, request, model_name, id):
 		user, success = request.user, True

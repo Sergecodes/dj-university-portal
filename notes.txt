@@ -12,10 +12,12 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- make academic question similar to discuss question(also enable disliking comments)
+- remove unneeded buttons from ckeditor
+- add last_modified to all update_fields.
+- comment menu button disappears after reply
+
 
 For academic comments:
-	- fix ckeditor display 
 	- enable disliking
 	- enable uploading images
 

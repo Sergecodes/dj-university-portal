@@ -272,7 +272,7 @@
 									{% trans 'Report post' %} 
 								{% endif %}
 							</span> 
-							<div class="d-inline-block opacity-75">
+							<div class="d-inline-block">
 								{% render_flag_form question user request %}
 							</div>
 						{% endif %}
@@ -400,15 +400,6 @@
 		$parentWrp.find('.js-flag-report-icon').first().click();
 		// $('.js-flag-report-icon').first().click();
 	});
-
-	// set unique id on upcoming ckeditor instances
-	/*
-	var $ansCommentEditors = $('.js-answerComment');
-	for (var i = 0; i < $ansCommentEditors.length; i++) {
-		var editor = $ansCommentEditors[i];
-		editor.setAttribute('id', uid());
-	}
-	*/
 
 	// possible thread types are {question, answer, question-comment, answer-comment}
 	var THREAD_TYPES = ["question", "answer", "question-comment", "answer-comment"];
@@ -656,6 +647,7 @@
 	moment.locale('{{ LANGUAGE_CODE }}');
 	{% endif %}
 
+	var jqc;
 	var usersMentioned = [];
 	$.ajax({
 		type: 'GET',
@@ -723,17 +715,18 @@
 		})(),
 		currentUserIsAdmin: false,
 		enablePinging: true,
+		_textareaContent: '',
 		_comments: [],
 		_permissions: {},
-		_parseComment: function(data) {
+		_parseComment: function(comment) {
 			// Convert pings to appropriate format
-			$(Object.keys(data.pings)).each(function(index, userId) {
-				var username = data.pings[userId];
+			$(Object.keys(comment.pings)).each(function(index, userId) {
+				var username = comment.pings[userId];
 				var pingText = '@' + username;
-				data.content = data.content.replace(new RegExp('@' + userId, 'g'), pingText);
+				comment.content = comment.content.replace(new RegExp('@' + userId, 'g'), pingText);
 			}); 
 			
-			return data;
+			return comment;
 		},
 		searchUsers: function(term, success, error) {
 			success(usersMentioned.filter(function(user) {
@@ -745,11 +738,8 @@
 				return containsSearchTerm && isNotSelf;
 			}));
 		},
-		_flagComment: function(comment, event) {
+		_onFlagComment: function(comment, event) {
 			var that = this;
-			// console.log(this);
-			// console.log(comment);
-			// console.log(event);
 			
 			// Display modal and update reportIcon attributes & flag button
 			flagModal.style.display = 'block';
@@ -767,7 +757,7 @@
 				// So lets just clone the previous button (event listeners won't be attached) then replace it
 				var newBtn = btn.cloneNode(true);  // true for deep cloning (with child nodes)
 				btn.replaceWith(newBtn);
-				newBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+				newBtn.addEventListener('click', that._onUnflagComment.bind(that, comment));
 
 				// Remove the event listener after executing it.
 				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
@@ -775,7 +765,7 @@
 				
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_unflagComment: function(comment, event) {
+		_onUnflagComment: function(comment, event) {
 			var that = this;
 			// Update reportIcon attributes
 			reportIcon.dataset.modelId = comment.id;
@@ -795,14 +785,39 @@
 
 				var newBtn = btn.cloneNode(true);  
 				btn.replaceWith(newBtn);
-				newBtn.addEventListener('click', that._flagComment.bind(that, comment));
+				newBtn.addEventListener('click', that._onFlagComment.bind(that, comment));
 				
 				flagSuccessToast.removeEventListener('shown.bs.toast', onSuccess);
 			}
 
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
+		_onClickEditButton: function(event) {
+			var that = this;
+			// Set id to element to use with ckeditor.
+			// Apparently without the setTimeout, the textarea will be null
+			setTimeout(function() {
+				var textarea = (event.target.closest('.comment-wrapper')).querySelector('.textarea');
+
+				// If textarea already has id, then its ckeditor has already been initialized.
+				if (textarea.id == '') {
+					var id = uid();
+					textarea.setAttribute('id', id);
+					// Rerender images & other tags as html not text
+					textarea.innerHTML = textarea.textContent;
+					var editor = CKEDITOR.inline(id, {
+						// disallowedContent: 'img',
+					});
+
+					// Update _textareaContent
+					editor.on('change', function() {
+						that._textareaContent = textarea.innerHTML;
+					});
+				}
+			}, 500);
+		},
 		refresh: function() {
+			jqc = this;
 			var $comments = $('#question-comments li.comment');
 			var that = this;
 
@@ -830,6 +845,20 @@
 			$comments.each(function (idx) {
 				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
 				var comment = that._comments.find(obj => obj.id === commentId);
+				
+				// Properly display ckeditor comment
+				var contentDiv = this.querySelector('.content');
+				
+				// Edited comments will have childCount of 1
+				// and their first node will be a textnode
+				if (contentDiv.childElementCount == 1) {
+					var textNode = contentDiv.firstChild;
+					var newP = document.createElement('p');
+					newP.innerHTML = textNode.nodeValue;
+					textNode.replaceWith(newP);
+				} else {
+					contentDiv.innerHTML = contentDiv.textContent;
+				}
 
 				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
 				var linkEl = document.createElement("a");
@@ -898,7 +927,8 @@
 
 				// Enable flagging only if comment is not poster's (Edit button is not present)
 				var $action = $this.find('.actions').first();
-				if ($action.find('.action.edit').length == 0) { 
+				var $editBtn = $action.find('.action.edit');
+				if ($editBtn.length == 0) { 
 					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
 					var flagClass = 'fa-flag ' + (comment.has_flagged ? 'fas' : 'far');
 					var separatorStr = `
@@ -913,9 +943,9 @@
 							// set the `that` object as the this object in that handler, and pass the comment
 							// as an argument.
 							// Binding is necessary since we want to pass an argument(comment) to the handler
-							flagBtn.addEventListener('click', that._unflagComment.bind(that, comment));
+							flagBtn.addEventListener('click', that._onUnflagComment.bind(that, comment));
 						} else {
-							flagBtn.addEventListener('click', that._flagComment.bind(that, comment));
+							flagBtn.addEventListener('click', that._onFlagComment.bind(that, comment));
 						}
 					} else {
 						// If user is unauthed, display login required toast.
@@ -927,6 +957,9 @@
 					flagLi.appendChild(flagBtn);
 					menu.appendChild(flagLi);
 				} else {
+					// Add click event to edit button
+					$editBtn[0].addEventListener('click', that._onClickEditButton);
+
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
 					var $upvoteBtn = $action.children('.action.upvote').first();
@@ -972,6 +1005,17 @@
 				var comment = that._comments.find(obj => obj.id === commentId);
 				var replySpan = ele.querySelector('.reply-to');
 				enableHighlightParent(comment, replySpan);
+
+				// Convert textcontent to innerHTML so as to properly render tags 
+				ele.querySelector('.content').innerHTML = that._textareaContent;
+			});
+
+			// Listen to when comment is reinserted after editing,
+			// this is to read the _onClickEditButton listener since the 
+			// previous edit button that had it is no longer in the dom
+			insertionQ('.comment-wrapper').every(function (ele) {
+				var editBtn = ele.querySelector('button.edit');
+				editBtn.addEventListener('click', that._onClickEditButton);
 			});
 
 			// Listen to when reply is about to be added; so as to appropriately place 
@@ -979,9 +1023,11 @@
 			// ALGORITHM: After commenting field is added, if it isn't in viewport, find the hyperlink
 			// before it and go to the link. If no link is present, create one then link to it.
 			insertionQ('.data-container .commenting-field').every(function (ele) {
+				var textarea = ele.querySelector('.textarea');
 				if (!isElementInViewport(ele)) {
+					// prevElement is not present(is null) when reply is the first reply to the comment
 					var prevElement = ele.previousSibling, href;
-					if (prevElement.nodeName.toLowerCase() !== 'a') {
+					if (prevElement === null || prevElement.nodeName.toLowerCase() !== 'a') {
 						href = uid().replace('id', '');  // uid() function is in base.js
 						var link = document.createElement('a');
 						link.setAttribute("name", href);
@@ -998,12 +1044,32 @@
 					}
 
 					location.hash = href;
-					ele.querySelector('.textarea').focus();
+					textarea.focus();
+				}
+
+				// Add ckeditor.
+				// If textarea has id, then it surely has a ckeditor.
+				// this is to prevent ckeditor-element-conflict (rrecreating a ckeditor instance
+				// for a textarea that already has one)
+				if (textarea.id == '') {
+					var id = uid();
+					textarea.setAttribute('id', id);
+					// Rerender images & other tags as html not text
+					textarea.innerHTML = textarea.textContent;
+					var editor = CKEDITOR.inline(id, {
+						// disallowedContent: 'img',
+					});
+
+					// Update _textareaContent
+					editor.on('change', function() {
+						that._textareaContent = textarea.innerHTML;
+					});
 				}
 			});
 		},	
 		getComments: function(success, error) {
 			var that = this;
+
 			$.ajax({
 				type: 'GET',
 				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}",
@@ -1022,16 +1088,30 @@
 					that._comments = data;
 					success(data);
 				},
-				error: error
+				error: error,
 			});
 		},
 		postComment: function(commentJSON, success, error) {
+			var that = this;
+
+			// Apparently, commentJSON disregards the formatting done by ckeditor.
+			// so when posting, we update the content with that of the ckeditor textarea.
+			var textarea = document.querySelector('.jquery-comments .textarea');
+			this._textareaContent = textarea.innerHTML;
+
+			// prevContent is used becoz, in a scenario where we want to add a reply or edit a 
+			// comment and also post a comment (i.e both textareas are open),
+			// So we set prevContent to the previous content (assuming that the new textarea has changed,
+			// the _textareaContent will also change). 
+			// Then after posting the comment, set back to prevContent.
+			var prevContent = this._textareaContent;
+			commentJSON.content = this._textareaContent;
+
 			if (!userId) {
 				displayToast('LOGIN_REQUIRED');
 				return error();
 			}
 
-			var that = this;
 			$.ajax({
 				type: 'POST',
 				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}",
@@ -1056,6 +1136,7 @@
 					};
 
 					success(that._parseComment(data));
+					that._textareaContent = prevContent;
 				},
 				error: error
 			});
@@ -1065,6 +1146,10 @@
 			// permissions array so as to prevent subsequent requests.
 			var that = this, id = commentJSON.id;
 			var permission = that._permissions[id];
+
+			if (this._textareaContent != '') {
+				commentJSON.content = this._textareaContent;
+			}
 			
 			// Verify if comment can be changed
 			if (permission.cannotUpdate) {
@@ -1084,7 +1169,14 @@
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
 				success: function(result) {
-					success(that._parseComment(result.data));
+					var newComment = that._parseComment(result.data);
+					success(newComment);
+
+					if (that._textareaContent != '') {
+						var commentEl = document.querySelector(`[data-id="${newComment.id}"`);
+						// Convert textcontent to innerHTML so as to properly render tags 
+						commentEl.querySelector('.content').innerHTML = that._textareaContent;
+					}
 				},
 				error: function(jqXHR, status, ajaxError) {
 					if (jqXHR.status === 403) {
