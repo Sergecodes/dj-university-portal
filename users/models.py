@@ -320,7 +320,7 @@ class User(AbstractUser):
 				question_owner.save(update_fields=['site_points'])
 
 			# penalise question owner for downvote
-			new_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
+			new_points = owner_points + POST_DOWNVOTE_POINTS_CHANGE
 			if new_points < THRESHOLD_POINTS:
 				new_points = THRESHOLD_POINTS
 
@@ -366,7 +366,7 @@ class User(AbstractUser):
 					poster.save(update_fields=['site_points'])
 
 				# penalise question owner for downvote
-				new_points = F('site_points') + ANSWER_DOWNVOTE_POINTS_CHANGE
+				new_points = owner_points + ANSWER_DOWNVOTE_POINTS_CHANGE
 				if new_points < THRESHOLD_POINTS:
 					new_points = THRESHOLD_POINTS
 

@@ -48,6 +48,12 @@ def _parse_jquery_comment(current_user, comment):
 		# extra
 		'has_flagged': False if user.is_anonymous else Flag.objects.has_flagged(user, comment),
 	}
+
+	# Add downvote_count for academic comment
+	if isinstance(comment, AcademicComment):
+		obj['downvote_count'] = comment.downvote_count
+		obj['user_has_downvoted'] = False if user.is_anonymous else user in comment.downvoters.only('id')
+
 	try:
 		obj['profile_picture_url'] = poster.social_profile.profile_image.url
 	except AttributeError:
@@ -151,7 +157,9 @@ class JQueryCommentDetail(View):
 		comment.update_language = current_lang
 		# Without this, the content isn't updated in the current language
 		setattr(comment, f'content_{current_lang}', content)
-		comment.save(update_fields=['content', 'update_language', f'content_{current_lang}'])
+		comment.save(update_fields=[
+			'content', 'update_language', f'content_{current_lang}', 'last_modified'
+		])
 
 		return JsonResponse({ 'data': _parse_jquery_comment(user, comment) })
 

@@ -36,8 +36,12 @@ img {
     border-bottom: dotted;
 }
 
+.cursor-default {
+    cursor: default !important;
+}
+
 .cursor-pointer {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 /* remove default styling from button */
@@ -116,6 +120,10 @@ a.dropdown-item:focus {
 /** jquery-comments */
 .jquery-comments .textcomplete-item .email {
     visibility: hidden;   /* hide email in autocomplete users list */
+}
+
+.jquery-comments button.action.downvote:hover > span.downvote-count {
+    color: #999999;
 }
 
 .jquery-comments .tag.ping {

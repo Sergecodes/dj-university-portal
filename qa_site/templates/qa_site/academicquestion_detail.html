@@ -77,7 +77,7 @@
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>
-				{% trans 'An error occured, refresh the page then try again.' %} <br>
+				{% trans 'An error occured, please refresh the page then try again.' %} <br>
 				{% trans 'If it persists, contact us.' %}
 			</p>
 		</div>
@@ -647,7 +647,7 @@
 	moment.locale('{{ LANGUAGE_CODE }}');
 	{% endif %}
 
-	var jqc;
+	var jqc;  // variable to store jquery-comment object
 	var usersMentioned = [];
 	$.ajax({
 		type: 'GET',
@@ -715,6 +715,13 @@
 		})(),
 		currentUserIsAdmin: false,
 		enablePinging: true,
+		fieldMappings: {
+			// Add new fields(not known by jquery-comments) so that they will be included
+			// in commentJSON
+			has_flagged: 'has_flagged',
+			downvote_count: 'downvote_count',
+			user_has_downvoted: 'user_has_downvoted'
+		},
 		_textareaContent: '',
 		_comments: [],
 		_permissions: {},
@@ -738,7 +745,7 @@
 				return containsSearchTerm && isNotSelf;
 			}));
 		},
-		_onFlagComment: function(comment, event) {
+		_onFlagComment: function(comment) {
 			var that = this;
 			
 			// Display modal and update reportIcon attributes & flag button
@@ -765,7 +772,7 @@
 				
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_onUnflagComment: function(comment, event) {
+		_onUnflagComment: function(comment) {
 			var that = this;
 			// Update reportIcon attributes
 			reportIcon.dataset.modelId = comment.id;
@@ -792,8 +799,7 @@
 
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_onClickEditButton: function(event) {
-			var that = this;
+		_onClickEditButton: function() {
 			// Set id to element to use with ckeditor.
 			// Apparently without the setTimeout, the textarea will be null
 			setTimeout(function() {
@@ -808,13 +814,12 @@
 					var editor = CKEDITOR.inline(id, {
 						// disallowedContent: 'img',
 					});
-
-					// Update _textareaContent
-					editor.on('change', function() {
-						that._textareaContent = textarea.innerHTML;
-					});
 				}
 			}, 500);
+		},
+		_onClickSendButton: function() {
+			var textarea = event.target.closest('.textarea-wrapper').querySelector('.textarea');
+			this._textareaContent = textarea.innerHTML;
 		},
 		refresh: function() {
 			jqc = this;
@@ -925,15 +930,31 @@
 				shareLi.appendChild(shareBtn);
 				menu.appendChild(shareLi);
 
-				// Enable flagging only if comment is not poster's (Edit button is not present)
+				// Add downvote button
 				var $action = $this.find('.actions').first();
-				var $editBtn = $action.find('.action.edit');
+				var separatorStr = `
+					<span class="separator" style="vertical-align: text-bottom;">.</span> 
+				`;
+				var downvoteBtn = document.createElement('button');
+				downvoteBtn.addEventListener('click', that._downvoteComment.bind(that, comment));
+				downvoteBtn.setAttribute('class', 'action downvote');
+				downvoteBtn.innerHTML = `
+					<span class="downvote-count me-1">${comment.downvote_count}</span>
+					<i class="fa fa-thumbs-down align-middle"></i>
+				`;
+
+				if (comment.user_has_downvoted) {
+					downvoteBtn.classList.add('highlight-font');
+				}
+
+				var $upvoteBtn = $action.children('.action.upvote');
+				$upvoteBtn.after(separatorStr, downvoteBtn);
+
+				// Enable flagging only if comment is not poster's (Edit button is not present)
+				var $editBtn = $action.children('.action.edit');
 				if ($editBtn.length == 0) { 
 					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
 					var flagClass = 'fa-flag ' + (comment.has_flagged ? 'fas' : 'far');
-					var separatorStr = `
-						<span class="separator" style="vertical-align: text-bottom;">.</span> 
-					`;
 					var flagBtn = document.createElement("button");
 					flagBtn.setAttribute("class", "mt-3 mb-2 text-danger w-100");
 					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;	
@@ -958,7 +979,7 @@
 					menu.appendChild(flagLi);
 				} else {
 					// Add click event to edit button
-					$editBtn[0].addEventListener('click', that._onClickEditButton);
+					$editBtn[0].addEventListener('click', that._onClickEditButton.bind(that));
 
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
@@ -970,6 +991,9 @@
 					// the user should know what is happening.
 					// Also, apparently, after clicking the upvote button, the cursor turns back to
 					// pointer. No need to bother changing it back to default.
+
+					// Do same for downvote button
+					downvoteBtn.style.cursor = 'default';
 				}
 
 				$action.append(dropdown);
@@ -999,6 +1023,12 @@
 				});
 			}
 
+			// Add listener to first save button.edit
+			// save class is used for edited & new comments span, while send class
+			// only for new comments.
+			var sendSpan = document.querySelector('span.save');
+			sendSpan.addEventListener('click', that._onClickSendButton.bind(that));
+
 			// Listen to when new comment is added, so as to enable highlighting its parent
 			insertionQ('li.comment.by-current-user').every(function (ele) {
 				var commentId = parseInt(ele.dataset.id, 10);
@@ -1015,7 +1045,7 @@
 			// previous edit button that had it is no longer in the dom
 			insertionQ('.comment-wrapper').every(function (ele) {
 				var editBtn = ele.querySelector('button.edit');
-				editBtn.addEventListener('click', that._onClickEditButton);
+				editBtn.addEventListener('click', that._onClickEditButton.bind(that));
 			});
 
 			// Listen to when reply is about to be added; so as to appropriately place 
@@ -1047,6 +1077,10 @@
 					textarea.focus();
 				}
 
+				// Add listener to send button
+				var sendSpan = ele.querySelector('span.save');
+				sendSpan.addEventListener('click', that._onClickSendButton.bind(that));
+
 				// Add ckeditor.
 				// If textarea has id, then it surely has a ckeditor.
 				// this is to prevent ckeditor-element-conflict (rrecreating a ckeditor instance
@@ -1055,14 +1089,9 @@
 					var id = uid();
 					textarea.setAttribute('id', id);
 					// Rerender images & other tags as html not text
-					textarea.innerHTML = textarea.textContent;
+					// textarea.innerHTML = textarea.textContent;
 					var editor = CKEDITOR.inline(id, {
 						// disallowedContent: 'img',
-					});
-
-					// Update _textareaContent
-					editor.on('change', function() {
-						that._textareaContent = textarea.innerHTML;
 					});
 				}
 			});
@@ -1096,15 +1125,6 @@
 
 			// Apparently, commentJSON disregards the formatting done by ckeditor.
 			// so when posting, we update the content with that of the ckeditor textarea.
-			var textarea = document.querySelector('.jquery-comments .textarea');
-			this._textareaContent = textarea.innerHTML;
-
-			// prevContent is used becoz, in a scenario where we want to add a reply or edit a 
-			// comment and also post a comment (i.e both textareas are open),
-			// So we set prevContent to the previous content (assuming that the new textarea has changed,
-			// the _textareaContent will also change). 
-			// Then after posting the comment, set back to prevContent.
-			var prevContent = this._textareaContent;
 			commentJSON.content = this._textareaContent;
 
 			if (!userId) {
@@ -1136,7 +1156,6 @@
 					};
 
 					success(that._parseComment(data));
-					that._textareaContent = prevContent;
 				},
 				error: error
 			});
@@ -1146,10 +1165,8 @@
 			// permissions array so as to prevent subsequent requests.
 			var that = this, id = commentJSON.id;
 			var permission = that._permissions[id];
-
-			if (this._textareaContent != '') {
-				commentJSON.content = this._textareaContent;
-			}
+			
+			commentJSON.content = this._textareaContent;
 			
 			// Verify if comment can be changed
 			if (permission.cannotUpdate) {
@@ -1172,11 +1189,9 @@
 					var newComment = that._parseComment(result.data);
 					success(newComment);
 
-					if (that._textareaContent != '') {
-						var commentEl = document.querySelector(`[data-id="${newComment.id}"`);
-						// Convert textcontent to innerHTML so as to properly render tags 
-						commentEl.querySelector('.content').innerHTML = that._textareaContent;
-					}
+					// Convert textcontent to innerHTML so as to properly render tags 
+					var commentEl = document.querySelector(`[data-id="${newComment.id}"`);
+					commentEl.querySelector('.content').innerHTML = that._textareaContent;
 				},
 				error: function(jqXHR, status, ajaxError) {
 					if (jqXHR.status === 403) {
@@ -1225,11 +1240,18 @@
 				return error();
 			}
 
+			// Check if comment has been downvoted
+			if(commentJSON.user_has_downvoted) {
+				var msg = "{% trans 'You have downvoted this comment. You need to first remove the downvote to be able to upvote it.' %}";
+				displayToast('CUSTOM_ERROR', msg);
+				return error();
+			}
+
 			// In this function, commentJSON.user_has_upvoted is set to its opposite. 
 			// i.e. if the original commentJSON had it to false, in this function, it is set to true
 			// and vice versa. 
 			var hadUpvoted = !(commentJSON.user_has_upvoted);
-			var upvotesURL = "{% url 'qa_site:discuss-thread-vote' %}";
+			var upvotesURL = "{% url 'qa_site:academic-thread-vote' %}";
 
 			// If user is creator of comment, he can't vote
 			if (userId == commentJSON.creator) {
@@ -1253,7 +1275,10 @@
 						success: function() {
 							success(commentJSON);
 						},
-						error: error
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+							error();
+						}
 					});
 				} else {
 					$.ajax({
@@ -1271,7 +1296,86 @@
 						success: function() {
 							success(commentJSON);
 						},
-						error: error
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+							error();
+						}
+					});
+				}
+			}
+		},
+		_downvoteComment: function(commentJSON) {
+			// Copied upvoteComment() implementation
+			if (!userId) {
+				displayToast('LOGIN_REQUIRED');
+				return;
+			}
+
+			if(commentJSON.user_has_upvoted) {
+				var msg = "{% trans 'You have upvoted this comment. You need to first remove the upvote to be able to downvote it.' %}";
+				displayToast('CUSTOM_ERROR', msg);
+				return;
+			}
+
+			var downvoteBtn = event.target.parentElement;
+			var countSpan = downvoteBtn.querySelector('span');
+			var previousDownvoteCount = commentJSON.downvote_count;
+
+			// With upvoteComment, they update the user_has_upvoted field immediately after
+			// the click. In our case, we handle everything manually. 
+			// Thus no negation is needed here.
+			var hadDownvoted = commentJSON.user_has_downvoted;
+			var downvotesURL = "{% url 'qa_site:academic-thread-vote' %}";
+
+			// If user is creator of comment, he can't vote
+			if (userId == commentJSON.creator) {
+				displayToast('SELF_VOTE');
+				return;
+			} else {
+				// Recalling downvote
+				if(hadDownvoted) {
+					$.ajax({
+						type: 'POST',
+						url: downvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'down', 
+							thread_type: 'comment', 
+							action: 'recall-vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							var newDownvoteCount = previousDownvoteCount - 1;
+							countSpan.textContent = newDownvoteCount;
+							downvoteBtn.classList.add('highlight-font');
+						},
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+						}
+					});
+				} else {
+					$.ajax({
+						type: 'POST',
+						url: downvotesURL,
+						data: {
+							id: commentJSON.id, 
+							vote_type: 'down', 
+							thread_type: 'comment', 
+							action: 'vote'
+						},
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader("X-CSRFToken", csrfToken);
+						},
+						success: function() {
+							var newDownvoteCount = previousDownvoteCount + 1;
+							countSpan.textContent = newDownvoteCount;
+							downvoteBtn.classList.add('highlight-font');
+						},
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+						}
 					});
 				}
 			}

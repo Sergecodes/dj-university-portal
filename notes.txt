@@ -12,13 +12,12 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
+- ping is removed(or not properly displayed) after initializing ckeditor
 - remove unneeded buttons from ckeditor
-- add last_modified to all update_fields.
 - comment menu button disappears after reply
 
 
 For academic comments:
-	- enable disliking
 	- enable uploading images
 
 - in item listing form, update FCFA with user's country's currency

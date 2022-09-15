@@ -74,7 +74,7 @@
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>
-				{% trans 'An error occured, refresh the page then try again.' %} <br>
+				{% trans 'An error occured, please refresh the page then try again.' %} <br>
 				{% trans 'If it persists, contact us.' %}
 			</p>
 		</div>
@@ -649,6 +649,7 @@
 	moment.locale('{{ LANGUAGE_CODE }}');
 	{% endif %}
 
+	var jqc;  // variable to store jquery-comment object
 	var usersMentioned = [];
 	$.ajax({
 		type: 'GET',
@@ -716,6 +717,11 @@
 		})(),
 		currentUserIsAdmin: false,
 		enablePinging: true,
+		fieldMappings: {
+			// Add new fields(not known by jquery-comments) so that they will be included
+			// in commentJSON
+			has_flagged: 'has_flagged',
+		},
 		_comments: [],
 		_permissions: {},
 		_parseComment: function(comment) {
@@ -738,7 +744,7 @@
 				return containsSearchTerm && isNotSelf;
 			}));
 		},
-		_onFlagComment: function(comment, event) {
+		_onFlagComment: function(comment) {
 			var that = this;
 			// console.log(this);
 			// console.log(comment);
@@ -768,7 +774,7 @@
 				
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_onUnflagComment: function(comment, event) {
+		_onUnflagComment: function(comment) {
 			var that = this;
 			// Update reportIcon attributes
 			reportIcon.dataset.modelId = comment.id;
@@ -796,6 +802,7 @@
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
 		refresh: function() {
+			jqc = this;
 			var $comments = $('#question-comments li.comment');
 			var that = this;
 
@@ -1154,7 +1161,10 @@
 						success: function() {
 							success(commentJSON);
 						},
-						error: error
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+							error();
+						}
 					});
 				} else {
 					$.ajax({
@@ -1172,7 +1182,10 @@
 						success: function() {
 							success(commentJSON);
 						},
-						error: error
+						error: function() {
+							displayToast('ERROR_OCCURRED');
+							error();
+						}
 					});
 				}
 			}
