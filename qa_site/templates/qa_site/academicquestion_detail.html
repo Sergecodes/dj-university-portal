@@ -686,6 +686,11 @@
 		modalClose.addEventListener('click', resetFlagModal);
 	}
 
+	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
+	CKEDITOR.config.ignoreEmptyParagraph = false;
+	CKEDITOR.config.htmlEncodeOutput = true;
+	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
+
 	{# jquery-comments config, https://viima.github.io/jquery-comments #}
 	$('#question-comments').comments({
 		textareaPlaceholderText: "{% trans 'Add an answer or comment' %}",
@@ -799,24 +804,6 @@
 
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
-		_onClickEditButton: function() {
-			// Set id to element to use with ckeditor.
-			// Apparently without the setTimeout, the textarea will be null
-			setTimeout(function() {
-				var textarea = (event.target.closest('.comment-wrapper')).querySelector('.textarea');
-
-				// If textarea already has id, then its ckeditor has already been initialized.
-				if (textarea.id == '') {
-					var id = uid();
-					textarea.setAttribute('id', id);
-					// Rerender images & other tags as html not text
-					textarea.innerHTML = textarea.textContent;
-					var editor = CKEDITOR.inline(id, {
-						// disallowedContent: 'img',
-					});
-				}
-			}, 500);
-		},
 		_onClickSendButton: function() {
 			var textarea = event.target.closest('.textarea-wrapper').querySelector('.textarea');
 			this._textareaContent = textarea.innerHTML;
@@ -851,19 +838,26 @@
 				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
 				var comment = that._comments.find(obj => obj.id === commentId);
 				
-				// Properly display ckeditor comment
+				/* Properly display ckeditor comment */
 				var contentDiv = this.querySelector('.content');
+				var timeEl = contentDiv.querySelector('time.edited');
 				
-				// Edited comments will have childCount of 1
-				// and their first node will be a textnode
-				if (contentDiv.childElementCount == 1) {
-					var textNode = contentDiv.firstChild;
-					var newP = document.createElement('p');
-					newP.innerHTML = textNode.nodeValue;
-					textNode.replaceWith(newP);
-				} else {
-					contentDiv.innerHTML = contentDiv.textContent;
-				}
+				// AFter updating the innerHtml as above, the textContent will also change.
+				// So we use the new textContent ...
+				contentDiv.innerHTML = contentDiv.innerHTML.replace('input type="button" value="<', '');
+				contentDiv.innerHTML = contentDiv.textContent.replace('" data-cke-editable="1" contenteditable="false">', '');
+
+				// Edited comments will timeEl not null
+				if (timeEl) {
+					contentDiv.insertAdjacentElement('beforeend', timeEl);
+					var previousNode = timeEl.previousSibling;
+
+					// timeEl should normally be preceeded by a text node (like "Edited 10 minutes ago").
+					// Remove this text node since we want to insert the appropriate time element.
+					if (previousNode.nodeType == 3) {
+						previousNode.remove();
+					}
+				} 
 
 				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
 				var linkEl = document.createElement("a");
@@ -978,9 +972,6 @@
 					flagLi.appendChild(flagBtn);
 					menu.appendChild(flagLi);
 				} else {
-					// Add click event to edit button
-					$editBtn[0].addEventListener('click', that._onClickEditButton.bind(that));
-
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
 					var $upvoteBtn = $action.children('.action.upvote').first();
@@ -1040,14 +1031,6 @@
 				ele.querySelector('.content').innerHTML = that._textareaContent;
 			});
 
-			// Listen to when comment is reinserted after editing,
-			// this is to read the _onClickEditButton listener since the 
-			// previous edit button that had it is no longer in the dom
-			insertionQ('.comment-wrapper').every(function (ele) {
-				var editBtn = ele.querySelector('button.edit');
-				editBtn.addEventListener('click', that._onClickEditButton.bind(that));
-			});
-
 			// Listen to when reply is about to be added; so as to appropriately place 
 			// commenting field on page.
 			// ALGORITHM: After commenting field is added, if it isn't in viewport, find the hyperlink
@@ -1081,19 +1064,22 @@
 				var sendSpan = ele.querySelector('span.save');
 				sendSpan.addEventListener('click', that._onClickSendButton.bind(that));
 
-				// Add ckeditor.
-				// If textarea has id, then it surely has a ckeditor.
-				// this is to prevent ckeditor-element-conflict (rrecreating a ckeditor instance
-				// for a textarea that already has one)
-				if (textarea.id == '') {
-					var id = uid();
-					textarea.setAttribute('id', id);
-					// Rerender images & other tags as html not text
-					// textarea.innerHTML = textarea.textContent;
-					var editor = CKEDITOR.inline(id, {
-						// disallowedContent: 'img',
-					});
-				}
+				// Add ckeditor. Use innerHTML to parse html chars.
+				var id = uid();
+				textarea.setAttribute('id', id);
+
+				var editor = CKEDITOR.inline(id, {
+					on: {
+						instanceReady: function(evt) {
+							var ele = evt.editor.element.$;
+							console.log(ele);
+							ele.innerHTML = ele.innerHTML.replace('<input type="button" value="', '');
+
+							// Remember the textContent will also change after changing innerHTML.
+							ele.innerHTML = ele.textContent.replace('" data-cke-editable="1" contenteditable="false">', '');
+						},
+					}
+				});
 			});
 		},	
 		getComments: function(success, error) {

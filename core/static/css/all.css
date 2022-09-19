@@ -130,6 +130,23 @@ a.dropdown-item:focus {
     cursor: default;
 }
 
+/* style input ping in ckeditor during & after editing; styles copied from input.ping selector */
+.jquery-comments .textarea input[value^='@'],
+.jquery-comments .comment-wrapper .content input[value^='@'] {
+    color: inherit;
+    font-size: 0.9em;
+    line-height: 1.2em;
+    background: #ddd;
+    border: 1px solid #ccc;
+    padding: 0.05em 0.4em;
+    font-weight: normal;
+    border-radius: 1em;
+    transition: all 0.2s linear;
+    white-space: nowrap;
+    display: inline-block;
+    text-decoration: none;
+}
+
 /** images on listing (list) pages */
 .post-img {
     width: 110px;

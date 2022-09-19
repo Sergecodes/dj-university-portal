@@ -154,6 +154,14 @@ function isElementInViewport(el) {
 	);
 }
 
+/** Convert html string containing characters like &lt to proper characters for display like < */ 
+function decodeHtml(htmlStr) {
+	var ele = document.createElement("textarea");
+	ele.innerHTML = htmlStr;
+	// also handle case of empty/invalid input
+	return ele.childNodes.length === 0 ? "" : ele.value;
+}
+
 function setAttributes(el, attrs) {
 	if (el instanceof jQuery) {
 		el = el[0];

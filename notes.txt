@@ -12,7 +12,9 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- ping is removed(or not properly displayed) after initializing ckeditor
+- if for instance comment was upvoted and user want to downvote, after removing upvote, 
+comment is not updated so there is still an error that user should first remove upvote
+(test & FIX all upvote nd downvote buttons probs)
 - remove unneeded buttons from ckeditor
 - comment menu button disappears after reply
 
