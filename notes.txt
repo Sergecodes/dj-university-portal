@@ -12,15 +12,11 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- if for instance comment was upvoted and user want to downvote, after removing upvote, 
-comment is not updated so there is still an error that user should first remove upvote
-(test & FIX all upvote nd downvote buttons probs)
+- fix ckeditor comment display
+- enable uploading images or use image display in ckeditor ...
 - remove unneeded buttons from ckeditor
-- comment menu button disappears after reply
 
 
-For academic comments:
-	- enable uploading images
 
 - in item listing form, update FCFA with user's country's currency
 (create util function to get currency of country)

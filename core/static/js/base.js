@@ -525,7 +525,7 @@ function displayToast(type, param) {
 		var message = param;
 		$myToast = $('.js-custom-success-toast').first();
 
-		var $msgWrp = $('.js-toast-message');
+		var $msgWrp = $myToast.find('.js-toast-message');
 		// use html() not text() 
 		$msgWrp.html(message);
 
@@ -536,21 +536,21 @@ function displayToast(type, param) {
 		// reset styles alert-danger styles since apparently, some toast styles override them. 
 		$myToast.css(errorCSS);
 
-		var $msgWrp = $('.js-toast-message');
+		var $msgWrp = $myToast.find('.js-toast-message');;
 		$msgWrp.html(message);
 
 	} else if (type == 'FLAG_SUCCESS') {
 		var message = param;
 		$myToast = $('.js-flag-success-toast').first();
 
-		var $msgWrp = $('.js-toast-message');
+		var $msgWrp = $myToast.find('.js-toast-message');;
 		$msgWrp.html(message);
 
 	} else if (type == 'FLAG_ERROR') {
 		var message = param;
 		$myToast = $('.js-flag-error-toast').first();
 
-		var $msgWrp = $('.js-toast-message');
+		var $msgWrp = $myToast.find('.js-toast-message');;
 		$msgWrp.html(message);
 
 	}

@@ -4,6 +4,7 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.shortcuts import get_current_site
+from django.db import transaction
 from django.db.models import F
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
@@ -289,111 +290,93 @@ def vote_academic_thread(request):
 		}, status=403)
 
 	if thread_type == 'question':
-		# verify if user has already upvoted and downvoted question 
-		# only id is important 
-		already_upvoted = user in object.upvoters.only('id')
-		already_downvoted = user in object.downvoters.only('id')
-
 		# if vote is new (not retracting a previous vote)
 		# in frontend, voters won't be displayed.
 		if vote_action == 'vote':
-			# if user has no previous vote on the question 
-			if not already_upvoted and not already_downvoted:
-				if vote_type == 'up':
+			if vote_type == 'up':
+				with transaction.atomic():
+					object.downvoters.remove(user)
 					object.upvoters.add(user)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_UPVOTE_POINTS_CHANGE
 					thread_owner.save(update_fields=['site_points'])
 
-					# send notification to post owner
-					notify.send(
-						sender=user, 
-						recipient=thread_owner, 
-						verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
-						target=object,
-						category=Notification.ACTIVITY
-					)
-					return JsonResponse({
-						'success': True,
-						'message': _('Added like')
-					}, status=200)
+				# send notification to post owner
+				notify.send(
+					sender=user, 
+					recipient=thread_owner, 
+					verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
+					target=object,
+					category=Notification.ACTIVITY
+				)
+				return JsonResponse({
+					'success': True,
+					'message': _('Added like')
+				}, status=200)
 
-				elif vote_type == 'down':
+			elif vote_type == 'down':
+				with transaction.atomic():
+					object.upvoters.remove(user)
 					downvote_result = user.downvote_question(object, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
 					thread_owner.save(update_fields=['site_points'])
 
-					if not downvote_result[0]:
-						return JsonResponse({
-							'success': False,
-							'message': downvote_result[1]
-						}, status=400)
-
-					# send notification to post owner
-					notify.send(
-						sender=user, 
-						recipient=thread_owner, 
-						verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
-						target=object,
-						category=Notification.ACTIVITY
-					)
-					return JsonResponse({
-						'success': True,
-						'message': _('Added dislike')
-					}, status=200)
-
-				else:
+				if not downvote_result[0]:
 					return JsonResponse({
 						'success': False,
-						'message': _('Unknown vote type')
+						'message': downvote_result[1]
 					}, status=400)
-			# if user has existing vote on the post
+
+				# send notification to post owner
+				notify.send(
+					sender=user, 
+					recipient=thread_owner, 
+					verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
+					target=object,
+					category=Notification.ACTIVITY
+				)
+				return JsonResponse({
+					'success': True,
+					'message': _('Added dislike')
+				}, status=200)
+
 			else:
-				# if existing vote is an upvote 
-				# tell user to remove the upvote first
-				if already_upvoted:
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already liked this post. \n Remove the like to be able to add a dislike.')
-					}, status=400)
-				
-				# if existing vote is a downvote
-				# tell user to remove the downvote first
-				elif already_downvoted:	
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already disliked this post.\n Remove the dislike to be able to add a like.')
-					}, status=400)
+				return JsonResponse({
+					'success': False,
+					'message': _('Unknown vote type')
+				}, status=400)
 
 		# if user is retracting a vote
 		# no notification sent
 		elif vote_action == 'recall-vote':
-			if vote_type == 'up' and already_upvoted:
-				object.upvoters.remove(user)
+			if vote_type == 'up':
+				with transaction.atomic():
+					object.upvoters.remove(user)
 
-				# update points of post owner
-				# subtract points since vote is being retracted
-				thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
-				thread_owner.save(update_fields=['site_points'])
+					# update points of post owner
+					# subtract points since vote is being retracted
+					thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
+					thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 					'success': True,
 					'message': _('Removed like')
 				}, status=200)
 
-			elif vote_type == 'down' and already_downvoted:
-				object.downvoters.remove(user)
+			elif vote_type == 'down':
+				with transaction.atomic():
+					object.downvoters.remove(user)
 
-				# update points of post owner
-				# add points since vote is being retracted
-				user_points = thread_owner.site_points
-				# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
-				if user_points != THRESHOLD_POINTS:
-					thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-					thread_owner.save(update_fields=['site_points'])
+					# update points of post owner
+					# add points since vote is being retracted
+					user_points = thread_owner.site_points
+					# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
+					if user_points != THRESHOLD_POINTS:
+						thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
+						thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 					'success': True,
@@ -402,7 +385,7 @@ def vote_academic_thread(request):
 			else:
 				return JsonResponse({
 					'success': False,
-					'message': _('Unknown vote type or no vote to recall')
+					'message': _('Unknown vote type')
 				}, status=400)
 		# invalid action (action must be in {'vote', 'recall-vote'})
 		else:
@@ -411,76 +394,61 @@ def vote_academic_thread(request):
 				'message': _('Bad action')
 			}, status=400)
 	
-	# only upvotes are supported on comments
 	elif thread_type == 'comment':
-		already_upvoted = user in object.upvoters.only('id')
-		already_downvoted = user in object.downvoters.only('id')
-
 		# if user is adding new vote
 		if vote_action == 'vote':
-			# if user has no previous vote on the question 
-			if not already_upvoted and not already_downvoted:
-				if vote_type == 'up':
+			if vote_type == 'up':
+				with transaction.atomic():
+					object.downvoters.remove(user)
 					object.upvoters.add(user)
-					return JsonResponse({
-						'success': True,
-						'message': _('Added like')
-					}, status=200)
-				elif vote_type == 'down':
+
+				return JsonResponse({
+					'success': True,
+					'message': _('Added like')
+				}, status=200)
+
+			elif vote_type == 'down':
+				with transaction.atomic():
+					object.upvoters.remove(user)
 					downvote_result = user.downvote_comment(object, for_html=True)
 
-					if not downvote_result[0]:
-						return JsonResponse({
-							'success': False,
-							'message': downvote_result[1]
-						}, status=400)
-
-					return JsonResponse({
-						'success': True,
-						'message': _('Added dislike')
-					}, status=200)
-				else:
+				if not downvote_result[0]:
 					return JsonResponse({
 						'success': False,
-						'message': _('Unknown vote type')
+						'message': downvote_result[1]
 					}, status=400)
-			
-			# if user has existing vote on the comment
+
+				return JsonResponse({
+					'success': True,
+					'message': _('Added dislike')
+				}, status=200)
+
 			else:
-				# if existing vote is an upvote 
-				# tell user to remove the upvote first
-				if already_upvoted:
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already liked this comment. \n Remove the like to be able to add a dislike.')
-					}, status=400)
-				
-				# if existing vote is a downvote
-				# tell user to remove the downvote first
-				elif already_downvoted:	
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already disliked this comment.\n Remove the dislike to be able to add a like.')
-					}, status=400)
-
+				return JsonResponse({
+					'success': False,
+					'message': _('Unknown vote type')
+				}, status=400)
+			
 		# if user is retracting vote
 		elif vote_action == 'recall-vote':
-			if vote_type == 'up' and already_upvoted:
+			if vote_type == 'up':
 				object.upvoters.remove(user)
 				return JsonResponse({
 					'success': True,
 					'message': _('Removed like')
 				}, status=200)
-			elif vote_type == 'down' and already_downvoted:
+
+			elif vote_type == 'down':
 				object.downvoters.remove(user)
 				return JsonResponse({
 					'success': True,
 					'message': _('Removed dislike')
 				}, status=200)
+
 			else:
 				return JsonResponse({
 					'success': False,
-					'message': _('Unknown vote type or no vote to recall')
+					'message': _('Unknown vote type')
 				}, status=400)
 		# invalid action(action should either be 'vote' or 'recall-vote')
 		else:
@@ -499,7 +467,6 @@ def vote_discuss_thread(request):
 	user, POST = request.user, request.POST
 	thread_id, thread_type = POST['id'], POST['thread_type']
 	vote_action, vote_type = POST['action'], POST['vote_type']
-	# print(POST)
 
 	# possible thread types are {question, comment}
 	if thread_type == 'question':
@@ -523,107 +490,91 @@ def vote_discuss_thread(request):
 		}, status=403)
 
 	if thread_type == 'question':
-		# verify if user has already upvoted and downvoted question or answer
-		already_upvoted = user in object.upvoters.only('id')
-		already_downvoted = user in object.downvoters.only('id')
-
 		# if vote is new (not retracting a previous vote)
 		if vote_action == 'vote':
-			# if user has no previous vote on the question or answer
-			if not already_upvoted and not already_downvoted:
-				if vote_type == 'up':
+			if vote_type == 'up':
+				with transaction.atomic():
+					object.downvoters.remove(user)
 					object.upvoters.add(user)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_UPVOTE_POINTS_CHANGE
 					thread_owner.save(update_fields=['site_points'])
 
-					# send notification to post owner
-					notify.send(
-						sender=user,
-						recipient=thread_owner, 
-						verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
-						target=object,
-						category=Notification.ACTIVITY
-					)
-					return JsonResponse({
-							'success': True,
-							'message': _('Added like')
-						}, status=200)
+				# send notification to post owner
+				notify.send(
+					sender=user,
+					recipient=thread_owner, 
+					verb=_('liked your question') if thread_type == 'question' else _('liked your answer'),
+					target=object,
+					category=Notification.ACTIVITY
+				)
+				return JsonResponse({
+						'success': True,
+						'message': _('Added like')
+					}, status=200)
 
-				elif vote_type == 'down':
+			elif vote_type == 'down':
+				with transaction.atomic():
+					object.upvoters.remove(user)
 					downvote_result = user.downvote_question(object, for_html=True)
 
 					# update points of post owner
 					thread_owner.site_points = F('site_points') + POST_DOWNVOTE_POINTS_CHANGE
 					thread_owner.save(update_fields=['site_points'])
 
-					if not downvote_result[0]:
-						return JsonResponse({
-							'success': False,
-							'message': downvote_result[1]
-						}, status=400)
-
-					# send notification to post owner
-					notify.send(
-						sender=user, 
-						recipient=thread_owner, 
-						verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
-						target=object,
-						category=Notification.ACTIVITY
-					)
-					return JsonResponse({
-						'success': True,
-						'message': _('Added dislike')
-					}, status=200)
-
-				else:
+				if not downvote_result[0]:
 					return JsonResponse({
 						'success': False,
-						'message': _('Unknown vote type')
+						'message': downvote_result[1]
 					}, status=400)
-			# if user has previous vote on the post
-			# user should either have already_upvoted or already_downvoted
+
+				# send notification to post owner
+				notify.send(
+					sender=user, 
+					recipient=thread_owner, 
+					verb=_('disliked your question') if thread_type == 'question' else _('disliked your answer'),
+					target=object,
+					category=Notification.ACTIVITY
+				)
+				return JsonResponse({
+					'success': True,
+					'message': _('Added dislike')
+				}, status=200)
+
 			else:
-				if already_upvoted:
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already liked this post. \n Remove the like to be able to add a dislike.')
-					}, status=400)
-
-				elif already_downvoted:	
-					return JsonResponse({
-						'success': False,
-						'message': _('You have already disliked this post. \n Remove the dislike to be able to add a like.')
-					}, status=400)
-				# no need to add an else condition; 
-				# all cases have already been taken care of.
+				return JsonResponse({
+					'success': False,
+					'message': _('Unknown vote type')
+				}, status=400)
 
 		# if user is retracting a vote
 		elif vote_action == 'recall-vote':
-			if vote_type == 'up' and already_upvoted:
-				object.upvoters.remove(user)
+			if vote_type == 'up':
+				with transaction.atomic():
+					object.upvoters.remove(user)
 
-				# update points of post owner
-				# subtract points since vote is being retracted
-				thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
-				thread_owner.save(update_fields=['site_points'])
+					# update points of post owner
+					# subtract points since vote is being retracted
+					thread_owner.site_points = F('site_points') - POST_UPVOTE_POINTS_CHANGE
+					thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 						'success': True,
 						'message': _('Removed like')
 					}, status=200)
 
-			elif vote_type == 'down' and already_downvoted:
-				object.downvoters.remove(user)
+			elif vote_type == 'down':
+				with transaction.atomic():
+					object.downvoters.remove(user)
 
-				# update points of post owner
-				# add points back since vote is being retracted
-				user_points = thread_owner.site_points
-				# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
-				if user_points != THRESHOLD_POINTS:
-					thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
-					thread_owner.save(update_fields=['site_points'])
+					# update points of post owner
+					# add points back since vote is being retracted
+					user_points = thread_owner.site_points
+					# see core.constants.py file; `RESTRICTED_POINTS` comment for explanation
+					if user_points != THRESHOLD_POINTS:
+						thread_owner.site_points = F('site_points') - POST_DOWNVOTE_POINTS_CHANGE
+						thread_owner.save(update_fields=['site_points'])
 
 				return JsonResponse({
 						'success': True,
@@ -632,7 +583,7 @@ def vote_discuss_thread(request):
 			else:
 				return JsonResponse({
 						'success': False,
-						'message': _('Unknown vote type or no vote to recall')
+						'message': _('Unknown vote type')
 					}, status=400)
 		else:
 			return JsonResponse({

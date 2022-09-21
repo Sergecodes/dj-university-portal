@@ -745,21 +745,29 @@
 			}));
 		},
 		_onFlagComment: function(comment) {
-			var that = this;
-			// console.log(this);
-			// console.log(comment);
-			// console.log(event);
+			var that = this, ev = event;
 			
 			// Display modal and update reportIcon attributes & flag button
 			flagModal.style.display = 'block';
 			reportIcon.dataset.modelId = comment.id;
 			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
 
-			function onSuccess(ev) {
-				var icon = event.target;
-				var btn = icon.parentElement;
-				icon.setAttribute('class', 'fa-flag fas');
+			function onSuccess() {
+				var target = ev.target, btn, icon;
+				if (target.tagName.toLowerCase() === 'button') {
+					btn = target;
+					icon = btn.querySelector('i');
+				} else if (target.tagName.toLowerCase() === 'i') {
+					icon = target;
+					btn = icon.parentElement;
+				} else {
+					// throw "Invalid event target";
+					return;
+				}
+				
+				icon.setAttribute('class', 'fa-flag fas ms-2');
 				btn.setAttribute('title', "{% trans 'Remove flag' %}");
+				btn.firstChild.nodeValue = "{% trans 'Remove flag' %}";
 				// Normally, we just have to remove the flagComment event listener.
 				// But since we used bind() to add the event, there is no simple way to remove the binded
 				// function since bind() creates a new function. 
@@ -775,22 +783,33 @@
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
 		_onUnflagComment: function(comment) {
-			var that = this;
+			var that = this, ev = event;
 			// Update reportIcon attributes
 			reportIcon.dataset.modelId = comment.id;
 			reportIcon.dataset.modelName = COMMENT_MODEL_NAME;
 
 			submitFlagForm(reportIcon, 'remove');
 
-			function onSuccess(ev) {
+			function onSuccess() {
+				var target = ev.target, btn, icon;
+				if (target.tagName.toLowerCase() === 'button') {
+					btn = target;
+					icon = btn.querySelector('i');
+				} else if (target.tagName.toLowerCase() === 'i') {
+					icon = target;
+					btn = icon.parentElement;
+				} else {
+					// throw "Invalid event target";
+					return;
+				}
+
 				// Set reportIcon attributes back to original & update flag button
 				reportIcon.dataset.modelName = initModelName;
 				reportIcon.dataset.modelId = initModelId;
 
-				var icon = event.target;
-				var btn = icon.parentElement;
-				icon.setAttribute('class', 'fa-flag far');
+				icon.setAttribute('class', 'fa-flag far ms-2');
 				btn.setAttribute('title', "{% trans 'Report comment' %}");
+				btn.firstChild.nodeValue = "{% trans 'Report comment' %}";
 
 				var newBtn = btn.cloneNode(true);  
 				btn.replaceWith(newBtn);
@@ -815,7 +834,7 @@
 					var parentId = comment.parent;
 					if (parentId !== null) {
 						replyToSpan.addEventListener('mouseover', function(ev) {
-							var parentCommentWrp = document.querySelector(`#question-comments [data-id='${parentId}'] .comment-wrapper`);
+							var parentCommentWrp = document.querySelector(`#question-comments li.comment[data-id='${parentId}'] .comment-wrapper`);
 							parentCommentWrp.style.backgroundColor = 'lightgray';
 
 							// After some time, set color back to initial
@@ -827,21 +846,12 @@
 				}
 			}
 
-			$comments.each(function (idx) {
-				var $this = $(this), commentId = parseInt(this.dataset.id, 10);
-				var comment = that._comments.find(obj => obj.id === commentId);
-
-				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
-				var linkEl = document.createElement("a");
-				var linkHref = `comment-${comment.id}`;
-				linkEl.setAttribute("name", linkHref);
-				this.firstChild.before(linkEl);
-
-				// Highlight parent comment when share icon is hovered
-				var replySpan = this.querySelector('.reply-to');
-				enableHighlightParent(comment, replySpan);
+			/** Create & insert dropdown menu for comment */
+			function generateMenu(comment) {
+				// `this` refers to the li.comment
 
 				// Prepare share item(tooltip)
+				var linkHref = `comment-${comment.id}`
 				var commentLink = PAGE_URL + '#' + linkHref;
 				const WHATSAPP_SHARER = 'https://wa.me/', FACEBOOK_SHARER = 'https://www.facebook.com/sharer/sharer.php';
 				const TWITTER_SHARER ='https://www.twitter.com/intent/tweet', TWITTER_HANDLE = 'camerschools';
@@ -882,10 +892,10 @@
 				var dropdown = document.createElement("div");
 				dropdown.setAttribute('class', 'd-inline');
 				dropdown.innerHTML = `
-					<button type="button" class="float-end" id="comment-${idx}-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+					<button type="button" class="float-end" id="comment-${comment.id}-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
 						<i class="fa fa-ellipsis-v"></i>	
 					</button>
-					<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${idx}-menu-btn">
+					<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${comment.id}-menu-btn">
 					</ul>
 				`;
 
@@ -897,8 +907,14 @@
 				menu.appendChild(shareLi);
 
 				// Enable flagging only if comment is not poster's (Edit button is not present)
-				var $action = $this.find('.actions').first();
-				if ($action.find('.action.edit').length == 0) { 
+				var $actions;
+				if (this.classList.contains('actions')) {
+					$actions = $(this);
+				} else {
+					$actions = $(this).find('.actions').first();
+				}
+				
+				if ($actions.find('.action.edit').length == 0) { 
 					var flagTitle = comment.has_flagged ? "{% trans 'Remove flag' %}" : "{% trans 'Report comment' %}";
 					var flagClass = 'fa-flag ' + (comment.has_flagged ? 'fas' : 'far');
 					var separatorStr = `
@@ -906,7 +922,7 @@
 					`;
 					var flagBtn = document.createElement("button");
 					flagBtn.setAttribute("class", "mt-3 mb-2 text-danger w-100");
-					flagBtn.innerHTML = `${flagTitle} <i class="ms-1 ${flagClass}"></i>`;	
+					flagBtn.innerHTML = `${flagTitle} <i class="ms-2 ${flagClass}"></i>`;	
 
 					if (userId) {
 						if (comment.has_flagged) {
@@ -919,7 +935,7 @@
 						}
 					} else {
 						// If user is unauthed, display login required toast.
-						flagBtn.addEventListener('click', displayToast.bind(this, 'LOGIN_REQUIRED'));
+						flagBtn.addEventListener('click', displayToast.bind(null, 'LOGIN_REQUIRED'));
 					}
 
 					// Add flag to menu
@@ -929,9 +945,9 @@
 				} else {
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
-					var $upvoteBtn = $action.children('.action.upvote').first();
-					var $thumbsUpIcon = $upvoteBtn.children('i').first();
-					$thumbsUpIcon.css('cursor', 'default');
+					// var $upvoteBtn = $action.children('.action.upvote').first();
+					// var $thumbsUpIcon = $upvoteBtn.children('i').first();
+					// $thumbsUpIcon.css('cursor', 'default');
 
 					// No need to remove error toast telling user that he can't vote for his post;
 					// the user should know what is happening.
@@ -939,7 +955,24 @@
 					// pointer. No need to bother changing it back to default.
 				}
 
-				$action.append(dropdown);
+				$actions.append(dropdown);
+			}
+
+			$comments.each(function (idx) {
+				var commentId = parseInt(this.dataset.id, 10);
+				var comment = that._comments.find(obj => obj.id === commentId);
+
+				// Add comment hyperlink (appending #comment-<id> to the url should go to comment)
+				var linkEl = document.createElement("a");
+				var linkHref = `comment-${comment.id}`;
+				linkEl.setAttribute("name", linkHref);
+				this.firstChild.before(linkEl);
+
+				// Highlight parent comment when share icon is hovered
+				var replySpan = this.querySelector('.reply-to');
+				enableHighlightParent(comment, replySpan);
+
+				generateMenu.call(this, comment);
 			});
 
 			/** Make pings with social profile's cursor pointer */
@@ -965,6 +998,13 @@
 					copyBtn.addEventListener('click', onCopyLink);
 				});
 			}
+
+			// Regenerate menu for comment after it disappears.
+			// Apparently, after editing comment or replying, the comment-wrapper is recreated.
+			insertionQ('.comment-wrapper .actions').every(function(ele) {
+				var commentId = parseInt(ele.closest('li.comment').dataset.id, 10);
+				generateMenu.call(ele, that._comments.find(obj => obj.id === commentId));
+		  });
 
 			// Listen to when new comment is added, so as to enable highlighting its parent
 			insertionQ('li.comment.by-current-user').every(function (ele) {

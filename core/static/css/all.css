@@ -118,12 +118,16 @@ a.dropdown-item:focus {
 }
 
 /** jquery-comments */
+.jquery-comments .highlight-font * {
+    color: #2793e6 !important;
+}
+
 .jquery-comments .textcomplete-item .email {
     visibility: hidden;   /* hide email in autocomplete users list */
 }
 
 .jquery-comments button.action.downvote:hover > span.downvote-count {
-    color: #999999;
+    color: #999;
 }
 
 .jquery-comments .tag.ping {
