@@ -12,7 +12,6 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- fix ckeditor comment display
 - enable uploading images or use image display in ckeditor ...
 - remove unneeded buttons from ckeditor
 

@@ -134,6 +134,11 @@ a.dropdown-item:focus {
     cursor: default;
 }
 
+/* Hide autocomplete dropdown for academic comments */
+#academic-qstn-comments ul.dropdown.autocomplete {
+    display: none !important;
+}
+
 /* style input ping in ckeditor during & after editing; styles copied from input.ping selector */
 .jquery-comments .textarea input[value^='@'],
 .jquery-comments .comment-wrapper .content input[value^='@'] {

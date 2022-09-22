@@ -330,7 +330,7 @@
 		</section>
 
 		{# container for jquery-comments #}
-		<section id="question-comments"></section>
+		<section id="academic-qstn-comments"></section>
 
 		{% endwith %}
 	</article>
@@ -643,6 +643,13 @@
 <script>
 	const PAGE_URL = "{{ request.build_absolute_uri }}";
 
+	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
+	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
+	// CKEDITOR.config.basicEntities = false;
+	CKEDITOR.config.extraPlugins = 'mentions';
+	// see https://ckeditor.com/docs/ckeditor4/latest/guide/dev_allowed_content_rules.html
+	CKEDITOR.config.extraAllowedContent = 'span[class](*)';
+
 	{% if LANGUAGE_CODE != 'en' %}
 	moment.locale('{{ LANGUAGE_CODE }}');
 	{% endif %}
@@ -653,8 +660,32 @@
 		type: 'GET',
 		url: "{% url 'qa_site:users-mentioned' question.id %}?model_name=AcademicComment&for_jquery=1",
 		success: function(result, status, jqXHR) {
-			console.log(result);
 			usersMentioned = result.data;
+			console.log(result);
+
+			function dataFeed(opts, callback) {
+				// opts is an object { query: '', marker: ''}. 
+				// query is the current value(eg. serg), marker is the symbol used(eg. @)
+				var matchProperty = 'fullname';
+				var data = usersMentioned.filter(function(user) {
+					var containsSearchTerm = user[matchProperty].indexOf(opts.query.toLowerCase()) != -1;
+					var isNotSelf = user.id != userId;
+					return containsSearchTerm && isNotSelf;
+				});
+
+				data = data.sort(function(a, b) {
+					return a[matchProperty].localeCompare(b[matchProperty]);
+				});
+
+				callback(data);
+			}
+
+			CKEDITOR.config.mentions = [{
+				feed: dataFeed,
+				itemTemplate: '<li data-id="{id}"><strong>{fullname}</strong></li>',
+				outputTemplate: '<span class="tag ping">@{fullname}</span><span>&nbsp;</span>',
+				minChars: 0
+			}];
 		},
 		error: function(jqXHR, status, error) {
 			console.error(error);
@@ -686,13 +717,8 @@
 		modalClose.addEventListener('click', resetFlagModal);
 	}
 
-	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
-	CKEDITOR.config.ignoreEmptyParagraph = false;
-	CKEDITOR.config.htmlEncodeOutput = true;
-	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
-
 	{# jquery-comments config, https://viima.github.io/jquery-comments #}
-	$('#question-comments').comments({
+	$('#academic-qstn-comments').comments({
 		textareaPlaceholderText: "{% trans 'Add an answer or comment' %}",
 		newestText: "{% trans 'Newest' %}",
 		oldestText: "{% trans 'Oldest' %}",
@@ -719,7 +745,7 @@
 			return url;
 		})(),
 		currentUserIsAdmin: false,
-		enablePinging: true,
+		enablePinging: false,
 		fieldMappings: {
 			// Add new fields(not known by jquery-comments) so that they will be included
 			// in commentJSON
@@ -730,7 +756,7 @@
 		_textareaContent: '',
 		_comments: [],
 		_getCommentLi: function(commentId) {
-			return document.querySelector(`#question-comments li.comment[data-id='${commentId}']`);
+			return document.querySelector(`#academic-qstn-comments li.comment[data-id='${commentId}']`);
 		},
 		_getDownvoteCount: function(commentId) {
 			// We can't rely on commentJSON.downvote_count because it can't be updated.
@@ -754,16 +780,6 @@
 			}); 
 			
 			return comment;
-		},
-		searchUsers: function(term, success, error) {
-			success(usersMentioned.filter(function(user) {
-				// This library expects the attribute to be named 'fullname',
-				// however, the fullname in this case refers to the user's username; 
-				// which is what we want
-				var containsSearchTerm = user.fullname.toLowerCase().indexOf(term.toLowerCase()) != -1;
-				var isNotSelf = user.id != userId;
-				return containsSearchTerm && isNotSelf;
-			}));
 		},
 		_onFlagComment: function(comment) {
 			var that = this, ev = event;
@@ -847,7 +863,7 @@
 		},
 		refresh: function() {
 			jqc = this;
-			var $comments = $('#question-comments li.comment');
+			var $comments = $('#academic-qstn-comments li.comment');
 			var that = this;
 
 			/** Function to Highlight parent comment when share icon is hovered */
@@ -859,7 +875,7 @@
 					var parentId = comment.parent;
 					if (parentId !== null) {
 						replyToSpan.addEventListener('mouseover', function(ev) {
-							var parentCommentWrp = document.querySelector(`#question-comments li.comment[data-id='${parentId}'] .comment-wrapper`);
+							var parentCommentWrp = document.querySelector(`#academic-qstn-comments li.comment[data-id='${parentId}'] .comment-wrapper`);
 							parentCommentWrp.style.backgroundColor = 'lightgray';
 
 							// After some time, set color back to initial
@@ -873,7 +889,7 @@
 
 			/** Create & insert dropdown menu for comment */
 			function generateMenu(comment) {
-				// `this` refers to the li.comment
+				// `this` refers to the li.comment or span.actions
 
 				// Prepare share item(tooltip)
 				var linkHref = `comment-${comment.id}`
@@ -969,7 +985,7 @@
 				} else {
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
-					// var $upvoteBtn = $action.children('.action.upvote').first();
+					// var $upvoteBtn = $actions.children('.action.upvote').first();
 					// var $thumbsUpIcon = $upvoteBtn.children('i').first();
 					// $thumbsUpIcon.css('cursor', 'default');
 
@@ -979,7 +995,7 @@
 					// pointer. No need to bother changing it back to default.
 				}
 
-				$action.append(dropdown);
+				$actions.append(dropdown);
 			}
 
 			$comments.each(function (idx) {
@@ -992,8 +1008,8 @@
 				
 				// AFter updating the innerHtml as above, the textContent will also change.
 				// So we use the new textContent ...
-				// contentDiv.innerHTML = contentDiv.innerHTML.replaceAll('input type="button" value="<', '');
-				// contentDiv.innerHTML = contentDiv.textContent.replaceAll('" data-cke-editable="1" contenteditable="false">', '');
+				contentDiv.innerHTML = contentDiv.innerHTML.replaceAll('input type="button" value="<', '').replaceAll('" data-cke-editable="1" contenteditable="false"&gt;', '');
+				contentDiv.innerHTML = contentDiv.textContent;
 
 				// Edited comments will timeEl not null
 				if (timeEl) {
@@ -1132,10 +1148,10 @@
 						instanceReady: function(evt) {
 							var ele = evt.editor.element.$;
 							console.log(ele);
-							ele.innerHTML = ele.innerHTML.replace('<input type="button" value="<', '');
+							ele.innerHTML = ele.innerHTML.replaceAll('<input type="button" value="<', '').replace('" data-cke-editable="1" contenteditable="false"&gt;');
 
 							// Remember the textContent will also change after changing innerHTML.
-							ele.innerHTML = ele.textContent.replace('" data-cke-editable="1" contenteditable="false">', '');
+							ele.innerHTML = ele.textContent;
 						},
 					}
 				});

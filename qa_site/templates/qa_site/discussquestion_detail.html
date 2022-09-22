@@ -335,7 +335,7 @@
 		</section>
 
 		{# container for jquery-comments #}
-		<section id="question-comments"></section>
+		<section id="discuss-qstn-comments"></section>
 
 		{% endwith %}
 	</article>
@@ -689,7 +689,7 @@
 	}
 
 	{# jquery-comments config, https://viima.github.io/jquery-comments #}
-	$('#question-comments').comments({
+	$('#discuss-qstn-comments').comments({
 		textareaPlaceholderText: "{% trans 'Add a comment' %}",
 		newestText: "{% trans 'Newest' %}",
 		oldestText: "{% trans 'Oldest' %}",
@@ -822,7 +822,7 @@
 		},
 		refresh: function() {
 			jqc = this;
-			var $comments = $('#question-comments li.comment');
+			var $comments = $('#discuss-qstn-comments li.comment');
 			var that = this;
 
 			/** Function to Highlight parent comment when share icon is hovered */
@@ -834,7 +834,7 @@
 					var parentId = comment.parent;
 					if (parentId !== null) {
 						replyToSpan.addEventListener('mouseover', function(ev) {
-							var parentCommentWrp = document.querySelector(`#question-comments li.comment[data-id='${parentId}'] .comment-wrapper`);
+							var parentCommentWrp = document.querySelector(`#discuss-qstn-comments li.comment[data-id='${parentId}'] .comment-wrapper`);
 							parentCommentWrp.style.backgroundColor = 'lightgray';
 
 							// After some time, set color back to initial
@@ -848,7 +848,7 @@
 
 			/** Create & insert dropdown menu for comment */
 			function generateMenu(comment) {
-				// `this` refers to the li.comment
+				// `this` refers to the li.comment or span.actions
 
 				// Prepare share item(tooltip)
 				var linkHref = `comment-${comment.id}`
@@ -945,7 +945,7 @@
 				} else {
 					// Else prevent or make upvote button for current user invalid.
 					// (If Edit button is present, that means comment belongs to the current user)
-					// var $upvoteBtn = $action.children('.action.upvote').first();
+					// var $upvoteBtn = $actions.children('.action.upvote').first();
 					// var $thumbsUpIcon = $upvoteBtn.children('i').first();
 					// $thumbsUpIcon.css('cursor', 'default');
 
