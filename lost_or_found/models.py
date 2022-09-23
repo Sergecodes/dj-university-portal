@@ -110,7 +110,6 @@ class LostItemPhoto(models.Model, PhotoModelMixin):
 	def __str__(self):
 		return self.actual_filename
 
-
 	class Meta:
 		verbose_name = 'Lost Item Photo'
 		verbose_name_plural = 'Lost Items Photos'

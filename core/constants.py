@@ -46,6 +46,8 @@ LOST_ITEMS_PHOTOS_UPLOAD_DIR = 'lost_items_photos/'
 PAST_PAPERS_UPLOAD_DIR = 'past_papers/'
 PAST_PAPERS_PHOTOS_UPLOAD_DIR = 'past_paper_photos/'
 REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR = 'requested_items_photos/'
+ACADEMIC_COMMENTS_PHOTOS_UPLOAD_DIR = 'academic_comments_photos/'
+DISCUSS_COMMENTS_PHOTOS_UPLOAD_DIR = 'discuss_comments_photos/'
 PROFILE_IMAGE_UPLOAD_DIR = 'profile_pictures/'
 IMAGE_HOLDER_UPLOAD_DIR = 'temporal_photos/'
 

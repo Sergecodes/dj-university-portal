@@ -5,10 +5,24 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import MAX_TAGS_PER_QUESTION, MAX_TAGS_PER_DISCUSSION
+from core.utils import PhotoUploadMixin
 from core.validators import validate_question_tags as validate_tags
 from .models import (
-	AcademicQuestion, DiscussQuestion, AcademicComment, DiscussComment
+	AcademicQuestion, DiscussQuestion, AcademicComment, DiscussComment,
+	AcademicCommentPhoto, DiscussCommentPhoto
 )
+
+
+class AcademicCommentPhotoForm(forms.ModelForm, PhotoUploadMixin):
+	class Meta:
+		model = AcademicCommentPhoto
+		fields = ('file', )
+
+
+class DiscussCommentPhotoForm(forms.ModelForm, PhotoUploadMixin):
+	class Meta:
+		model = DiscussCommentPhoto
+		fields = ('file', )
 
 
 class AcademicQuestionForm(forms.ModelForm):

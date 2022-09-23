@@ -6,16 +6,24 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.template import defaultfilters as filters
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from easy_thumbnails.fields import ThumbnailerImageField
 from taggit.models import TagBase, TaggedItemBase
 
+from core.constants import (
+	ACADEMIC_COMMENTS_PHOTOS_UPLOAD_DIR, 
+	DISCUSS_COMMENTS_PHOTOS_UPLOAD_DIR
+)
 from core.models import Institution, Comment
 from core.templatetags.app_extras import remove_tags
+from core.utils import PhotoModelMixin
 from flagging.models import Flag
 from users.models import get_dummy_user
 from .managers import TaggableManager
 
+STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
 
 
@@ -380,5 +388,49 @@ class DiscussQuestion(Question):
 
 	def get_absolute_url(self):
 		return reverse('qa_site:discuss-question-detail', kwargs={'pk': self.id})
+
+
+class DiscussCommentPhoto(models.Model, PhotoModelMixin):
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE, 
+		upload_to=DISCUSS_COMMENTS_PHOTOS_UPLOAD_DIR
+	)
+	upload_datetime = models.DateTimeField(auto_now_add=True)
+	comment = models.ForeignKey(
+		DiscussComment,
+		on_delete=models.CASCADE,
+		related_name='photos',
+		related_query_name='photo',
+		null=True, blank=True  
+	)
+
+	def __str__(self):
+		return self.actual_filename
+
+	class Meta:
+		verbose_name = 'Discussion Comment Photo'
+		verbose_name_plural = 'Discussion Comments Photos'
+
+
+class AcademicCommentPhoto(models.Model, PhotoModelMixin):
+	file = ThumbnailerImageField(
+		thumbnail_storage=STORAGE, 
+		upload_to=ACADEMIC_COMMENTS_PHOTOS_UPLOAD_DIR
+	)
+	upload_datetime = models.DateTimeField(auto_now_add=True)
+	comment = models.ForeignKey(
+		AcademicComment,
+		on_delete=models.CASCADE,
+		related_name='photos',
+		related_query_name='photo',
+		null=True, blank=True  
+	)
+
+	def __str__(self):
+		return self.actual_filename
+
+	class Meta:
+		verbose_name = 'Academic Comment Photo'
+		verbose_name_plural = 'Academic Comments Photos'
 
 
