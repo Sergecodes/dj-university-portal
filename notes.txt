@@ -12,8 +12,7 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- use pings to get usersMentioned, not the "set_users_mentioned" signal
-- concerning image upload in questions, remove current user email from image url
+- fix url matching (when posting emoji)
 - remove unneeded buttons from ckeditor
 
 
@@ -26,7 +25,6 @@ freeprivacypolicy.com  (cool)
 - display delete/edit buttons in dropdown menu for all posts in all apps.
 
 ** TO DO:
-- on ckeditor page, when image is about to uploaded, clicking on "Browse server" opens a new window to the admin page. Prevent this.
 - create another thumbnail alias for small photos. this one will be used with small photos such that their size doesn't add. 
 ex. in the current implementation, a photo with resolution(200 x 80) will generate a thumbnail with higher resolution and hence heavier. 
 Use a thumbnail alias 'small_photo_thumb' and perform a size check during photo upload, perhaps from 1MB and below should use this alias,
@@ -37,7 +35,6 @@ better still check the width and height of the image... (maybe sum of W and H)
 
 
 - change text in toast after bookmarking social profile 
-- change follow/unfollow text after question is followed or unfollowed(without needing to refresh page).
 - update taggit-selectize. should not call backend upon typing every letter!!
 - after uploading image in listing pages, there should be an eye icon on it. 
 upon which clicking should enlarge the image...

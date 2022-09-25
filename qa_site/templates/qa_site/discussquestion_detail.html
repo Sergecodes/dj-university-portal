@@ -1149,15 +1149,18 @@
 			}
 
 			var that = this;
+			// parse so as to convert numeric ids to valid pings
 			commentJSON = that._parseComment(commentJSON);
 
 			// See https://viima.github.io/jquery-comments/#link-5 for info on attachments
 			// Create form data and append all other fields but attachments
 			var formData = new FormData();
 			formData.append('content', commentJSON.content);
-			formData.append('parent_id', commentJSON.parent);
+			// Use '' if parent is null. Note that values are immediately coerced to string if it 
+			// isn't file or blob. So to not get the string 'null', we use ''
+			formData.append('parent_id', commentJSON.parent || '');
 			formData.append('question_id', {{ question.id }});
-			formData.append('pings', commentJSON.pings);
+			formData.append('pingedIds', Object.keys(commentJSON.pings));
 
 			// Append attachments to be created to the form data
 			var attachmentsToBeCreated = commentJSON.attachments.filter(function(attachment) {
@@ -1199,7 +1202,7 @@
 			// After trying a PUT request, if it fails, we store the result in the
 			// permissions array so as to prevent subsequent requests.
 			var that = this, id = commentJSON.id;
-			var permission = that._permissions[id];
+			var permission = this._permissions[id];
 			
 			// Verify if comment can be changed
 			if (permission.cannotUpdate) {
@@ -1207,10 +1210,10 @@
 				return error();
 			} 
 
-			commentJSON = that._parseComment(commentJSON);
+			commentJSON = this._parseComment(commentJSON);
 			var data = {
 				'content': commentJSON.content,
-				'pings': commentJSON.pings
+				'pingedIds': Object.keys(commentJSON.pings)
 			};
 
 			// Append attachments to be created to the form data

@@ -149,6 +149,10 @@ class JQueryCommentList(View):
 		comment = form.save(commit=False)
 		user.add_question_comment(question, comment, parent)
 
+		# Set pinged users
+		if pingedIds := POST['pingedIds']:
+			comment.users_mentioned.add(*pingedIds)
+
 		# Add files
 		if files:
 			photos = [photo_model(file=f, comment=comment) for f in files]
@@ -223,6 +227,8 @@ class JQueryCommentDetail(View):
 		comment.save(update_fields=[
 			'content', 'update_language', f'content_{current_lang}', 'last_modified'
 		])
+		comment.users_mentioned.set(PUT['pingedIds'], clear=True)
+		print(comment.users_mentioned.all())
 
 		if files:
 			photos = [photo_model(file=f, comment=comment) for f in files]

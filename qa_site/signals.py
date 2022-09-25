@@ -14,27 +14,27 @@ from .utils import extract_mentions
 User = get_user_model()
 
 
-def set_users_mentioned(sender, instance, created, **kwargs):
-	# Note that update_fields will always be in kwargs since it is a part of the 
-	# function parameters, but it will be None(it won't be an empty list )
-	# if it does not contain any fields.
-	# So if the field is None, set it to an empty list
-	update_fields = kwargs.get('update_fields')
-	if not update_fields:
-		update_fields = []
+# def set_users_mentioned(sender, instance, created, **kwargs):
+# 	# Note that update_fields will always be in kwargs since it is a part of the 
+# 	# function parameters, but it will be None(it won't be an empty list )
+# 	# if it does not contain any fields.
+# 	# So if the field is None, set it to an empty list
+# 	update_fields = kwargs.get('update_fields')
+# 	if not update_fields:
+# 		update_fields = []
 
-	comment = instance
+# 	comment = instance
 
-	if created or 'content' in update_fields:
-		mentioned_users = []
+# 	if created or 'content' in update_fields:
+# 		mentioned_users = []
 
-		for username in extract_mentions(comment.content):
-			try:
-				mentioned_users.append(User.objects.get(username=username))
-			except User.DoesNotExist:
-				pass
+# 		for username in extract_mentions(comment.content):
+# 			try:
+# 				mentioned_users.append(User.objects.get(username=username))
+# 			except User.DoesNotExist:
+# 				pass
 
-		comment.users_mentioned.set(mentioned_users, clear=True)
+# 		comment.users_mentioned.set(mentioned_users, clear=True)
 
 
 # def tags_changed(sender, instance, action, **kwargs):

@@ -1259,23 +1259,44 @@
 		postComment: function(commentJSON, success, error) {
 			var that = this;
 
-			// Apparently, commentJSON disregards the formatting done by ckeditor.
-			// so when posting, we update the content with that of the ckeditor textarea.
-			commentJSON.content = this._textareaContent;
-			commentJSON = this._parseComment(commentJSON);
-
 			if (!userId) {
 				displayToast('LOGIN_REQUIRED');
 				return error();
 			}
 
+			// Apparently, commentJSON disregards the formatting done by ckeditor.
+			// so when posting, we update the content with that of the ckeditor textarea.
+			commentJSON.content = this._textareaContent;
+			commentJSON = this._parseComment(commentJSON);
+
+			// Get pinged users ids
+			var pingedIds = (function() {
+				var reg = /@[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}/g;
+				// matches will contain array like ['@user1', '@user2']
+				var matches = commentJSON.content.match(reg) || [];
+				var res = [];
+
+				for (var match of matches) {
+					for (var user of usersMentioned) {
+						if ('@' + user.fullname === match) {
+							if (!res.includes(user.id)) {
+								res.push(user.id);
+								break;
+							}
+						}
+					}
+				}
+
+				return res;
+			})();
+
 			// See https://viima.github.io/jquery-comments/#link-5 for info on attachments
 			// Create form data and append all other fields but attachments
 			var formData = new FormData();
 			formData.append('content', commentJSON.content);
-			formData.append('parent_id', commentJSON.parent);
+			formData.append('parent_id', commentJSON.parent || '');
 			formData.append('question_id', {{ question.id }});
-			formData.append('pings', commentJSON.pings);
+			formData.append('pingedIds', pingedIds);
 
 			// Append attachments to be created to the form data
 			var attachmentsToBeCreated = commentJSON.attachments.filter(function(attachment) {
@@ -1317,9 +1338,7 @@
 			// After trying a PUT request, if it fails, we store the result in the
 			// permissions array so as to prevent subsequent requests.
 			var that = this, id = commentJSON.id;
-			var permission = that._permissions[id];
-			
-			commentJSON.content = this._textareaContent;
+			var permission = this._permissions[id];
 			
 			// Verify if comment can be changed
 			if (permission.cannotUpdate) {
@@ -1327,10 +1346,33 @@
 				return error();
 			} 
 
-			commentJSON = that._parseComment(commentJSON);
+			commentJSON.content = this._textareaContent;
+			commentJSON = this._parseComment(commentJSON);
+
+			// Get pinged users ids
+			var pingedIds = (function() {
+				var reg = /@[A-ZÀ-Ÿa-z]{4}[A-ZÀ-Ÿa-z0-9-_]{0,11}/g;
+				// matches will contain array like ['@user1', '@user2']
+				var matches = commentJSON.content.match(reg) || [];
+				var res = [];
+
+				for (var match of matches) {
+					for (var user of usersMentioned) {
+						if ('@' + user.fullname === match) {
+							if (!res.includes(user.id)) {
+								res.push(user.id);
+								break;
+							}
+						}
+					}
+				}
+
+				return res;
+			})();
+			
 			var data = {
 				'content': commentJSON.content,
-				'pings': commentJSON.pings
+				'pings': pingedIds
 			};
 
 			// Append attachments to be created to the form data
