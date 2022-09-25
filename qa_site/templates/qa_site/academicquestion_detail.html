@@ -27,7 +27,7 @@
 {# https://github.com/naugtur/insertionQuery #}
 <script src="{% static 'js/insQ.min.js' %}"></script>
 <script src="{% static 'js/moment-with-locales.js' %}"></script>
-<script src="{% static 'js/jquery.textcomplete.js' %}"></script>
+<!-- <script src="{% static 'js/jquery.textcomplete.js' %}"></script> -->
 {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.8.0/jquery.textcomplete.js"></script> {% endcomment %}
 <script src="{% static 'js/jquery-comments.js' %}"></script>
 {% endblock %}
@@ -645,7 +645,6 @@
 
 	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
 	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
-	// CKEDITOR.config.basicEntities = false;
 	CKEDITOR.config.extraPlugins = 'mentions';
 	// see https://ckeditor.com/docs/ckeditor4/latest/guide/dev_allowed_content_rules.html
 	CKEDITOR.config.extraAllowedContent = 'span[class](*)';
@@ -745,7 +744,7 @@
 			return url;
 		})(),
 		currentUserIsAdmin: false,
-		enablePinging: false,
+		enableAttachments: true,
 		fieldMappings: {
 			// Add new fields(not known by jquery-comments) so that they will be included
 			// in commentJSON
@@ -857,6 +856,66 @@
 
 			flagSuccessToast.addEventListener('shown.bs.toast', onSuccess);
 		},
+		_deletedFilenames: [],
+		_onCloseCommentingField: function() {
+			var target = (function() {
+				if (event.target.tagName.toLowerCase() === 'span') {
+					return event.target;
+				} else if (event.target.tagName.toLowerCase() === 'i') {
+					return event.target.parentElement;
+				}
+			})();
+
+			// Remove image & attachment tag from rerendered comment.
+			// For some reason, clicking the save button also triggers this function; 
+			// and only way to differentiate is coz the target is null
+			if (target) {
+				for (var filename of this._deletedFilenames) {
+					var wrapper = target.closest('.comment-wrapper');
+					var imgEl = wrapper.querySelector(`img[src*="${filename}"]`);
+					imgEl.closest('div').remove();
+	
+					wrapper.querySelector(`a.tag.attachment[href*="${filename}"]`);
+				}
+			}
+		},
+		_onDeleteAttachment: function(commentId) {
+			// Normally the attachment would instantly be removed. But we stop it so as to 
+			// first delete the file
+			event.stopImmediatePropagation();
+			var that = this;
+			
+			var target = (function() {
+				if (event.target.tagName.toLowerCase() === 'span') {
+					return event.target;
+				} else if (event.target.tagName.toLowerCase() === 'i') {
+					return event.target.parentElement;
+				}
+			})();
+			var filename = target.previousSibling.nodeValue;
+
+			// Send request to delete file
+			$.ajax({
+				type: 'DELETE',
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}" + `${commentId}/attachments/${filename}/`,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("X-CSRFToken", csrfToken);
+				},
+				success: function(result) {
+					// Delete attachment 
+					target.closest('.attachment').remove();
+					that._deletedFilenames.push(filename);
+				},
+				error: function(jqXHR, status, ajaxError) {
+					if (jqXHR.status === 404) {
+						var msg = "{% trans 'The file was not found on our server. Please refresh the page and try again.' %}";
+						displayToast('CUSTOM_ERROR', msg);
+					} else {
+						displayToast('ERROR_OCCURRED');
+					}
+				}
+			});
+		},
 		_onClickSendButton: function() {
 			var textarea = event.target.closest('.textarea-wrapper').querySelector('.textarea');
 			this._textareaContent = textarea.innerHTML;
@@ -892,8 +951,14 @@
 				// `this` refers to the li.comment or span.actions
 
 				// Prepare share item(tooltip)
-				var linkHref = `comment-${comment.id}`
+				var linkHref = `comment-${comment.id}`, dropdownBtnId = `comment-${comment.id}-menu-btn`;
 				var commentLink = PAGE_URL + '#' + linkHref;
+
+				// Prevent adding another menu. This is becoz after replying to comment,
+				// parent comment is rerendered.
+				if ($('#' + dropdownBtnId).length !== 0)
+					return;
+
 				const WHATSAPP_SHARER = 'https://wa.me/', FACEBOOK_SHARER = 'https://www.facebook.com/sharer/sharer.php';
 				const TWITTER_SHARER ='https://www.twitter.com/intent/tweet', TWITTER_HANDLE = 'camerschools';
 				var shareBtn = document.createElement('button');
@@ -933,10 +998,10 @@
 				var dropdown = document.createElement("div");
 				dropdown.setAttribute('class', 'd-inline');
 				dropdown.innerHTML = `
-					<button type="button" class="float-end" id="comment-${comment.id}-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+					<button type="button" class="float-end" id=${dropdownBtnId} data-bs-toggle="dropdown" aria-expanded="false">
 						<i class="fa fa-ellipsis-v"></i>	
 					</button>
-					<ul class="dropdown-menu py-1" role="menu" aria-labelledby="comment-${comment.id}-menu-btn">
+					<ul class="dropdown-menu py-1" role="menu" aria-labelledby=${dropdownBtnId}>
 					</ul>
 				`;
 
@@ -1119,6 +1184,7 @@
 						href = uid().replace('id', '');  // uid() function is in base.js
 						var link = document.createElement('a');
 						link.setAttribute("name", href);
+						link.setAttribute('class', 'd-block');
 						ele.insertAdjacentElement('beforebegin', link);
 					} else {
 						href = prevElement.getAttribute('name');
@@ -1134,6 +1200,15 @@
 					location.hash = href;
 					textarea.focus();
 				}
+
+				// Add listener to commenting close button
+				ele.querySelector('span.close').addEventListener('click', that._onCloseCommentingField.bind(that));
+
+				// Add listener to close button of attachments
+				ele.querySelectorAll('.attachments span.delete').forEach(function(span) {
+					var commentId = span.closest('li.comment').dataset.id;
+					span.addEventListener('click', that._onDeleteAttachment.bind(that, commentId));
+				});
 
 				// Add listener to send button
 				var sendSpan = ele.querySelector('span.save');
@@ -1187,23 +1262,40 @@
 			// Apparently, commentJSON disregards the formatting done by ckeditor.
 			// so when posting, we update the content with that of the ckeditor textarea.
 			commentJSON.content = this._textareaContent;
+			commentJSON = this._parseComment(commentJSON);
 
 			if (!userId) {
 				displayToast('LOGIN_REQUIRED');
 				return error();
 			}
 
+			// See https://viima.github.io/jquery-comments/#link-5 for info on attachments
+			// Create form data and append all other fields but attachments
+			var formData = new FormData();
+			formData.append('content', commentJSON.content);
+			formData.append('parent_id', commentJSON.parent);
+			formData.append('question_id', {{ question.id }});
+			formData.append('pings', commentJSON.pings);
+
+			// Append attachments to be created to the form data
+			var attachmentsToBeCreated = commentJSON.attachments.filter(function(attachment) {
+				return !attachment.id;
+			});
+			$(attachmentsToBeCreated).each(function(idx, attachment) {
+				formData.append('attachments', attachment.file);
+			});
+
+			// Save the comment together with the attachments
 			$.ajax({
 				type: 'POST',
-				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}",
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}",
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
-				data: {
-					parent_id: commentJSON.parent,
-					question_id: {{ question.id }},
-					content: that._parseComment(commentJSON).content
-				},
+				data: formData,
+				// contentType and processData are both required & should be false
+				contentType: false,
+				processData: false,
 				success: function(result) {
 					var data = result.data;
 
@@ -1235,14 +1327,29 @@
 				return error();
 			} 
 
+			commentJSON = that._parseComment(commentJSON);
+			var data = {
+				'content': commentJSON.content,
+				'pings': commentJSON.pings
+			};
+
+			// Append attachments to be created to the form data
+			var formData = new FormData();
+			var attachmentsToBeCreated = commentJSON.attachments.filter(function(attachment) {
+				return !attachment.id;
+			});
+			$(attachmentsToBeCreated).each(function(idx, attachment) {
+				formData.append('attachments', attachment.file);
+			});
+
 			$.ajax({
 				type: 'PUT',
 				// use cl instead of cud then append id...
 				// since javascript vars do not work in python
-				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + id + '/',
-				data: JSON.stringify({
-					content: that._parseComment(commentJSON).content
-				}),
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + id + '/' + JSON.stringify(data) + '/',
+				data: formData,
+				contentType: false,
+				processData: false,
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("X-CSRFToken", csrfToken);
 				},
@@ -1459,6 +1566,28 @@
 		},
 		timeFormatter: function(time) {
 			return moment(time).fromNow();
+		},
+		validateAttachments: function(attachments, callback) {
+			var validAttachments = [], validTypes = ['png', 'jpg', 'jpeg'];
+			var maxFileSizeMb = 3;
+
+			$(attachments).each(function(idx, attachment) {
+				var { file, mime_type } = attachment;
+
+				// Validate extension
+				var ext = mime_type.split('/').at(-1);
+				if (!validTypes.includes(ext)) {
+					return;
+				}
+
+				// Validate size
+				var fileSizeMb = file.size / 1000000;
+				if (fileSizeMb <= maxFileSizeMb) {
+					validAttachments.push(attachment);
+				}
+			});
+
+			callback(validAttachments);
 		},
 
 	});

@@ -1,5 +1,6 @@
 """Basically for views that return a JsonResponse"""
 import json
+import mimetypes
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -12,19 +13,23 @@ from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 
 from core.constants import (
 	POST_UPVOTE_POINTS_CHANGE, POST_DOWNVOTE_POINTS_CHANGE,
-	THRESHOLD_POINTS, COMMENT_CAN_EDIT_VOTE_LIMIT, 
-	COMMENT_CAN_DELETE_VOTE_LIMIT, 
+	THRESHOLD_POINTS, COMMENT_CAN_EDIT_VOTE_LIMIT, ACADEMIC_COMMENTS_PHOTOS_UPLOAD_DIR,
+	COMMENT_CAN_DELETE_VOTE_LIMIT, DISCUSS_COMMENTS_PHOTOS_UPLOAD_DIR
 )
 from flagging.models import Flag
 from notifications.models import Notification
 from notifications.signals import notify
-from ..forms import DiscussCommentForm, AcademicCommentForm
+from ..forms import (
+	DiscussCommentForm, DiscussCommentPhotoForm,
+	AcademicCommentForm, AcademicCommentPhotoForm
+)
 from ..models import (
-	DiscussQuestion, AcademicQuestion, DiscussComment, AcademicComment
+	DiscussQuestion, AcademicQuestion, DiscussComment, AcademicComment,
+	DiscussCommentPhoto, AcademicCommentPhoto
 )
 
 User = get_user_model()
@@ -68,6 +73,16 @@ def _parse_jquery_comment(current_user, comment):
 	# it should be an object of pings
 	obj['pings'] = [] if len(pings) == 0 else pings
 
+	## Add attachments
+	attachments = []
+	for photo in comment.photos.all():
+		attachments.append({
+			'id': photo.id,
+			'file': photo.file.url,
+			'mime_type': mimetypes.guess_type(photo.file.name)[0]
+		})
+	obj['attachments'] = attachments
+
 	return obj
 
 
@@ -100,20 +115,46 @@ class JQueryCommentList(View):
 	def post(self, request, model_name):
 		# When posting, send content, question_id & optional parent_id
 		comment_model = apps.get_model('qa_site', model_name)
-		qstn_model = AcademicQuestion if model_name == 'AcademicComment' else DiscussQuestion
+
+		if model_name == 'AcademicComment':
+			qstn_model = AcademicQuestion
+			photo_model = AcademicCommentPhoto
+			photo_form_class = AcademicCommentPhotoForm
+		else:
+			qstn_model = DiscussQuestion
+			photo_model = DiscussCommentPhoto
+			photo_form_class = DiscussCommentPhotoForm
 
 		POST, user = request.POST, request.user
+		form = DiscussCommentForm(POST) if model_name == 'DiscussComment' else AcademicCommentForm(POST)
+		if not form.is_valid():
+			return JsonResponse({ 
+				'data': form.errors.as_json(),
+				'type': 'comment'
+			}, status=400)
+
+		files = request.FILES.getlist('attachments')
+		if files:
+			photo_form = photo_form_class(request.POST, request.FILES)
+			if not photo_form.is_valid():
+				return JsonResponse({ 
+					'data': photo_form.errors.as_json(),
+					'type': 'photo'
+				}, status=400)
+
 		parent_id = POST.get('parent_id')
 		question = get_object_or_404(qstn_model, pk=POST['question_id'])
 		parent = get_object_or_404(comment_model, pk=parent_id) if parent_id else None
 
-		form = DiscussCommentForm(POST) if model_name == 'DiscussComment' else AcademicCommentForm(POST)
-		if form.is_valid():
-			comment = form.save(commit=False)
-			user.add_question_comment(question, comment, parent)
-			return JsonResponse({ 'data': _parse_jquery_comment(user, comment) }, status=201)
-		else:
-			return JsonResponse({ 'data': form.errors.as_json() }, status=400)
+		comment = form.save(commit=False)
+		user.add_question_comment(question, comment, parent)
+
+		# Add files
+		if files:
+			photos = [photo_model(file=f, comment=comment) for f in files]
+			photo_model.objects.bulk_create(photos)
+
+		return JsonResponse({ 'data': _parse_jquery_comment(user, comment) }, status=201)
 
 
 @method_decorator(login_required, name='put')
@@ -124,8 +165,29 @@ class JQueryCommentDetail(View):
 		comment = get_object_or_404(comment_model, pk=id)
 		return JsonResponse({ 'data': _parse_jquery_comment(request.user, comment) })
 
-	def put(self, request, model_name, id):
-		PUT, user = json.loads(request.body), request.user
+	def put(self, request, model_name, id, data):
+		# see https://stackoverflow.com/a/42513184 (handle file upload via put request)
+		if request.content_type.startswith('multipart'):
+			put, files = request.parse_file_upload(request.META, request)
+			request.FILES.update(files)
+			
+		if model_name == 'AcademicComment':
+			photo_model = AcademicCommentPhoto
+			photo_form_class = AcademicCommentPhotoForm
+		else:
+			photo_model = DiscussCommentPhoto
+			photo_form_class = DiscussCommentPhotoForm
+
+		request.PUT, files = json.loads(data), request.FILES.getlist('attachments')
+		if files:
+			photo_form = photo_form_class(request.PUT, request.FILES)
+			if not photo_form.is_valid():
+				return JsonResponse({ 
+					'data': photo_form.errors.as_json(),
+					'type': 'photo'
+				}, status=400)
+
+		PUT, user = request.PUT, request.user
 		content, success = PUT['content'], True
 		comment_model = apps.get_model('qa_site', model_name)
 		comment = get_object_or_404(comment_model, pk=id)	
@@ -147,7 +209,7 @@ class JQueryCommentDetail(View):
 				'message': message
 			}, status=403)
 
-		if content == comment.content:
+		if len(files) == 0 and content == comment.content:
 			return JsonResponse({
 				'success': False,
 				'message': _("This comment's content hasn't changed")
@@ -161,6 +223,10 @@ class JQueryCommentDetail(View):
 		comment.save(update_fields=[
 			'content', 'update_language', f'content_{current_lang}', 'last_modified'
 		])
+
+		if files:
+			photos = [photo_model(file=f, comment=comment) for f in files]
+			photo_model.objects.bulk_create(photos)
 
 		return JsonResponse({ 'data': _parse_jquery_comment(user, comment) })
 
@@ -200,6 +266,20 @@ class JQueryCommentDetail(View):
 
 		comment.delete()
 		return JsonResponse({ 'success': True }, status=204)
+
+
+@require_http_methods(["DELETE"])
+def delete_comment_attachment(request, model_name, id, filename):
+	if model_name == 'AcademicComment':
+		photo_model = AcademicCommentPhoto
+		upload_path = ACADEMIC_COMMENTS_PHOTOS_UPLOAD_DIR
+	else:
+		photo_model = DiscussCommentPhoto
+		upload_path = DISCUSS_COMMENTS_PHOTOS_UPLOAD_DIR
+
+	photo = get_object_or_404(photo_model, comment=id, file=upload_path + filename)
+	photo.delete()
+	return JsonResponse({ 'success': True }, status=204)
 
 
 @require_GET

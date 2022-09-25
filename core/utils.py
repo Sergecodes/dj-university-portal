@@ -13,7 +13,7 @@ from fpdf import FPDF
 from functools import reduce
 from google.cloud import translate_v2 as translate
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from random import choice
 
 from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES
@@ -60,18 +60,20 @@ class PhotoUploadMixin:
 	Ensure valid photo format is uploaded(PNG/JPEG).
 	Used in forms.
 	"""
-
 	def clean_file(self):
 		photo = self.cleaned_data.get('file')
 
 		if photo:
-			format = Image.open(photo.file).format
-			photo.file.seek(0)
-			
-			if format in VALID_IMAGE_FILETYPES:
-				return photo
+			try:
+				format = Image.open(photo.file).format
+				photo.file.seek(0)
+				
+				if format in VALID_IMAGE_FILETYPES:
+					return photo
+			except UnidentifiedImageError:
+				self.add_error('file', _('Invalid file format, only JPEG/PNG are permitted'))
 		
-		self.add_error('file', _('Invalid file format, only JPEG/PNG are permitted'))
+		return photo
 
 
 def translate_text(text, target):

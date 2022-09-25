@@ -12,7 +12,8 @@ freeprivacypolicy.com  (cool)
 
 
 ** to do first:
-- enable uploading images or use image display in ckeditor ...
+- use pings to get usersMentioned, not the "set_users_mentioned" signal
+- concerning image upload in questions, remove current user email from image url
 - remove unneeded buttons from ckeditor
 
 

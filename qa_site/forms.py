@@ -3,9 +3,9 @@ from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from PIL import Image, UnidentifiedImageError
 
-from core.constants import MAX_TAGS_PER_QUESTION, MAX_TAGS_PER_DISCUSSION
-from core.utils import PhotoUploadMixin
+from core.constants import MAX_TAGS_PER_QUESTION, MAX_TAGS_PER_DISCUSSION, VALID_IMAGE_FILETYPES
 from core.validators import validate_question_tags as validate_tags
 from .models import (
 	AcademicQuestion, DiscussQuestion, AcademicComment, DiscussComment,
@@ -13,16 +13,54 @@ from .models import (
 )
 
 
-class AcademicCommentPhotoForm(forms.ModelForm, PhotoUploadMixin):
+class AcademicCommentPhotoForm(forms.ModelForm):
+	attachments = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
 	class Meta:
 		model = AcademicCommentPhoto
-		fields = ('file', )
+		fields = ('attachments', )
+
+	def clean_attachments(self):
+		files = self.files.getlist('attachments')
+		try:
+			for file in files:
+				format = Image.open(file).format
+				file.seek(0)
+				
+				if format in VALID_IMAGE_FILETYPES:
+					continue
+				else:	
+					self.add_error('attachments', _('Invalid file format, only JPEG/PNG are permitted'))
+					break
+		except UnidentifiedImageError:
+			self.add_error('attachments', _('Invalid file format, only JPEG/PNG are permitted'))
+
+		return files
 
 
-class DiscussCommentPhotoForm(forms.ModelForm, PhotoUploadMixin):
+class DiscussCommentPhotoForm(forms.ModelForm):
+	attachments = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
 	class Meta:
 		model = DiscussCommentPhoto
-		fields = ('file', )
+		fields = ('attachments', )
+
+	def clean_attachments(self):
+		files = self.files.getlist('attachments')
+		try:
+			for file in files:
+				format = Image.open(file).format
+				file.seek(0)
+				
+				if format in VALID_IMAGE_FILETYPES:
+					continue
+				else:	
+					self.add_error('attachments', _('Invalid file format, only JPEG/PNG are permitted'))
+					break
+		except UnidentifiedImageError:
+			self.add_error('attachments', _('Invalid file format, only JPEG/PNG are permitted'))
+
+		return files
 
 
 class AcademicQuestionForm(forms.ModelForm):

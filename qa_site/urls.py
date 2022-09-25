@@ -78,8 +78,15 @@ ajax_patterns = [
 	path('discuss-question/follow/', ajax.discuss_question_follow_toggle, name='discuss-follow-toggle'),
 	path('users-mentioned/<int:question_id>/', ajax.get_users_mentioned, name='users-mentioned'),
 
-	path('comments/<str:model_name>/<int:id>/', ajax.JQueryCommentDetail.as_view(), name='comment-rud'),
+	path(
+		'comments/<str:model_name>/<int:id>/attachments/<str:filename>/',
+		ajax.delete_comment_attachment,
+		name='delete-attachment'
+	),
+	path('comments/<str:model_name>/<int:id>/<str:data>/', ajax.JQueryCommentDetail.as_view(), name='comment-u'),
+	path('comments/<str:model_name>/<int:id>/', ajax.JQueryCommentDetail.as_view(), name='comment-rd'),
 	path('comments/<str:model_name>/', ajax.JQueryCommentList.as_view(), name='comments-cl'), # cl: create, list
+
 ]
 
 
