@@ -62,7 +62,9 @@ def _parse_jquery_comment(current_user, comment):
 
 	try:
 		obj['profile_picture_url'] = poster.social_profile.profile_image.url
-	except AttributeError:
+	except (AttributeError, ValueError):
+		# AttributeError in case user has no social_profile(hence None)
+		# ValueError in case profile_image has no url(no file associated) 
 		obj['profile_picture_url'] = ''
 
 	pings = {}
@@ -170,6 +172,8 @@ class JQueryCommentDetail(View):
 		return JsonResponse({ 'data': _parse_jquery_comment(request.user, comment) })
 
 	def put(self, request, model_name, id, data):
+		print('data', data)
+		
 		# see https://stackoverflow.com/a/42513184 (handle file upload via put request)
 		if request.content_type.startswith('multipart'):
 			put, files = request.parse_file_upload(request.META, request)
@@ -334,7 +338,7 @@ def get_users_mentioned(request, question_id):
 			}
 			try:
 				obj['profile_picture_url'] = user.social_profile.profile_image.url
-			except AttributeError:
+			except (AttributeError, ValueError):
 				obj['profile_picture_url'] = ''
 
 			result.append(obj)

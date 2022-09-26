@@ -89,9 +89,9 @@ a.dropdown-item:focus {
     border-color: #198754;
 }
 
-/* bootstrap toasts should be opaque */
+/* bootstrap toasts should be the most opaque elements on the page */
 .toast {
-    z-index: 9999;
+    z-index: 999999;
 }
 
 /* change color(fill) of small round circle; %23198754 => #198754(bootstrap success) */

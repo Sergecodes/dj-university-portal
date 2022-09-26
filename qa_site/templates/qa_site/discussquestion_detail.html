@@ -1346,8 +1346,7 @@
 		pingClicked: function(userId) {
 			// For all users(users mentioned), if userId is of user that has social profile
 			// go to social profile.
-			userId = parseInt(userId, 10);
-			var user = usersMentioned.find(user => user.id === userId);
+			var user = usersMentioned.find(u => u.id === parseInt(userId, 10));
 			if (user.social_profile_url) {
 				location.href = user.social_profile_url;
 			}

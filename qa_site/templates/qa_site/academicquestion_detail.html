@@ -591,7 +591,7 @@
 
 			var $this = $(this);
 			var id = parseInt(this.dataset.id, 10);
-			var url = "{% url 'qa_site:discuss-follow-toggle' %}";
+			var url = "{% url 'qa_site:academic-follow-toggle' %}";
 			var $followUnfollowSpan = $('.js-follow-unfollow-text').first();
 			
 			// if user is trying to undo the follow
@@ -645,9 +645,47 @@
 
 	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
 	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
-	CKEDITOR.config.extraPlugins = 'mentions';
+	CKEDITOR.config.extraPlugins = 'mentions,codesnippet,eqneditor';
 	// see https://ckeditor.com/docs/ckeditor4/latest/guide/dev_allowed_content_rules.html
 	CKEDITOR.config.extraAllowedContent = 'span[class](*)';
+	CKEDITOR.config.toolbar = [
+		// 'EqnEditor' is from CodeCogs, it needs the eqneditor plugin
+		['Bold', 'Italic', 'Underline', 'Strike'],
+		['Subscript', 'Superscript'],
+		// codesnippet plugin needs to be loaded for CodeSnippet to work.
+		['Smiley', 'Link', 'Blockquote', '-', 'Table', 'EqnEditor', 'CodeSnippet'],
+		['NumberedList', 'BulletedList'],
+		'/',
+		['Format', 'HorizontalRule', '-', 'Outdent', 'Indent'],
+		['JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
+		['Undo', 'Redo', '-', 'Maximize', 'Preview']
+	];
+	CKEDITOR.on('instanceReady', function(ev) {
+		// If there's no internet inform user when equation editor button is clicked
+		var ele = ev.editor.element.$;
+		var toolbarEl = document.querySelector(`#cke_${ele.id || 'editor1'}`);
+		var codecogEl = toolbarEl.querySelector('a.cke_button.cke_button__eqneditor');
+
+		codecogEl.addEventListener('click', function() {
+			// Internet connection is required to load assets
+			if (!navigator.onLine) {
+				// Prevent the dialog from displaying in futture cases
+				this.onclick = null;
+				var msg = "{% blocktrans %}You need to be connected to the internet to use this feature. If you're connected, please refresh this page and try again.{% endblocktrans %}";
+				displayToast('CUSTOM_ERROR', msg);
+				return;
+			}
+		});
+	});
+	CKEDITOR.on('dialogDefinition', function(ev) {
+		// Apparently, clicking "ok" on the codecogs dialog menu doesn't work.
+		// (dialog doesnt' close). Add listener to make it properly close the dialog.
+		var dialogName = ev.data.name, dialogDef = ev.data.definition;
+		if (dialogName == "eqneditorDialog") {
+			// Apparently, this does the trick.
+			dialogDef.onOk = function() {};
+		}
+	});
 
 	{% if LANGUAGE_CODE != 'en' %}
 	moment.locale('{{ LANGUAGE_CODE }}');
@@ -756,18 +794,6 @@
 		_comments: [],
 		_getCommentLi: function(commentId) {
 			return document.querySelector(`#academic-qstn-comments li.comment[data-id='${commentId}']`);
-		},
-		_getDownvoteCount: function(commentId) {
-			// We can't rely on commentJSON.downvote_count because it can't be updated.
-			// It can't be updated becoz it is a user-defined attribute.
-			var downvoteSpan = this._getCommentLi(commentId).querySelector('button.action.downvote span.downvote-count');
-			return parseInt(downvoteSpan.textContent, 10);
-		},
-		_userHasDownvoted: function(commentId) {
-			// Verify if a comment has been downvoted. We use this instead of commentJSON.user_has_downvoted
-			// because apparently there is no way to update the commentJSON object
-			var downvoteBtn = this._getCommentLi(commentId).querySelector('button.action.downvote');
-			return downvoteBtn.classList.contains('highlight-font');
 		},
 		_permissions: {},
 		_parseComment: function(comment) {
@@ -1231,6 +1257,10 @@
 					}
 				});
 			});
+
+			insertionQ('.cke_dialog_container .cke_dialog_footer ').every(function (ele) {
+
+			});
 		},	
 		getComments: function(success, error) {
 			var that = this;
@@ -1348,6 +1378,8 @@
 
 			commentJSON.content = this._textareaContent;
 			commentJSON = this._parseComment(commentJSON);
+			// Use '' instead of "" to enable parsing json in backend...
+			commentJSON.content = commentJSON.content.replaceAll("\"", '\'');
 
 			// Get pinged users ids
 			var pingedIds = (function() {
@@ -1372,7 +1404,7 @@
 			
 			var data = {
 				'content': commentJSON.content,
-				'pings': pingedIds
+				'pingedIds': pingedIds
 			};
 
 			// Append attachments to be created to the form data
@@ -1598,11 +1630,12 @@
 			}
 		},
 		pingClicked: function(userId) {
-			// For all users(users mentioned), if userId is of user that has social profile
-			// go to social profile.
-			userId = parseInt(userId, 10);
-			var user = usersMentioned.find(user => user.id === userId);
-			if (user.social_profile_url) {
+			// We can't use userId because we've changed the structure of the ping element.
+			// (from input tag to span tag...)
+			var el = event.target;
+			var user = usersMentioned.find(u => '@' + u.fullname === el.textContent);
+			// Precaution in case user is undefined
+			if (user && user.social_profile_url) {
 				location.href = user.social_profile_url;
 			}
 		},

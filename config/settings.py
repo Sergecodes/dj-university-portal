@@ -320,12 +320,13 @@ CKEDITOR_CONFIGS = {
 	'listing_description': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
-			['Bold', 'Italic', 'Table'],
-			['NumberedList', 'BulletedList', 'HorizontalRule'],
-			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			# '/',  # go to new line
+			['Bold', 'Italic', 'Underline', 'Strike'],
+			['Subscript', 'Superscript'],
+			['Table', 'NumberedList', 'BulletedList', 'HorizontalRule'],
+			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
+			'/',  # go to new line
 			['Format', 'Font', 'FontSize'],
-			['Maximize', 'Preview']
+			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 			# ['Maximize', 'Source', 'Preview'] TextColor
 		],
 		'tabSpaces': 4,
@@ -334,18 +335,19 @@ CKEDITOR_CONFIGS = {
 		'width': 'auto' 
 		# 'uiColor': '#ff3333',
 	},
-	
 	'add_academic_question': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
 			# 'EqnEditor' is from CodeCogs, it needs the eqneditor plugin
-			['Bold', 'Italic', ],
+			['Bold', 'Italic', 'Underline', 'Strike'],
+			['Subscript', 'Superscript'],
 			# codesnippet plugin needs to be loaded for CodeSnippet to work.
-			['Link', 'Blockquote', 'Image', 'CodeSnippet'],
-			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			['Undo', 'Redo'],
-			['Maximize', 'Preview']
+			['Link', 'Blockquote', 'Image', '-', 'Table', 'EqnEditor', 'CodeSnippet'],
+			['NumberedList', 'BulletedList'],
+			'/',
+			['Format', 'HorizontalRule'],
+			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
+			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 		],
 		'tabSpaces': 4,
 		'width': 'auto',
@@ -353,20 +355,18 @@ CKEDITOR_CONFIGS = {
 		# eqneditor is for codecogs editor
 		# check out installation of codecogs
 		# (https://codecogs.com/latex/integration/ckeditor_v4/install.php)
-		# 'extraPlugins': 'codesnippet,eqneditor',  
-		'extraPlugins': 'codesnippet',
+		'extraPlugins': 'codesnippet,eqneditor',
 		# 'uiColor': '#ff3333',
 	},
 	# no CodeSnippet for discussion qstns stuffs
 	'add_discuss_question': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
-			['Bold', 'Italic', ],
+			['Bold', 'Italic', 'Underline'],
 			['Link', 'Blockquote', 'Image', ],
 			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			['Undo', 'Redo'],
-			['Maximize', 'Preview']
+			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
+			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 		],
 		'tabSpaces': 4,
 		'width': 'auto',
@@ -374,13 +374,14 @@ CKEDITOR_CONFIGS = {
 	},
 	'add_academic_comment': {
 		'toolbar': 'Custom',
+		# Commented because they aren't actually used 
 		'toolbar_Custom': [
-			['Bold', 'Italic', ],
-			['Link', 'Blockquote', 'Image', 'CodeSnippet'],
-			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-			# ['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			['Undo', 'Redo'],
-			['Maximize', 'Preview']
+			# ['Bold', 'Italic', ],
+			# ['Link', 'Blockquote', 'Image', 'CodeSnippet'],
+			# ['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
+			# # ['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
+			# ['Undo', 'Redo'],
+			# ['Maximize', 'Preview']
 		],
 		'tabSpaces': 4,
 		'width': 'auto',
@@ -390,7 +391,7 @@ CKEDITOR_CONFIGS = {
 	'add_discuss_comment': {
 		'toolbar': 'Custom',
 		'toolbar_Custom': [
-			['Bold', 'Italic', 'Link', ],
+			# ['Bold', 'Italic', 'Link', ],
 		],
 		'width': 'auto',
 	},
