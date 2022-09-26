@@ -7,6 +7,10 @@ from django.utils.translation import gettext_lazy as _
 
 ## CORE ##
 GENERAL_COUNTRY_CODE = '000'
+CURRENCIES = {
+	'NGA': '₦',
+	'CMR': 'XAF'
+}
 VALID_IMAGE_FILETYPES = ['PNG', 'JPEG']
 EXTERNAL_LINK_SVG = ' \
 	<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15"> \

@@ -16,7 +16,9 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from random import choice
 
-from core.constants import PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES
+from core.constants import (
+	PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES, CURRENCIES,
+)
 
 BASE_DIR = settings.BASE_DIR
 MEDIA_ROOT = settings.MEDIA_ROOT
@@ -104,10 +106,7 @@ def should_redirect(object, test_slug):
 	if not hasattr(object, 'slug'):
 		raise ValueError("Object must have a slug property")
 
-	if object.slug != test_slug:
-		return True
-	else:
-		return False
+	return True if object.slug != test_slug else False
 
 
 def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
@@ -284,6 +283,13 @@ def get_country(country_or_code):
 		country = Country.objects.get(code=country_or_code)
 
 	return country
+
+
+def get_currency(country_code):
+	try:
+		return CURRENCIES[country_code]
+	except AttributeError:
+		return ''
 
 
 def is_mobile(request):

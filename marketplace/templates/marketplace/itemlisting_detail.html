@@ -7,6 +7,7 @@
 {% load app_extras %}  
 
 {% get_current_language as LANGUAGE_CODE %}
+{% get_currency as CURRENCY %}
 
 {% block title %}
 	<title>{{ listing.title }} {% trans 'for sale' %} | CamerSchools</title>
@@ -90,7 +91,10 @@
 					<tr class="fs-5">
 						<td>{% trans 'Price' %}</td>
 						<td>
-							<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+							<span class="fw-bold">
+								{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.code|get_currency }} {% endif %}
+								{{ listing.price|intcomma }} 
+							</span>
 						</td>
 					</tr>
 					<tr>
@@ -288,8 +292,8 @@
 		<hr class="mb-4">
 		<section class="shadow-sm rounded p-3 similar-listings-wrp">
 			<h5 class="mb-4">
-				{% trans 'Similar listings in' %} 
-				<a href="{% url 'marketplace:item-listing-list' %}?city={{ listing.city_id }}" class="text-decoration-none">{{ listing.city }}</a>
+				{% trans 'Similar listings in' %} {{ listing.city.country }}
+				{# <a href="{% url 'marketplace:item-listing-list' %}?city={{ listing.city_id }}" class="text-decoration-none">{{ listing.city }}</a> #}
 			</h5>
 			<div class="row">
 				{% for sim_listing, photo in similar_listings|zip:first_photos %}
@@ -303,7 +307,10 @@
 								</span>
 							</p>
 						</a>
-						<span class="text-muted">{{ sim_listing.price|intcomma }} FCFA</span>
+						<span class="text-muted">
+							{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ sim_listing.city.country.code|get_currency }} {% endif %}
+							{{ sim_listing.price|intcomma }} 
+						</span>
 						{% include 'core/google_attribution.html' with object=sim_listing %}
 					</div>
 					{% endwith %}

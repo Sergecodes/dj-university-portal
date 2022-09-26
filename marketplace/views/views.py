@@ -286,14 +286,14 @@ class ItemListingDetail(GetObjectMixin, IncrementViewCountMixin, DetailView):
 		user, listing = self.request.user, self.object
 		context = super().get_context_data(**kwargs)
 		
-		# Accesing the listing's city or country won't hit the database
+		# Accesing the listing's city or country won't hit the database (thanks to select_related)
 		#
 		# Exclude current object from list of similar objects and slice queryset
 		# note that we can't filter queryset after slice has been taken
 		similar_listings = ItemListing.objects \
 			.select_related('city__country') \
 			.prefetch_related('photos') \
-			.filter(city=listing.city, sub_category=listing.sub_category) \
+			.filter(city__country=listing.city.country, sub_category=listing.sub_category) \
 			.exclude(id=listing.id) \
 			.only('city', 'title', 'price', 'posted_datetime')[:NUM_LISTINGS]
 

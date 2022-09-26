@@ -12,8 +12,6 @@ freeprivacypolicy.com  (cool)
 
 
 NEXT 5 TASKS:
-- in item listing form, update FCFA with user's country's currency
-(create util function to get currency of country)
 - redirect to previous page upon logout
 - if user is authed, on header, change profile icon to his profile image. 
 - after 24hrs, votes can't be recalled.

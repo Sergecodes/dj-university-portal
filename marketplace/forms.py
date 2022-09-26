@@ -1,5 +1,5 @@
 from ckeditor.widgets import CKEditorWidget
-from crispy_forms.bootstrap import AppendedText
+from crispy_forms.bootstrap import PrependedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import (
 	Layout, Row, Column,
@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from core.constants import EXTERNAL_LINK_ICON
 from core.forms import PhotoFormLayout
 from core.models import City, Country
-from core.utils import get_edit_profile_url, PhotoUploadMixin, get_country
+from core.utils import get_edit_profile_url, PhotoUploadMixin, get_country, get_currency
 from .models import (
 	ItemListing, AdListing, ItemSubCategory,
 	ItemCategory, ItemListingPhoto, AdListingPhoto
@@ -122,7 +122,7 @@ class ItemListingForm(forms.ModelForm):
 					'initial_photos': initial_photos
 				}),  
 				'description',
-				AppendedText('price', 'FCFA'),
+				PrependedText('price', get_currency(country.code)),
 				css_class='mb-2'
 			),
 			Fieldset(_("Seller's Information"),

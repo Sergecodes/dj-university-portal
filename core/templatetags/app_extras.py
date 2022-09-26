@@ -7,23 +7,17 @@ from django.core.exceptions import ImproperlyConfigured
 # from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import GENERAL_COUNTRY_CODE
+from core.constants import CURRENCIES
 from core.models import Country
-from core.utils import parse_phone_number, is_mobile
+from core.utils import parse_phone_number, is_mobile, get_currency
 from past_papers.mixins import can_edit_comment, can_delete_comment
-# I imported the User module directly; this was to ensure that 
-# the User methods will be highlighted by the code editor; xD
-# just allow it as it is.
-from users.models import User
 
 register = template.Library()
 
 register.filter('is_mobile', is_mobile)
 register.filter('parse_tel', parse_phone_number)
+register.filter('get_currency', get_currency)
 
-## register qa_site editing and deleting methods
-# register.filter(User.can_edit_comment)
-# register.filter(User.can_delete_comment)
 
 ## register past_papers editing and deleting methods..
 # set a name for the filter so it doesn't clash with the User/qa_site methods
@@ -51,6 +45,16 @@ def get_session_country(context):
 
 	# No country is in session 
 	return None
+
+
+@register.simple_tag(takes_context=True)
+def get_currency(context):
+	country_code = context['request'].session.get('country_code')
+
+	if country_code:
+		return CURRENCIES[country_code]
+
+	return ''
 
 
 @register.filter

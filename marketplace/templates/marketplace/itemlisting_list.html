@@ -7,6 +7,7 @@
 {% load app_extras %}
 
 {% get_current_language as LANGUAGE_CODE %}
+{% get_currency as CURRENCY %}
 
 {% block title %}
 	<title>{% trans 'Items' %} | CamerSchools</title>
@@ -120,7 +121,10 @@
 										{{ view_count }}
 									</span>
 									<br class="mb-1">
-									<span class="fw-bold">{{ listing.price|intcomma }} FCFA</span>
+									<span class="fw-bold">
+										{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.code|get_currency }} {% endif %}
+										{{ listing.price|intcomma }} 
+									</span>
 									<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>
 									{% trans 'by' %}
 									{% if poster.has_social_profile %}
