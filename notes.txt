@@ -11,23 +11,21 @@ COLOUR PALETTE:
 freeprivacypolicy.com  (cool)
 
 
-NEXT 5 TASKS:
-- redirect to previous page upon logout
-- if user is authed, on header, change profile icon to his profile image. 
-- after 24hrs, votes can't be recalled.
+ONGOING TASKS:
+- validate uploaded past paper file type
+- count number of downloads for past paper(download_count field) .. ajax on download button click
+- add through models (follow, bookmark, upvote, downvote) then add datetime field; - after 24hrs, votes can't be recalled.
+- restrict length of text fields... (also in models; eg via clean method)
+
 
 *** next TASKS
-- validate uploaded past paper file type
 - update dashboard page. is concept of points still valid ?
-- count number of downloads for past paper(download_count field) .. ajax on download button click
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
 - use ajax for username select ... 
 - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 - change full name validator (frontend nd backend)
 - enable unique username (collation)
 - fix bookmarking section in social profile 
-- add through models (follow, bookmark, upvote, downvote) then add datetime fields
-- restrict length of text fields... (also in models; eg via clean method)
 - in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
 - add attractive and pleasant modal when new users visit the site(homepage) for their first time.
 - display "some users" aside on mobile too.
