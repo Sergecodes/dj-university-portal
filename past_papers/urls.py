@@ -27,4 +27,6 @@ urlpatterns = [
 	path('<int:pk>/', views.PastPaperDetail.as_view(), name='past-paper-detail'),
     path(_('comments/'), include(comment_patterns)),
     path('ajax/past-paper/bookmark/', views.past_paper_bookmark_toggle, name='past-paper-bookmark-toggle'),
+    path('ajax/past-paper/download/', views.add_download_count, name='past-paper-download'),
+    
 ]

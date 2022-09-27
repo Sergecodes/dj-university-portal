@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -276,3 +276,15 @@ def past_paper_bookmark_toggle(request):
 	else:
 		return JsonResponse({'error': _('Invalid action')}, status=400)
 
+
+## Downloading
+@login_required
+@require_POST
+def add_download_count(request):
+	"""This view handles incrementing the download count for past papers"""
+	id = request.POST.get('id')
+	past_paper = get_object_or_404(PastPaper, pk=id)
+
+	past_paper.download_count = F('download_count') + 1
+	past_paper.save(update_fields=['download_count'])
+	return JsonResponse({'success': True})

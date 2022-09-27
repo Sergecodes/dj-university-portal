@@ -84,12 +84,17 @@
 			</object>
 		</section>
 
-		{% with file=past_paper.file %}
-		<a href="{{ file.url }}" class="btn btn-purple mb-4" download>
+		{% with file=past_paper.file downloads=past_paper.download_count %}
+		<a href="{{ file.url }}" class="btn btn-purple mb-4 js-fileDownload" download>
 			<i class="fas fa-file-download me-1" aria-hidden="true"></i>
 			{% trans 'Download file' %} 
 			({{ file.size|filesizeformat }})
 		</a>
+		{% if downloads > 10 %}
+		<span class="small text-muted">
+			({% trans 'has' %} {{ downloads }} {% trans 'download' %}{{ downloads|pluralize }})
+		</span>
+		{% endif %}
 		{% endwith %}
 
 		{# post actions #}
@@ -281,6 +286,8 @@
 {% block extra_js %}
 <!-- <script src="{% static 'js/flag.min.js' %}"></script> -->
 <script>
+	var csrfToken = "{{ csrf_token }}";
+
 	// flagging 
 	// trigger click on flag-report-icon when flag helper is clicked
 	$('.js-flagHelper').click(function() {
@@ -288,6 +295,18 @@
 		// console.log($parentWrp);
 		$parentWrp.find('.js-flag-report-icon').first().click();
 		// $('.js-flag-report-icon').first().click();
+	});
+
+	// downloading
+	document.querySelector('.js-fileDownload').addEventListener('click', function() {
+		$.ajax({
+			type: 'POST',
+			url: "{% url 'past_papers:past-paper-download' %}",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader("X-CSRFToken", csrfToken);
+			},
+			data: { id: "{{ past_paper.id }}" },
+		});
 	});
 </script>
 {% endblock %}

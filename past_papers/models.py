@@ -174,6 +174,7 @@ class PastPaper(models.Model):
 	# language not original_language. this model is not translatable. 
 	language = models.CharField(choices=settings.LANGUAGES, default='en', max_length=2)
 	view_count = models.PositiveIntegerField(default=0)
+	download_count = models.PositiveIntegerField(default=0)
 
 	def __str__(self):
 		return self.title
