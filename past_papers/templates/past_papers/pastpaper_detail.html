@@ -57,7 +57,7 @@
 			<div>
 				{% trans 'Views' %}:
 				<span class="ms-2">
-					{{ view_count }}
+					{{ view_count|format_number }}
 					<i class="far fa-eye ms-1" aria-hidden="true"></i>
 				</span>
 			</div>
@@ -92,7 +92,7 @@
 		</a>
 		{% if downloads > 10 %}
 		<span class="small text-muted">
-			({% trans 'has' %} {{ downloads }} {% trans 'download' %}{{ downloads|pluralize }})
+			({% trans 'has' %} {{ downloads|format_number }} {% trans 'download' %}{{ downloads|pluralize }})
 		</span>
 		{% endif %}
 		{% endwith %}

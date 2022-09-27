@@ -12,24 +12,24 @@ freeprivacypolicy.com  (cool)
 
 
 ONGOING TASKS:
-- validate uploaded past paper file type
-- count number of downloads for past paper(download_count field) .. ajax on download button click
 - add through models (follow, bookmark, upvote, downvote) then add datetime field; - after 24hrs, votes can't be recalled.
 - restrict length of text fields... (also in models; eg via clean method)
+- fix bookmarking section in social profile 
+- in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
 
 
 *** next TASKS
+- place past papers section under academic questions; create new section "Discuss" for discussion questions; rename "ASk a question" section to "Academic questions".
 - update dashboard page. is concept of points still valid ?
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
 - use ajax for username select ... 
 - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 - change full name validator (frontend nd backend)
 - enable unique username (collation)
-- fix bookmarking section in social profile 
-- in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
 - add attractive and pleasant modal when new users visit the site(homepage) for their first time.
 - display "some users" aside on mobile too.
 - highlight each occurrence of keywords in search results page.
+- overall translation, countries, cities, currencies, etc
 
 
 MAYBE MAYBE NOT

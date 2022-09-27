@@ -1,7 +1,7 @@
 """Site-wide mixins"""
 from django.db.models import F
 
-from socialize.models import SocialProfile
+# from socialize.models import SocialProfile
 
 
 class GetObjectMixin:
@@ -20,9 +20,8 @@ class GetObjectMixin:
 
 class IncrementViewCountMixin:
 	"""
-	Increment the view_count of an object when it is been accesses.
-	view_count is initially 0, and when the poster of an object accesses it, 
-	its view_count isn't modified.
+	Increment the view_count of an object when it is been accessed.
+	Use in get requests.
 	"""
 	
 	def set_view_count(self):
@@ -35,22 +34,32 @@ class IncrementViewCountMixin:
 		if not hasattr(object, 'view_count'):
 			raise ValueError("The object calling this method doesn't have a view_count attribute")
 
-		# if SocialProfile model
-		# (remember these objects don't have a poster property)
-		# use their user attribute as poster..
-		# views have a model property
-		if self.model == SocialProfile:
-			owner_id = object.user_id
-		else:
-			owner_id = object.poster_id
+		prev_count = object.view_count
+		object.view_count = F('view_count') + 1
+		object.save(update_fields=['view_count'])
 
-		# if user is not the poster of this post
-		if request.user.id != owner_id:
-			object.view_count = F('view_count') + 1
-			object.save(update_fields=['view_count'])
+		# Normally, if we want to access the F-modified view_count field above in the future, 
+		# it needs to be reloaded from the database(eg using object.refresh_from_db()).
+		# To prevent this reload, set the view_count to the incremented value, but don't save it.
+		# And since this mixin is used only in get request, we are sure no saving will be done.
+		object.view_count = prev_count + 1
 
-			# now refresh object(get object) so as to get object with computed view_count
-			# if you don't do this, view_count will be `F('view_count')+1`
-			object.refresh_from_db()
+		# # if SocialProfile model
+		# # (remember these objects don't have a poster property)
+		# # use their user attribute as poster..
+		# # views have a model property
+		# if self.model == SocialProfile:
+		# 	owner_id = object.user_id
+		# else:
+		# 	owner_id = object.poster_id
+
+		# # if user is not the poster of this post
+		# if request.user.id != owner_id:
+		# 	object.view_count = F('view_count') + 1
+		# 	object.save(update_fields=['view_count'])
+
+		# 	# now refresh object(get object) so as to get object with computed view_count
+		# 	# if you don't do this, view_count will be `F('view_count')+1`
+		# 	object.refresh_from_db()
 
 

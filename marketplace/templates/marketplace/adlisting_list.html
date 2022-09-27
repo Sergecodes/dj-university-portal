@@ -122,10 +122,10 @@
 									{% else %}
 										<span>{% trans 'No particular city' %}</span>
 									{% endif %}
-									<span class="align-middle ms-4" title="{{ view_count }} {% trans 'view' %}{{ view_count|pluralize }}">
+									<span class="align-middle ms-4" title="{{ view_count|intcomma }} {% trans 'view' %}{{ view_count|pluralize }}">
 										<i class="far fa-eye me-1" aria-hidden="true"></i>
 										<span class="visually-hidden">{% trans 'Number of views' %}</span>
-										{{ view_count }}
+										{{ view_count|format_number }}
 									</span>
 									<br class="mb-1">
 									{% if listing.pricing == '-' %}
