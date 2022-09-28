@@ -147,6 +147,7 @@ class PastPaper(models.Model):
 	) 
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='PastPaperBookmark',
 		related_name='bookmarked_past_papers',
 		related_query_name='bookmarked_past_paper',
 		blank=True
@@ -228,3 +229,24 @@ class PastPaper(models.Model):
 			models.Index(fields=['-posted_datetime'])
 		]
 
+
+class PastPaperBookmark(models.Model):
+	past_paper = models.ForeignKey(
+		PastPaper,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['past_paper', 'bookmarker'],
+				name='unique_past_paper_bookmark'
+			),
+		]

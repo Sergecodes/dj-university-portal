@@ -223,6 +223,7 @@ class ItemListing(ListingPost):
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='ItemListingBookmark',
 		related_name='bookmarked_item_listings',
 		related_query_name='bookmarked_item_listing',
 		blank=True
@@ -239,6 +240,28 @@ class ItemListing(ListingPost):
 		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime'])
+		]
+
+
+class ItemListingBookmark(models.Model):
+	item_listing = models.ForeignKey(
+		ItemListing,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['item_listing', 'bookmarker'],
+				name='unique_item_listing_bookmark'
+			),
 		]
 
 
@@ -273,6 +296,7 @@ class AdListing(ListingPost):
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='AdListingBookmark',
 		related_name='bookmarked_ad_listings',
 		related_query_name='bookmarked_ad_listing',
 		blank=True
@@ -290,3 +314,23 @@ class AdListing(ListingPost):
 		]
 
 
+class AdListingBookmark(models.Model):
+	ad_listing = models.ForeignKey(
+		AdListing,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['ad_listing', 'bookmarker'],
+				name='unique_ad_listing_bookmark'
+			),
+		]

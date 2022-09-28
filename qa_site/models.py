@@ -204,24 +204,28 @@ class AcademicQuestion(Question):
 	)
 	upvoters = models.ManyToManyField(
 		User,
+		through='AcademicQuestionUpvote',
 		related_name='upvoted_academic_questions',
 		related_query_name='upvoted_academic_question',
 		blank=True
 	)
 	downvoters = models.ManyToManyField(
 		User,
+		through='AcademicQuestionDownvote',
 		related_name='downvoted_academic_questions',
 		related_query_name='downvoted_academic_question',
 		blank=True
 	)
 	followers = models.ManyToManyField(
 		User,
+		through='AcademicQuestionFollow',
 		related_name='following_academic_questions',
 		related_query_name='following_academic_question',
 		blank=True
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='AcademicQuestionBookmark',
 		related_name='bookmarked_academic_questions',
 		related_query_name='bookmarked_academic_question',
 		blank=True
@@ -432,5 +436,185 @@ class AcademicCommentPhoto(models.Model, PhotoModelMixin):
 	class Meta:
 		verbose_name = 'Academic Comment Photo'
 		verbose_name_plural = 'Academic Comments Photos'
+
+
+## Through models
+class AcademicQuestionUpvote(models.Model):
+	question = models.ForeignKey(
+		AcademicQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvote_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			# Unique constraint required here
+			models.UniqueConstraint(
+				fields=['question', 'upvoter'],
+				name='unique_academic_qstn_upvote'
+			),
+		]
+
+
+class AcademicQuestionDownvote(models.Model):
+	question = models.ForeignKey(
+		AcademicQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvote_datetime = models.DateTimeField(auto_now_add=True)
+	
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'downvoter'],
+				name='unique_academic_qstn_downvote'
+			),
+		]
+
+
+class AcademicQuestionFollow(models.Model):
+	question = models.ForeignKey(
+		AcademicQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	follower = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	follow_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'follower'],
+				name='unique_academic_qstn_follow'
+			),
+		]
+
+
+class AcademicQuestionBookmark(models.Model):
+	question = models.ForeignKey(
+		AcademicQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'bookmarker'],
+				name='unique_academic_qstn_bookmark'
+			),
+		]
+
+
+class DiscussQuestionUpvote(models.Model):
+	question = models.ForeignKey(
+		DiscussQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvote_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			# Unique constraint required here
+			models.UniqueConstraint(
+				fields=['question', 'upvoter'],
+				name='unique_discuss_qstn_upvote'
+			),
+		]
+
+
+class DiscussQuestionDownvote(models.Model):
+	question = models.ForeignKey(
+		DiscussQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvote_datetime = models.DateTimeField(auto_now_add=True)
+	
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'downvoter'],
+				name='unique_discuss_qstn_downvote'
+			),
+		]
+
+
+class DiscussQuestionFollow(models.Model):
+	question = models.ForeignKey(
+		DiscussQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	follower = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	follow_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'follower'],
+				name='unique_discuss_qstn_follow'
+			),
+		]
+
+
+class DiscussQuestionBookmark(models.Model):
+	question = models.ForeignKey(
+		DiscussQuestion,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['question', 'bookmarker'],
+				name='unique_discuss_qstn_bookmark'
+			),
+		]
+
 
 

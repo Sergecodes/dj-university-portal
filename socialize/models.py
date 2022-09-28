@@ -146,6 +146,7 @@ class SocialProfile(models.Model):
 	# be able to see bookmarkers.
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='SocialProfileBookmark',
 		related_name='bookmarked_social_profiles',
 		related_query_name='bookmarked_social_profile',
 		blank=True
@@ -243,4 +244,23 @@ class SocialProfile(models.Model):
 		return str(self.user)
 
 
+class SocialProfileBookmark(models.Model):
+	social_profile = models.ForeignKey(
+		SocialProfile,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
 
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['social_profile', 'bookmarker'],
+				name='unique_social_profile_bookmark'
+			),
+		]

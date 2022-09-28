@@ -69,6 +69,7 @@ class LostItem(Post):
 	# already creates it.
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='LostItemBookmark',
 		related_name='bookmarked_lost_items',
 		related_query_name='bookmarked_lost_item',
 		blank=True
@@ -117,6 +118,28 @@ class LostItemPhoto(models.Model, PhotoModelMixin):
 		verbose_name_plural = 'Lost Items Photos'
 
 
+class LostItemBookmark(models.Model):
+	lost_item = models.ForeignKey(
+		LostItem,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['lost_item', 'bookmarker'],
+				name='unique_lost_item_bookmark'
+			),
+		]
+
+
 class FoundItem(Post):
 	item_found = models.CharField(
 		_('Item found'), 
@@ -149,6 +172,7 @@ class FoundItem(Post):
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='FoundItemBookmark',
 		related_name='bookmarked_found_items',
 		related_query_name='bookmarked_found_item',
 		blank=True
@@ -172,5 +196,27 @@ class FoundItem(Post):
 		ordering = ['-posted_datetime']
 		indexes = [
 			models.Index(fields=['-posted_datetime']),
+		]
+
+
+class FoundItemBookmark(models.Model):
+	found_item = models.ForeignKey(
+		FoundItem,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['found_item', 'bookmarker'],
+				name='unique_found_item_bookmark'
+			),
 		]
 

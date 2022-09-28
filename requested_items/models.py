@@ -61,6 +61,7 @@ class RequestedItem(Post):
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='RequestedItemBookmark',
 		related_name='bookmarked_requested_items',
 		related_query_name='bookmarked_requested_item',
 		blank=True
@@ -108,3 +109,24 @@ class RequestedItemPhoto(models.Model, PhotoModelMixin):
 		verbose_name = 'Requested Item Photo'
 		verbose_name_plural = 'Requested Items Photos'
 
+
+class RequestedItemBookmark(models.Model):
+	requested_item = models.ForeignKey(
+		RequestedItem,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmarker = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	bookmark_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['requested_item', 'bookmarker'],
+				name='unique_requested_item_bookmark'
+			),
+		]
