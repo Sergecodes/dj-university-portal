@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 ## CORE ##
-MAX_TEXT_LENGTH = 2000
+MAX_TEXT_LENGTH = 3000
 GENERAL_COUNTRY_CODE = '000'
 CURRENCIES = {
 	'NGA': '₦',

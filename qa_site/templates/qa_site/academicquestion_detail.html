@@ -645,7 +645,7 @@
 
 	// CKEDITOR global settings: https://ckeditor.com/docs/ckeditor4/latest/api
 	CKEDITOR.config.title = "{% trans 'Rich Text Editor' %}";
-	CKEDITOR.config.extraPlugins = 'mentions,codesnippet,eqneditor';
+	CKEDITOR.config.extraPlugins = 'mentions,codesnippet,eqneditor,wordcount';
 	// see https://ckeditor.com/docs/ckeditor4/latest/guide/dev_allowed_content_rules.html
 	CKEDITOR.config.extraAllowedContent = 'span[class](*)';
 	CKEDITOR.config.toolbar = [
@@ -660,6 +660,14 @@
 		['JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
 		['Undo', 'Redo', '-', 'Maximize', 'Preview']
 	];
+	CKEDITOR.config.wordcount = {
+		'showRemaining': true,
+		'showParagraphs': false,
+		'showCharCount': true,
+		'showWordCount': false,
+		'maxCharCount': 3000,
+	};
+
 	CKEDITOR.on('instanceReady', function(ev) {
 		// If there's no internet inform user when equation editor button is clicked
 		var ele = ev.editor.element.$;

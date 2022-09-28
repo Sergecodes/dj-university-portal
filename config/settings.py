@@ -3,6 +3,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 
+from core.constants import MAX_TEXT_LENGTH
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -329,6 +331,15 @@ CKEDITOR_CONFIGS = {
 			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 			# ['Maximize', 'Source', 'Preview'] TextColor
 		],
+		'extraPlugins': 'wordcount',
+		# https://ckeditor.com/cke4/addon/wordcount
+		'wordcount': {
+			'showRemaining': True,
+			'showParagraphs': False,
+			'showCharCount': True,
+			'showWordCount': False,
+			'maxCharCount': MAX_TEXT_LENGTH,
+		},
 		'tabSpaces': 4,
 		# this will be set to the ck-editor instance instead
 		# (id='cke_id_description' and class='cke_1 cke ... ')
@@ -349,13 +360,20 @@ CKEDITOR_CONFIGS = {
 			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
 			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 		],
-		'tabSpaces': 4,
-		'width': 'auto',
 		# codesnippet is a built-in plugin
 		# eqneditor is for codecogs editor
 		# check out installation of codecogs
 		# (https://codecogs.com/latex/integration/ckeditor_v4/install.php)
-		'extraPlugins': 'codesnippet,eqneditor',
+		'extraPlugins': 'codesnippet,eqneditor,wordcount',
+		'wordcount': {
+			'showRemaining': True,
+			'showParagraphs': False,
+			'showCharCount': True,
+			'showWordCount': False,
+			'maxCharCount': MAX_TEXT_LENGTH,
+		},
+		'tabSpaces': 4,
+		'width': 'auto',
 		# 'uiColor': '#ff3333',
 	},
 	# no CodeSnippet for discussion qstns stuffs
@@ -368,10 +386,20 @@ CKEDITOR_CONFIGS = {
 			['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', '-', 'BidiLtr', 'BidiRtl'],
 			['Undo', 'Redo', '-', 'Maximize', 'Preview']
 		],
+		'extraPlugins': 'wordcount',
+		'wordcount': {
+			'showRemaining': True,
+			'showParagraphs': False,
+			'showCharCount': True,
+			'showWordCount': False,
+			'maxCharCount': MAX_TEXT_LENGTH,
+		},
 		'tabSpaces': 4,
 		'width': 'auto',
 		'height': '150px',
 	},
+
+	# Not really used
 	'add_academic_comment': {
 		'toolbar': 'Custom',
 		# Commented because they aren't actually used 
@@ -395,7 +423,6 @@ CKEDITOR_CONFIGS = {
 		],
 		'width': 'auto',
 	},
-
 }
 
 
