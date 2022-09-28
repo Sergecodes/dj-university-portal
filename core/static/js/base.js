@@ -785,23 +785,22 @@ $('.js-bookmark-button').click(function (event) {
 				xhr.setRequestHeader("X-CSRFToken", csrfToken);
 			},
 			success: function (result) {
-				if (result['unbookmarked']) {
-					// remove fas(font-awesome solid) class and set to far(font-awesome regular)
-					$icon.removeClass('fas js-selected').addClass('far');
+				// remove fas(font-awesome solid) class and set to far(font-awesome regular)
+				$icon.removeClass('fas js-selected').addClass('far');
 
-					// update bookmark count
+				// update bookmark count
+				if (typeof $bookmarkCounter !== 'undefined') {
 					var newCount = parseInt($bookmarkCounter.text(), 10);
 					$bookmarkCounter.text(newCount - 1);
-
-					// update text
-					var textNode = $icon[0].nextSibling;
-					textNode.textContent = " " + bookmarkText;
-					displayToast('BOOKMARK_TOGGLE', false);
-
-				} else {
-					console.error(result);
-					displayToast('ERROR_OCCURRED');
 				}
+
+				// update text
+				var textNode = $icon[0].nextSibling;
+				textNode.textContent = " " + bookmarkText;
+				displayToast('BOOKMARK_TOGGLE', false);
+			},
+			error: function() {
+				displayToast('ERROR_OCCURRED');
 			}
 		});
 
@@ -818,21 +817,21 @@ $('.js-bookmark-button').click(function (event) {
 				xhr.setRequestHeader("X-CSRFToken", csrfToken);
 			},
 			success: function (result) {
-				if (result['bookmarked']) {
-					// remove far class and set to fas
-					$icon.removeClass('far').addClass('fas js-selected');
+				// remove far class and set to fas
+				$icon.removeClass('far').addClass('fas js-selected');
 
-					// update bookmark count
+				// update bookmark count
+				if (typeof $bookmarkCounter !== 'undefined') {
 					var newCount = parseInt($bookmarkCounter.text(), 10);
 					$bookmarkCounter.text(newCount + 1);
-
-					var textNode = $icon[0].nextSibling;
-					textNode.textContent = " " + bookmarkedText;
-					displayToast('BOOKMARK_TOGGLE', true);
-				} else {
-					console.error(result);
-					displayToast('ERROR_OCCURRED');
 				}
+
+				var textNode = $icon[0].nextSibling;
+				textNode.textContent = " " + bookmarkedText;
+				displayToast('BOOKMARK_TOGGLE', true);
+			},
+			error: function() {
+				displayToast('ERROR_OCCURRED');
 			}
 		});
 	}

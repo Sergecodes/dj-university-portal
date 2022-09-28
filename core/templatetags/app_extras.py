@@ -179,17 +179,18 @@ def render_bookmark_template(
 		bookmarkers = object.bookmarkers.only('user_id')
 	else:
 		bookmarkers = object.bookmarkers.only('id')
-	
+
 	return {
 		'user': context['user'],
 		'request': context['request'],
 		'object_id': object.user_id if object_model == SocialProfile else object.id,
 		'bookmarkers': bookmarkers,
-		'num_bookmarkers': bookmarkers.count(),
+		'num_bookmarkers': context.get('num_bookmarkers'),
 		# url that contains view that handles bookmark request
 		'bookmark_url': bookmark_url,
 		# url that maps to view that maps to template where bookmarked posts are
 		'bookmarks_url': bookmarks_url,  
-		'title_text': title_text
-    }
+		'title_text': title_text,
+		'for_social_profile': True if object_model == SocialProfile else False
+   }
 

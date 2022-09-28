@@ -30,15 +30,21 @@
 
 			{# view count #}
 			{% if profile_user == user %}
+				<p class="mt-5">{% trans 'Only you can see these' %}:</p>
 				<span class="fw-bold text-secondary">
-					{% trans 'Profile views' %}: &nbsp; {{ object.view_count }} &nbsp;
-					({% trans 'only you can see this' %})
+					{% trans 'Profile views' %}: &nbsp; {{ object.view_count }} 
 				</span>
-				<p class="small mb-4">
+				<p class="small">
 					{% blocktrans %}
 						This is the number of times that users have viewed your profile. <br>
 						The more active you are on the website, the more likely more people will view your profile.
 					{% endblocktrans %}
+				</p>
+				<span class="fw-bold text-secondary">
+					{% trans 'Profile bookmarks' %}: &nbsp; {{ object.bookmarkers.count }}
+				</span>
+				<p class="small mb-5">
+					{% trans 'This is the number of times that users have bookmarked your profile.' %}
 				</p>
 			{% endif %}
 

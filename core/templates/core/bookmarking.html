@@ -41,7 +41,11 @@
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>
-				{% trans 'The post was added to your' %} 
+				{% if for_social_profile %}
+					{% trans 'The profile was added to your' %} 
+				{% else %}
+					{% trans 'The post was added to your' %} 
+				{% endif %}
 				<a href="{{ bookmarks_url }}">{% trans 'favourites' %}.</a>
 			</p>
 		</div>
@@ -52,7 +56,11 @@
 	<div class="d-flex">
 		<div class="toast-body">
 			<p>
-				{% trans 'The post was removed from your' %} 
+				{% if for_social_profile %}
+					{% trans 'The profile was removed from your' %} 
+				{% else %}
+					{% trans 'The post was removed from your' %} 
+				{% endif %} 
 				<a href="{{ bookmarks_url }}" class="link-danger">{% trans 'favourites' %}.</a>
 			</p>
 		</div>
@@ -74,20 +82,24 @@
 		{% trans 'Bookmark' %}
 	{% endif %}
 </a>
-<span class="text-purple">
-	&nbsp;
-	<span class="js-bookmarkCount">{{ num_bookmarkers }}</span>
-</span>
+{% if num_bookmarkers is not None %}
+	<span class="text-purple">
+		&nbsp;
+		<span class="js-bookmarkCount">{{ num_bookmarkers }}</span>
+	</span>
+{% endif %}
 
 <script>
 	// {# these variables will be used by the base.js file #}
 	{# see stackoverflow.com/q/36689075/how-to-use-django-variable-in-javascript-file #}
 	// get current user's id.. 
 	// if user isn't logged in, user.id will be `None`
-	var userId = "{{ user.id }}";
+	var userId = "{{ user.id }}", csrfToken = "{{ csrf_token }}";
 	userId = (userId == "None" ? null : userId);
-	var bookmarkCount = {{ num_bookmarkers }}, $bookmarkCounter = $('.js-bookmarkCount').first(); 
 	var bookmarkUrl = "{{ bookmark_url }}";
 	var bookmarkText = "{% trans 'Bookmark' %}", bookmarkedText = "{% trans 'Bookmarked' %}";
-	var csrfToken = "{{ csrf_token }}";
+
+	{% if num_bookmarkers is not None %}
+	var bookmarkCount = {{ num_bookmarkers }}, $bookmarkCounter = $('.js-bookmarkCount').first(); 
+	{% endif %}
 </script>

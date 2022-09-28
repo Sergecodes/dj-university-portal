@@ -431,6 +431,9 @@ class SocialProfileDetail(
 			'Twitter': twitter if (twitter := social_media.twitter_follow) else '',
 			'Instagram': instagram if (instagram := social_media.instagram_follow) else ''
 		}
+
+		if current_user == profile.user or current_user.is_staff:
+			context['num_bookmarkers'] = profile.bookmarkers.count()
 		
 		return context
 
