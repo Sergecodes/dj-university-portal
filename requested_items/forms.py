@@ -43,8 +43,8 @@ class RequestedItemForm(forms.ModelForm):
 			'poster', 'original_language', 'view_count', 
 		)
 		widgets = {
-			'item_requested': forms.TextInput(attrs={'value': _('Looking for ...')}),
-			'item_description': forms.Textarea(attrs={'rows': '3'})
+			'item_requested': forms.TextInput(attrs={'placeholder': _('Looking for ...')}),
+			'item_description': forms.Textarea(attrs={'rows': '4'})
 		}
 
 	def __init__(self, *args, **kwargs):

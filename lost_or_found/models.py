@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.template.defaultfilters import capfirst, truncatewords
+from django.template.defaultfilters import capfirst
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.text import slugify
@@ -21,7 +21,6 @@ class LostItem(Post):
 		_('Item lost'), 
 		max_length=100, 
 		help_text=_('What have you lost?'),
-		unique=True
 	)
 	item_description = models.TextField(
 		_('Item description'), 
@@ -145,7 +144,6 @@ class FoundItem(Post):
 		_('Item found'), 
 		max_length=100, 
 		help_text=_('What have you found?'),
-		unique=truncatewords
 	)
 	area_found = models.CharField(
 		_('Area found'), 

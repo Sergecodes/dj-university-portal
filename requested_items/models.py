@@ -29,7 +29,6 @@ class RequestedItem(Post):
 		_('Item requested'), 
 		max_length=100, 
 		help_text=_('What item do you need?'),
-		unique=True
 	)
 	item_description = models.TextField(
 		_('Item description'), 

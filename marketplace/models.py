@@ -151,7 +151,6 @@ class ListingPost(Post):
 		_('Title'), 
 		max_length=100, 
 		help_text=_('A descriptive title helps buyers find your item. <br> State exactly what your post is.'),
-		unique=True
 	)
 	description = RichTextField(
 		_('Description'), 

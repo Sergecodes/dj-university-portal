@@ -181,7 +181,7 @@ class Question(models.Model):
 
 
 class AcademicQuestion(Question):
-	title = models.CharField(_('Title'), max_length=150, unique=True)  
+	title = models.CharField(_('Title'), max_length=150)  
 	# the content should be optional(like quora... perhaps some question's title may suffice..)
 	content = RichTextUploadingField(_('Content'), config_name='add_academic_question', blank=True)
 	slug = models.SlugField(max_length=250)

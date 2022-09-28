@@ -130,7 +130,7 @@ class PastPaper(models.Model):
 	
 	level = models.CharField(_('Level'), max_length=5, choices=LEVELS)
 	type = models.CharField(_('Speciality'), max_length=5, choices=TYPES, default='GEN')
-	title = models.CharField(_('Title'), max_length=100, unique=True)
+	title = models.CharField(_('Title'), max_length=100)
 	slug = models.SlugField(max_length=250)
 	flags = GenericRelation(Flag)
 	# actual file corresponding to past paper
