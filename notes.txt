@@ -11,24 +11,22 @@ COLOUR PALETTE:
 freeprivacypolicy.com  (cool)
 
 
-ONGOING TASKS:
-- add through models (follow, bookmark, upvote, downvote) then add datetime field; - after 24hrs, votes can't be recalled.
-- set maxlength in ckeditor
-- fix bookmarking section in social profile 
+ONGOING TASKS: 
+- contact numbers not displaying in requeted items, lost items & found items
 - in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
+- place past papers section under academic questions; create new section "Discuss" for discussion questions; rename "ASk a question" section to "Academic questions".
+- add attractive and pleasant modal when new users visit the site(homepage) for their first time.
+- display "some users" aside on mobile too.
+- use ajax for username select ... 
 
 
 *** next TASKS
-- place past papers section under academic questions; create new section "Discuss" for discussion questions; rename "ASk a question" section to "Academic questions".
-- update dashboard page. is concept of points still valid ?
+- highlight each occurrence of keywords in search results page.
 - screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
-- use ajax for username select ... 
+- update dashboard page. is concept of points still valid ?
 - validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 - change full name validator (frontend nd backend)
 - enable unique username (collation)
-- add attractive and pleasant modal when new users visit the site(homepage) for their first time.
-- display "some users" aside on mobile too.
-- highlight each occurrence of keywords in search results page.
 - overall translation, languages, countries, cities, currencies, etc; probably consequently work on footer (room to scroll through more countries & languages)
 
 
@@ -164,19 +162,3 @@ class UserActivity(models.Model):
 	remove all entries where entry.datetime.date() < timezone.now().date
 '''
 
-	'add_academic_comment': {
-		'toolbar': 'Custom',
-		'toolbar_Custom': [
-			['Bold', 'Italic', ],
-			['Link', 'Blockquote', 'Image', 'CodeSnippet'],
-			['NumberedList', 'BulletedList', 'Format', 'HorizontalRule'],
-			# ['Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
-			['Undo', 'Redo'],
-			['Maximize', 'Preview']
-		],
-		'tabSpaces': 4,
-		'width': 'auto',
-		'extraPlugins': 'codesnippet',
-		# 'uiColor': '#ff3333',
-	},
-	

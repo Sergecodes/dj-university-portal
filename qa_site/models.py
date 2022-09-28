@@ -66,12 +66,14 @@ class AcademicComment(QaSiteComment):
 	)
 	upvoters = models.ManyToManyField(
 		User,
+		through='AcademicCommentUpvote',
 		related_name='upvoted_academic_comments',
 		related_query_name='upvoted_academic_comment',
 		blank=True
 	)
 	downvoters = models.ManyToManyField(
 		User,
+		through='AcademicCommentDownvote',
 		related_name='downvoted_academic_comments',
 		related_query_name='downvoted_academic_comment',
 		blank=True
@@ -290,6 +292,7 @@ class DiscussComment(QaSiteComment):
 	)
 	upvoters = models.ManyToManyField(
 		User,
+		through='DiscussCommentUpvote',
 		related_name='upvoted_discuss_comments',
 		related_query_name='upvoted_discuss_comment',
 		blank=True
@@ -352,24 +355,28 @@ class DiscussQuestion(Question):
 	)
 	upvoters = models.ManyToManyField(
 		User,
+		through='DiscussQuestionUpvote',
 		related_name='upvoted_discuss_questions',
 		related_query_name='upvoted_discuss_question',
 		blank=True
 	)
 	downvoters = models.ManyToManyField(
 		User,
+		through='DiscussQuestionDownvote',
 		related_name='downvoted_discuss_questions',
 		related_query_name='downvoted_discuss_question',
 		blank=True
 	)
 	followers = models.ManyToManyField(
 		User,
+		through='DiscussQuestionFollow',
 		related_name='following_discuss_questions',
 		related_query_name='following_discuss_question',
 		blank=True   # to make the field optional in admin 
 	)
 	bookmarkers = models.ManyToManyField(
 		User,
+		through='DiscussQuestionBookmark',
 		related_name='bookmarked_discuss_questions',
 		related_query_name='bookmarked_discuss_question',
 		blank=True
@@ -439,6 +446,74 @@ class AcademicCommentPhoto(models.Model, PhotoModelMixin):
 
 
 ## Through models
+class DiscussCommentUpvote(models.Model):
+	comment = models.ForeignKey(
+		DiscussComment,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvote_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			# Unique constraint required here
+			models.UniqueConstraint(
+				fields=['comment', 'upvoter'],
+				name='unique_discuss_comment_upvote'
+			),
+		]
+
+
+class AcademicCommentUpvote(models.Model):
+	comment = models.ForeignKey(
+		AcademicComment,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	upvote_datetime = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		constraints = [
+			# Unique constraint required here
+			models.UniqueConstraint(
+				fields=['comment', 'upvoter'],
+				name='unique_academic_comment_upvote'
+			),
+		]
+
+
+class AcademicCommentDownvote(models.Model):
+	comment = models.ForeignKey(
+		AcademicComment,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvoter = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='+'
+	)
+	downvote_datetime = models.DateTimeField(auto_now_add=True)
+	
+	class Meta:
+		constraints = [
+			models.UniqueConstraint(
+				fields=['comment', 'downvoter'],
+				name='unique_academic_comment_downvote'
+			),
+		]
+
+
 class AcademicQuestionUpvote(models.Model):
 	question = models.ForeignKey(
 		AcademicQuestion,

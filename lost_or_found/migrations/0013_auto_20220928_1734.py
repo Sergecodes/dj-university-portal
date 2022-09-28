@@ -31,6 +31,8 @@ class Migration(migrations.Migration):
                 ('found_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='lost_or_found.founditem')),
             ],
         ),
+        # Manually dropped the previous m2m tables that were in the db 
+        # and replaced migrations.AlterField to AddField.
         migrations.AddField(
             model_name='founditem',
             name='bookmarkers',

@@ -1,4 +1,5 @@
 """Basically for views that return a JsonResponse"""
+import datetime
 import json
 import mimetypes
 from django.apps import apps
@@ -10,6 +11,7 @@ from django.db.models import F
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language, gettext_lazy as _
 from django.views import View
@@ -28,8 +30,11 @@ from ..forms import (
 	AcademicCommentForm, AcademicCommentPhotoForm
 )
 from ..models import (
-	DiscussQuestion, AcademicQuestion, DiscussComment, AcademicComment,
-	DiscussCommentPhoto, AcademicCommentPhoto
+	DiscussQuestion, AcademicQuestion, DiscussComment, 
+	DiscussCommentPhoto, AcademicCommentPhoto, AcademicComment,
+	AcademicQuestionUpvote, AcademicQuestionDownvote,
+	DiscussQuestionUpvote, DiscussQuestionDownvote,
+	AcademicCommentUpvote, AcademicCommentDownvote, DiscussCommentUpvote
 )
 
 User = get_user_model()
@@ -443,6 +448,20 @@ def vote_academic_thread(request):
 		# no notification sent
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = AcademicQuestionUpvote.objects.get(
+					question=object, 
+					upvoter=user
+				)
+				if timezone.now() > (voted_on := vote_obj.upvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this question {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					}, status=403)
+
 				with transaction.atomic():
 					object.upvoters.remove(user)
 
@@ -457,6 +476,20 @@ def vote_academic_thread(request):
 				}, status=200)
 
 			elif vote_type == 'down':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = AcademicQuestionDownvote.objects.get(
+					question=object, 
+					downvoter=thread_owner
+				)
+				if timezone.now() > (voted_on := vote_obj.downvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this question {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					}, status=403)
+
 				with transaction.atomic():
 					object.downvoters.remove(user)
 
@@ -522,6 +555,20 @@ def vote_academic_thread(request):
 		# if user is retracting vote
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = AcademicCommentUpvote.objects.get(
+					comment=object, 
+					upvoter=user
+				)
+				if timezone.now() > (voted_on := vote_obj.upvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this comment {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					})
+
 				object.upvoters.remove(user)
 				return JsonResponse({
 					'success': True,
@@ -529,6 +576,20 @@ def vote_academic_thread(request):
 				}, status=200)
 
 			elif vote_type == 'down':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = AcademicCommentDownvote.objects.get(
+					comment=object, 
+					upvoter=user
+				)
+				if timezone.now() > (voted_on := vote_obj.upvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this comment {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					})
+
 				object.downvoters.remove(user)
 				return JsonResponse({
 					'success': True,
@@ -641,6 +702,20 @@ def vote_discuss_thread(request):
 		# if user is retracting a vote
 		elif vote_action == 'recall-vote':
 			if vote_type == 'up':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = DiscussQuestionUpvote.objects.get(
+					question=object, 
+					upvoter=user
+				)
+				if timezone.now() > (voted_on := vote_obj.upvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this question {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					}, status=403)
+
 				with transaction.atomic():
 					object.upvoters.remove(user)
 
@@ -655,6 +730,20 @@ def vote_discuss_thread(request):
 					}, status=200)
 
 			elif vote_type == 'down':
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				vote_obj = DiscussQuestionDownvote.objects.get(
+					question=object, 
+					upvoter=user
+				)
+				if timezone.now() > (voted_on := vote_obj.downvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this question {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					}, status=403)
+
 				with transaction.atomic():
 					object.downvoters.remove(user)
 
@@ -686,10 +775,16 @@ def vote_discuss_thread(request):
 	# 
 	# Only comment for discusions
 	elif thread_type == 'comment':
-		already_upvoted = user in object.upvoters.only('id')
+		try:
+			vote_obj = DiscussCommentUpvote.objects.get(
+				question=object, 
+				upvoter=user
+			)
+		except DiscussCommentUpvote.DoesNotExist:
+			vote_obj = None
 
 		if vote_action == 'vote':
-			if not already_upvoted:
+			if not vote_obj:
 				if vote_type == 'up':
 					object.upvoters.add(user)
 					return JsonResponse({
@@ -709,7 +804,17 @@ def vote_discuss_thread(request):
 				}, status=400)
 
 		elif vote_action == 'recall-vote':
-			if vote_type == 'up' and already_upvoted:
+			if vote_type == 'up' and vote_obj:
+				# verify if user is permitted to remove vote(vote can't be removed after 24hrs)
+				if timezone.now() > (voted_on := vote_obj.upvote_datetime) + datetime.timedelta(hours=24):
+					return JsonResponse({
+						'success': False,
+						'message': _(
+							f"You last voted on this comment {voted_on.strftime('%d %b %Y, %H:%M')}. <br>" 
+							"Your vote is now locked in."
+						)
+					})
+
 				object.upvoters.remove(user)
 				return JsonResponse({
 					'success': True,

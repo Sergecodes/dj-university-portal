@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Manually deleted tables inj db and renamed AlterField to AddField
         migrations.CreateModel(
             name='DiscussQuestionUpvote',
             fields=[
