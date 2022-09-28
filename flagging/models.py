@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import FLAGS_ALLOWED, FLAG_REASONS
+from core.constants import FLAGS_ALLOWED, FLAG_REASONS, MAX_TEXT_LENGTH
 from .managers import FlagInstanceManager, FlagManager
 
 User = settings.AUTH_USER_MODEL
@@ -130,7 +130,7 @@ class FlagInstance(models.Model):
     user = models.ForeignKey(User, related_name='flags_by', on_delete=models.CASCADE)
     date_flagged = models.DateTimeField(auto_now_add=True)
     reason = models.SmallIntegerField(choices=REASON, default=reason_values[0])
-    info = models.TextField(blank=True)
+    info = models.TextField(blank=True, max_length=MAX_TEXT_LENGTH)
 
     objects = FlagInstanceManager()
 

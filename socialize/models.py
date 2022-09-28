@@ -7,7 +7,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS
+from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS, MAX_TEXT_LENGTH
 from core.fields import NormalizedEmailField
 from core.models import City
 
@@ -99,8 +99,8 @@ class SocialProfile(models.Model):
 		('undecided', _('Undecided'))
 	]
 
-	about_me = models.TextField(_('A little about me'), blank=True)
-	hobbies = models.TextField(_('My hobbies and interests'), blank=True)
+	about_me = models.TextField(_('A little about me'), blank=True, max_length=MAX_TEXT_LENGTH)
+	hobbies = models.TextField(_('My hobbies and interests'), blank=True, max_length=MAX_TEXT_LENGTH)
 	profile_image = ThumbnailerImageField(
 		_('Profile image'),
 		thumbnail_storage=STORAGE, 

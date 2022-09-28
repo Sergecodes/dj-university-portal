@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR
+from core.constants import LOST_ITEMS_PHOTOS_UPLOAD_DIR, MAX_TEXT_LENGTH
 from core.models import Post, City
 from core.utils import PhotoModelMixin
 
@@ -25,7 +25,8 @@ class LostItem(Post):
 	)
 	item_description = models.TextField(
 		_('Item description'), 
-		help_text=_('Describe the lost item stating its important aspects.')
+		help_text=_('Describe the lost item stating its important aspects.'),
+		max_length=MAX_TEXT_LENGTH
 	)
 	area_lost = models.CharField(
 		_('Area lost'), 
@@ -38,7 +39,8 @@ class LostItem(Post):
 			'Explain how you think you lost the item, ' 
 			'stating areas you passed across or visited'
 		), 
-		default=_('Good day, ')
+		default=_('Good day, '),
+		max_length=MAX_TEXT_LENGTH
 	)
 	bounty = models.CharField(
 		_('Bounty'),
@@ -127,7 +129,11 @@ class FoundItem(Post):
 		max_length=250, 
 		help_text=_('Where did you find the item?')
 	)
-	how_found = models.TextField(_('How found'), help_text=_('Explain how you found the item'))
+	how_found = models.TextField(
+		_('How found'), 
+		help_text=_('Explain how you found the item'),
+		max_length=MAX_TEXT_LENGTH
+	)
 	city = models.ForeignKey(
 		City,
 		help_text=_('City where item was found'),

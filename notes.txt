@@ -13,7 +13,7 @@ freeprivacypolicy.com  (cool)
 
 ONGOING TASKS:
 - add through models (follow, bookmark, upvote, downvote) then add datetime field; - after 24hrs, votes can't be recalled.
-- restrict length of text fields... (also in models; eg via clean method)
+- set maxlength in ckeditor
 - fix bookmarking section in social profile 
 - in listing update and creation forms, first verify via js that contact numbers count is ok. also, if form contains errors, move page to the error section... 
 
@@ -29,7 +29,7 @@ ONGOING TASKS:
 - add attractive and pleasant modal when new users visit the site(homepage) for their first time.
 - display "some users" aside on mobile too.
 - highlight each occurrence of keywords in search results page.
-- overall translation, countries, cities, currencies, etc
+- overall translation, languages, countries, cities, currencies, etc; probably consequently work on footer (room to scroll through more countries & languages)
 
 
 MAYBE MAYBE NOT

@@ -12,7 +12,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 
 from core.constants import (
 	PAST_PAPERS_UPLOAD_DIR, PAST_PAPERS_PHOTOS_UPLOAD_DIR,
-	PAST_PAPER_CAN_DELETE_TIME_LIMIT, 
+	PAST_PAPER_CAN_DELETE_TIME_LIMIT, MAX_TEXT_LENGTH,
 	PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT,
 )
 from core.models import Country
@@ -44,7 +44,7 @@ class PastPaperPhoto(models.Model, PhotoModelMixin):
 
 class Comment(models.Model):
 	flags = GenericRelation(Flag)
-	content = models.TextField(_('Content'))
+	content = models.TextField(_('Content'), max_length=MAX_TEXT_LENGTH)
 	poster = models.ForeignKey(
 		User,
 		on_delete=models.CASCADE,

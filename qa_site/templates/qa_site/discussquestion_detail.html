@@ -1213,7 +1213,7 @@
 			commentJSON = this._parseComment(commentJSON);
 			var data = {
 				'content': commentJSON.content,
-				'pingedIds': Object.keys(commentJSON.pings)
+				'pingedIds': Object.keys(commentJSON.pings),
 			};
 
 			// Append attachments to be created to the form data
@@ -1229,7 +1229,7 @@
 				type: 'PUT',
 				// use cl instead of cud then append id...
 				// since javascript vars do not work in python
-				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}" + id + '/' + JSON.stringify(data) + '/',
+				url: "{% url 'qa_site:comments-cl' 'DiscussComment' %}" + encodeURIComponent(id + '/' + JSON.stringify(data) + '/'),
 				data: formData,
 				contentType: false,
 				processData: false,

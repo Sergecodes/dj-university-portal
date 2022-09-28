@@ -9,7 +9,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR
+from core.constants import AD_PHOTOS_UPLOAD_DIR, LISTING_PHOTOS_UPLOAD_DIR, MAX_TEXT_LENGTH
 from core.models import Post, City
 from core.utils import PhotoModelMixin
 
@@ -213,7 +213,8 @@ class ItemListing(ListingPost):
 	condition_description = models.TextField(
 		_('Condition description'),
 		help_text=_('Provide details about the condition of a non brand-new item, including any defects or flaws, so that buyers know exactly what to expect.'),
-		blank=True
+		blank=True,
+		max_length=MAX_TEXT_LENGTH
 	)
 	# in form, field will be displayed as charfield. this is to enable entering of spaces..
 	price = models.PositiveIntegerField(

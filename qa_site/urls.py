@@ -83,6 +83,7 @@ ajax_patterns = [
 		ajax.delete_comment_attachment,
 		name='delete-attachment'
 	),
+	path('comments/<str:model_name>/<int:id>/<str:data>/', ajax.JQueryCommentDetail.as_view(), name='comment-u'),
 	# Use path because there are cases where the data can contain slashes, such as
 	# when using emojis in ckeditor (via academic comment)
 	path('comments/<str:model_name>/<int:id>/<path:data>/', ajax.JQueryCommentDetail.as_view(), name='comment-u'),

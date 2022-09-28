@@ -545,7 +545,7 @@ class User(AbstractUser):
 # 	creation_datetime = models.DateTimeField(auto_now_add=True)
 # 	duration = models.DurationField(default=timedelta(days=1))  # default suspension period
 # 	is_active = models.BooleanField(default=True)
-# 	reason = models.TextField()
+# 	reason = models.TextField(max_length=MAX_TEXT_LENGTH)
 # 	user = models.ForeignKey(
 # 		User,
 # 		on_delete=models.CASCADE,

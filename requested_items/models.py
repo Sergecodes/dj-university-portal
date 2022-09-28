@@ -8,7 +8,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR
+from core.constants import REQUESTED_ITEMS_PHOTOS_UPLOAD_DIR, MAX_TEXT_LENGTH
 from core.models import Post, City
 from core.utils import PhotoModelMixin
 from marketplace.models import ItemCategory
@@ -37,7 +37,8 @@ class RequestedItem(Post):
 			'Describe the item you are in need of, stating its important aspects. <br>'
 			'You may allow this field empty.'
 		),
-		blank=True
+		blank=True,
+		max_length=MAX_TEXT_LENGTH
 	)
 	price_at_hand = models.CharField(
 		_('Price at hand'),

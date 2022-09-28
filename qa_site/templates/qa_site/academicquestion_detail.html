@@ -1378,8 +1378,6 @@
 
 			commentJSON.content = this._textareaContent;
 			commentJSON = this._parseComment(commentJSON);
-			// Use '' instead of "" to enable parsing json in backend...
-			commentJSON.content = commentJSON.content.replaceAll("\"", '\'');
 
 			// Get pinged users ids
 			var pingedIds = (function() {
@@ -1420,7 +1418,7 @@
 				type: 'PUT',
 				// use cl instead of cud then append id...
 				// since javascript vars do not work in python
-				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + id + '/' + JSON.stringify(data) + '/',
+				url: "{% url 'qa_site:comments-cl' 'AcademicComment' %}" + encodeURIComponent(id + '/' + JSON.stringify(data) + '/'),
 				data: formData,
 				contentType: false,
 				processData: false,

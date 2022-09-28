@@ -9,6 +9,7 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 from model_utils import Choices
 
+from core.constants import MAX_TEXT_LENGTH
 from notifications import settings as notifications_settings
 from notifications.signals import notify
 
@@ -167,7 +168,7 @@ class AbstractNotification(models.Model):
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
     verb = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, max_length=MAX_TEXT_LENGTH)
 
     target_content_type = models.ForeignKey(
         ContentType,
