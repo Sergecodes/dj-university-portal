@@ -111,14 +111,6 @@
 <script src="{% static 'js/jquery.formset.min.js' %}"></script>
 <script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
-	var $form = $("[name='edit-profile-form']");
-	$form.dirty({
-		preventLeaving: true,
-		// message to display when user is about to leave page..
-		// note that some(most) browsers will display their own message.
-		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
-	});
-
 	// insert user email in input box
 	{% comment %} var $realEmail = $("input[type='email']").first();
 	$realEmail.val("{{ user.email }}"); {% endcomment %}

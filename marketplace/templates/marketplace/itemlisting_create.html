@@ -28,17 +28,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
-	// $window is set in base.js file
-	var $form = $("[name='item-listing-form']");
-	$form.dirty({
-		preventLeaving: true,
-		// message to display when user is about to leave page..
-		// note that some(most) browsers will display their own message.
-		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
-	});
-
 	// var NEW = 'N', USED = 'U', DEFECTIVE = 'D';
 	var CONDITIONS_AND_HELP_TEXTS = {
 		'N': "{% trans 'A brand-new, unused, unopened, undamaged item in its original packaging (where packaging is applicable). The item may have a custom package but it should be new. ' %}",

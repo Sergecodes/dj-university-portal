@@ -24,16 +24,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
-	var $form = $("[name='found-item-form']");
-	$form.dirty({
-		preventLeaving: true,
-		// message to display when user is about to leave page..
-		// note that some(most) browsers will display their own message.
-		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
-	});
-
 	var getCitiesUrl = "{% url 'core:get-country-cities' %}";
 
 	{% if not form.errors %}

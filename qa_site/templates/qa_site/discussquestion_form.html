@@ -26,17 +26,7 @@
 
 
 {% block extra_js %}
-<script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
-	// show message when user is about to leave "dirty" form
-	var $form = $("[name='discuss-question-form']");
-	$form.dirty({
-		preventLeaving: true,
-		// message to display when user is about to leave page..
-		// note that some(most) browsers will display their own message.
-		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
-	});
-
 	// place help text directly after label instead of below the ckeditor widget
 	var $contentLabel = $("[for='id_content']");
 	$contentLabel.css({'margin-bottom': '0', 'display': 'block'});

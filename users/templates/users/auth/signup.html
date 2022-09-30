@@ -120,14 +120,6 @@
 <script src="{% static 'js/jquery.formset.min.js' %}"></script>
 <script src="{% static 'js/jquery.dirty.min.js' %}"></script>
 <script>
-	var $form = $("[name='signup-form']");
-	$form.dirty({
-		preventLeaving: true,
-		// message to display when user is about to leave page..
-		// note that some(most) browsers will display their own message.
-		leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
-	});
-
 	/* insert show/hide password checkbox.. */
 	{# apparently, initializing these checkboxes in the django form via crispy_forms breaks the template.. #}
 	var showPasswordText = "{% trans 'Show password' %}";

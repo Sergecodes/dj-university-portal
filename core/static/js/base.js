@@ -299,6 +299,58 @@ function signupAndEditSubmit(e) {
 
 }
 
+
+/** Used to verify that at least one contact number has been entered */
+// $(" \
+// 	[name='ad-listing-form'], \
+// 	[name='item-listing-form'], \
+// 	[name='lost-item-form'], \
+// 	[name='found-item-form'], \
+// 	[name='requested-item-form'] \
+// ").;
+// function onContactContainingFormSubmit(e) {
+// 	var form = e.target;
+
+// }
+
+const CONTACT_FORM_NAMES = [
+	'ad-listing-form', 'item-listing-form', 'lost-item-form', 
+	'found-item-form', 'requested-item-form'
+];
+var $allForms = $(`
+	[name='ad-listing-form'], [name='item-listing-form'],
+	[name='found-item-form'], [name='lost-item-form'],
+	[name='requested-item-form'], [name='past-paper-form'],
+	[name='discuss-question-form'], [name='academic-question-form'],
+	[name='social-profile-form'], [name='signup-form'], [name='edit-profile-form']
+`);
+$allForms.dirty({
+	preventLeaving: true,
+	// message to display when user is about to leave page..
+	// note that some(most) browsers will display their own message.
+	leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
+});
+$allForms.on('submit', function(event) {
+	var form = this, isOk = true;
+
+	if (CONTACT_FORM_NAMES.includes(form.name)) {
+		var checkboxes = form.querySelectorAll('#div_id_contact_numbers [type=checkbox]');
+		for (var box of checkboxes) {
+			if (!box.checked) {
+				isOk = false;
+				break;
+			}
+		}
+
+		if (!isOk) {
+			// alert error...
+			event.preventDefault();
+			displayToast('CUSTOM_ERROR', "{% trans 'Please select at least on contact number' %}");
+		}
+	}
+});
+
+
 /**
  * Called when the item listing form is submitted.
  */
@@ -344,7 +396,6 @@ function itemListingFormSubmit(e) {
 		$priceErrWrp.text('');
 		$priceErrWrp.removeClass();
 	}
-
 }
 
 /** 
