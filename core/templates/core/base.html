@@ -59,15 +59,18 @@
 					</a>
 				</div>
 				<div 
-					class="d-none d-lg-block col-lg-5 header-search-form
-					{% if user.is_authenticated %} px-0 {% else %} ps-0 {% endif %}">
-					<form class="d-flex" method="get" action="{% url 'core:site-search' %}">
+					class="d-none d-lg-block col-lg-5
+					{% if user.is_authenticated %} px-0 {% else %} ps-0 {% endif %}"
+				>
+					<form name="header-search-form" onsubmit="headerSearchSubmit(event)" class="d-flex" method="get" action="{% url 'core:site-search' %}">
 						<input 
 							class="form-control me-2" 
 							type="search" name="keywords" 
 							placeholder="{% trans 'Enter your search keywords here...' %}" 
 							aria-label="{% trans 'Enter your search keywords' %}">
-						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
+						<button class="btn btn-outline-success form-submit-button" type="submit">
+							{% trans 'Search' %}
+						</button>
 					</form>
 				</div>
 
@@ -476,9 +479,11 @@
 							</div>
 						</li>
 					</ul>
-					<form class="d-flex my-2 d-lg-none" method="get" action="{% url 'core:site-search' %}">
+					<form name="header-search-form" onsubmit="headerSearchSubmit(event)" class="d-flex my-2 d-lg-none" method="get" action="{% url 'core:site-search' %}">
 						<input name="keywords" class="form-control me-2" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
-						<button class="btn btn-outline-success form-submit-button" type="submit">{% trans 'Search' %}</button>
+						<button class="btn btn-outline-success form-submit-button" type="submit">
+							{% trans 'Search' %}
+						</button>
 					</form>
 				</div>
 			</nav>

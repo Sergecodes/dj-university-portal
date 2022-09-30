@@ -199,6 +199,18 @@ function validateUsername(username) {
 }
 
 /** 
+ * Executed when the header search form is submitted, 
+ * this is to prevent sending the form if no keyword is entered.
+ */
+function headerSearchSubmit(event) {
+	// event.target refers to the form
+	var inputEl = event.target.querySelector('input');
+	if (inputEl.value.trim() == '') {
+		event.preventDefault();
+	}
+}
+
+/** 
  * Called when the signup or login forms are submitted. 
  * This is to ensure that at least one phone number supports WhatsApp
  * content: what to display in the alert box
