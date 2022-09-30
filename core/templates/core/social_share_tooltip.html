@@ -3,24 +3,6 @@
 
 {% load i18n %}
 
-<!-- success message toast -->
-<div class="toast hide alert alert-success align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body js-toast-message">
-			{# message will be inserted here via js #}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<!-- error message toast -->
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body js-toast-message">
-			{# message will be inserted here via js #}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
 
 {% trans 'Copy link' as copy %}
 {% trans 'Share on Facebook' as facebook_text %}

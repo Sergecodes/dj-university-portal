@@ -2,21 +2,6 @@
 {% load i18n %} 
 {% load app_extras %}
 
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans 'You are not logged in.' %} 
-			<p class="text-dark mt-1 mb-0">
-				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
-					{% trans 'here' %}
-				</a> 
-				{% trans 'to login to your account' %} 
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
 
 <div class="mt-2 mb-4 gallery-container">
 	{# button to trigger click event on input type=file button (.js-file-upload button) #}
@@ -180,7 +165,8 @@
 		fail: function (e, data) {
 			console.log(data);
 			$modalProgress.modal("hide");
-			alert(data.jqXHR.responseJSON.error);
+			// alert(data.jqXHR.responseJSON.error);
+			displayToast('CUSTOM_ERROR', data.jqXHR.responseJSON.error)
 		}
 	});
 
@@ -223,7 +209,8 @@
 					displayToast('LOGIN_REQUIRED');
 					return false;
 				} else {
-					alert(errorMessage);
+					// alert(errorMessage);
+					displayToast('CUSTOM_ERROR', errorMessage);
 				}
 			}
 		});

@@ -116,7 +116,7 @@ class UserUpdateForm(forms.ModelForm):
 			'gender': forms.RadioSelect(),
 		}
 		help_texts = {
-			'email': _("Enter a valid and correct email address, we wont send a verification code")
+			'email': _("Enter a valid and correct email address, we won't send a verification code")
 		}
 
 	# def clean_email(self):

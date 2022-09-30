@@ -286,7 +286,8 @@ function signupAndEditSubmit(e) {
 		e.preventDefault();
 
 		$container.addClass('alert alert-danger');
-		alert(data.alertContent);
+		// alert(data.alertContent);
+		displayToast('CUSTOM_ERROR', data.alertContent);
 
 		// go to top of page so user sees errors
 		var topLink = document.querySelector("a[name='top']");
@@ -300,23 +301,16 @@ function signupAndEditSubmit(e) {
 }
 
 
-/** Used to verify that at least one contact number has been entered */
-// $(" \
-// 	[name='ad-listing-form'], \
-// 	[name='item-listing-form'], \
-// 	[name='lost-item-form'], \
-// 	[name='found-item-form'], \
-// 	[name='requested-item-form'] \
-// ").;
-// function onContactContainingFormSubmit(e) {
-// 	var form = e.target;
-
-// }
-
+// Forms that have a contact section
 const CONTACT_FORM_NAMES = [
 	'ad-listing-form', 'item-listing-form', 'lost-item-form', 
 	'found-item-form', 'requested-item-form'
 ];
+// Forms whose ckeditor fields are required
+const REQUIRED_CKEDITOR_FORM_NAMES = [
+	'ad-listing-form', 'item-listing-form', 'discuss-question-form'
+]
+
 var $allForms = $(`
 	[name='ad-listing-form'], [name='item-listing-form'],
 	[name='found-item-form'], [name='lost-item-form'],
@@ -331,21 +325,34 @@ $allForms.dirty({
 	leavingMessage: "{% trans 'There are unsaved changes on this page which will be discarded if you leave.' %}"
 });
 $allForms.on('submit', function(event) {
-	var form = this, isOk = true;
+	var form = this, msgEl;
 
+	// For contact section
 	if (CONTACT_FORM_NAMES.includes(form.name)) {
+		var contactOk = true;
 		var checkboxes = form.querySelectorAll('#div_id_contact_numbers [type=checkbox]');
 		for (var box of checkboxes) {
 			if (!box.checked) {
-				isOk = false;
+				contactOk = false;
 				break;
 			}
 		}
 
-		if (!isOk) {
-			// alert error...
+		if (!contactOk) {
+			// display error...
 			event.preventDefault();
-			displayToast('CUSTOM_ERROR', "{% trans 'Please select at least on contact number' %}");
+			msgEl = document.querySelector('.js-contactErrMsg');
+			displayToast('CUSTOM_ERROR', msgEl.textContent);
+		}
+	}
+
+	// For ckeditor field
+	if (REQUIRED_CKEDITOR_FORM_NAMES.includes(form.name)) {
+		var ifr = document.querySelector('iframe.cke_wysiwyg_frame');
+		if (ifr.contentDocument.querySelector('body').textContent.trim() == '') {
+			event.preventDefault();
+			msgEl = document.querySelector('.js-ckeditorEmptyMsg');
+			displayToast('CUSTOM_ERROR', msgEl.textContent);
 		}
 	}
 });
@@ -370,7 +377,8 @@ function itemListingFormSubmit(e) {
 	if (photoValid && priceValid) {
 		// do nothing, form is valid.
 	} else {
-		alert(data.alertContent);
+		// alert(data.alertContent);
+		displayToast('CUSTOM_ERROR', data.alertContent);
 	}
 
 	// get error container and empty it just in case..

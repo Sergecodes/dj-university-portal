@@ -75,15 +75,15 @@
 						{# each tr is a form in formset.forms #}
 						<tr class="formset_row">
 							{% for field in form.visible_fields %}
-									<td>
-										{# Include the hidden fields in the form #}
-										{% if forloop.first %}
-											{% for hidden in form.hidden_fields %}
-												{{ hidden }}
-											{% endfor %}
-										{% endif %}
-										{{ field|as_crispy_field }}
-									</td>
+								<td {% if field.name == 'DELETE' %}style="writing-mode: vertical-lr;"{% endif %}>
+									{# Include the hidden fields in the form #}
+									{% if forloop.first %}
+										{% for hidden in form.hidden_fields %}
+											{{ hidden }}
+										{% endfor %}
+									{% endif %}
+									{{ field|as_crispy_field }}
+								</td>
 							{% endfor %}
 						</tr>
 					{% endfor %}

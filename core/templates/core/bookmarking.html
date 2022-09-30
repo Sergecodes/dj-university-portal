@@ -6,67 +6,6 @@
 {% load i18n %}
 {% load static %}
 
-<!-- Toasts -->
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans 'You must login to bookmark a post.' %} 
-			<p class="text-dark mt-1 mb-0">
-				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
-					{% trans 'here' %}
-				</a> 
-				{% trans 'to login to your account or' %} 
-				<a href="{% url 'users:register' %}" target="_blank">
-					{% trans 'here' %}
-				</a> 
-				{% trans "to sign up if you don't yet have an account." %}
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% trans 'An error occured, please refresh the page then try again.' %} <br>
-				{% trans 'If it persists, contact us.' %}
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% if for_social_profile %}
-					{% trans 'The profile was added to your' %} 
-				{% else %}
-					{% trans 'The post was added to your' %} 
-				{% endif %}
-				<a href="{{ bookmarks_url }}">{% trans 'favourites' %}.</a>
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% if for_social_profile %}
-					{% trans 'The profile was removed from your' %} 
-				{% else %}
-					{% trans 'The post was removed from your' %} 
-				{% endif %} 
-				<a href="{{ bookmarks_url }}" class="link-danger">{% trans 'favourites' %}.</a>
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
 
 <a 
 	role="button" 

@@ -16,29 +16,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Toasts -->
-<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-withdrawInfoToast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans "Sorry, you have not yet earned enough to withdraw." %} 
-			<p class="text-dark mt-1 mb-0">
-				{% trans 'Click' %} 
-				<span class="text-purple">{% trans 'here' %}</span>
-				<!-- <a href="#" target="_blank">
-					{% trans 'here' %}
-				</a>  -->
-				{% trans 'for more information.' %} 
-			</p>
-		</div>
-		<button 
-			type="button" 
-			class="btn-close me-2 m-auto" 
-			data-bs-dismiss="toast" 
-			aria-label="{% trans 'Close' %}"
-		></button>
-	</div>
-</div>
-
 <div class="container-lg mb-5">
 	<div class="d-lg-flex align-items-start border p-3">
 		{% include './tab-section.html' %}

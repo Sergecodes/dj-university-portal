@@ -329,7 +329,6 @@ CKEDITOR_CONFIGS = {
 			'/',  # go to new line
 			['Format', 'Font', 'FontSize'],
 			['Undo', 'Redo', '-', 'Maximize', 'Preview']
-			# ['Maximize', 'Source', 'Preview'] TextColor
 		],
 		'extraPlugins': 'wordcount',
 		# https://ckeditor.com/cke4/addon/wordcount

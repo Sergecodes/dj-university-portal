@@ -71,6 +71,11 @@ a.dropdown-item:focus {
     border-color: var(--purple);
 }
 
+/* enable displaying this for ckeditor */
+.invalid-feedback {
+    display: inline;
+}
+
 /* change default bootstrap blue glow */
 .form-control:focus,
 .form-select:focus {

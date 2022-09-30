@@ -37,91 +37,6 @@
 
 
 {% block content %}
-<!-- toasts -->
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body js-toast-message">
-			{# custom message will be inserted here via js #}
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans 'You need to be logged in to perform this action.' %} 
-			<p class="text-dark mt-1 mb-0">
-				{% trans 'Click' %} 
-				<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
-					{% trans 'here' %}
-				</a> 
-				{% trans 'to login to your account or' %} 
-				<a href="{% url 'users:register' %}" target="_blank">
-					{% trans 'here' %}
-				</a> 
-				{% trans "to sign up if you don't yet have an account." %}
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			{% trans "You can't vote for your own post" %} 
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>
-				{% trans 'An error occured, please refresh the page then try again.' %} <br>
-				{% trans 'If it persists, contact us.' %}
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>	
-				{% blocktrans %}
-					You are now following this question. You'll receive notifications when there's activity on this post.
-				{% endblocktrans %} <br>
-				{% trans 'Click' %}
-				<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
-				{% trans 'to see the questions you are following' %}.
-			</p>
-		</div>
-		<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-	</div>
-</div>
-<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-	<div class="d-flex">
-		<div class="toast-body">
-			<p>	
-				{% blocktrans %}
-					You are no longer following this question. 
-					You'll not receive notifications when there's activity on this post.
-				{% endblocktrans %} <br>
-				{% trans 'Click' %}
-				<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
-				{% trans 'to see the questions you are following' %}.
-			</p>
-		</div>
-		<button 
-			type="button" 
-			class="btn-close me-2 m-auto" 
-			data-bs-dismiss="toast" 
-			aria-label="{% trans 'Close' %}"
-		>
-		</button>
-	</div>
-</div>
-
 {% get_login_url as login_url %}
 
 <div class="border py-3 mb-5 container-lg">
@@ -1567,7 +1482,7 @@
 
 			// With upvoteComment, they update the user_has_upvoted field immediately after
 			// the click. But since the user_has_downvoted field is an added field,
-			// we need to handle it manually coz it wont be updated in the commentJSON.
+			// we need to handle it manually coz it won't be updated in the commentJSON.
 			var hadDownvoted = downvoteBtn.classList.contains('highlight-font');
 			var downvotesURL = "{% url 'qa_site:academic-thread-vote' %}";
 
