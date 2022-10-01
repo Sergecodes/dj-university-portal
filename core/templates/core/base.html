@@ -691,6 +691,44 @@
 	</span>
 	{% endblock %}
 
+	{# welcome modal #}
+	<button type="button" class="btn d-none js-welcomeModalBtn" data-bs-toggle="modal" data-bs-target="#welcomeModal">
+	</button>
+	<div class="modal fade" id="welcomeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="welcomeModal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">{% trans 'Welcome to'%} CamerSchools</h5>
+					<button type="buttton" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+				</div>
+				<div class="modal-body">
+					<p class="">
+					{% blocktrans %}
+					CamerSchools is a platform destined to provide various services to its users.
+					There are various sections on this platform such as: 
+					{% endblocktrans %}
+					</p>
+					<ul>
+						<li>{% trans 'Marketplace (where users can sell/buy items and post adverts)' %}</li>
+						<li>{% trans 'Discuss questions (to discuss and ask question about various topics)' %}</li>
+						<li>{% trans 'Academic questions (to ask school-related questions and view past subject papers)' %}</li>
+						<li>{% trans 'Requested items (to ask about items you are in need of)' %}</li>
+						<li>{% trans "Lost/Found items (to post about items you've lost or found)" %}</li>
+						<li>{% trans 'Socialize (to connect with other users, such as via social media)' %}</li>
+					</ul>
+					{% trans 'Click' %} 
+					<a href="{% url 'core:usage-info' %}" class="">{% trans 'here' %}</a>
+					{% trans 'for more info' %}.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-purple" data-bs-dismiss="modal">
+						{% trans 'Ok, thanks' %}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	{% block content %}
 	{% endblock %}
 
@@ -862,5 +900,14 @@
 	<!-- <script type="text/javascript" src="{% static 'js/base.min.js' %}"></script> -->
 	{% block extra_js %}
 	{% endblock %}
+	<script>
+		// Display welcome modal to new users
+		var isOldUser = parseInt(localStorage.getItem('isOldUser') || 0);
+		if (!isOldUser) {
+			var welcomeBtn = document.querySelector('.js-welcomeModalBtn');
+			welcomeBtn.click();
+			localStorage.setItem('isOldUser', 1);
+		}
+	</script>
 </body>
 </html>

@@ -19,9 +19,14 @@ profile_patterns = [
 
 ]
 
+ajax_patterns = [
+	path('check-username/', ajax.check_username, name='check-username')
+]
+
 
 urlpatterns = [
 	path(_('profile/'), include(profile_patterns)),
+	path('ajax/', include(ajax_patterns)),
 	path(_('register/'), views.UserCreate.as_view(), name='register'),
 	path(_('confirm-email/<uidb64>/<token>/'), views.activate_account, name='account-activate'),
 	path(

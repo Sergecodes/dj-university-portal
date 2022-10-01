@@ -4,6 +4,7 @@ var NAV_LINK_ACTIVE_COLOR = '#0e1e0a';
 var CURRENT_NAV_LINK_CLASS = 'nav-menu__link--current';
 var MIN_PASSWORD_LENGTH = 8;
 var MIN_LISTING_PHOTOS = 3;
+var CHECK_WHATSAPP = false;
 
 var $window = $(window);
 // if you calculate the $window.width() here, 
@@ -224,8 +225,8 @@ function signupAndEditSubmit(e) {
 	var usernameOkay = false, phoneNumOkay = false, passwordOkay = false;
 
 	/* Username validation here */
-	var username = form.username.value;
-	if (!validateUsername(username)) {
+	var usernameInput = form.username;
+	if (!(usernameInput.dataset.valid == "true")) {
 		$container.append("<p>" + data.usernameError + "</p>");
 	} else {
 		usernameOkay = true;
@@ -272,24 +273,25 @@ function signupAndEditSubmit(e) {
 	}
 
 	/* validate that at least one number supports WhatsApp */
-	var $checkboxes = $("tbody .checkboxinput");
-	var can_whatsapp_list = [];
-	$checkboxes.each(function () {
-		can_whatsapp_list.push(this.checked);
-	});
+	if (CHECK_WHATSAPP) {
+		var $checkboxes = $("tbody .checkboxinput"), can_whatsapp_list = [];
+		$checkboxes.each(function () {
+			can_whatsapp_list.push(this.checked);
+		});
 
-	// get the number of phone numbers. this is equal to the number of checkboxes...
-	var phoneNumsCount = can_whatsapp_list.length;
-	for (var i = 0; i < phoneNumsCount; i++) {
-		if (can_whatsapp_list[i]) {
-			// at least one number supports whatsapp
-			break;
-		}
+		// get the number of phone numbers. this is equal to the number of checkboxes...
+		var phoneNumsCount = can_whatsapp_list.length;
+		for (var i = 0; i < phoneNumsCount; i++) {
+			if (can_whatsapp_list[i]) {
+				// at least one number supports whatsapp
+				break;
+			}
 
-		// if we're at the last phone number, (if we're here, then no number supports whatsapp.)
-		if (i == phoneNumsCount - 1) {
-			phoneNumOkay = false;
-			$container.append("<p>" + data.whatsAppError + "</p>");
+			// if we're at the last phone number, (if we're here, then no number supports whatsapp.)
+			if (i == phoneNumsCount - 1) {
+				phoneNumOkay = false;
+				$container.append("<p>" + data.whatsAppError + "</p>");
+			}
 		}
 	}
 

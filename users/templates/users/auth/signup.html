@@ -203,15 +203,63 @@
 	$errlist.addClass('list-group');   // add bootstrap class
 	$errlist.children('li').addClass('list-group-item list-group-item-danger');
 
-	// attach event to signup form
+	// Handle username check via ajax (https://rossp.org/blog/django-ajax-username-validation/)
 	var $form = $("[name='signup-form']");
+	var form = $form.get(0), inAjax = false, previousVal = '';
+	var usernameInput = form.username;
+	var span = document.createElement("span"), icon = document.createElement('i');
+	span.style = "float: right; margin-right: 15px; margin-top: -30px; position: relative; z-index: 2;";
+	icon.classList = 'fa';
+	span.append(icon);
+	usernameInput.after(span); 
+
+	function checkUsername() {
+		var newVal = usernameInput.value.trim();
+
+		if (newVal == '' || !validateUsername(newVal)) {
+			usernameInput.dataset.valid = "false";
+			icon.classList = 'fa fa-times text-danger';
+		} else if (previousVal != newVal && newVal && !inAjax) {
+			inAjax = true;
+			icon.classList.add('fa-spinner', 'fa-spin');
+
+			$.ajax({
+				url: "{% url 'users:check-username' %}",
+				type: 'GET',
+				data: { username: newVal },
+				success: function(res) {
+					inAjax = false;
+					// basically reset classList
+					icon.classList = 'fa';
+
+					if (res.available) {
+						usernameInput.dataset.valid = "true";
+						icon.classList.add('fa-solid', 'fa-check', 'text-success');
+					} else {
+						icon.classList.add('fa-times', 'text-danger');
+					}
+				},
+				error: function() {
+					inAjax = false;
+					displayToast('ERROR_OCCURRED');
+				}
+			});
+		} 
+
+		previousVal = newVal;
+	}
+
+	// Check field periodically. I didn't use input event listener because the input value
+	// was rarely in sync with the request sent.
+	setInterval(checkUsername, 2000);
+
+	// attach event to signup form
 	$form.on('submit', {
 		phoneNumError: "- {% trans 'Phone numbers may contain only digits and spaces.' %}",
 		whatsAppError: "- {% trans 'Enter at least one number that supports WhatsApp.' %}",
 		passwordError: "- {% trans 'Password should contain at least 8 characters and should not be entirely numeric.' %}",
-		usernameError: "- {% trans 'Enter a valid username.' %}",
+		usernameError: "- {% trans 'Enter a valid and available username.' %}",
 		alertContent: "{% trans 'Form contains some errors, correct them to continue.' %}",
 	}, signupAndEditSubmit);
-
 </script>
 {% endblock %}
