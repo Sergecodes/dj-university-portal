@@ -12,7 +12,8 @@ from core.constants import (
 	THRESHOLD_POINTS, INITIAL_POINTS, RESTRICTED_POINTS, 
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, COMMENT_CAN_EDIT_VOTE_LIMIT,
 	QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, 
-	QUESTION_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_VOTE_LIMIT
+	QUESTION_CAN_DELETE_VOTE_LIMIT, COMMENT_CAN_DELETE_VOTE_LIMIT,
+	USERNAME_CHANGE_WAIT_PERIOD,
 )
 from core.fields import NormalizedEmailField
 from core.models import Country
@@ -95,8 +96,9 @@ class User(AbstractUser):
 			'Your username should be between 4 to 15 characters '
 			'and the first 4 characters must be letters. <br> '
 			'It should not contain any symbols, dashes or spaces. <br>'
-			'All other characters are allowed (letters, numbers, hyphens and underscores).'
-		),
+			'All other characters are allowed (letters, numbers, hyphens and underscores). <br>'
+			'Also, your username cannot be changed until after {} days from the last time you changed it. '
+		).format(USERNAME_CHANGE_WAIT_PERIOD.days),
 		error_messages={
 			'unique': _('A user with that username already exists.'),
 		},
@@ -116,6 +118,7 @@ class User(AbstractUser):
 		## https://www.postgresql.org/docs/current/collation.html#COLLATION-NONDETERMINISTIC
 		# db_collation='case_insensitive'  # TODO Implement this
 	)
+	last_changed_username_datetime = models.DateTimeField(auto_now_add=True)
 	first_language = models.CharField(
 		_('First language'),
 		choices=settings.LANGUAGES,
@@ -179,6 +182,23 @@ class User(AbstractUser):
 		return f'{self.username}'
 
 	@property
+	def can_change_username(self):
+		"""Determine if the user is permitted to change their username."""
+		last_changed_on = self.last_changed_username_datetime
+
+		# Else if user has already changed their username, check if he has
+		# permission to change it.
+		if timezone.now() > last_changed_on + USERNAME_CHANGE_WAIT_PERIOD:
+			return True
+		else:
+			return False
+
+	@property 
+	def can_change_username_until_date(self):
+		"""Get the minimum date on which user can change their username."""
+		return self.last_changed_username_datetime + USERNAME_CHANGE_WAIT_PERIOD
+
+	@property
 	def can_withdraw(self):
 		return False # for now... TODO !
 
@@ -203,7 +223,6 @@ class User(AbstractUser):
 			return super().delete(*args, **kwargs) 
 		else:
 			self.deactivate()
-			# print("User's account deactivated successfully")
 	
 	def get_absolute_url(self):
 		if self.has_social_profile:

@@ -179,6 +179,11 @@ CREATE_SOCIAL_PROFILE_POINTS_CHANGE = +5
 
 
 ## USERS APP ##
+# Validate or not whether at least one of a user's numbers supports whatsapp
+CHECK_WHATSAPP = True
 INITIAL_POINTS = 10
 # dummy email
 DELETED_USER_EMAIL = 'deleted@gmail.com'
+# After changing their username, the user must wait after this period of time
+# before they can change it again
+USERNAME_CHANGE_WAIT_PERIOD = timedelta(days=15)

@@ -10,11 +10,13 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models.query import Prefetch
 from django.http.response import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import get_language, gettext_lazy as _
@@ -153,15 +155,19 @@ def activate_account(request, uidb64, token):
 
 		# since phone number is ok, register user.
 		user.is_active = True
-		# don't update only is_active field. other fields might also need updating
-		# such as some datetime fields or django machinery stuff lol..
-		user.save()
 
-		# assign phone numbers to user
-		for number_dict in phone_numbers:
-			number = PhoneNumber(**number_dict)
-			number.owner = user
-			number.save()
+		with transaction.atomic():
+			# don't update only is_active field. other fields might also need updating
+			# such as some datetime fields or django machinery stuff lol..
+			user.save()
+
+			# Assign phone numbers to user
+			user_numbers = []
+			for number_dict in phone_numbers:
+				user_numbers.append(PhoneNumber(**number_dict, owner=user))
+			
+			# bulk=False saves the photo instance before adding
+			user.phone_numbers.add(*user_numbers, bulk=False)
 
 		# send notifications(welcome-ish notifs) to new user
 		User.objects.notify_new_user(user)
@@ -212,18 +218,6 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 		self.object = self.get_object()
 		form = self.get_form()
 		formset = EditPhoneNumberFormset(request.POST, instance=self.object)
-		
-		# ensure email wasn't sent(email should not be in the form)
-		# email is included in list of form fields (UserUpdateForm),
-		# but it's marked disabled so it shouldn't be sent.
-		# it will be gotten from the object instance
-		# frontend prevention is done and this is for backend
-		# if request.POST.get('email'):
-		# 	# email was sent, errror
-		# 	form.add_error(
-		# 		'email', 
-		# 		ValidationError(_("You can't change your email address"))
-		# 	)
 
 		if form.is_valid() and formset.is_valid():
 			return self.form_valid(form, formset)
@@ -236,20 +230,23 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 				return self.form_invalid(formset)
 
 	def form_valid(self, form, phone_number_formset):
-		# with transaction.atomic():
-		self.object = form.save()
-		user = self.object
-		
-		# remove all previous numbers
-		# no clear() method available coz null is not = True for this field
-		user.phone_numbers.all().delete()
-		
-		for number_form in phone_number_formset:
-			phone_number = number_form.save(commit=False)
-			phone_number.owner = user
-			phone_number.save()
-			# save many2many fields since the form was saved with commit=False
-			number_form.save_m2m()
+		with transaction.atomic():
+			user = form.save(commit=False)
+			if 'username' in form.changed_data:
+				user.last_changed_username_datetime = timezone.now()
+
+			user.save()
+			form.save_m2m()  # save many2many fields since the form was saved with commit=False
+			self.object = user
+
+			# Update phone numbers
+			user_numbers = []
+			for number_form in phone_number_formset:
+				phone_number = number_form.save(commit=False)
+				phone_number.owner = user
+				user_numbers.append(phone_number)
+
+			user.phone_numbers.set(user_numbers, bulk=False, clear=True)
 
 		if next_url := self.request.POST.get('next'):
 			return redirect(next_url)

@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import CHECK_WHATSAPP, USERNAME_CHANGE_WAIT_PERIOD
 from .models import PhoneNumber, User
 
 
@@ -119,15 +120,20 @@ class UserUpdateForm(forms.ModelForm):
 			'email': _("Enter a valid and correct email address, we won't send a verification code")
 		}
 
-	# def clean_email(self):
-	# 	# since email isn't submitted with form, upon update,
-	# 	# the email is set to an empty string since it's value wasn't sent.
-	# 	# this is to reset the email
+	def clean_username(self):
+		instance, cleaned_data = self.instance, self.cleaned_data
 
-	# 	# instance refers to the User object concerned
-	# 	instance = self.instance
-	# 	if instance and instance.pk and instance.email:
-	# 		return instance.email
+		# If username was changed
+		if instance.username != cleaned_data['username']:
+			if not instance.can_change_username:
+				self.add_error(
+					'username', 
+					_('You last changed your username on {}. You need to wait until after {} days to be able to change it again.') \
+					.format(instance.last_changed_username_datetime.strftime('%d %b %Y, %H:%M'), USERNAME_CHANGE_WAIT_PERIOD.days)
+				)
+			
+		# Note that if error is added to field, it will be removed from cleaned_data
+		return cleaned_data.get('username', instance.username)
 
 
 class PhoneNumberForm(forms.ModelForm):
@@ -157,9 +163,12 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 
 		# at least one form should be present
 		if len(self.forms) == 0:
-			raise ValidationError(
-				_("Enter at least one phone number and this number should support WhatsApp")
-			)
+			if CHECK_WHATSAPP:
+				msg = _("Enter at least one phone number and this number should support WhatsApp")
+			else:
+				msg = _("Enter at least one phone number")
+
+			raise ValidationError(msg)
 
 		numbers_list, can_whatsapp_list = [], []
 		for form in self.forms:
@@ -173,7 +182,9 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 			# remove any space in number and add number to list
 			number = number.replace(' ', '')
 			numbers_list.append(number)
-			can_whatsapp_list.append(form.cleaned_data['can_whatsapp'])
+
+			if CHECK_WHATSAPP:
+				can_whatsapp_list.append(form.cleaned_data['can_whatsapp'])
 
 		# if number is invalid(if number is not int)
 		for number in numbers_list:
@@ -184,8 +195,9 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 
 		# if there isn't any number that supports whatsapp, raise error 
 		# also perform this check in frontend
-		if not any(can_whatsapp_list):
-			raise ValidationError(_("Enter at least one number that supports WhatsApp."))
+		if CHECK_WHATSAPP:
+			if not any(can_whatsapp_list):
+				raise ValidationError(_("Enter at least one number that supports WhatsApp."))
 
 
 PhoneNumberFormset = inlineformset_factory(
