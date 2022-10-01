@@ -13,103 +13,7 @@
 
 {% block content %}
 <article class="container mb-5">
-	{# Questions section #}
-	<section class="py-3 mb-5">
-		<!-- each span in section-title can be called section-title__span or section-title__text -->
-		<!-- can replace `section-title__text` with `border-2 border-success border-bottom` -->
-		<h2 class="text-success mb-3 pb-lg-3 section-title">
-			<span class="pb-lg-3 section-title__text">{% trans 'Questions' %}</span>
-		</h2>
-		<div class="row ms-0 mb-3">
-			<div class="col-lg-6 mb-4 mb-lg-0">
-				<div class="d-flex mb-3">
-					<div class="flex-shrink-0 me-3">
-						<a href="{% url 'qa_site:academic-question-list' %}">
-							{# use alt="" since this image is purely decorative #}
-							{# see https://w3.org/WAI/tutorials/images/decorative #}
-							{# also see other image categories while you're at it. #}
-							<img src="{% static 'images/stacked-open-books.jpeg' %}" alt="" class="rounded extra-info-img">
-							<span class="visually-hidden">{% trans 'Academic questions' %}</span>
-						</a>
-					</div>
-					<div>
-						<h5>
-							<a href="{% url 'qa_site:academic-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
-								{% trans 'Academic Questions' %}
-							</a>
-						</h5>
-						<a href="{% url 'qa_site:academic-question-list' %}" class="btn btn-success me-2 mb-1 mb-lg-0">
-							{% trans 'View Questions' %}
-						</a>
-						<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-outline-success">
-							{% trans 'Ask a Question' %}
-						</a>
-					</div>
-				</div>
-				{% for question in academic_questions %}
-					<div class="mb-2">
-						<a href="{{ question.get_absolute_url }}" class="text-decoration-none ">
-							<span>
-								{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
-							</span>
-						</a>
-						<span class="small text-muted mx-2">
-							{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
-						</span>
-						<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
-					</div>
-				{% endfor %}
-			</div>
-			<div class="col-lg-6">
-				<div class="d-flex mb-3">
-					<div class="flex-shrink-0 me-3">
-						<a href="{% url 'qa_site:discuss-question-list' %}">
-							<img src="{% static 'images/some students.jpeg' %}" alt="" class="rounded extra-info-img">
-							<span class="visually-hidden">{% trans 'Discussion questions' %}</span>
-						</a>
-					</div>
-					<div>
-						<h5>
-							<a href="{% url 'qa_site:discuss-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
-								{% trans 'Discussion Questions' %}
-							</a>
-						</h5>
-						<a href="{% url 'qa_site:discuss-question-list' %}" class="btn btn-success mb-1 mb-lg-0 me-2">
-							{% trans 'View Questions' %}
-						</a>
-						<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-outline-success">
-							{% trans 'Ask a Question' %}
-						</a>
-					</div>
-				</div>
-				{% for question in discuss_questions %}
-					<div class="mb-2">
-						<a href="{{ question.get_absolute_url }}" class="text-decoration-none ">
-							<span>
-								{# `safe` is used at the end to also remove html entities #}
-								{{ question.content|remove_tags|truncatewords:50|safe }}
-								{% if question.school_id %}
-								<span class="small">({{ question.school }})</span>
-								{% endif %}
-								- <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
-							</span>
-						</a>
-						<span class="small text-muted mx-2">{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}</span>
-						<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
-					</div>
-				{% endfor %}
-			</div>
-		</div>
-		<div class="text-center">
-			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
-				{% trans 'All Questions' %}
-			</a>
-			<a class="btn btn-outline-success" href="{% url 'qa_site:questions-explain' %}">
-				{% trans 'Post a Question' %}
-			</a>
-		</div>
-	</section>
-
+	
 	{# Marketplace/items section #}
 	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
@@ -285,64 +189,7 @@
 			</a>
 		</div>
 	</section>
-
-	{# past papers section #}
-	<section class="py-3 mb-5">
-		<h2 class="section-title text-success mb-3 pb-lg-3">
-			<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
-		</h2>
-		<ul class="row list-unstyled mb-3">
-			{% for past_paper in past_papers %}
-				<li class="col-lg-4 mb-4">
-					<a 
-						href="{{ past_paper.get_absolute_url }}" 
-						class="fw-bold text-decoration-none "
-					>
-						{{ past_paper.title }}
-					</a>
-					<!-- past paper meta -->
-					<div class="mt-2">
-						<a 
-							class="badge bg-info link-light text-decoration-none" 
-							href="{% url 'past_papers:past-paper-list' %}?level={{ past_paper.level }}"
-							title="{{ past_paper.get_level_display }}"
-						>
-							{{ past_paper.level }}
-						</a>
-						{% if past_paper.subject_id %}
-							<a 
-								class="badge bg-secondary ms-2 link-light text-decoration-none" 
-								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
-							>
-								{{ past_paper.subject }}
-							</a>
-						{% endif %}
-						<a 
-							class="small text-decoration-none " 
-							href="{% url 'past_papers:past-paper-list' %}?country={{ past_paper.country_id }}"
-						>
-							&nbsp; ({{ past_paper.country }})
-						</a>
-						<div class="d-inline ms-3 small">
-							<span class="text-muted">{% trans 'Uploaded' %} </span>
-							<span class="small text-muted">
-								{{ past_paper.posted_datetime|naturaltime }}
-							</span>
-						</div>
-					</div>
-				</li> 
-			{% endfor %}
-		</ul>
-		<div class="text-center">
-			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
-				{% trans 'View Past Papers' %}
-			</a>
-			<a class="btn btn-outline-success" href="{% url 'marketplace:item-listing-create' %}">
-				{% trans 'Upload a Past Paper' %}
-			</a>
-		</div>
-	</section>
-
+	
 	{# Lost items section #}
 	<section class="py-3 mb-5">
 		<h2 class="section-title text-success mb-3 pb-lg-3">
@@ -439,6 +286,160 @@
 			</a>
 			<a class="btn btn-outline-success" href="{% url 'lost_or_found:found-item-create' %}">
 				{% trans 'Publish a found item' %}
+			</a>
+		</div>
+	</section>
+
+	{# Questions section #}
+	<section class="py-3 mb-5">
+		<!-- each span in section-title can be called section-title__span or section-title__text -->
+		<!-- can replace `section-title__text` with `border-2 border-success border-bottom` -->
+		<h2 class="text-success mb-3 pb-lg-3 section-title">
+			<span class="pb-lg-3 section-title__text">{% trans 'Questions' %}</span>
+		</h2>
+		<div class="row ms-0 mb-3">
+			<div class="col-lg-6 mb-4 mb-lg-0">
+				<div class="d-flex mb-3">
+					<div class="flex-shrink-0 me-3">
+						<a href="{% url 'qa_site:academic-question-list' %}">
+							{# use alt="" since this image is purely decorative #}
+							{# see https://w3.org/WAI/tutorials/images/decorative #}
+							{# also see other image categories while you're at it. #}
+							<img src="{% static 'images/stacked-open-books.jpeg' %}" alt="" class="rounded extra-info-img">
+							<span class="visually-hidden">{% trans 'Academic questions' %}</span>
+						</a>
+					</div>
+					<div>
+						<h5>
+							<a href="{% url 'qa_site:academic-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
+								{% trans 'Academic Questions' %}
+							</a>
+						</h5>
+						<a href="{% url 'qa_site:academic-question-list' %}" class="btn btn-success me-2 mb-1 mb-lg-0">
+							{% trans 'View Questions' %}
+						</a>
+						<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-outline-success">
+							{% trans 'Ask a Question' %}
+						</a>
+					</div>
+				</div>
+				{% for question in academic_questions %}
+					<div class="mb-2">
+						<a href="{{ question.get_absolute_url }}" class="text-decoration-none ">
+							<span>
+								{{ question.title }} - <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+							</span>
+						</a>
+						<span class="small text-muted mx-2">
+							{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}
+						</span>
+						<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
+					</div>
+				{% endfor %}
+			</div>
+			<div class="col-lg-6">
+				<div class="d-flex mb-3">
+					<div class="flex-shrink-0 me-3">
+						<a href="{% url 'qa_site:discuss-question-list' %}">
+							<img src="{% static 'images/some students.jpeg' %}" alt="" class="rounded extra-info-img">
+							<span class="visually-hidden">{% trans 'Discussion questions' %}</span>
+						</a>
+					</div>
+					<div>
+						<h5>
+							<a href="{% url 'qa_site:discuss-question-list' %}" class="text-decoration-none d-inline-block  mb-1">
+								{% trans 'Discussion Questions' %}
+							</a>
+						</h5>
+						<a href="{% url 'qa_site:discuss-question-list' %}" class="btn btn-success mb-1 mb-lg-0 me-2">
+							{% trans 'View Questions' %}
+						</a>
+						<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-outline-success">
+							{% trans 'Ask a Question' %}
+						</a>
+					</div>
+				</div>
+				{% for question in discuss_questions %}
+					<div class="mb-2">
+						<a href="{{ question.get_absolute_url }}" class="text-decoration-none ">
+							<span>
+								{# `safe` is used at the end to also remove html entities #}
+								{{ question.content|remove_tags|truncatewords:50|safe }}
+								{% if question.school_id %}
+								<span class="small">({{ question.school }})</span>
+								{% endif %}
+								- <strong>{{ question.num_answers }} {% trans 'answer' %}{{ question.num_answers|pluralize }}</strong>
+							</span>
+						</a>
+						<span class="small text-muted mx-2">{% trans 'Asked' %} {{ question.posted_datetime|naturaltime }}</span>
+						<a class="link-success" href="{{ question.get_absolute_url }}">{% trans 'Answer this' %}</a>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="text-center">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'qa_site:questions-explain' %}">
+				{% trans 'All Questions' %}
+			</a>
+			<a class="btn btn-outline-success" href="{% url 'qa_site:questions-explain' %}">
+				{% trans 'Post a Question' %}
+			</a>
+		</div>
+	</section>
+
+	{# past papers section #}
+	<section class="py-3 mb-5">
+		<h2 class="section-title text-success mb-3 pb-lg-3">
+			<span class="section-title__text pb-lg-3">{% trans 'Revision Past Papers' %}</span>
+		</h2>
+		<ul class="row list-unstyled mb-3">
+			{% for past_paper in past_papers %}
+				<li class="col-lg-4 mb-4">
+					<a 
+						href="{{ past_paper.get_absolute_url }}" 
+						class="fw-bold text-decoration-none "
+					>
+						{{ past_paper.title }}
+					</a>
+					<!-- past paper meta -->
+					<div class="mt-2">
+						<a 
+							class="badge bg-info link-light text-decoration-none" 
+							href="{% url 'past_papers:past-paper-list' %}?level={{ past_paper.level }}"
+							title="{{ past_paper.get_level_display }}"
+						>
+							{{ past_paper.level }}
+						</a>
+						{% if past_paper.subject_id %}
+							<a 
+								class="badge bg-secondary ms-2 link-light text-decoration-none" 
+								href="{% url 'past_papers:past-paper-list' %}?subject={{ past_paper.subject_id }}"
+							>
+								{{ past_paper.subject }}
+							</a>
+						{% endif %}
+						<a 
+							class="small text-decoration-none " 
+							href="{% url 'past_papers:past-paper-list' %}?country={{ past_paper.country_id }}"
+						>
+							&nbsp; ({{ past_paper.country }})
+						</a>
+						<div class="d-inline ms-3 small">
+							<span class="text-muted">{% trans 'Uploaded' %} </span>
+							<span class="small text-muted">
+								{{ past_paper.posted_datetime|naturaltime }}
+							</span>
+						</div>
+					</div>
+				</li> 
+			{% endfor %}
+		</ul>
+		<div class="text-center">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+				{% trans 'View Past Papers' %}
+			</a>
+			<a class="btn btn-outline-success" href="{% url 'marketplace:item-listing-create' %}">
+				{% trans 'Upload a Past Paper' %}
 			</a>
 		</div>
 	</section>

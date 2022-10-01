@@ -7,6 +7,7 @@
 {% get_available_languages as LANGUAGES %}
 {% get_countries as countries %}
 {% get_session_country as session_country %}
+{% url 'core:my-notifs' as notifs_url %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -43,9 +44,175 @@
 </head>
 {% endblock head %}
 
-{% url 'core:my-notifs' as notifs_url %}
-
 <body class="page">
+	{% block toasts %}
+	{# success message toast #}
+	<div class="toast hide alert alert-success align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body js-toast-message">
+				{# message will be inserted here via js #}
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	{# error message toast #}
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body js-toast-message">
+				{# message will be inserted here via js #}
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				{% trans 'You must login to bookmark a post.' %} 
+				<p class="text-dark mt-1 mb-0">
+					{% trans 'Click' %} 
+					<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
+						{% trans 'here' %}
+					</a> 
+					{% trans 'to login to your account or' %} 
+					<a href="{% url 'users:register' %}" target="_blank">
+						{% trans 'here' %}
+					</a> 
+					{% trans "to sign up if you don't yet have an account." %}
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<p>
+					{% trans 'An error occured, please refresh the page then try again.' %} <br>
+					{% trans 'If it persists, contact us.' %}
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	{# bookmark toasts #}
+	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<p>
+					{% if for_social_profile %}
+						{% trans 'The profile was added to your' %} 
+					{% else %}
+						{% trans 'The post was added to your' %} 
+					{% endif %}
+					<a href="{{ bookmarks_url }}">{% trans 'favourites' %}.</a>
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<p>
+					{% if for_social_profile %}
+						{% trans 'The profile was removed from your' %} 
+					{% else %}
+						{% trans 'The post was removed from your' %} 
+					{% endif %} 
+					<a href="{{ bookmarks_url }}" class="link-danger">{% trans 'favourites' %}.</a>
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	{# flag toasts #}
+	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body js-toast-message">
+				{# message will be inserted here via js #}
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body js-toast-message">
+				{# message will be inserted here via js #}
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	{# self-vote toast #}
+	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				{% trans "You can't vote for your own post" %} 
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	{# follow toasts #}
+	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<p>	
+					{% blocktrans %}
+						You are now following this question. You'll receive notifications when there's activity on this post.
+					{% endblocktrans %} <br>
+					{% trans 'Click' %}
+					<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
+					{% trans 'to see the questions you are following' %}.
+				</p>
+			</div>
+			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
+		</div>
+	</div>
+	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				<p>	
+					{% blocktrans %}
+						You are no longer following this question. 
+						You'll not receive notifications when there's activity on this post.
+					{% endblocktrans %} <br>
+					{% trans 'Click' %}
+					<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
+					{% trans 'to see the questions you are following' %}.
+				</p>
+			</div>
+			<button 
+				type="button" 
+				class="btn-close me-2 m-auto" 
+				data-bs-dismiss="toast" 
+				aria-label="{% trans 'Close' %}"
+			>
+			</button>
+		</div>
+	</div>
+	{# withdraw info toast #}
+	<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-withdrawInfoToast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
+		<div class="d-flex">
+			<div class="toast-body">
+				{% trans "Sorry, you have not yet earned enough to withdraw." %} 
+				<p class="text-dark mt-1 mb-0">
+					{% trans 'Click' %} 
+					<span class="text-purple">{% trans 'here' %}</span>
+					<!-- <a href="#" target="_blank">
+						{% trans 'here' %}
+					</a>  -->
+					{% trans 'for more information.' %} 
+				</p>
+			</div>
+			<button 
+				type="button" 
+				class="btn-close me-2 m-auto" 
+				data-bs-dismiss="toast" 
+				aria-label="{% trans 'Close' %}"
+			></button>
+		</div>
+	</div>
+	{% endblock %}
+
 	{% block header %}
 	<header class="mb-4 header">
 		<div class="bg-gradient header-top">
@@ -407,23 +574,6 @@
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
-								id="askQuestion"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/questions/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-								role="button"
-								tabindex="0"
-							>
-								{% trans 'Ask a question' %}
-							</a>
-							<div class="dropdown-menu" aria-labelledby="askQuestion">
-								<a class="dropdown-item" href="{% url 'qa_site:academic-question-create' %}">{% trans 'Academic Question' %}</a>
-								<a class="dropdown-item" href="{% url 'qa_site:discuss-question-create' %}">{% trans 'Discussion Question' %}</a>
-								<a class="dropdown-item" href="{% url 'qa_site:questions-explain' %}">{% trans 'All Questions' %}</a>
-							</div>
-						</li>
-						<li class="nav-item my-1 dropdown js-headerDropdown">
-							<a
 								id="lostFoundItems"
 								class="nav-link dropdown-toggle nav-menu__link {% if '/lost-or-found/' in request.path or '/perdu-ou-trouvé/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
@@ -442,18 +592,36 @@
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
 							<a
-								id="pastPapers"
-								class="nav-link dropdown-toggle nav-menu__link {% if '/past-papers/' in request.path or '/anciens-sujets/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								id="academicQstns"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/questions/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"
 								role="button"
 								tabindex="0"
 							>
-								{% trans 'Past Papers' %}
+								{% trans 'Academic Questions' %}
 							</a>
-							<div class="dropdown-menu" aria-labelledby="pastPapers">
+							<div class="dropdown-menu" aria-labelledby="academicQstns">
+								<a class="dropdown-item" href="{% url 'qa_site:academic-question-create' %}">{% trans 'Ask a question' %}</a>
+								<a class="dropdown-item" href="{% url 'qa_site:academic-question-list' %}">{% trans 'All questions' %}</a>
 								<a class="dropdown-item" href="{% url 'past_papers:past-paper-upload' %}">{% trans 'Upload a past paper' context 'dropdown child' %}</a>
-								<a class="dropdown-item" href="{% url 'past_papers:past-paper-list' %}">{% trans 'Past papers' %}</a>
+								<a class="dropdown-item" href="{% url 'past_papers:past-paper-list' %}">{% trans 'View past papers' %}</a>
+							</div>
+						</li>
+						<li class="nav-item my-1 dropdown js-headerDropdown">
+							<a
+								id="discussQstns"
+								class="nav-link dropdown-toggle nav-menu__link {% if '/questions/' in request.path %} nav-menu__link--current" aria-current="page" {% endif %}"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								role="button"
+								tabindex="0"
+							>
+								{% trans 'Discuss' %}
+							</a>
+							<div class="dropdown-menu" aria-labelledby="discussQstns">
+								<a class="dropdown-item" href="{% url 'qa_site:discuss-question-create' %}">{% trans 'Ask any question' %}</a>
+								<a class="dropdown-item" href="{% url 'qa_site:discuss-question-list' %}">{% trans 'All discussions' %}</a>
 							</div>
 						</li>
 						<li class="nav-item my-1 dropdown js-headerDropdown">
@@ -511,174 +679,6 @@
 			</div>
 		</form>
 	</div> {% endcomment %}
-	{% endblock %}
-
-	{% block toasts %}
-	{# success message toast #}
-	<div class="toast hide alert alert-success align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body js-toast-message">
-				{# message will be inserted here via js #}
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	{# error message toast #}
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-custom-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body js-toast-message">
-				{# message will be inserted here via js #}
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-login-required-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				{% trans 'You must login to bookmark a post.' %} 
-				<p class="text-dark mt-1 mb-0">
-					{% trans 'Click' %} 
-					<a href="{% url 'users:login' %}?next={{ request.get_full_path }}">
-						{% trans 'here' %}
-					</a> 
-					{% trans 'to login to your account or' %} 
-					<a href="{% url 'users:register' %}" target="_blank">
-						{% trans 'here' %}
-					</a> 
-					{% trans "to sign up if you don't yet have an account." %}
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-error-occurred-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				<p>
-					{% trans 'An error occured, please refresh the page then try again.' %} <br>
-					{% trans 'If it persists, contact us.' %}
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	{# bookmark toasts #}
-	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-added-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				<p>
-					{% if for_social_profile %}
-						{% trans 'The profile was added to your' %} 
-					{% else %}
-						{% trans 'The post was added to your' %} 
-					{% endif %}
-					<a href="{{ bookmarks_url }}">{% trans 'favourites' %}.</a>
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-bookmark-removed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				<p>
-					{% if for_social_profile %}
-						{% trans 'The profile was removed from your' %} 
-					{% else %}
-						{% trans 'The post was removed from your' %} 
-					{% endif %} 
-					<a href="{{ bookmarks_url }}" class="link-danger">{% trans 'favourites' %}.</a>
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	{# flag toasts #}
-	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-success-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body js-toast-message">
-				{# message will be inserted here via js #}
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-flag-error-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body js-toast-message">
-				{# message will be inserted here via js #}
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	{# self-vote toast #}
-	<div class="toast hide alert alert-danger align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-self-vote-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				{% trans "You can't vote for your own post" %} 
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	{# follow toasts #}
-	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-followed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				<p>	
-					{% blocktrans %}
-						You are now following this question. You'll receive notifications when there's activity on this post.
-					{% endblocktrans %} <br>
-					{% trans 'Click' %}
-					<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
-					{% trans 'to see the questions you are following' %}.
-				</p>
-			</div>
-			<button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="{% trans 'Close' %}"></button>
-		</div>
-	</div>
-	<div class="toast hide alert alert-purple align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-unfollowed-toast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				<p>	
-					{% blocktrans %}
-						You are no longer following this question. 
-						You'll not receive notifications when there's activity on this post.
-					{% endblocktrans %} <br>
-					{% trans 'Click' %}
-					<a href="{% url 'users:profile-qa' %}">{% trans 'here' %}</a>
-					{% trans 'to see the questions you are following' %}.
-				</p>
-			</div>
-			<button 
-				type="button" 
-				class="btn-close me-2 m-auto" 
-				data-bs-dismiss="toast" 
-				aria-label="{% trans 'Close' %}"
-			>
-			</button>
-		</div>
-	</div>
-	{# withdraw info toast #}
-	<div class="toast hide alert alert-info align-items-center mt-3 py-0 position-fixed top-0 start-50 translate-middle-x js-withdrawInfoToast" role="alert" data-bs-animation="false" aria-live="assertive" aria-atomic="true">
-		<div class="d-flex">
-			<div class="toast-body">
-				{% trans "Sorry, you have not yet earned enough to withdraw." %} 
-				<p class="text-dark mt-1 mb-0">
-					{% trans 'Click' %} 
-					<span class="text-purple">{% trans 'here' %}</span>
-					<!-- <a href="#" target="_blank">
-						{% trans 'here' %}
-					</a>  -->
-					{% trans 'for more information.' %} 
-				</p>
-			</div>
-			<button 
-				type="button" 
-				class="btn-close me-2 m-auto" 
-				data-bs-dismiss="toast" 
-				aria-label="{% trans 'Close' %}"
-			></button>
-		</div>
-	</div>
 	{% endblock %}
 
 	{% block js_trans_elements %}

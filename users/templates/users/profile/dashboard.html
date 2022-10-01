@@ -22,65 +22,15 @@
 
 		<div class="tab-content flex-grow-1 mt-2 py-2 ms-lg-4 ps-lg-4 pe-lg-3 px-3 px-lg-0 border" id="nav-tabContent">
 			<div class="tab-pane active" id="nav-dashboard" aria-labelledby="nav-dashboard-tab">
-				<h2 class="text-success mb-3">{% trans 'Dashboard' %}</h2>
-				<div class="row mb-4">
-					<div class="col col-lg-5">
-						<div class="card text-white text-center bg-success opacity-75 mb-3">
-							<div class="card-body">
-								<h5 class="card-title">
-									{{ user.site_points|intcomma }} {% trans 'point' %}{{ user.site_points|pluralize }}
-								</h5>
-								<h5 class="card-title">
-									{% trans 'Earnings' %}:
-									{# todo get earnings from points #}
-									<span class="ms-2">
-										{{ user.get_earnings|intcomma }} {{ user.country.code|get_currency }}
-									</span>
-								</h5>
-							</div>
-							<div class="card-footer text-center">
-								{# todo lol #}
-								<a href="{% url 'core:usage-info' %}" class="link-warning text-decoration-none">
-									{% trans 'More info' %}
-									{% comment %} <i class="fas fa-angle-double-right" aria-hidden="true"></i> {% endcomment %}
-									<i class="far fa-arrow-alt-circle-right" aria-hidden="true"></i>
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-				{# display traditional button if user can't withdraw otherwise a link to withdraw page #}
-				{# uncomment this when withdrawing will be available #}
-				{% comment %}
-					{% if user.can_withdraw %}
-						<a class="btn btn-outline-purple mb-3" href="">
-							{% trans 'Withdraw earnings' %}
-						</a>
-					{% else %}
-						<button class="btn btn-outline-purple mb-3 js-withdrawBtn">
-							{% trans 'Withdraw earnings' %}
-						</button>
-					{% endif %}
-				{% endcomment %}
+				<h2 class="text-success mb-4">{% trans 'Dashboard' %}</h2>
+				<p>
+					{% trans "You currently have" %} <strong>{{ user.site_points|intcomma }} {% trans 'point' %}{{ user.site_points|pluralize }}</strong>. <br>
+					{% trans "Rewards will be announced at the appointed time (usually during the month of December of each year)" %}. <br><br>
+					{% trans 'Ensure to be active on the site to win great rewards!' %}
+				</p>
 			</div>
 		</div>
 	</div>
 </div>
 {% endblock content %}
 
-
-{% block extra_js %}
-<script>
-	{% if not user.can_withdraw %}
-		var $withdrawBtn = $('.js-withdrawBtn').first();
-
-		$withdrawBtn.click(function(event) {
-			// event.stopImmediatePropagation();
-
-			var $myToast = $('.js-withdrawInfoToast').first();
-			var bsToast = new bootstrap.Toast($myToast[0]);
-			bsToast.show(); 
-		});
-	{% endif %}
-</script>
-{% endblock %} 
