@@ -222,8 +222,8 @@ class SocialProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, View):
 			return redirect(social_profile)
 
 		return render(request, self.template_name, {
-			'profile_form': SocialProfileForm(POST, instance=object),
-			'media_form': SocialMediaFollowForm(POST, instance=object.social_media)
+			'profile_form': social_profile_form,
+			'media_form': social_media_form
 		})
 
 

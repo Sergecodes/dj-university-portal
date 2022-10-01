@@ -7,9 +7,10 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS, MAX_TEXT_LENGTH
+from core.constants import PROFILE_IMAGE_UPLOAD_DIR, GENDERS, MAX_TEXT_LENGTH, MIN_AGE
 from core.fields import NormalizedEmailField
 from core.models import City
+from core.utils import get_age
 
 STORAGE = import_string(settings.DEFAULT_FILE_STORAGE)()
 User = get_user_model()
@@ -113,8 +114,9 @@ class SocialProfile(models.Model):
 		_('Birthday'), 
 		help_text=_( 
 			"Please at least enter the correct birth year. <br>" 
-			"Your birth date and age won't be visible to other users."
-		)
+			"Your birth date and age won't be visible to other users. <br>"
+			"Also, you should be at least {} years old."
+		).format(MIN_AGE)
 	)
 	speciality = models.CharField(
 		_('Speciality'),
@@ -209,9 +211,7 @@ class SocialProfile(models.Model):
 
 	@property
 	def age(self):
-		"""Get user's age from birth_date"""
-		time_delta = timezone.now().date() - self.birth_date
-		return int(time_delta.days / 365)
+		return get_age(self.birth_date)
 
 	@property
 	def age_range(self):

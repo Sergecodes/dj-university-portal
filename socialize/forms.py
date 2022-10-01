@@ -5,6 +5,8 @@ from django import forms
 # from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from core.constants import MIN_AGE
+from core.utils import get_age
 from .models import SocialProfile, SocialMediaFollow
 
 
@@ -173,3 +175,14 @@ class SocialProfileForm(forms.ModelForm):
 			),
 			# Field('is_visible', css_class='mb-2')
 		)
+
+	def clean_birth_date(self):
+		"""User should be atleast 15"""
+		birth_date = self.cleaned_data['birth_date']
+		if get_age(birth_date) < MIN_AGE:
+			self.add_error(
+				'birth_date',
+				_('You should be at least {} years old to create a social profile.').format(MIN_AGE)
+			)
+
+		return birth_date

@@ -176,6 +176,7 @@ MAX_REQUESTED_ITEM_PHOTOS = 3
 # Changes in points:
 	# add social profile: +5 points
 CREATE_SOCIAL_PROFILE_POINTS_CHANGE = +5
+MIN_AGE = 15
 
 
 ## USERS APP ##
