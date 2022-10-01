@@ -159,8 +159,8 @@ class UserManager(BaseUserManager, Manager):
 				sender=user,  # just use same user as sender
 				recipient=user, 
 				verb=_(
-					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If any of your posts is reported again, your account will be deactivated without further notice.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
-				),
+					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If any of your posts is reported again, your account will be deactivated without further notice."
+				).format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE)),
 				target=flagged_post,
 				category=Notification.FLAG
 			)
@@ -169,8 +169,8 @@ class UserManager(BaseUserManager, Manager):
 				sender=user,  # just use same user as sender
 				recipient=user, 
 				verb=_(
-					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If you continue, your account could be deactivated.".format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE))
-				),
+					"You have been deducted {} points because many users considered your post inappropriate. Avoid posting such posts. If you continue, your account could be deactivated."
+				).format(abs(PENALIZE_FLAGGED_USER_POINTS_CHANGE)),
 				target=flagged_post,
 				category=Notification.FLAG
 			)

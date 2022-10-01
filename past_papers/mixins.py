@@ -43,10 +43,9 @@ class CanDeletePastPaperMixin(LoginRequiredMixin, UserPassesTestMixin):
 			return _("You can delete only past papers that were uploaded by you.")
 
 		if not past_paper.is_within_delete_timeframe: 
-			return _(
-				# use str() to convert the timedelta object to a convenient value
-				"You can't delete papers that are more than {} minutes old." \
-					.format(str(PAST_PAPER_CAN_DELETE_TIME_LIMIT))
+			# use str() to convert the timedelta object to a convenient value
+			return _("You can't delete papers that are more than {} minutes old.").format(
+				str(PAST_PAPER_CAN_DELETE_TIME_LIMIT)
 			)
 			
 		return super().get_permission_denied_message()
@@ -65,10 +64,8 @@ class CanEditPastPaperCommentMixin(LoginRequiredMixin, UserPassesTestMixin):
 			return _("You can only edit your own comments.")
 
 		if not comment.is_within_edit_timeframe: 
-			return _(
-				# use str() to convert the timedelta object to a convenient value
-				"You can't edit comments that are more than {} minutes old." \
-					.format(str(PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT))
+			return _("You can't edit comments that are more than {} minutes old.").format(
+				str(PAST_PAPER_COMMENT_CAN_EDIT_TIME_LIMIT)
 			)
 
 		return super().get_permission_denied_message()

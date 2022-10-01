@@ -63,7 +63,7 @@ class ItemListingCreate(LoginRequiredMixin, CreateView):
 		if num_photos < MIN_ITEM_PHOTOS_LENGTH:
 			form.add_error(
 				None, 
-				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
+				_('Upload at least {} photos.').format(MIN_ITEM_PHOTOS_LENGTH)
 			)
 
 		## Validate that sub category belongs to category and that city belongs to country
@@ -189,7 +189,7 @@ class ItemListingUpdate(GetObjectMixin, CanEditListingMixin, UpdateView):
 		if num_photos < MIN_ITEM_PHOTOS_LENGTH:
 			form.add_error(
 				None, 
-				_('Upload at least {} photos.'.format(MIN_ITEM_PHOTOS_LENGTH))
+				_('Upload at least {} photos.').format(MIN_ITEM_PHOTOS_LENGTH)
 			)
 		
 		## Validate that sub category belongs to category and that city belongs to country

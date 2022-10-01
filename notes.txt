@@ -11,28 +11,25 @@ COLOUR PALETTE:
 freeprivacypolicy.com  (cool)
 
 
-ONGOING TASKS: 
+ONGOING TASKS:
 - place past papers section under academic questions; create new section "Discuss" for discussion questions; rename "ASk a question" section to "Academic questions".
-- add attractive and pleasant modal when new users visit the site(homepage) for their first time.
 - display "some users" aside on mobile too.
-- use ajax for username select ... 
+- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
+- update dashboard page. is concept of points still valid ?
+- validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
 
 
 *** next TASKS
 - add "Create post" button on detail pages... (eg Ask question on qstn detail page)
-- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
-- update dashboard page. is concept of points still valid ?
-- validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
-- change full name validator (frontend nd backend)
 - enable unique username (collation)
 - overall translation, languages, countries, cities, currencies, etc; probably consequently work on footer (room to scroll through more countries & languages)
+- write some tests! (periodically too)
 
 
 MAYBE MAYBE NOT
 - update taggit-selectize. should not call backend upon typing every letter!!
 - after uploading image in listing pages, there should be an eye icon on it. 
 upon which clicking should enlarge the image...
-- on social profile create form, interested relationship should be multiple select (multiple values should be permitted). (update models, displaying & filtering accordingly)
 - editing and creating a new item(that supports photos) pollutes the photos. (since session uses same key for updates and creations) (i don't think it's a big problem lol)
 
 

@@ -26,10 +26,9 @@ class CanEditQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 			return _(
 				"You can only edit questions with less than {} votes"
 				"(number of likes - number of dislikes) or less than {} answers. \n "
-				"You may post a new question.".format(
-					QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT
-				)
-			)
+				"You may post a new question."
+			).format(QUESTION_CAN_EDIT_VOTE_LIMIT, QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT)
+
 		return super().get_permission_denied_message()
 
 
@@ -49,7 +48,9 @@ class CanDeleteQuestionMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 		if question.vote_count > QUESTION_CAN_DELETE_VOTE_LIMIT or question.num_answers > QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT:
 			return _(
-				"You can only delete questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. \n This question may help future users.".format(QUESTION_CAN_DELETE_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT)
-			)
+				"You can only delete questions with less than {} votes(number of likes - number of dislikes) or less than {} answers. \n" 
+				"This question may help future users."
+			).format(QUESTION_CAN_DELETE_VOTE_LIMIT, QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT)
+			
 		return super().get_permission_denied_message()
 

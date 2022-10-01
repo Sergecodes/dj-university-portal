@@ -138,14 +138,14 @@ def activate_account(request, uidb64, token):
 		# First verify if user has already confirmed account
 		if user.is_active:
 			return HttpResponse(
-			_(
-				'You have already confirmed your account. <br>'
-				'Click <a href="{}">here</a> to go to the home page.'.format(
+				_(
+					'You have already confirmed your account. <br>'
+					'Click <a href="{}">here</a> to go to the home page.'
+				).format(
 					# Use the current language so as to prevent redirecting 
 					request.scheme + '://' + get_current_site(request).domain + '/' + get_language() + '/'
 				)
 			)
-		)
 
 		# first retrieve(try to retrieve) phone numbers from cache
 		phone_numbers = cache.get(f'user_{user.pk}_{PHONE_NUMBERS_KEY}')
@@ -176,16 +176,16 @@ def activate_account(request, uidb64, token):
 		return HttpResponse(
 			_(
 				'You have successfully confirmed your email. Now you can log into your account. <br>'
-				'Login <a href="{}">here</a>.'.format(login_url)
-			)
+				'Login <a href="{}">here</a>.'
+			).format(login_url)
 		)
 	else:
 		signup_url = reverse('users:register')
 		return HttpResponse(
 			_(
 				'Activation link is invalid. <br>'
-				'Please <a href="{}">sign up</a> again in order to get a new link.'.format(signup_url)
-			)
+				'Please <a href="{}">sign up</a> again in order to get a new link.'
+			).format(signup_url)
 		)
 
 

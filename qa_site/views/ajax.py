@@ -209,10 +209,8 @@ class JQueryCommentDetail(View):
 			success = False
 
 			if user.id == comment.poster_id:
-				message = _(
-					"Comments that have more than a score of {} cannot be edited"
-						.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
-				)
+				message = _("Comments that have more than a score of {} cannot be edited") \
+							.format(COMMENT_CAN_EDIT_VOTE_LIMIT)
 			else:
 				message = _("You are not permitted to edit this comment")
 
@@ -255,10 +253,8 @@ class JQueryCommentDetail(View):
 				success = False
 
 				if user.id == comment.poster_id:
-					message = _(
-						"Comments that have more than {} likes cannot be deleteed"
-							.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
-					)
+					message = _("Comments that have more than {} likes cannot be deleted") \
+								.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
 				else:
 					message = _("You are not permitted to delete this comment")
 		else:
@@ -266,10 +262,8 @@ class JQueryCommentDetail(View):
 				success = False
 
 				if user.id == comment.poster_id:
-					message = _(
-						"Replies that have more than {} likes cannot be DELETED" \
-						.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
-					)
+					message = _("Replies that have more than {} likes cannot be DELETED") \
+								.format(COMMENT_CAN_DELETE_VOTE_LIMIT)
 				else:
 					message = _('You are not permitted to DELETE this comment')
 
