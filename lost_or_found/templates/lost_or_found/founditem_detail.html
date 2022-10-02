@@ -20,6 +20,11 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5 founditem-art">
+		<div class="text-end mb-2">
+			<a href="{% url 'lost_or_found:found-item-create' %}" class="btn btn-warning">
+				{% trans 'Post a found item' %}
+			</a>
+		</div>
 		{% with original_lang=found_item.original_language %}
 		<h2>
 			{% trans 'Found' %} 

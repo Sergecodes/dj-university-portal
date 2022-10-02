@@ -19,6 +19,11 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
+		<div class="text-end mb-2">
+			<a href="{% url 'requested_items:requested-item-create' %}" class="btn btn-warning">
+				{% trans 'Request for an item' %}
+			</a>
+		</div>
 		<h2>
 			{% with original_lang=requested_item.original_language %}
 				<span {% if requested_item|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>

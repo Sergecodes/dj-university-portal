@@ -36,8 +36,8 @@
 {% block content %}
 {% get_login_url as login_url %}
 
-<div class="border py-3 mb-5 container-lg">
-	<article class="js-question" data-id="{{ question.id }}">
+<div class="container-lg">
+	<article class="border mb-4 p-3 js-question" data-id="{{ question.id }}">
 		{% with question_poster=question.poster %}
 		<div class="text-end mb-3 mb-md-0 me-4">
 			<a href="{% url 'qa_site:discuss-question-create' %}" class="btn btn-warning">

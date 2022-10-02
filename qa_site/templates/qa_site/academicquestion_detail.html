@@ -8,6 +8,7 @@
 {% load app_extras %}  
 
 {% get_current_language as LANGUAGE_CODE %}
+{% get_login_url as login_url %}
 
 {% block title %}
 <title>{{ question.title }} | CamerSchools</title>
@@ -35,28 +36,23 @@
 {% block institution_searchbox %}
 {% endblock %}
 
-
 {% block content %}
-{% get_login_url as login_url %}
-
-<div class="border py-3 mb-5 container-lg">
-	<article class="js-question" data-id="{{ question.id }}">
-		{% with question_poster=question.poster %}
-		<div class="d-md-flex flex-row-reverse mb-3 mb-md-0 question-header">
-			<p class="text-end me-3">
-				<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning">
-					{% trans 'Ask a Question' %}
-				</a>
-			</p>
-			<h2 class="question-header__title">
-				{% with original_lang=question.original_language %}
-				<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
-					{{ question.title }}
-				</span>
-				{% include 'core/google_attribution.html' with object=question %}
-				{% endwith %}
-			</h2>
+<div class="container-lg">
+	<article class="border mb-4 p-3 js-question" data-id="{{ question.id }}">
+		<div class="text-end mb-2">
+			<a href="{% url 'qa_site:academic-question-create' %}" class="btn btn-warning">
+				{% trans 'Ask a Question' %}
+			</a>
 		</div>
+		{% with question_poster=question.poster %}
+		<h2 class="question-header__title">
+			{% with original_lang=question.original_language %}
+			<span {% if question|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>
+				{{ question.title }}
+			</span>
+			{% include 'core/google_attribution.html' with object=question %}
+			{% endwith %}
+		</h2>
 
 		{# question-info #}
 		<p class="mb-lg-1">
@@ -291,7 +287,6 @@
 	{% endif %}
 </div>
 {% endblock content %}
-
 
 {% block extra_js %}
 <script>

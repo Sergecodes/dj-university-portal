@@ -21,6 +21,11 @@
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg mb-5">
 	<article class="d-flex flex-column shadow rounded p-3 mb-5">
+		<div class="text-end mb-2">
+			<a href="{% url 'marketplace:item-listing-create' %}" class="btn btn-warning">
+				{% trans 'Sell an item' %}
+			</a>
+		</div>
 		{% with original_lang=listing.original_language %}
 		<h2 class="mb-3 listing-title">
 			<span {% if listing|should_attribute:LANGUAGE_CODE %} lang="{{ original_lang|opposite_language }}-x-mtfrom-{{ original_lang }}" {% endif %}>

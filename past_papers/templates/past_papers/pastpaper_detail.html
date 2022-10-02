@@ -24,13 +24,13 @@
 {% block content %}
 <!-- 100% wide until lg. (At lg it turns to container.) -->
 <div class="container-lg">
-	<article class="border mb-4 p-3 ">
-		<div class="d-flex justify-content-between">
-			<h2 class="mb-2">{{ past_paper.title }}</h2>
-			<a class="btn btn-warning" href="{% url 'past_papers:past-paper-upload' %}">
+	<article class="border mb-4 p-3">
+		<div class="text-end mb-2">
+			<a href="{% url 'past_papers:past-paper-upload' %}" class="btn btn-warning">
 				{% trans 'Upload a past paper' context 'link' %}
 			</a>
 		</div>
+		<h2 class="mb-2">{{ past_paper.title }}</h2>
 		<section class="text-muted mb-4">
 			<span class="text-muted">{% trans 'Uploaded on' %}</span>
 			{{ past_paper.posted_datetime|date:'d M, Y' }}

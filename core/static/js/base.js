@@ -343,11 +343,11 @@ $allForms.on('submit', function(event) {
 
 	// For contact section
 	if (CONTACT_FORM_NAMES.includes(form.name)) {
-		var contactOk = true;
+		var contactOk = false;
 		var checkboxes = form.querySelectorAll('#div_id_contact_numbers [type=checkbox]');
 		for (var box of checkboxes) {
-			if (!box.checked) {
-				contactOk = false;
+			if (box.checked) {
+				contactOk = true;
 				break;
 			}
 		}
