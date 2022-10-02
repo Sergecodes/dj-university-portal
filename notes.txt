@@ -11,18 +11,10 @@ COLOUR PALETTE:
 freeprivacypolicy.com  (cool)
 
 
-ONGOING TASKS:
-- place past papers section under academic questions; create new section "Discuss" for discussion questions; rename "ASk a question" section to "Academic questions".
-- display "some users" aside on mobile too.
-- screen overlay or loading stuff when ajax request is called (e.g. when a thread is voted) jquery blockUI: https://jquery.malsup.com/block/
-- update dashboard page. is concept of points still valid ?
-- validate birth date (year) in social profile; user should be above 15 ... ?. eg.ages below 15 should be rejected.. ??
-
-
 *** next TASKS
-- add "Create post" button on detail pages... (eg Ask question on qstn detail page)
 - enable unique username (collation)
-- overall translation, languages, countries, cities, currencies, etc; probably consequently work on footer (room to scroll through more countries & languages)
+- overall translation, languages, countries, cities, currencies, etc; 
+	- probably consequently work on footer (room to scroll through more countries & languages)
 - write some tests! (periodically too)
 
 
@@ -43,7 +35,7 @@ better still check the width and height of the image... (maybe sum of W and H)
 
 - add google attribution template var(should_attribute) to context via view so as to limit reduce code, etc... 
 - enable translation for question tags ?, past paper comments(change model and translation.py too) and comments in qa_site; display google translate image attribute for jquery comments(discuss/academic comment)
-- on question detail page, enable ordering answers (by date posted, votes, etc..); on listing pages, enable ordering (by date too..)
+- on listing pages, enable ordering (by date ...)
 - cached property (with ttl) package is a must ! especially for complex computations.(in future)
 - remove duration from listings for now right... perhaps implement in future. yep. {you can also add the field expiry_datetime to each post (listing) then when saving, set this field to creation_datetime + ... (in short see how it's implemented in lost_or_found models.); and add repost(relist) button near posts older than x days (to implement this, we can delete the previous post then create the new post... or redirect user to update page then add a field last_reposted_on ... idk).}
 - show best users on both pc and mobile; display vertically on mobile.

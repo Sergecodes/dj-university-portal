@@ -1,0 +1,31 @@
+<!-- This page is displayed after user has successfully sent email to us. -->
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+<title>{% trans 'Message sent' %} | CamerSchools</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+	<div class="container mb-5">
+		<h2 class="text-success mb-2">{% trans "Your email has been sent." %}</h2>
+      <p>{% trans 'We will get to you ASAP!' %}</p>
+		<p>{% trans "You will be redirected to the home page in a few seconds..." %}</p>
+	</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block extra_js %}
+	<script>
+		// redirect user to home page after some seconds..
+		setTimeout(function() {
+			window.location.href = "{% url 'core:home' %}";
+		}, 4000)
+	</script>
+{% endblock %}

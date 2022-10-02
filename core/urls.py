@@ -11,6 +11,8 @@ urlpatterns = [
     path('', views.HomePageView.as_view(), name='home'),
     # redirect home/ to '/'
     path(_('home/'), RedirectView.as_view(url='/')),
+    path(_('contact-us/'), views.contact_us, name='contact-us'),
+    path(_('message-sent/'), views.ContactDone.as_view(), name='contact-done'),
     path(_('site-usage/info/'), views.SiteUsageInfoView.as_view(), name='usage-info'),
     path(_('my-notifications/'), views.NotificationsView.as_view(), name='my-notifs'),
     path(_('privacy-policy/'), views.PrivacyPolicyView.as_view(), name='privacy-policy'),

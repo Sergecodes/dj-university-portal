@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.http import HttpResponseServerError
@@ -18,6 +20,7 @@ from core.constants import (
 	QUESTION_CAN_DELETE_NUM_ANSWERS_LIMIT, QUESTION_CAN_DELETE_VOTE_LIMIT, 
 	QUESTION_CAN_EDIT_NUM_ANSWERS_LIMIT, QUESTION_CAN_EDIT_VOTE_LIMIT, 
 )
+from core.forms import ContactForm
 from core.utils import get_search_results, get_label, get_minutes
 from lost_or_found.models import LostItem, FoundItem
 from marketplace.models import ItemListing, AdListing
@@ -229,6 +232,29 @@ class NotificationsView(LoginRequiredMixin, TemplateView):
 		return context
 
 
+def contact_us(request):
+	template_name, user = 'core/contact_us.html', request.user
+
+	if request.method == 'GET':
+		form = ContactForm(user=user)
+		return render(request, template_name, { 'form': form })
+	else:
+		form = ContactForm(request.POST, user=user)
+		if form.is_valid():
+			cleaned_data = form.cleaned_data
+			name, email = cleaned_data['name'], cleaned_data['email']
+			subject, message = cleaned_data['subject'], cleaned_data['message']
+
+			send_mail(subject, f'From {name}: <br> {message}', email, [settings.DEFAULT_FROM_EMAIL])
+			return redirect('core:contact-done')
+		
+		return render(request, template_name, { 'form': form })
+
+
+class ContactDone(TemplateView):
+	template_name = 'core/contact_us_done.html'
+
+
 @require_GET
 def search_site(request):
 	"""
@@ -272,7 +298,7 @@ def get_category_search_results(request, category):
 	where category is basicaly an app in site.
 	"""
 	TEMPLATE_NAME = 'core/category_search_results.html'
-	RESULTS_PER_PAGE = 3
+	RESULTS_PER_PAGE = 10
 	CATEGORIES = (
 		'academic_questions', 'discuss_questions', 'item_listings',
 		'ad_listings', 'requested_items', 'lost_items', 

@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+	<title>{% trans 'Contact Us' %} | CamerSchools</title>
+{% endblock %}
+
+{% block institution_searchbox %}
+{% endblock %}
+
+{% block content %}
+<div class="container-lg mb-5 contact-form-container">
+	<form name='contact-form' class="shadow p-3 contact-form" method="post">
+		<h2 class="text-center mb-4 text-success">{% trans 'Send us a message' %}</h2>
+		{% crispy form %}
+	</form>
+</div>
+{% endblock content %}
