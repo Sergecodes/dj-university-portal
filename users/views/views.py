@@ -232,7 +232,12 @@ class UserUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 	def form_valid(self, form, phone_number_formset):
 		with transaction.atomic():
 			user = form.save(commit=False)
-			if 'username' in form.changed_data:
+			try:
+				username_disabled = form.fields['username'].widget.attrs['disabled']
+			except KeyError:  # if 'disabled' wasn't set(is not found in widget.attrs)
+				username_disabled = False
+
+			if not username_disabled and 'username' in form.changed_data:
 				user.last_changed_username_datetime = timezone.now()
 
 			user.save()

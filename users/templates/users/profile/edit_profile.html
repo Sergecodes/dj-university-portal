@@ -178,52 +178,56 @@
 	var form = $form.get(0), inAjax = false, previousVal = '';
 	var usernameInput = form.username;
 	usernameInput.dataset.valid = true;
-	var ogUsername = usernameInput.value;
-	var span = document.createElement("span"), icon = document.createElement('i');
-	span.style = "float: right; margin-right: 15px; margin-top: -30px; position: relative; z-index: 2;";
-	icon.classList = 'fa';
-	span.append(icon);
-	usernameInput.after(span); 
 
-	function checkUsername() {
-		var newVal = usernameInput.value.trim();
+	// First ensure that field is not disabled
+	if (!usernameInput.disabled) {
+		var ogUsername = usernameInput.value;
+		var span = document.createElement("span"), icon = document.createElement('i');
+		span.style = "float: right; margin-right: 15px; margin-top: -30px; position: relative; z-index: 2;";
+		icon.classList = 'fa';
+		span.append(icon);
+		usernameInput.after(span); 
 
-		if (newVal == '' || !validateUsername(newVal)) {
-			usernameInput.dataset.valid = "false";
-			icon.classList = 'fa fa-times text-danger';
-		} else if (newVal != ogUsername && previousVal != newVal && newVal && !inAjax) {
-			inAjax = true;
-			icon.classList.add('fa-spinner', 'fa-spin');
+		function checkUsername() {
+			var newVal = usernameInput.value.trim();
 
-			$.ajax({
-				url: "{% url 'users:check-username' %}",
-				type: 'GET',
-				data: { username: newVal },
-				success: function(res) {
-					inAjax = false;
-					// basically reset classList
-					icon.classList = 'fa';
+			if (newVal == '' || !validateUsername(newVal)) {
+				usernameInput.dataset.valid = "false";
+				icon.classList = 'fa fa-times text-danger';
+			} else if (newVal != ogUsername && previousVal != newVal && newVal && !inAjax) {
+				inAjax = true;
+				icon.classList.add('fa-spinner', 'fa-spin');
 
-					if (res.available) {
-						usernameInput.dataset.valid = "true";
-						icon.classList.add('fa-solid', 'fa-check', 'text-success');
-					} else {
-						icon.classList.add('fa-times', 'text-danger');
+				$.ajax({
+					url: "{% url 'users:check-username' %}",
+					type: 'GET',
+					data: { username: newVal },
+					success: function(res) {
+						inAjax = false;
+						// basically reset classList
+						icon.classList = 'fa';
+
+						if (res.available) {
+							usernameInput.dataset.valid = "true";
+							icon.classList.add('fa-solid', 'fa-check', 'text-success');
+						} else {
+							icon.classList.add('fa-times', 'text-danger');
+						}
+					},
+					error: function() {
+						inAjax = false;
+						displayToast('ERROR_OCCURRED');
 					}
-				},
-				error: function() {
-					inAjax = false;
-					displayToast('ERROR_OCCURRED');
-				}
-			});
-		} 
+				});
+			} 
 
-		previousVal = newVal;
+			previousVal = newVal;
+		}
+
+		// Check field periodically. I didn't use input event listener because the input value
+		// was rarely in sync with the request sent.
+		setInterval(checkUsername, 2000);
 	}
-
-	// Check field periodically. I didn't use input event listener because the input value
-	// was rarely in sync with the request sent.
-	setInterval(checkUsername, 2000);
 
 	// attach event to edit form
 	$form.on('submit', {

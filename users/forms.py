@@ -106,8 +106,14 @@ class UserUpdateForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		user = self.instance
 
 		self.fields['country'].empty_label = None
+		if not user.can_change_username:
+			username_field = self.fields['username']
+			username_field.required = False
+			username_field.widget.attrs['disabled'] = True
+			username_field.widget.attrs['title'] = _("You recently changed your username")
 
 	class Meta:
 		model = User
@@ -122,6 +128,13 @@ class UserUpdateForm(forms.ModelForm):
 
 	def clean_username(self):
 		instance, cleaned_data = self.instance, self.cleaned_data
+		try:
+			username_disabled = self.fields['username'].widget.attrs['disabled']
+		except KeyError:  # if 'disabled' wasn't set(is not found in widget.attrs)
+			username_disabled = False
+
+		if username_disabled:
+			return instance.username
 
 		# If username was changed
 		if instance.username != cleaned_data['username']:
