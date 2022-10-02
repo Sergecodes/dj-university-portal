@@ -33,7 +33,7 @@ from requested_items.models import RequestedItem
 
 
 class HomePageView(TemplateView):
-	template_name = "core/index.html"
+	template_name = "index.html"
 
 	def get_context_data(self, **kwargs):
 		NUM_QUESTIONS, NUM_ITEMS = 5, 6
@@ -169,7 +169,7 @@ class HomePageView(TemplateView):
 
 
 class NotificationsView(LoginRequiredMixin, TemplateView):
-	template_name = "core/notifications.html"
+	template_name = "notifications.html"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -252,7 +252,7 @@ def contact_us(request):
 
 
 class ContactDone(TemplateView):
-	template_name = 'core/contact_us_done.html'
+	template_name = 'contact_us_done.html'
 
 
 @require_GET
@@ -261,7 +261,7 @@ def search_site(request):
 	Perform a search through all apps on the site 
 	based on the keywords received from the form.
 	"""
-	NUM_ITEMS, RESULTS_TEMPLATE = 5, 'core/search_results.html'
+	NUM_ITEMS, RESULTS_TEMPLATE = 5, 'search_results.html'
 
 	keywords = request.GET.get('keywords', '')
 	keyword_list = keywords.split()
@@ -297,7 +297,7 @@ def get_category_search_results(request, category):
 	Display search results of `keywords` in `category` 
 	where category is basicaly an app in site.
 	"""
-	TEMPLATE_NAME = 'core/category_search_results.html'
+	TEMPLATE_NAME = 'category_search_results.html'
 	RESULTS_PER_PAGE = 10
 	CATEGORIES = (
 		'academic_questions', 'discuss_questions', 'item_listings',
@@ -356,7 +356,7 @@ def set_session_country(request):
 
 
 class SiteUsageInfoView(TemplateView):
-	template_name = "core/site_usage_info.html"
+	template_name = "site_usage_info.html"
 
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
@@ -381,11 +381,11 @@ class SiteUsageInfoView(TemplateView):
 
 
 class PrivacyPolicyView(TemplateView):
-	template_name = "core/privacy_policy.html"
+	template_name = "privacy_policy.html"
 
 
 class TermsAndConditionsView(TemplateView):
-	template_name = "core/terms_and_conditions.html"
+	template_name = "terms_and_conditions.html"
 
 
 # def delete_post_and_penalize_user(request):

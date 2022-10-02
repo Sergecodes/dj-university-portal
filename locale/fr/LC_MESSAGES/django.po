@@ -171,7 +171,7 @@ msgid "Search"
 msgstr "Rechercher"
 
 #: core/templates/core/base.html:95 core/templates/core/base.html:238
-#: core/templates/core/notifications.html:22
+#: core/templates/notifications.html:22
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -232,7 +232,7 @@ msgid "Toggle navigation"
 msgstr "Basculer la navigation"
 
 #: core/templates/core/base.html:305 core/templates/core/base.html:505
-#: core/templates/core/index.html:9
+#: core/templates/index.html:9
 msgid "Home"
 msgstr "Accueil"
 
@@ -249,8 +249,8 @@ msgstr "Voir/Acheter les articles"
 msgid "Sell an item"
 msgstr "Vendre un article"
 
-#: core/templates/core/base.html:333 core/templates/core/search_results.html:27
-#: core/templates/core/site_usage_info.html:36 core/utils.py:340
+#: core/templates/core/base.html:333 core/templates/search_results.html:27
+#: core/templates/site_usage_info.html:36 core/utils.py:340
 #: marketplace/templates/marketplace/adlisting_list.html:12
 #: marketplace/templates/marketplace/adlisting_list.html:21
 #: marketplace/templates/marketplace/adlisting_list.html:78
@@ -272,7 +272,7 @@ msgstr "Toutes les annonces"
 msgid "Requested items"
 msgstr "Articles demandés"
 
-#: core/templates/core/base.html:352 core/templates/core/index.html:259
+#: core/templates/core/base.html:352 core/templates/index.html:259
 #: requested_items/templates/requested_items/requested_item_create.html:8
 #: requested_items/templates/requested_items/requested_item_list.html:35
 msgid "Request an item"
@@ -294,7 +294,7 @@ msgstr "Question Académique"
 msgid "School-Based Question"
 msgstr "Question Scolaire"
 
-#: core/templates/core/base.html:370 core/templates/core/index.html:98
+#: core/templates/core/base.html:370 core/templates/index.html:98
 msgid "All Questions"
 msgstr "Toutes les Questions"
 
@@ -302,7 +302,7 @@ msgstr "Toutes les Questions"
 msgid "Lost/Found Items"
 msgstr "Objets Perdus/Trouvés"
 
-#: core/templates/core/base.html:385 core/templates/core/index.html:368
+#: core/templates/core/base.html:385 core/templates/index.html:368
 #: lost_or_found/templates/lost_or_found/lostitem_list.html:35
 msgid "Publish a lost item"
 msgstr "Publier un objet perdu"
@@ -311,7 +311,7 @@ msgstr "Publier un objet perdu"
 msgid "View lost items"
 msgstr "Voir les objets perdus"
 
-#: core/templates/core/base.html:387 core/templates/core/index.html:404
+#: core/templates/core/base.html:387 core/templates/index.html:404
 msgid "Publish a found item"
 msgstr "Publier un objet trouvé"
 
@@ -320,8 +320,8 @@ msgid "View found items"
 msgstr "Voir les objets trouvés"
 
 #: core/templates/core/base.html:400
-#: core/templates/core/search_results.html:137
-#: core/templates/core/site_usage_info.html:82 core/utils.py:346
+#: core/templates/search_results.html:137
+#: core/templates/site_usage_info.html:82 core/utils.py:346
 #: past_papers/templates/past_papers/pastpaper_list.html:10
 #: past_papers/templates/past_papers/pastpaper_list.html:18
 #: users/templates/users/profile/past-papers.html:25
@@ -339,7 +339,7 @@ msgid "Past papers"
 msgstr "Anciens sujets"
 
 #: core/templates/core/base.html:416 core/templates/core/base.html:559
-#: core/templates/core/site_usage_info.html:94
+#: core/templates/site_usage_info.html:94
 msgid "Socialize"
 msgstr "Socialiser"
 
@@ -413,14 +413,14 @@ msgid "Upload a past paper"
 msgstr "Uploader un ancien sujet"
 
 #: core/templates/core/base.html:549
-#: core/templates/core/site_usage_info.html:143
+#: core/templates/site_usage_info.html:143
 #: lost_or_found/templates/lost_or_found/lostitem_create.html:9
 #: lost_or_found/templates/lost_or_found/lostitem_create.html:22
 msgid "Report a lost item"
 msgstr "Signaler un objet perdu"
 
 #: core/templates/core/base.html:554
-#: core/templates/core/site_usage_info.html:146
+#: core/templates/site_usage_info.html:146
 #: lost_or_found/templates/lost_or_found/founditem_create.html:8
 #: lost_or_found/templates/lost_or_found/founditem_create.html:20
 msgid "Report a found item"
@@ -611,26 +611,26 @@ msgstr "Marqué"
 msgid "Bookmark"
 msgstr "Marquer"
 
-#: core/templates/core/category_search_results.html:8
-#: core/templates/core/category_search_results.html:23
-#: core/templates/core/search_results.html:8
-#: core/templates/core/search_results.html:17
+#: core/templates/category_search_results.html:8
+#: core/templates/category_search_results.html:23
+#: core/templates/search_results.html:8
+#: core/templates/search_results.html:17
 #: socialize/templates/socialize/socialprofile_list.html:9
 #: socialize/templates/socialize/socialprofile_list.html:21
 msgid "Search Results"
 msgstr "Résultats de recherche"
 
-#: core/templates/core/category_search_results.html:21
+#: core/templates/category_search_results.html:21
 msgid "Search Result"
 msgstr "Résultat de recherche"
 
-#: core/templates/core/category_search_results.html:25
-#: core/templates/core/search_results.html:18
+#: core/templates/category_search_results.html:25
+#: core/templates/search_results.html:18
 #: past_papers/templates/past_papers/pastpaper_detail.html:53
 msgid "for"
 msgstr "pour"
 
-#: core/templates/core/category_search_results.html:26
+#: core/templates/category_search_results.html:26
 msgid "in"
 msgstr "dans"
 
@@ -651,15 +651,15 @@ msgstr ""
 "toutes les informations que vous avez déjà entré.\n"
 "\t\t\t"
 
-#: core/templates/core/index.html:19
+#: core/templates/index.html:19
 msgid "Questions"
 msgstr "Questions"
 
-#: core/templates/core/index.html:30
+#: core/templates/index.html:30
 msgid "Academic questions"
 msgstr "Questions académiques"
 
-#: core/templates/core/index.html:36 core/templates/core/search_results.html:71
+#: core/templates/index.html:36 core/templates/search_results.html:71
 #: core/utils.py:354 qa_site/models.py:466
 #: qa_site/templates/qa_site/academicquestion_list.html:12
 #: qa_site/templates/qa_site/academicquestion_list.html:20
@@ -667,13 +667,13 @@ msgstr "Questions académiques"
 msgid "Academic Questions"
 msgstr "Questions Académiques"
 
-#: core/templates/core/index.html:40 core/templates/core/index.html:74
+#: core/templates/index.html:40 core/templates/index.html:74
 #: qa_site/templates/qa_site/questions_explain.html:31
 #: qa_site/templates/qa_site/questions_explain.html:51
 msgid "View Questions"
 msgstr "Voir les questions"
 
-#: core/templates/core/index.html:43 core/templates/core/index.html:77
+#: core/templates/index.html:43 core/templates/index.html:77
 #: qa_site/templates/qa_site/academicquestion_detail.html:127
 #: qa_site/templates/qa_site/academicquestion_list.html:35
 #: qa_site/templates/qa_site/questions_explain.html:7
@@ -685,7 +685,7 @@ msgstr "Voir les questions"
 msgid "Ask a Question"
 msgstr "Poser une Question"
 
-#: core/templates/core/index.html:51 core/templates/core/index.html:88
+#: core/templates/index.html:51 core/templates/index.html:88
 #: qa_site/templates/qa_site/academicquestion_detail.html:686
 #: qa_site/templates/qa_site/academicquestion_list.html:75
 #: qa_site/templates/qa_site/schoolquestion_list.html:74
@@ -694,7 +694,7 @@ msgstr "Poser une Question"
 msgid "answer"
 msgstr "réponse"
 
-#: core/templates/core/index.html:54 core/templates/core/index.html:91
+#: core/templates/index.html:54 core/templates/index.html:91
 #: qa_site/templates/qa_site/academicquestion_detail.html:143
 #: qa_site/templates/qa_site/schoolquestion_detail.html:128
 #: users/templates/users/profile/qa-site.html:71
@@ -704,34 +704,34 @@ msgstr "réponse"
 msgid "Asked"
 msgstr "Posée"
 
-#: core/templates/core/index.html:55 core/templates/core/index.html:92
+#: core/templates/index.html:55 core/templates/index.html:92
 #: qa_site/templates/qa_site/academicquestion_detail.html:693
 #: users/templates/users/profile/qa-site.html:47
 #: users/templates/users/profile/qa-site.html:126
 msgid "Answer this"
 msgstr "Répond à ça"
 
-#: core/templates/core/index.html:64
+#: core/templates/index.html:64
 msgid "School-based questions"
 msgstr "Questions scolaires"
 
-#: core/templates/core/index.html:70 core/templates/core/search_results.html:93
+#: core/templates/index.html:70 core/templates/search_results.html:93
 #: core/utils.py:352 qa_site/templates/qa_site/questions_explain.html:43
 #: qa_site/templates/qa_site/schoolquestion_list.html:10
 #: qa_site/templates/qa_site/schoolquestion_list.html:22
 msgid "School-Based Questions"
 msgstr "Questions Scolaires"
 
-#: core/templates/core/index.html:101
+#: core/templates/index.html:101
 msgid "Post a Question"
 msgstr "Poser une question"
 
-#: core/templates/core/index.html:108
+#: core/templates/index.html:108
 msgid "Latest Items"
 msgstr "Derniers articles"
 
-#: core/templates/core/index.html:138 core/templates/core/index.html:193
-#: core/templates/core/index.html:196 core/templates/core/index.html:249
+#: core/templates/index.html:138 core/templates/index.html:193
+#: core/templates/index.html:196 core/templates/index.html:249
 #: marketplace/templates/marketplace/adlisting_detail.html:118
 #: marketplace/templates/marketplace/adlisting_list.html:133
 #: marketplace/templates/marketplace/adlisting_list.html:139
@@ -746,38 +746,38 @@ msgstr "Derniers articles"
 msgid "Posted"
 msgstr "Publié"
 
-#: core/templates/core/index.html:146
+#: core/templates/index.html:146
 #: marketplace/templates/marketplace/listings_explain.html:30
 msgid "View Items"
 msgstr "Voir les Articles"
 
-#: core/templates/core/index.html:149
+#: core/templates/index.html:149
 #: marketplace/templates/marketplace/listings_explain.html:33
 msgid "Sell an Item"
 msgstr "Vendre un Article"
 
-#: core/templates/core/index.html:156
+#: core/templates/index.html:156
 msgid "Latest Adverts"
 msgstr "Dernières Annonces"
 
-#: core/templates/core/index.html:171 core/templates/core/index.html:339
+#: core/templates/index.html:171 core/templates/index.html:339
 #: marketplace/templates/marketplace/adlisting_list.html:101
 msgid "Advert"
 msgstr "Annonce"
 
-#: core/templates/core/index.html:204
+#: core/templates/index.html:204
 #: marketplace/templates/marketplace/listings_explain.html:49
 msgid "View Adverts"
 msgstr "Voir les Annonces"
 
-#: core/templates/core/index.html:207
+#: core/templates/index.html:207
 #: marketplace/templates/marketplace/listings_explain.html:52
 msgid "Post an Advert"
 msgstr "Publier une Annonce"
 
-#: core/templates/core/index.html:214
-#: core/templates/core/search_results.html:115
-#: core/templates/core/site_usage_info.html:46 core/utils.py:344
+#: core/templates/index.html:214
+#: core/templates/search_results.html:115
+#: core/templates/site_usage_info.html:46 core/utils.py:344
 #: requested_items/templates/requested_items/requested_item_list.html:12
 #: users/templates/users/profile/requested-items.html:25
 #: users/templates/users/profile/requested-items.html:31
@@ -785,41 +785,41 @@ msgstr "Publier une Annonce"
 msgid "Requested Items"
 msgstr "Articles Demandés"
 
-#: core/templates/core/index.html:228
+#: core/templates/index.html:228
 #: lost_or_found/templates/lost_or_found/lostitem_list.html:74
 #: requested_items/templates/requested_items/requested_item_list.html:77
 msgid "Item"
 msgstr "Article"
 
-#: core/templates/core/index.html:256
+#: core/templates/index.html:256
 msgid "View Requested Items"
 msgstr "Voir les articles Demandés"
 
-#: core/templates/core/index.html:266
+#: core/templates/index.html:266
 msgid "Revision Past Papers"
 msgstr "Anciens sujets"
 
-#: core/templates/core/index.html:301
+#: core/templates/index.html:301
 #: users/templates/users/profile/past-papers.html:47
 #: users/templates/users/profile/past-papers.html:64
 msgid "Uploaded"
 msgstr "Uploadé"
 
-#: core/templates/core/index.html:311
+#: core/templates/index.html:311
 msgid "View Past Papers"
 msgstr "Voir les Anciens Sujets"
 
-#: core/templates/core/index.html:314
+#: core/templates/index.html:314
 msgid "Upload a Past Paper"
 msgstr "Uploader un Ancien Sujet"
 
-#: core/templates/core/index.html:321
-#: core/templates/core/search_results.html:182
-#: core/templates/core/site_usage_info.html:68 core/utils.py:348
+#: core/templates/index.html:321
+#: core/templates/search_results.html:182
+#: core/templates/site_usage_info.html:68 core/utils.py:348
 msgid "Lost Items"
 msgstr "Objets perdus"
 
-#: core/templates/core/index.html:358 core/templates/core/index.html:394
+#: core/templates/index.html:358 core/templates/index.html:394
 #: lost_or_found/templates/lost_or_found/lostitem_list.html:101
 #: users/templates/users/profile/lost-and-found.html:106
 #: users/templates/users/profile/marketplace.html:65
@@ -827,55 +827,55 @@ msgstr "Objets perdus"
 msgid "Published"
 msgstr "Publié"
 
-#: core/templates/core/index.html:365
+#: core/templates/index.html:365
 msgid "View Lost Items"
 msgstr "Voir les Objets Perdus"
 
-#: core/templates/core/index.html:375
-#: core/templates/core/search_results.html:160
-#: core/templates/core/site_usage_info.html:71 core/utils.py:350
+#: core/templates/index.html:375
+#: core/templates/search_results.html:160
+#: core/templates/site_usage_info.html:71 core/utils.py:350
 msgid "Found Items"
 msgstr "Objets"
 
-#: core/templates/core/index.html:401
+#: core/templates/index.html:401
 msgid "View Found Items"
 msgstr "Voir les Objets "
 
-#: core/templates/core/notifications.html:9
+#: core/templates/notifications.html:9
 msgid "Inbox - Notifications"
 msgstr "Boîte de réception - Notifications"
 
-#: core/templates/core/notifications.html:27
+#: core/templates/notifications.html:27
 msgid "Inbox"
 msgstr "Boîte de réception"
 
-#: core/templates/core/notifications.html:34
-#: core/templates/core/notifications.html:161
-#: core/templates/core/notifications.html:224
+#: core/templates/notifications.html:34
+#: core/templates/notifications.html:161
+#: core/templates/notifications.html:224
 msgid "Mark all as read"
 msgstr "Tout marquer comme lu"
 
-#: core/templates/core/notifications.html:38
-#: core/templates/core/notifications.html:165
-#: core/templates/core/notifications.html:228
+#: core/templates/notifications.html:38
+#: core/templates/notifications.html:165
+#: core/templates/notifications.html:228
 msgid "Delete all"
 msgstr "Tout supprimer"
 
-#: core/templates/core/notifications.html:42
+#: core/templates/notifications.html:42
 msgid "The following messages were sent from CamerSchools"
 msgstr "Les messages suivants ont été envoyés par CamerSchools"
 
-#: core/templates/core/notifications.html:63
-#: core/templates/core/notifications.html:101
-#: core/templates/core/notifications.html:198
-#: core/templates/core/notifications.html:246
+#: core/templates/notifications.html:63
+#: core/templates/notifications.html:101
+#: core/templates/notifications.html:198
+#: core/templates/notifications.html:246
 msgid "Mark as read"
 msgstr "Marquer comme lu"
 
-#: core/templates/core/notifications.html:65
-#: core/templates/core/notifications.html:103
-#: core/templates/core/notifications.html:202
-#: core/templates/core/notifications.html:250
+#: core/templates/notifications.html:65
+#: core/templates/notifications.html:103
+#: core/templates/notifications.html:202
+#: core/templates/notifications.html:250
 #: core/templates/core/photos_upload.html:79
 #: core/templates/core/photos_upload.html:201
 #: qa_site/templates/qa_site/academicquestion_detail.html:378
@@ -885,56 +885,56 @@ msgstr "Marquer comme lu"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: core/templates/core/notifications.html:72
+#: core/templates/notifications.html:72
 msgid "You have no message in your inbox."
 msgstr "Vous n'avez aucun message dans votre boîte de réception."
 
-#: core/templates/core/notifications.html:73
+#: core/templates/notifications.html:73
 msgid "Messages from CamerSchools to you will be displayed here."
 msgstr "Les messages de CamerSchools à vous seront affichés ici."
 
-#: core/templates/core/notifications.html:82
+#: core/templates/notifications.html:82
 msgid "Reported Posts"
 msgstr "Messages signalés"
 
-#: core/templates/core/notifications.html:86
+#: core/templates/notifications.html:86
 msgid "The following posts have been reported"
 msgstr "Les messages suivants ont été signalés"
 
-#: core/templates/core/notifications.html:93
+#: core/templates/notifications.html:93
 msgid "view post"
 msgstr "voir l'article"
 
-#: core/templates/core/notifications.html:97
+#: core/templates/notifications.html:97
 msgid "view containing post"
 msgstr "voir l'article"
 
-#: core/templates/core/notifications.html:155
+#: core/templates/notifications.html:155
 msgid "Posts Activities"
 msgstr "Activités sur les publications"
 
-#: core/templates/core/notifications.html:168
+#: core/templates/notifications.html:168
 msgid "There are new activities on the following posts:"
 msgstr "Il y a de nouvelles activités sur les pubications suivantes :"
 
-#: core/templates/core/notifications.html:193
+#: core/templates/notifications.html:193
 msgid "view question"
 msgstr "voir la question"
 
-#: core/templates/core/notifications.html:210
+#: core/templates/notifications.html:210
 msgid "Notifications on your questions and answers will be displayed here."
 msgstr "Les notifications sur vos questions et réponses seront affichées ici."
 
-#: core/templates/core/notifications.html:218
+#: core/templates/notifications.html:218
 msgid "Following Posts"
 msgstr "Publications Suivies"
 
-#: core/templates/core/notifications.html:231
+#: core/templates/notifications.html:231
 msgid "There are new activities on some posts you are following:"
 msgstr ""
 "Il y a de nouvelles activités sur certaines publications que vous suivez :"
 
-#: core/templates/core/notifications.html:258
+#: core/templates/notifications.html:258
 msgid ""
 "Notifications on questions that you are following will be displayed here."
 msgstr ""
@@ -978,40 +978,40 @@ msgid ""
 "persists, contact us.\" "
 msgstr ""
 
-#: core/templates/core/privacy_policy.html:5
+#: core/templates/privacy_policy.html:5
 #: users/templates/users/auth/signup.html:102
 msgid "Privacy Policy"
 msgstr "Politique de Confidentialité"
 
-#: core/templates/core/search_results.html:15
+#: core/templates/search_results.html:15
 msgid "No search result for"
 msgstr "Aucun résultat de recherche pour"
 
-#: core/templates/core/search_results.html:41
-#: core/templates/core/search_results.html:63
-#: core/templates/core/search_results.html:85
-#: core/templates/core/search_results.html:107
-#: core/templates/core/search_results.html:129
-#: core/templates/core/search_results.html:151
-#: core/templates/core/search_results.html:174
-#: core/templates/core/search_results.html:196
+#: core/templates/search_results.html:41
+#: core/templates/search_results.html:63
+#: core/templates/search_results.html:85
+#: core/templates/search_results.html:107
+#: core/templates/search_results.html:129
+#: core/templates/search_results.html:151
+#: core/templates/search_results.html:174
+#: core/templates/search_results.html:196
 msgid "View All Results"
 msgstr "Voir Tous les Résultats"
 
-#: core/templates/core/search_results.html:49 core/utils.py:342
+#: core/templates/search_results.html:49 core/utils.py:342
 #: marketplace/templates/marketplace/itemlisting_list.html:25
 msgid "Items for Sale"
 msgstr "Articles à Vendre"
 
-#: core/templates/core/site_usage_info.html:6
+#: core/templates/site_usage_info.html:6
 msgid "Site Info"
 msgstr "Info sur le site"
 
-#: core/templates/core/site_usage_info.html:12
+#: core/templates/site_usage_info.html:12
 msgid "Site Usage Info"
 msgstr "Utilisation du Site"
 
-#: core/templates/core/site_usage_info.html:14
+#: core/templates/site_usage_info.html:14
 msgid ""
 "\n"
 "\t\tHere, you'll find information about the various sections of this "
@@ -1023,19 +1023,19 @@ msgstr ""
 "site.\n"
 "\t\t"
 
-#: core/templates/core/site_usage_info.html:20
+#: core/templates/site_usage_info.html:20
 msgid "GENERAL INFO"
 msgstr "INFORMATIONS GÉNÉRALES"
 
-#: core/templates/core/site_usage_info.html:22
+#: core/templates/site_usage_info.html:22
 msgid "Each section is listed below"
 msgstr "Chaque section est énumérée ci-dessous"
 
-#: core/templates/core/site_usage_info.html:26
+#: core/templates/site_usage_info.html:26
 msgid "Buying & Selling"
 msgstr "Achat & Vente"
 
-#: core/templates/core/site_usage_info.html:29
+#: core/templates/site_usage_info.html:29
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou can buy items posted by other users and you can also sell "
@@ -1047,7 +1047,7 @@ msgstr ""
 "utilisateurs et vous pouvez également vendre vos affaires.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:39
+#: core/templates/site_usage_info.html:39
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou can advertize anything here and also see adverts posted by "
@@ -1059,7 +1059,7 @@ msgstr ""
 "annonces publiées par autres utilisateurs\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:49
+#: core/templates/site_usage_info.html:49
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou can see items that users are in need of and are willing to "
@@ -1075,11 +1075,11 @@ msgstr ""
 "pour te le vendre.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:57
+#: core/templates/site_usage_info.html:57
 msgid "Ask Questions"
 msgstr "Poser des Questions"
 
-#: core/templates/core/site_usage_info.html:60
+#: core/templates/site_usage_info.html:60
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou can ask questions concerning a particular subject or "
@@ -1093,7 +1093,7 @@ msgstr ""
 "\t\t\t\t\t\t\trépondre aux questions posées par d'autres utilisateurs.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:74
+#: core/templates/site_usage_info.html:74
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou can report any item you've lost or found. Also see items "
@@ -1107,7 +1107,7 @@ msgstr ""
 "\t\t\t\t\t\t\tpar d'autres utilisateurs.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:85
+#: core/templates/site_usage_info.html:85
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tView and download past papers in various subjects and from "
@@ -1125,7 +1125,7 @@ msgstr ""
 "sujets(épreuves).\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:97
+#: core/templates/site_usage_info.html:97
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tFind other users of this website through their social "
@@ -1145,7 +1145,7 @@ msgstr ""
 "\t\t\t\t\t\t\t voir le profil social des autres utilisateurs.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:109
+#: core/templates/site_usage_info.html:109
 msgid ""
 "\n"
 "\t\t\t\t\tAnything you post on this website is rewarded in points that will "
@@ -1168,7 +1168,7 @@ msgstr ""
 "\t\t\t\t\tles points récompensés sont les suivants :\n"
 "\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:119
+#: core/templates/site_usage_info.html:119
 #, python-format
 msgid ""
 "\n"
@@ -1185,7 +1185,7 @@ msgstr ""
 "points de départ. \n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:125
+#: core/templates/site_usage_info.html:125
 msgid ""
 "\n"
 "\t\t\t\t\t\t\tYou get no point when you post an advert or item for sell.\n"
@@ -1196,7 +1196,7 @@ msgstr ""
 "un article à vendre.\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:130
+#: core/templates/site_usage_info.html:130
 #, python-format
 msgid ""
 "\n"
@@ -1209,11 +1209,11 @@ msgstr ""
 "l'un des suivants:\n"
 "\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:134
+#: core/templates/site_usage_info.html:134
 msgid "Connect your social profile"
 msgstr "Connectez votre profil social"
 
-#: core/templates/core/site_usage_info.html:136
+#: core/templates/site_usage_info.html:136
 msgid ""
 "\n"
 "\t\t\t\t\t\t\t\t\tUpload a past paper. If however, the past paper already "
@@ -1230,7 +1230,7 @@ msgstr ""
 "téléversés.\n"
 "\t\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:153
+#: core/templates/site_usage_info.html:153
 #, python-format
 msgid ""
 "\n"
@@ -1286,11 +1286,11 @@ msgstr ""
 "\t\t\t\t\t\tPour la section <b>questions</b>, voir ci-dessous.\n"
 "\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:170
+#: core/templates/site_usage_info.html:170
 msgid "QA-SITE INFO"
 msgstr "INFORMATIONS SUR LA SECTION CONCERNANT LES QUESTIONS"
 
-#: core/templates/core/site_usage_info.html:173
+#: core/templates/site_usage_info.html:173
 msgid ""
 "\n"
 "\t\t\t\t\tThis section concerns the questions part of the website (academic "
@@ -1303,11 +1303,11 @@ msgstr ""
 "n\t\t\t\t\t scolaires). \n"
 "\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:180
+#: core/templates/site_usage_info.html:180
 msgid "Questions and Answers"
 msgstr "Questions et réponses"
 
-#: core/templates/core/site_usage_info.html:182
+#: core/templates/site_usage_info.html:182
 #, python-format
 msgid ""
 "\n"
@@ -1354,11 +1354,11 @@ msgstr ""
 "réponses par question.\n"
 "\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:194
+#: core/templates/site_usage_info.html:194
 msgid "Comments"
 msgstr "Commentaires"
 
-#: core/templates/core/site_usage_info.html:196
+#: core/templates/site_usage_info.html:196
 msgid ""
 "\n"
 "\t\t\t\t\t\tComments are used to ask for clarification and extra info "
@@ -1380,11 +1380,11 @@ msgstr ""
 "réponses en utilisant des commentaires.\n"
 "\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:202
+#: core/templates/site_usage_info.html:202
 msgid "Editing"
 msgstr "Édition"
 
-#: core/templates/core/site_usage_info.html:206
+#: core/templates/site_usage_info.html:206
 #, python-format
 msgid ""
 "\n"
@@ -1401,7 +1401,7 @@ msgstr ""
 "réponses ne peuvent pas être modifées. \n"
 "\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:211
+#: core/templates/site_usage_info.html:211
 #, python-format
 msgid ""
 "\n"
@@ -1416,7 +1416,7 @@ msgstr ""
 "votes ne peuvent pas être modifées. \n"
 "\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:216
+#: core/templates/site_usage_info.html:216
 #, python-format
 msgid ""
 "\n"
@@ -1434,11 +1434,11 @@ msgstr ""
 "modifés. \n"
 "\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:223
+#: core/templates/site_usage_info.html:223
 msgid "Deleting"
 msgstr "Suppression"
 
-#: core/templates/core/site_usage_info.html:227
+#: core/templates/site_usage_info.html:227
 #, python-format
 msgid ""
 "\n"
@@ -1456,7 +1456,7 @@ msgstr ""
 "les futurs utilisateurs qui partagent des questions similaires.\n"
 "\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:232
+#: core/templates/site_usage_info.html:232
 #, python-format
 msgid ""
 "\n"
@@ -1470,7 +1470,7 @@ msgstr ""
 "raison que ci-dessus.\n"
 "\t\t\t\t\t\t\t\t"
 
-#: core/templates/core/site_usage_info.html:237
+#: core/templates/site_usage_info.html:237
 #, python-format
 msgid ""
 "\n"
@@ -1517,7 +1517,7 @@ msgstr ""
 " Une erreur s'est produite lors de la copie du lien. <br> Essayez de le "
 "copier manuellement en sélectionnant le texte et le copier. "
 
-#: core/templates/core/terms_and_conditions.html:5
+#: core/templates/terms_and_conditions.html:5
 msgid "Terms and Conditions"
 msgstr "Termes et Conditions"
 
