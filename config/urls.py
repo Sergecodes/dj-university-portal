@@ -33,8 +33,8 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
 	path('', include('core.urls', namespace='core')),
 	path('taggit/', include('taggit_selectize.urls')),
-	# path('sup4r/s3cr3t/admin/', admin.site.urls),
-	path('admin/', admin.site.urls),
+	path('sup4r/s3cr3t/admin/', admin.site.urls),
+	# path('admin/', admin.site.urls),
 	path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
 	path(_('flag/'), include('flagging.urls', namespace='flagging')),  
 	path(_('lost-or-found/'), include('lost_or_found.urls', namespace='lost_or_found')),
