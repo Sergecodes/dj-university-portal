@@ -1,4 +1,5 @@
-from decouple import config, Csv
+import environ
+import os
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from pathlib import Path
@@ -12,33 +13,29 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
-SECRET_KEY = config('SECRET_KEY')
-USE_CONSOLE_EMAIL = config('USE_CONSOLE_EMAIL', default=True, cast=bool)
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+# django-environ
+env = environ.Env()
+env_file = os.path.join(BASE_DIR, '.env')
+env.read_env(env_file)
+
+DEBUG = env.bool('DEBUG', True)
+SECRET_KEY = env('SECRET_KEY')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
 # DB
-USE_PROD_DB = config('USE_PROD_DB', default=False, cast=bool)
-DEV_DB_NAME = config('DEV_DB_NAME')
-DEV_DB_USER = config('DEV_DB_USER')
-DEV_DB_PASSWORD = config('DEV_DB_PASSWORD')
-DEV_DB_HOST = config('DEV_DB_HOST')
-DEV_DB_PORT = config('DEV_DB_PORT')
-
-# AWS
-USE_S3 = config('USE_S3', default=False, cast=bool)
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+DEV_DB_NAME = env('DEV_DB_NAME', default=None)
+DEV_DB_USER = env('DEV_DB_USER', default=None)
+DEV_DB_PASSWORD = env('DEV_DB_PASSWORD', default=None)
+DEV_DB_HOST = env('DEV_DB_HOST', default=None)
+DEV_DB_PORT = env.int('DEV_DB_PORT', default=None)
 
 # Redis
-USE_PROD_REDIS = config('USE_PROD_REDIS', default=False, cast=bool)
-DEV_REDIS_URL = config('DEV_REDIS_URL')
+REDIS_URL = env('REDIS_URL', default=None)
 
 # Misc
-ENABLE_GOOGLE_TRANSLATE = config('USE_GOOGLE_TRANSLATE', default=False, cast=bool)
-
+USE_S3 = env.bool('USE_S3', default=False)
+ENABLE_GOOGLE_TRANSLATE = env.bool('USE_GOOGLE_TRANSLATE', False)
 
 AUTH_USER_MODEL = 'users.User'
 SITE_NAME = 'CamerSchools'
@@ -52,6 +49,7 @@ INSTALLED_APPS = [
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',
 	'django.contrib.messages',
+   # 'whitenoise.runserver_nostatic',  # Added, needed in development only
 	'django.contrib.staticfiles',
 	# 'django.contrib.sites',   # added
 	'django.contrib.humanize', # added
@@ -64,7 +62,6 @@ INSTALLED_APPS = [
 	'crispy_bootstrap5',
 	'django_extensions',
 	'django_filters',
-	# 'django_hosts',
 	# 'debug_toolbar',
 	'easy_thumbnails',
 	'storages',
@@ -90,7 +87,7 @@ if DEBUG:
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
-	# 'django_hosts.middleware.HostsRequestMiddleware',  # for django_hosts
+   # 'whitenoise.middleware.WhiteNoiseMiddleware',  # for whitenoise
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.locale.LocaleMiddleware',  # for translation
 	'django.middleware.common.CommonMiddleware',
@@ -99,7 +96,6 @@ MIDDLEWARE = [
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	# 'django_hosts.middleware.HostsResponseMiddleware',  # for django_hosts
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -130,32 +126,27 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-if USE_PROD_DB:
-	pass
-else:
-	DATABASES = {
-		'default': {
-			'ENGINE': 'django.db.backends.postgresql_psycopg2',
-			'NAME': DEV_DB_NAME,
-			'USER': DEV_DB_USER,
-			'PASSWORD': DEV_DB_PASSWORD,
-			'HOST': DEV_DB_HOST,
-			'PORT': DEV_DB_PORT,
-		}
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.postgresql',
+		'NAME': DEV_DB_NAME,
+		'USER': DEV_DB_USER,
+		'PASSWORD': DEV_DB_PASSWORD,
+		'HOST': DEV_DB_HOST,
+		'PORT': DEV_DB_PORT,
 	}
+}
 
-
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Caching (https://github.com/jazzband/django-redis, https://docs.djangoproject.com/en/3.2/topics/cache/)
-if USE_PROD_REDIS:
-	pass
-else:
+if REDIS_URL:
+	SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
 	CACHES = {
 		'default': {
 			'BACKEND': 'django_redis.cache.RedisCache',
-			'LOCATION': DEV_REDIS_URL,
+			'LOCATION': REDIS_URL,
 			'OPTIONS': {
 				'CLIENT_CLASS': 'django_redis.client.DefaultClient',
 			}
@@ -180,7 +171,7 @@ else:
 
 
 # Password validation
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
 	{
@@ -199,7 +190,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
+# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -227,18 +218,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 # This logs any emails sent to the console 
 # (e.g. so you can copy the password reset link from the console)
-if not USE_CONSOLE_EMAIL:
-	pass
-	# EMAIL_HOST = config('EMAIL_HOST', default='localhost')
-	# EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
-	# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-	# EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-	# EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
-	## ALWAYS USE TLS !! google search
-	# SSL refers to Secure Sockets Layer whereas TLS refers to Transport Layer Security.
-else:
-	EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-	DEFAULT_FROM_EMAIL = 'webmaster@localhost'  # default email to use...
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'  # default email to use...
 
 
 AUTHENTICATION_BACKENDS = [
@@ -250,9 +231,9 @@ AUTHENTICATION_BACKENDS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 if USE_S3:
-	AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-	AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-	AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+	AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+	AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+	AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
 	AWS_S3_OBJECT_PARAMETERS = {
 		# use a high value so that files are cached for long (6months=2628000)
 		# however, updates on files won't work ... and file name  should be changed after updates..
@@ -431,11 +412,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 CRISPY_FAIL_SILENTLY = not DEBUG
 
 
-### django_hosts ###
-# ROOT_HOSTCONF = 'config.hosts'
-# DEFAULT_HOST = 'www'
-
-
 ### django-taggit & taggit_selectize ###
 TAGGIT_CASE_INSENSITIVE = True
 # Demanded by taggit_selectize to match functionality of selectize
@@ -478,6 +454,3 @@ MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
 # MODELTRANSLATION_DEBUG = True
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('fr', 'en')
 
-
-# import django_heroku
-# django_heroku.settings(locals())
