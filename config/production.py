@@ -13,7 +13,7 @@ DBNAME = env('DBNAME')
 DBUSER = env('DBUSER')
 DBPASS = env('DBPASS')
 
-ALLOWED_HOSTS = [SITE_HOSTNAME]
+ALLOWED_HOSTS = [SITE_HOSTNAME, 'camerschools.site', ]
 CSRF_TRUSTED_ORIGINS = ['https://'+ SITE_HOSTNAME]
 
 # Email
