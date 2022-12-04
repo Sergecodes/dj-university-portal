@@ -7,7 +7,6 @@ from django.core.exceptions import ImproperlyConfigured
 # from django.template.defaultfilters import stringfilter
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import CURRENCIES
 from core.models import Country
 from core.utils import parse_phone_number, is_mobile, get_currency
 from past_papers.mixins import can_edit_comment, can_delete_comment
@@ -46,6 +45,11 @@ def format_number(num):
 
 
 @register.simple_tag
+def get_check_whatsapp():
+	return settings.CHECK_WHATSAPP
+
+
+@register.simple_tag
 def get_countries():
 	return Country.objects.all()
 
@@ -66,7 +70,7 @@ def get_currency(context):
 	country_code = context['request'].session.get('country_code')
 
 	if country_code:
-		return CURRENCIES[country_code]
+		return Country.objects.get(code=country_code).currency
 
 	return ''
 

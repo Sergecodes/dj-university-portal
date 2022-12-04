@@ -48,7 +48,7 @@
 								<span class="badge align-middle text-light {% if cond == 'N' %} bg-success {% elif cond == 'U' %} bg-warning text-dark {% else %} bg-danger {% endif %}">{{ listing.get_condition_display }}</span>
 								<br class="mb-1">
 								<span class="fw-bold">
-									{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.code|get_currency }} {% endif %}
+									{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.currency }} {% endif %}
 									{{ listing.price|intcomma }} 
 								</span>
 								<span class="text-muted"> 
@@ -435,10 +435,10 @@
 			{% endfor %}
 		</ul>
 		<div class="text-center">
-			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'marketplace:item-listing-list' %}">
+			<a class="btn btn-success mb-1 mb-lg-0" href="{% url 'past_papers:past-paper-list' %}">
 				{% trans 'View Past Papers' %}
 			</a>
-			<a class="btn btn-outline-success" href="{% url 'marketplace:item-listing-create' %}">
+			<a class="btn btn-outline-success" href="{% url 'past_papers:past-paper-upload' %}">
 				{% trans 'Upload a Past Paper' %}
 			</a>
 		</div>

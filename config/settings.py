@@ -33,7 +33,9 @@ DEV_DB_PORT = env.int('DEV_DB_PORT', default=None)
 # Redis
 REDIS_URL = env('REDIS_URL', default=None)
 
-# Misc
+## Misc
+# Validate or not whether at least one of a user's numbers must support whatsapp
+CHECK_WHATSAPP = env.bool('CHECK_WHATSAPP', default=False)
 USE_S3 = env.bool('USE_S3', default=False)
 ENABLE_GOOGLE_TRANSLATE = env.bool('USE_GOOGLE_TRANSLATE', False)
 

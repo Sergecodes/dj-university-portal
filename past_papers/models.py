@@ -102,8 +102,8 @@ class PastPaper(models.Model):
 	LICENCE = 'LIC'
 	MASTERS = 'MS' 
 	DOCTORATE = 'PhD'
+	OTHER = 'OTH'
 
-	# TODO add others
 	LEVELS = [
 		(ORDINARY_LEVEL, 'Ordinary Level'),
 		(ADVANCED_LEVEL, 'Advanced Level'),
@@ -114,18 +114,18 @@ class PastPaper(models.Model):
 		(BTS, 'BTS'),
 		(LICENCE, 'Licence'),
 		(MASTERS, _("Master's")),
-		(DOCTORATE, _('Doctorate'))
+		(DOCTORATE, _('Doctorate')),
+		(OTHER, _('Other'))
 	]
 
 	COMMERCIAL = 'COMM'
 	GENERAL = 'GEN'
 	TECHNICAL = 'TECH'
 
-	# TODO add others
 	TYPES = (
 		(COMMERCIAL, _('Commercial')),
 		(GENERAL, _('General')),
-		(TECHNICAL, _('Technical'))
+		(TECHNICAL, _('Technical')),
 	)
 	
 	level = models.CharField(_('Level'), max_length=5, choices=LEVELS)

@@ -65,7 +65,7 @@
 						<td>{% trans 'Price' %}</td>
 						<td>
 							<span class="fw-bold">
-								{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.code|get_currency }} {% endif %}
+								{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.currency }} {% endif %}
 								{{ listing.price|intcomma }} 
 							</span>
 						</td>
@@ -281,7 +281,7 @@
 							</p>
 						</a>
 						<span class="text-muted">
-							{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ sim_listing.city.country.code|get_currency }} {% endif %}
+							{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ sim_listing.city.country.currency }} {% endif %}
 							{{ sim_listing.price|intcomma }} 
 						</span>
 						{% include 'core/google_attribution.html' with object=sim_listing %}

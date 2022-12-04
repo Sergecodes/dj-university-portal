@@ -25,10 +25,13 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('id', 'email', 'username', 'site_points', 'first_language', 'gender', 'datetime_joined', 'last_login', 'is_staff', 'is_active', )
+    list_display = (
+        'id', 'email', 'username', 'site_points', 'first_language', 'gender', 
+        'datetime_joined', 'last_login', 'is_staff', 'is_active', 
+    )
     list_filter = ('email', 'gender', 'is_staff', 'datetime_joined',)
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password', 'first_language', 'gender', )}),
+        (None, {'fields': ('email', 'username', 'password', 'first_language', 'gender', 'country' )}),
         ('Permissions', {'fields': ('is_staff', 'is_active',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -36,12 +39,12 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         ('Personal information', {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'gender', )
+            'fields': ('username', 'email', 'password1', 'password2', 'gender', 'country', )
             }
         ),
         ('Site information', {
             'classes': ('wide', ),
-            'fields': ('first_language', 'is_staff', )
+            'fields': ('first_language', 'is_staff', 'is_active' )
             }
         ),
     )

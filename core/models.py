@@ -15,6 +15,7 @@ class Country(models.Model):
 	name = models.CharField(max_length=50, unique=True)
 	datetime_added = models.DateTimeField(_('Date/time added'), auto_now_add=True)
 	last_modified = models.DateTimeField(auto_now=True)
+	currency = models.CharField(max_length=3)
 
 	def __str__(self):
 		return self.name

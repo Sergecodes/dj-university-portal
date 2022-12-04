@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from random import choice
 
 from core.constants import (
-	PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES, CURRENCIES,
+	PAST_PAPERS_PHOTOS_UPLOAD_DIR, VALID_IMAGE_FILETYPES,
 )
 
 BASE_DIR = settings.BASE_DIR
@@ -110,7 +110,7 @@ def should_redirect(object, test_slug):
 	return True if object.slug != test_slug else False
 
 
-def insert_text_in_photo(photo, save_dir, text='Camerschools.com'):
+def insert_text_in_photo(photo, save_dir, text='Camerschools.site'):
 	"""Insert text on image and save"""
 	img = Image.open(photo)
 	w, h = img.size
@@ -287,10 +287,9 @@ def get_country(country_or_code):
 
 
 def get_currency(country_code):
-	try:
-		return CURRENCIES[country_code]
-	except AttributeError:
-		return ''
+	from core.models import Country
+	
+	return Country.objects.get(code=country_code).currency
 
 
 def is_mobile(request):

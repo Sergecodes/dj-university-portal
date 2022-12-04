@@ -122,7 +122,7 @@
 									</span>
 									<br class="mb-1">
 									<span class="fw-bold">
-										{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.code|get_currency }} {% endif %}
+										{% if CURRENCY %} {{ CURRENCY }} {% else %} {{ listing.city.country.currency }} {% endif %}
 										{{ listing.price|intcomma }} 
 									</span>
 									<span> - {% trans 'Posted' %} {{ listing.posted_datetime|naturaltime }}</span>

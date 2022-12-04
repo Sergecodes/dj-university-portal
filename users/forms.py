@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth.forms import (
 	UserChangeForm as BaseUserChangeForm,
 	UserCreationForm as BaseUserCreationForm,
@@ -9,8 +10,10 @@ from django.core.exceptions import ValidationError
 from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.utils.translation import gettext_lazy as _
 
-from core.constants import CHECK_WHATSAPP, USERNAME_CHANGE_WAIT_PERIOD
+from core.constants import USERNAME_CHANGE_WAIT_PERIOD
 from .models import PhoneNumber, User
+
+CHECK_WHATSAPP = settings.CHECK_WHATSAPP
 
 
 ### Following forms will be used in the admin site.  ###
@@ -164,7 +167,7 @@ class BasePhoneNumberFormset(BaseInlineFormSet):
 	def clean(self):
 		"""
 		Checks that no two numbers are the same and that there should be 
-		at least one number that supports Whatsapp. 
+		at least one number that supports Whatsapp if whatsapp check is enabled. 
 		Each number should be valid(convertible to int)
 		"""
 		# first call super method 

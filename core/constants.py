@@ -8,10 +8,6 @@ from django.utils.translation import gettext_lazy as _
 ## CORE ##
 MAX_TEXT_LENGTH = 3000
 GENERAL_COUNTRY_CODE = '000'
-CURRENCIES = {
-	'NGA': '₦',
-	'CMR': 'XAF'
-}
 VALID_IMAGE_FILETYPES = ['PNG', 'JPEG']
 EXTERNAL_LINK_SVG = ' \
 	<svg x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15"> \
@@ -180,8 +176,6 @@ MIN_AGE = 15
 
 
 ## USERS APP ##
-# Validate or not whether at least one of a user's numbers supports whatsapp
-CHECK_WHATSAPP = True
 INITIAL_POINTS = 10
 # dummy email
 DELETED_USER_EMAIL = 'deleted@gmail.com'

@@ -4,7 +4,6 @@ var NAV_LINK_ACTIVE_COLOR = '#0e1e0a';
 var CURRENT_NAV_LINK_CLASS = 'nav-menu__link--current';
 var MIN_PASSWORD_LENGTH = 8;
 var MIN_LISTING_PHOTOS = 3;
-var CHECK_WHATSAPP = false;
 
 var $window = $(window);
 // if you calculate the $window.width() here, 
@@ -273,7 +272,8 @@ function signupAndEditSubmit(e) {
 	}
 
 	/* validate that at least one number supports WhatsApp */
-	if (CHECK_WHATSAPP) {
+	var checkEl = document.querySelector('#checkWhatsapp');
+	if (checkEl) {
 		var $checkboxes = $("tbody .checkboxinput"), can_whatsapp_list = [];
 		$checkboxes.each(function () {
 			can_whatsapp_list.push(this.checked);

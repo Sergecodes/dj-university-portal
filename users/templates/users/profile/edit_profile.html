@@ -3,6 +3,9 @@
 {% load static %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load app_extras %}
+
+{% get_check_whatsapp as CHECK_WHATSAPP %}
 
 {% block title %}
 <title>{% trans 'Update Profile' %} | CamerSchools</title>
@@ -26,6 +29,8 @@
 			<!-- link used to send user to top of form if there are errors -->
 			<a href="#" name="top" class="d-none"></a>
 
+			{% if CHECK_WHATSAPP %} <span id="checkWhatsapp" class="d-none"></span> {% endif %}
+
 			<h2 class="text-center mb-4">{% trans 'Update Profile' %}</h2>
 			<!-- javascript form errors -->
 			<div class="js-errors" role="alert"></div>
@@ -43,7 +48,11 @@
 				<span class="asteriskField">*</span>
 			</label>
 			<small id="hint_id_phoneNumbers" class="d-block form-text text-muted">
-				{% trans 'Enter at least one phone number. At least one phone number should support WhatsApp. Phone numbers may contain only digits and spaces.' %}
+				{% if CHECK_WHATSAPP %}
+					{% trans 'Enter at least one phone number. At least one phone number should support WhatsApp. Phone numbers may contain only digits and spaces.' %}
+				{% else %}
+					{% trans 'Enter at least one phone number. Phone numbers may contain only digits and spaces.' %}
+				{% endif %}
 			</small>
 
 			<!-- Formset for entering phone number -->
