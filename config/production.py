@@ -13,8 +13,8 @@ DBNAME = env('DBNAME')
 DBUSER = env('DBUSER')
 DBPASS = env('DBPASS')
 
-ALLOWED_HOSTS = [SITE_HOSTNAME]
-CSRF_TRUSTED_ORIGINS = ['https://'+ SITE_HOSTNAME]
+ALLOWED_HOSTS = [SITE_HOSTNAME, '.camerschools.site', ]
+CSRF_TRUSTED_ORIGINS = [SITE_HOSTNAME, '.camerschools.site', ]
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # this is the default
