@@ -45,11 +45,6 @@ urlpatterns = [
 		name='logout'
 	),
 	# path(
-	# 	_('logout_then_login/'),
-	# 	views.logout_and_login,
-	# 	name='logout-then-login'
-	# ),
-	# path(
 	# 	_('change-password/'),
 	# 	auth_views.PasswordChangeView.as_view(
 	# 		template_name='users/auth/password_change.html',
@@ -72,7 +67,7 @@ urlpatterns = [
 		),
 		name='password-change-done'
 	),
-	# note that both authed and unauthed users can access this view. of course! 
+	# Note that both authed and unauthed users can access this view. of course! 
 	# a previously authed user might have forgotten his password, same as an unauthed user.
 	# path(
 	# 	_('reset-password/'),

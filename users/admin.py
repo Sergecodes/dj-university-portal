@@ -27,7 +27,7 @@ class UserAdmin(BaseUserAdmin):
     # that reference specific fields on auth.User.
     list_display = (
         'id', 'email', 'username', 'site_points', 'first_language', 'gender', 
-        'datetime_joined', 'last_login', 'is_staff', 'is_active', 
+        'datetime_joined', 'last_login', 'is_staff', 'is_active', 'deactivation_datetime', 
     )
     list_filter = ('email', 'gender', 'is_staff', 'datetime_joined',)
     fieldsets = (
@@ -50,6 +50,13 @@ class UserAdmin(BaseUserAdmin):
     )
     search_fields = ('email', 'site_points', 'first_language', 'gender', 'is_staff', )
     ordering = ('site_points', 'datetime_joined', )
+
+    # Override delete methods to set "really_delete"
+    def delete_model(self, request, obj):
+        obj.delete(really_delete=True)
+
+    def delete_queryset(self, request, queryset):
+        queryset.delete(really_delete=True)
 
 
 admin.site.register(PhoneNumber)
