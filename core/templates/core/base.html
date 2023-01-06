@@ -719,7 +719,12 @@
 					</ul>
 					{% trans 'Click' %} 
 					<a href="{% url 'core:usage-info' %}" class="">{% trans 'here' %}</a>
-					{% trans 'for more info' %}.
+					{% trans 'for more info' %}. <br />
+					<p>
+						{% blocktrans %} 
+						Also, you may watch the demo <a href="https://youtu.be/6LdmxpaATBs" target="_blank">here</a>.
+						{% endblocktrans %}
+					</p>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-purple" data-bs-dismiss="modal">
