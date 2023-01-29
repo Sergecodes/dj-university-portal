@@ -12,7 +12,6 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from fpdf import FPDF
 from functools import reduce
-from google.cloud import translate_v2 as translate
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
 from random import choice
@@ -84,7 +83,10 @@ def translate_text(text, target):
 	Translates text into the target language.
 	Target must be an ISO 639-1 language code.
 	See https://g.co/cloud/translate/v2/translate-reference#supported_languages
-	"""
+	"""	
+	from google.cloud import translate_v2 as translate
+
+
 	translate_client = translate.Client()
 
 	# text can also be a sequence of strings, in which case
