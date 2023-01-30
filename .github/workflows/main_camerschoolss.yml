@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'camerschoolss'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3EF886E107F04440AB6EC39053BA91E0 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_16116479D35D4FA0B852528A8451722C }}
