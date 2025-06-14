@@ -280,7 +280,7 @@ if USE_S3:
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-    STATIC_URL = 'static/'
+    STATIC_URL = '/static/'
     STATIC_ROOT = BASE_DIR / 'staticfiles'
     # STATICFILES_DIRS = [
     # 	BASE_DIR / 'static'
