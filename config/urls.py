@@ -21,36 +21,35 @@ from django.urls import path, include
 from django.utils.translation import gettext_lazy as _
 
 if not settings.USE_S3:
-	from django.conf.urls.static import static
-
+    from django.conf.urls.static import static
 
 urlpatterns = [
-	path('i18n/', include('django.conf.urls.i18n')),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 # i18n_patterns can only be used in a root urlconf file, 
 # will throw ImproperlyConfigured error if used in an included URLconf
 urlpatterns += i18n_patterns(
-	path('', include('core.urls', namespace='core')),
-	path('taggit/', include('taggit_selectize.urls')),
-	path('sup4r/s3cr3t/admin/', admin.site.urls),
-	# path('admin/', admin.site.urls),
-	path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
-	path(_('flag/'), include('flagging.urls', namespace='flagging')),  
-	path(_('lost-or-found/'), include('lost_or_found.urls', namespace='lost_or_found')),
-	path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
-	path(_('notifications/'), include('notifications.urls', namespace='notifications')),
-	path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
-	path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
-	path(_('requested-items/'), include('requested_items.urls', namespace='requested_items')),
-	path(_('socialize/'), include('socialize.urls', namespace='socialize')),
-	path(_('users/'), include('users.urls', namespace='users')),
+    path('', include('core.urls', namespace='core')),
+    path('taggit/', include('taggit_selectize.urls')),
+    path('sup4r/s3cr3t/admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
+    path('ckeditor/', include('ckeditor_uploader.urls')),  # django-ckeditor
+    path(_('flag/'), include('flagging.urls', namespace='flagging')),
+    path(_('lost-or-found/'), include('lost_or_found.urls', namespace='lost_or_found')),
+    path(_('marketplace/'), include('marketplace.urls', namespace='marketplace')),
+    path(_('notifications/'), include('notifications.urls', namespace='notifications')),
+    path(_('past-papers/'), include('past_papers.urls', namespace='past_papers')),
+    path(_('questions/'), include('qa_site.urls', namespace='qa_site')),
+    path(_('requested-items/'), include('requested_items.urls', namespace='requested_items')),
+    path(_('socialize/'), include('socialize.urls', namespace='socialize')),
+    path(_('users/'), include('users.urls', namespace='users')),
 
-) 
+)
 
 if not settings.USE_S3:
-	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+    urlpatterns = urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
+                  static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # custom error pages
 # (see https://docs.djangoproject.com/en/3.2/topics/http/views/#customizing-error-views)
@@ -64,9 +63,8 @@ handler500 = 'core.views.views.server_error_view'
 
 
 if settings.DEBUG:
-	import debug_toolbar
+    import debug_toolbar
 
-	urlpatterns = [
-					  path('__debug__/', include(debug_toolbar.urls)),
-				  ] + urlpatterns
-
+    urlpatterns = [
+                      path('__debug__/', include(debug_toolbar.urls)),
+                  ] + urlpatterns
