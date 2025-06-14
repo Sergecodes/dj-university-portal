@@ -1,4 +1,3 @@
-### Used by AZURE ###
 from .settings import *
 
 # Configure the domain name using the environment variable
@@ -26,7 +25,6 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', True)
 EMAIL_PORT = env.int('EMAIL_PORT', default=587)  # TLS - 587, SSL - 465
 
-
 # # WhiteNoise configuration
 # try:
 # 	INSTALLED_APPS.remove('whitenoise.runserver_nostatic')
@@ -37,19 +35,24 @@ EMAIL_PORT = env.int('EMAIL_PORT', default=587)  # TLS - 587, SSL - 465
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  
 
 # Configure Postgres database
+# DATABASES = {
+# 	'default': {
+# 		'ENGINE': 'django.db.backends.postgresql',
+# 		'NAME': DBNAME,
+# 		'HOST': hostname + '.postgres.database.azure.com',
+# 		'USER': DBUSER,
+# 		'PASSWORD': DBPASS
+# 	}
+# }
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
-		'NAME': DBNAME,
-		'HOST': hostname + '.postgres.database.azure.com',
-		'USER': DBUSER,
-		'PASSWORD': DBPASS 
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Remove debug toolbar
 try:
-   MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
 except ValueError:
-   pass
-
+    pass

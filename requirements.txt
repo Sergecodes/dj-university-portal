@@ -1,4 +1,4 @@
-bcrypt==3.1.7
+bcrypt==4.3.0
 bleach==3.3.1
 boto3==1.18.60
 crispy-bootstrap5==0.4
@@ -28,8 +28,8 @@ gunicorn==20.1.0
 # google-resumable-media==2.0.3
 # googleapis-common-protos==1.53.0
 jsonfield==3.1.0
-Pillow==8.0.1
-psycopg2==2.8.6
+Pillow==9.5.0
+psycopg2==2.9.3
 Pygments==2.3.1
 PyJWT==1.7.1
 python-dateutil==2.7.3
